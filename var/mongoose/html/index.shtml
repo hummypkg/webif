@@ -1,0 +1,108 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<div id=status class=shadowbox
+    style="width: 60%; display: none; margin: 1 0 1em 0">
+<div>
+<span id=status_txt>
+Status...
+</span>
+</div>
+</div>
+
+<script type=text/javascript src=/js/ajax.js></script>
+
+<script type=text/javascript>
+function updateResults()
+{
+	var r = document.getElementById('status');
+	if (r && request.readyState == 4 && request.status == 200)
+	{
+		r.style.display = 'block';
+		var t = document.getElementById('status_txt');
+		t.innerHTML = request.responseText;
+	}
+}
+
+function go()
+{
+	var url = "/cgi-bin/status.jim";
+
+	request.open("GET", url, true);
+	request.onreadystatechange = updateResults;
+	request.send(null);
+}
+
+go();
+
+</script>
+
+<div style="float: left">
+	<center>
+	<a href=/media>
+	<img src=/images/323_1_10_Menu_Video.png border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/media>
+	<b>Browse Media Files</b>
+	</a>
+	<br>
+	<font class=footnote>
+	(NOTE: The files are encrypted if they were<br>
+	 recorded off air.)
+	</font>
+	</center>
+	
+</div>
+<div style="float: left">
+	<center>
+	<a href=/sched.shtml>
+	<img src=/images/321_1_00_Menu_CHList.png border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/sched.shtml>
+	<b>Scheduled Recordings</b>
+	</a>
+	<br>
+	</center>
+</div>
+<div style="float: left">
+	<center>
+	<a href=/epg.shtml>
+	<img src=/images/328_1_26_Menu_TV_Guide.png border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/epg.shtml>
+	<b>EPG</b>
+	</a>
+	<br>
+	</center>
+</div>
+
+<div style="float: left; clear: left">
+	<center>
+	<a href=/services.shtml>
+	<img src=/img/spanner.jpg border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/services.shtml>
+	<b>Service Management</b>
+	</a>
+	<br>
+	</center>
+</div>
+
+<div style="float: left">
+	<center>
+	<a href=/packages.shtml>
+	<img src=/img/packages.jpg border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/packages.shtml>
+	<b>Package Management</b>
+	</a>
+	<br>
+	</center>
+</div>
+
+<!--#include virtual="/lib/footer.shtml" -->
+

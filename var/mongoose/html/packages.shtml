@@ -1,0 +1,14 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<h1>Package Management</h1>
+<div id=results class=shadowbox style="width: 90%; display: none; margin: 1 0 1em 0">
+<div>
+<pre id=result_txt>
+Results...
+</pre>
+</div>
+</div>
+
+<!--#exec "/mod/var/mongoose/include/packages.jim" -->
+
+<!--#include virtual="/lib/footer.shtml" -->

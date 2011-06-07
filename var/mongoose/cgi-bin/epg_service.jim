@@ -1,0 +1,57 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/epg.class
+source /mod/var/mongoose/lib/altrow
+
+puts "Content-Type: text/html"
+puts ""
+
+source /mod/var/mongoose/html/lib/header.jim
+
+cgi_input
+#cgi_dump
+
+set service 0
+set service 4351
+catch { set service [dict get $_cgi service] }
+
+set records [epg fetch dump -service $service]
+
+set channel_num [[lindex $records 0] get channel_num]
+set channel_name [[lindex $records 0] get channel_name]
+
+puts "<h3>Channel: $channel_num - $channel_name</h3>"
+
+puts {
+	<table class=borders>
+	<tr>
+		<th></th>
+		<th>Date</th>
+		<th>Time</th>
+		<th>Programme</th>
+		<th>Synopsis</th>
+	</tr>
+}
+
+set i 0
+foreach record $records {
+	altrow
+	if {[$record showing]} {
+	    puts "<td><img src=/images/111_1_00_Cursor_2R_Arrow.png></td>"
+	} else { puts "<td></td>" }
+	puts "<td nowrap>
+		[clock format [$record get start] -format "%a %d %b %Y"]</td>"
+	puts "<td nowrap>
+		[clock format [$record get start] -format "%H:%M"]</td>"
+	puts [$record cell]
+	puts "<td>[$record get text]</td>"
+	puts "<td>[$record get warning]</td>"
+	puts "</tr>"
+	flush stdout
+}
+puts "</table>"
+
+epg cleanup
+source /mod/var/mongoose/html/lib/footer.jim
+

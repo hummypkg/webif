@@ -1,0 +1,86 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+
+source /mod/var/mongoose/lib/altrow
+
+set db [sqlite3.open /var/lib/humaxtv/rsv.db]
+$db query {attach database '/var/lib/humaxtv/channel.db' as channel}
+
+set res [$db query {
+	select *, channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn,
+	    case when ersvtype > 3 then 1 else 0 end as sort
+	from tbl_reservation
+	left join channel.TBL_SVC
+	on main.TBL_RESERVATION.hSvc = channel.TBL_SVC.hSvc
+	order by sort, nsttime
+	}]
+
+puts "<table class=borders>"
+puts "<tr>"
+#puts "<th>Slot</th>"
+puts "<th colspan=2>Programme</th>"
+puts "<th>Duration</th>"
+puts "<th colspan=2>Channel</th>"
+puts "<th>Date/Time</th>"
+puts "<th>Mode</th>"
+puts "<th>Series ID</th>"
+puts "</tr>"
+set i 0
+foreach r $res {
+	set name [string range $r(szevtname) 1 end]
+	if {[string first "i7" $name] == 0} {
+		set name [string range $name 2 end]
+		set b "*"
+	} else {
+		set b ""
+	}
+
+	altrow
+
+	set rsvicon ""
+	set alta ""
+	switch $r(ersvtype) {
+		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
+		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
+		3 { set rsvicon "175_1_11_Reservation_Record.png" }
+		5 { set rsvicon "745_1_10_Video_2Live.png"; set alta "Wake-up" }
+		6 { set rsvicon "745_1_11_Video_1REC.png"; set alta "Sleep" }
+		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png"
+		    set alta "Software Update" }
+		default { set alta "Unknown type $r(ersvtype)" }
+	}
+	if {$name == ""} { set name "-- $alta --" }
+
+	if {$r(ucRecKind) == 4} {
+		set RKIcon "175_1_11_Series_Record.png"
+	} else {
+		switch $r(erepeat) {
+			1 {set RKIcon "521_1_00_RP_Daily_C.png"}
+			2 {set RKIcon "521_1_00_RP_Weekly_C.png"}
+			3 {set RKIcon "521_1_00_RP_Weekdays_C.png"}
+			4 {set RKIcon "521_1_00_RP_Weekend_C.png"}
+			default {set RKIcon ""}
+		}
+	}
+
+	if {$rsvicon ne ""} {
+		set rsvicon "<img src='images/$rsvicon' height=15>
+	}
+	if {$RKIcon ne ""} {
+		set RKIcon "<img src='images/$RKIcon' height=15>
+	}
+
+#	puts "<td>{$r(ulslot)}</td>"
+	puts "<td>$b</td><td>$name</td>"
+	puts "<td>[clock format $r(nduration) -format %T]</td>"
+	puts "<td>$r(usLcn)</td>"
+	puts "<td>[string range $r(szSvcName) 1 end]</td>"
+	puts "<td>[clock format $r(nsttime) -format {%c %Z}]</td>"
+	puts "<td>$rsvicon $RKIcon</td>"
+	puts "<td>$r(szCRID)</td>"
+	puts "</tr>"
+}
+puts "</table>"
+$db close
+

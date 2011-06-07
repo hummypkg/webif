@@ -1,0 +1,54 @@
+#!/mod/bin/jimsh
+
+# Build a list of available packages
+
+set avail_pkgs {}
+foreach pkg [split [exec /bin/opkg list] "\n"] {
+	if [regexp {^ } $pkg] {
+		append descr $pkg
+	} else {
+		if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} \
+		    $pkg full name ver descr] == 0} { continue }
+	}
+	set avail_pkgs($name) [concat $ver "$descr"]
+	#puts "Set: $name = ($ver, $descr)<br>"
+}
+
+# Build a list of installed packages - just the names
+set inst_pkgs {}
+foreach pkg [split [exec /bin/opkg list-installed] "\n"] {
+	if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
+	lappend inst_pkgs $name
+	#puts "Inst: $name<br>"
+}
+
+puts "<table class=borders>"
+puts "<tr>"
+puts "<th>Installed</th>"
+puts "<th>Name</th>"
+puts "<th>Version</th>"
+puts "<th>Description</th>"
+puts "</tr>"
+
+foreach name [lsort [array names avail_pkgs]] {
+	set value $avail_pkgs($name)
+	set ver [lindex $value 0]
+	set descr [lrange $value 1 [llength $value]]
+
+	puts "<tr>"
+	puts "<td>"
+	if {[lsearch $inst_pkgs $name] > -1} {
+		puts "<img src=/img/on.png>"
+	} else {
+		puts "<img src=/img/off.png>"
+	}
+
+	puts "</td>"
+	puts "<td>$name</td>"
+	puts "<td>$ver</td>"
+	puts "<td>$descr</td>"
+	puts "</tr>"
+}
+
+puts "</table>"
+

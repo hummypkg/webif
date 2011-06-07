@@ -1,0 +1,9 @@
+<!--#include virtual="/lib/header.shtml" -->
+<form method=get action=/cgi-bin/epg_search.jim>
+Search EPG: <input name=term size=20 maxlength=255>
+<input type=checkbox name=full>Search descriptions as well as titles.
+<input type=submit value=Search>
+</form>
+<!--#exec "/mod/var/mongoose/include/epg.jim" -->
+<!--#include virtual="/lib/footer.shtml" -->
+

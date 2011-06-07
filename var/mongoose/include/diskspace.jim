@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+foreach df [split [exec df -h] "\n\r"] {
+	if [string match *sda2* $df] {
+		regsub -all -- {[[:space:]]+} $df " " df
+		set fields [split $df]
+		set size [lindex $fields 1]
+		set used [lindex $fields 2]
+		set perc [string trimright [lindex $fields 4] "%"]
+	}
+}
+
+set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
+
+puts "<div style=\"float: right; background:url('/images/345_1_27_ST_USB_BG.png')\">"
+puts "<img src=/images/345_2_14_ST_HDD_$file.png>"
+puts "</div>"
+puts "<span style=\"float: right\">"
+puts "<br>"
+puts "Total space: $size<br>"
+puts "Used: $used ($perc%)"
+puts "</span>"
+
+

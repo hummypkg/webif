@@ -1,0 +1,40 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+
+proc db_info {db_file} {
+	set db [sqlite3.open $db_file]
+	set tables [$db query {SELECT name FROM sqlite_master WHERE type='table' ORDER BY name}]
+	
+	puts "<h1>$db_file</h1>"
+	
+	foreach table $tables {
+		set table_name [lindex $table 1]
+		set columns [$db query "pragma table_info($table_name)"]
+		set datas [$db query "SELECT * FROM $table_name"]
+		
+		puts "<h2>$table_name</h2>"
+		puts "<table>"
+		puts "  <tr>"
+		foreach column $columns {
+			puts "    <td>[lindex $column 3]</td>"
+		}
+		puts "  </tr>"
+		foreach data $datas {
+			puts "  <tr>"
+			
+			for {set i 1} {$i < [llength $data]} {incr i 2} {
+				puts "    <td>[lindex $data $i]</td>"
+			}
+			puts "  </tr>"
+		}
+		puts "</table>"
+	}
+	
+	$db close
+}
+
+puts {<style type="text/css">table, td, th {border-collapse:collapse; border:1px solid black;}</style>}
+db_info /var/lib/humaxtv/rsv.db
+db_info /var/lib/humaxtv/setup.db
+db_info /var/lib/humaxtv/channel.db

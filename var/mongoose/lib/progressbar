@@ -1,0 +1,10 @@
+
+if {[expr ! [exists -proc progressbar ]]} {
+	proc progressbar {percent} {
+		set pos [expr 118 - $percent / 100.0 * 118]
+		return "<img src=/img/percentimage.png
+		    alt=\"$percent%\" class=progress
+		    style=\"background-position: -${pos}px 0;\">"
+	}
+}
+

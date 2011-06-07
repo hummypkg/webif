@@ -1,0 +1,47 @@
+#!/mod/bin/jimsh
+
+set pid [exec pgrep humaxtv]
+
+if {[catch {set data [exec lsof -p $pid | grep Video | fgrep .ts]} ]} {
+        exit
+}
+
+set lines [split $data "\n"]
+foreach line $lines {
+	regsub -all -- {[[:space:]]+} $line " " line
+	set fields [split $line " "]
+	set name [lindex [split $line "/"] end]
+	set size($name) [lindex $fields 6]
+	set seen($name) 0
+}
+
+sleep 2
+
+set data [exec lsof -p $pid | grep Video | fgrep .ts]
+regsub -all -- {[[:space:]]+} $line " " line
+set lines [split $data "\n"]
+foreach line $lines {
+	regsub -all -- {[[:space:]]+} $line " " line
+	set fields [split $line " "]
+	set name [lindex [split $line "/"] end]
+	set size2 [lindex $fields 6]
+
+	if { $size2 > $size($name) && $seen($name) < 1 } {
+		set mode "Recording"
+		set icon "745_1_11_Video_1REC.png"
+	} else {
+		set mode "Watching"
+		set icon "745_1_10_Video_2Live.png"
+	}
+
+	incr seen($name)
+
+	lappend output "<img src=/images/$icon>$mode $name"
+}
+
+if {[llength $output]} {
+	puts "Content-Type: text/html"
+	puts ""
+	puts [join $output "<br>\n"]
+}
+

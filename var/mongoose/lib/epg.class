@@ -1,0 +1,192 @@
+
+if {[expr ! [exists -proc class ]]} { package require oo }
+if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
+
+source /mod/var/mongoose/lib/progressbar
+
+set channeldb [sqlite3.open /var/lib/humaxtv/channel.db]
+
+#  * service_id, event_id, start, duration, encrypted, name, text
+#  * warning, content code, content type,
+#  * event CRID, series CRID, rec CRID
+
+class epg {
+	service_id 	0
+	event_id 	0
+	start		0
+	duration	0
+	encrypted	0
+	name		""
+	text		""
+	warning		""
+	content_code	0
+	content_type	""
+	event_crid	""
+	series_crid	""
+	rec_crid	""
+
+	channel_num	0
+	channel_name	""
+}
+
+epg method channel {chnum chname} {
+	set channel_num $chnum
+	set channel_name $chname
+}
+
+epg method _parse {line} {
+	set vars [split $line "\t"]
+
+	set service_id [lindex $vars 0]
+	set event_id [lindex $vars 1]
+	set start [lindex $vars 2]
+	set duration [lindex $vars 3]
+	set encrypted [lindex $vars 4]
+	set name [lindex $vars 5]
+	set text [lindex $vars 6]
+	set warning [lindex $vars 7]
+	set content_code [lindex $vars 8]
+	set content_type [lindex $vars 9]
+	set event_crid [lindex $vars 10]
+	set series_crid [lindex $vars 11]
+	set rec_crid [lindex $vars 12]
+}
+
+epg method percent {} {
+	set now [clock seconds]
+	if {$start > $now} { return 0 }
+	if {$start + $duration < $now} { return 100 }
+	return [expr [expr $now - $start] * 100 / $duration]
+}
+
+epg method showing {} {
+	set percent [$self percent]
+	if {$percent > 0 && $percent < 100} { return 1 } else { return 0 }
+}
+
+epg method elapsed {} {
+	set percent [$self percent]
+	if {$percent == 0} { return 0 }
+	if {$percent == 100} { return $duration }
+	return [expr $duration * $percent / 100]
+}
+
+epg method remaining {} {
+	return [expr $duration - [$self elapsed]]
+}
+
+epg method cell {} {
+	set name [$self get name]
+	set text [$self get text]
+	
+	set percent [$self percent]
+
+	puts "<td nowrap valign=top title=\"$text\">"
+
+	set img ""
+	switch -- [$self get content_code] {
+		1 { set img "Movie" }
+		2 { set img "News" }
+		3 { set img "Show" }
+		4 { set img "Sports" }
+		5 { set img "Children" }
+		6 { set img "Music" }
+		7 { set img "Art" }
+		8 { set img "Society" }
+		9 { set img "Education" }
+		10 { set img "Leisure" }
+	}
+	if {$img != ""} {
+		puts "<img src=/images/173_3_00_G3_$img.png height=14
+		    alt=\"[$self get content_type]\"
+		    title=\"[$self get content_type]\"
+		>"
+	}
+	if {[$self get series_crid] != ""} {
+		puts "<img src=/images/178_1_00_Icon_Serise.png height=14>"
+	}
+	puts "
+	    <a href=/cgi-bin/epg_dump.jim?service=[$self get service_id]&event=[$self get event_id]>
+	    $name</a>"
+
+	puts "<br>"
+
+	puts "<font class=footnote>"
+	puts "[clock format [$self get start] -format %H:%M]"
+	puts " ([clock format [$self get duration] -format %T])"
+	if {$percent > 0 && $percent < 100} {
+		puts "<br>[progressbar $percent]"
+		puts "$percent% [clock format [$self elapsed] -format %T] /
+		      [clock format [$self remaining] -format %T]"
+	}
+	puts "</font>"
+	puts "</td>"
+}
+
+epg method next {} {
+	set tm [expr [$self get start] + [$self get duration] + 60]
+	set nextlist [epg fetch dump -service [$self get service_id] -time $tm]
+
+	if {[llength nextlist] > 0} {
+		return [lindex $nextlist 0]
+	} else {
+		return ""
+	}
+}
+
+proc {epg parse} {line} {
+	set e [epg new]
+	$e _parse $line
+	return $e
+}
+
+proc {epg cleanup} {} {
+	global channeldb
+
+	$channeldb close
+}
+
+proc {epg exec} {mode args} {
+	set raw 0
+	set cmd [list /mod/bin/epg]
+	set extra ""
+	foreach arg $args {
+		if {[string first "-" $arg] == 0} {
+			switch -- $arg {
+				-raw { set raw 1 }
+				-crid { lappend cmd -C $args($arg) }
+				-type { lappend cmd -T $args($arg) }
+				-service { lappend cmd -S $args($arg) }
+				-event { lappend cmd -E $args($arg) }
+				-time { lappend cmd -@ $args($arg) }
+				-extra { set extra $args($arg) }
+				default { error "Invalid option, $arg" }
+			}
+		}
+	}
+	if { $raw == 0 } { lappend cmd -p }
+	lappend cmd $mode
+	lappend cmd $extra
+
+	#puts "CMD -$cmd-"
+
+	return [exec {*}$cmd]
+}
+
+proc {epg fetch} {mode args} {
+	global channeldb
+
+	foreach line [split [epg exec $mode {*}$args] "\n"] {
+		set record [epg parse $line]
+		set chan [lindex [$channeldb query {
+			select szSvcName, usLcn from TBL_SVC
+			where usSvcId = %s} "[$record get service_id]"
+		    ] 0]
+		$record channel $chan(usLcn) \
+		    [string range $chan(szSvcName) 1 end]
+		
+		lappend records $record
+	}
+	return $records
+}
+

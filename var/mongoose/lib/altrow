@@ -1,0 +1,12 @@
+
+if {[expr ! [exists -proc altrow ]]} {
+	proc altrow {} {{i 0}} {
+		if { $i == 0 } {
+			puts "<tr class=odd>"
+		} else {
+			puts "<tr class=even>"
+		}
+		set i [expr ! $i]
+	}
+}
+

@@ -1,0 +1,35 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/epg.class
+
+puts "Content-Type: text/html"
+puts ""
+
+source /mod/var/mongoose/html/lib/header.jim
+
+cgi_input
+#cgi_dump
+
+set service 0
+set service 4351
+catch { set service [dict get $_cgi service] }
+set event 0
+catch { set event [dict get $_cgi event] }
+set raw 0
+catch { set raw [dict get $_cgi raw] }
+
+puts "<pre>"
+if { $raw == 0 } {
+	puts [epg exec dump -raw 1 -service $service -event $event]
+	puts "<a href=$env(REQUEST_URI)?$env(QUERY_STRING)&raw=1>
+		Click here for extended dump</a>"
+} else {
+	puts [epg exec dumpraw -raw 1 -service $service -event $event]
+}
+
+puts "</pre>"
+
+epg cleanup
+source /mod/var/mongoose/html/lib/footer.jim
+

@@ -1,0 +1,20 @@
+puts {
+<html>
+<head>
+<title>Humax HD[R] Fox T2</title>
+<link rel="shortcut icon" href=/img/favicon.ico>
+<link href=/css/style.css rel=stylesheet type=text/css>
+</head>
+<body>
+}
+
+source /mod/var/mongoose/html/lib/topbar.jim
+
+puts {
+<div style="clear: both">
+
+<!-- end of header -->
+}
+
+set renderstart [clock milliseconds]
+

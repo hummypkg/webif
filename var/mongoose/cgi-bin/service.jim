@@ -1,0 +1,15 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+catch { set service [dict get $_cgi service] }
+catch { set action [dict get $_cgi action] }
+
+catch { puts [exec /mod/bin/service $action $service] }
+

@@ -1,0 +1,12 @@
+#!/mod/bin/jimsh
+
+if { [catch {set fd [open "/mod/mediatomb/config/mediatomb.html" r]} fid] } {
+	exit 0
+}
+set data [read $fd]
+close $fd
+regexp {URL=([^"]*)} $data match
+set url [string range $match 4 [string length $match]]
+
+puts "<a href=$url>";
+

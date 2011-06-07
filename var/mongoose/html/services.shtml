@@ -1,0 +1,58 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<script type=text/javascript src=/js/ajax.js></script>
+
+<script type=text/javascript>
+function updateResults()
+{
+	var r = document.getElementById('results');
+	if (r && request.readyState == 4 && request.status == 200)
+	{
+		r.style.display = 'block';
+		var t = document.getElementById('result_txt');
+		t.innerHTML = request.responseText;
+	}
+}
+
+function go(service, action)
+{
+	if (service == null || service == "" ||
+	    action == null || action == "")
+		return;
+
+	var url = "/cgi-bin/service.jim?service=" + escape(service) +
+	    "&action=" + escape(action);
+
+	request.open("GET", url, true);
+	request.onreadystatechange = updateResults;
+	request.send(null);
+}
+
+function toggle(obj)
+{
+	if (obj.src.search("on") > -1)
+		obj.src = '/img/off.png';
+	else
+		obj.src = '/img/on.png';
+}
+
+</script>
+
+<h1>Service Management</h1>
+<div id=results class=shadowbox style="width: 90%; display: none; margin: 1 0 1em 0">
+<div>
+<pre id=result_txt>
+Results...
+</pre>
+</div>
+</div>
+
+<table class=borders cellpadding=5>
+<tr class=greenshade>
+<th>Service</th>
+<th>Auto Startup</th>
+<th>Status</th>
+</tr>
+<!--#exec "/mod/var/mongoose/include/services.jim" -->
+</table>
+<!--#include virtual="/lib/footer.shtml" -->

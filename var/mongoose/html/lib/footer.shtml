@@ -1,0 +1,15 @@
+<!-- Start of footer -->
+<div class=footer>
+<ul>
+<li><!--#exec "/mod/var/mongoose/include/mediatomb.jim" -->
+MediaTomb Web Interface</a>
+</li>
+<li>
+<a href=/db.shtml> SQLite3 Database Dump </a>
+</li>
+</ul>
+</div>
+</div>
+</body>
+</html>
+

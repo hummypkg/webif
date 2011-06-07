@@ -1,0 +1,49 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/epg.class
+source /mod/var/mongoose/lib/altrow
+
+set start [clock milliseconds]
+set records [epg fetch dump -time [clock seconds]]
+set got [clock milliseconds]
+
+puts {
+	<table class=borders>
+	<tr>
+		<th colspan=2>Channel</th>
+		<th>On Now</th>
+		<th>On Next</th>
+	</tr>
+}
+
+proc rsort {v1 v2} {
+	set v1s [$v1 get channel_num]
+	set v2s [$v2 get channel_num]
+
+	if {$v1s == $v2s} { return 0 }
+	if {$v1s > $v2s } { return 1 }
+	return -1
+}
+
+set i 0
+foreach record [lsort -command rsort $records] {
+	altrow
+	puts "<td>[$record get channel_num]</td>"
+	puts "<td>
+	    <a href=/cgi-bin/epg_service.jim?service=[$record get service_id]>
+	    [$record get channel_name]
+	    </a></td>"
+	puts [$record cell]
+	puts [[$record next] cell]
+	puts "</tr>"
+}
+puts "</table>"
+
+set end [clock milliseconds]
+puts "<font class=footnote>
+    Retrieved now in: [expr [expr $got - $start] / 1000.0] seconds.<br>
+    All rendered in: [expr [expr $end - $start] / 1000.0] seconds.
+    </font>"
+
+epg cleanup
+
