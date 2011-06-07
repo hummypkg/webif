@@ -4,7 +4,10 @@ if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
 
 source /mod/var/mongoose/lib/progressbar
 
+set channeldb 0
+catch {
 set channeldb [sqlite3.open /var/lib/humaxtv/channel.db]
+}
 
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
@@ -143,7 +146,7 @@ proc {epg parse} {line} {
 proc {epg cleanup} {} {
 	global channeldb
 
-	$channeldb close
+	if $channeldb { $channeldb close }
 }
 
 proc {epg exec} {mode args} {
@@ -178,12 +181,14 @@ proc {epg fetch} {mode args} {
 
 	foreach line [split [epg exec $mode {*}$args] "\n"] {
 		set record [epg parse $line]
-		set chan [lindex [$channeldb query {
-			select szSvcName, usLcn from TBL_SVC
-			where usSvcId = %s} "[$record get service_id]"
-		    ] 0]
-		$record channel $chan(usLcn) \
-		    [string range $chan(szSvcName) 1 end]
+		if $channeldb {
+			set chan [lindex [$channeldb query {
+				select szSvcName, usLcn from TBL_SVC
+				where usSvcId = %s} "[$record get service_id]"
+			    ] 0]
+			$record channel $chan(usLcn) \
+			    [string range $chan(szSvcName) 1 end]
+		}
 		
 		lappend records $record
 	}

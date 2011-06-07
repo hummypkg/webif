@@ -17,9 +17,12 @@ function updateResults()
 	var r = document.getElementById('status');
 	if (r && request.readyState == 4 && request.status == 200)
 	{
-		r.style.display = 'block';
 		var t = document.getElementById('status_txt');
-		t.innerHTML = request.responseText;
+		if (t.length)
+		{
+			r.style.display = 'block';
+			t.innerHTML = request.responseText;
+		}
 	}
 }
 

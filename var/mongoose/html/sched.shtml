@@ -1,4 +1,4 @@
 <!--#include virtual="/lib/header.shtml" -->
-<!--#exec "/mod/var/mongoose/include/sched.jim" -->
+<!--#exec cmd="/mod/var/mongoose/include/sched.jim" -->
 <!--#include virtual="/lib/footer.shtml" -->
 

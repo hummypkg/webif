@@ -8,7 +8,7 @@
 			Humax HD[R] Fox T2
 		</span>
 <!-- Start include diskspace -->
-<!--#exec "/mod/var/mongoose/include/diskspace.jim" -->
+<!--#exec cmd="/mod/var/mongoose/include/diskspace.jim" -->
 <!-- End include diskspace -->
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>

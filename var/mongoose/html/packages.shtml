@@ -9,6 +9,6 @@ Results...
 </div>
 </div>
 
-<!--#exec "/mod/var/mongoose/include/packages.jim" -->
+<!--#exec cmd="/mod/var/mongoose/include/packages.jim" -->
 
 <!--#include virtual="/lib/footer.shtml" -->

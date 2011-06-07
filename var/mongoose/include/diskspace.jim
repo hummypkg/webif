@@ -1,12 +1,18 @@
 #!/mod/bin/jimsh
 
-foreach df [split [exec df -h] "\n\r"] {
-	if [string match *sda2* $df] {
-		regsub -all -- {[[:space:]]+} $df " " df
-		set fields [split $df]
-		set size [lindex $fields 1]
-		set used [lindex $fields 2]
-		set perc [string trimright [lindex $fields 4] "%"]
+if {[os.gethostname] eq "hosting"} {
+	set size "1TB"
+	set used "100GB"
+	set perc "10"
+} else {
+	foreach df [split [exec df -h] "\n\r"] {
+		if [string match *sda2* $df] {
+			regsub -all -- {[[:space:]]+} $df " " df
+			set fields [split $df]
+			set size [lindex $fields 1]
+			set used [lindex $fields 2]
+			set perc [string trimright [lindex $fields 4] "%"]
+		}
 	}
 }
 

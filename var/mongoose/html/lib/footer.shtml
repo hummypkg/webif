@@ -1,7 +1,7 @@
 <!-- Start of footer -->
 <div class=footer>
 <ul>
-<li><!--#exec "/mod/var/mongoose/include/mediatomb.jim" -->
+<li><!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
 MediaTomb Web Interface</a>
 </li>
 <li>

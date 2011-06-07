@@ -1,6 +1,9 @@
 #!/mod/bin/jimsh
 
-set pid [exec pgrep humaxtv]
+puts "Content-Type: text/html"
+puts ""
+
+if {[catch {set pid [exec pgrep humaxtv]}]} { exit }
 
 if {[catch {set data [exec lsof -p $pid | grep Video | fgrep .ts]} ]} {
         exit
@@ -40,8 +43,6 @@ foreach line $lines {
 }
 
 if {[llength $output]} {
-	puts "Content-Type: text/html"
-	puts ""
 	puts [join $output "<br>\n"]
 }
 
