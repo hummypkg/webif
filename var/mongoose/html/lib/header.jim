@@ -4,6 +4,9 @@ puts {
 <title>Humax HD[R] Fox T2</title>
 <link rel="shortcut icon" href=/img/favicon.ico>
 <link href=/css/style.css rel=stylesheet type=text/css>
+<link type="text/css" href="/css/jquery-ui.css" rel="Stylesheet" />     
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
 </head>
 <body>
 }

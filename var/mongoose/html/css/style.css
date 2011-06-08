@@ -86,6 +86,21 @@ table th
 	text-align: left;
 }
 
+table.keyval th
+{
+	background: #ccff99;
+	font-weight: bold;
+	text-align: right;
+	color: black;
+	padding: 0.5em;
+}
+
+table.keyval td
+{
+	background: #ffffcc;
+	color: black;
+}
+
 pre
 {
         font-family: Consolas, 'Courier New', Courier, monospace;

@@ -30,11 +30,13 @@ class epg {
 
 	channel_num	0
 	channel_name	""
+	channel_crid	""
 }
 
-epg method channel {chnum chname} {
+epg method channel {chnum chname chcrid} {
 	set channel_num $chnum
 	set channel_name $chname
+	set channel_crid [string toupper $chcrid]
 }
 
 epg method _parse {line} {
@@ -78,14 +80,7 @@ epg method remaining {} {
 	return [expr $duration - [$self elapsed]]
 }
 
-epg method cell {} {
-	set name [$self get name]
-	set text [$self get text]
-	
-	set percent [$self percent]
-
-	puts "<td nowrap valign=top title=\"$text\">"
-
+epg method type_icon {} {
 	set img ""
 	switch -- [$self get content_code] {
 		1 { set img "Movie" }
@@ -100,16 +95,44 @@ epg method cell {} {
 		10 { set img "Leisure" }
 	}
 	if {$img != ""} {
-		puts "<img src=/images/173_3_00_G3_$img.png height=14
+		return "/images/173_3_00_G3_$img.png"
+	} else {
+		return ""
+	}
+}
+
+epg method icon_set {{height 0}} {
+	if {$height > 0} { set height "height=$height" } else { set height "" }
+	set icon [$self type_icon]
+	set str ""
+	if {$icon != ""} {
+		append str "<img src=$icon $height
 		    alt=\"[$self get content_type]\"
-		    title=\"[$self get content_type]\"
-		>"
+		    title=\"[$self get content_type]\">"
+	}
+	if {[$self get rec_crid] != ""} {
+		append str \
+		    "<img src=/images/178_1_26_Icon_Recommend.png $height>"
 	}
 	if {[$self get series_crid] != ""} {
-		puts "<img src=/images/178_1_00_Icon_Serise.png height=14>"
+		append str \
+		    "<img src=/images/178_1_00_Icon_Serise.png $height>"
 	}
+	return $str
+}
+
+epg method cell {} {
+	set name [$self get name]
+	set text [$self get text]
+	
+	set percent [$self percent]
+
+	puts "<td nowrap valign=top title=\"$text\">"
+
+	puts [$self icon_set 14]
+
 	puts "
-	    <a href=/cgi-bin/epg_dump.jim?service=[$self get service_id]&event=[$self get event_id]>
+	    <a class=event href=/cgi-bin/epg_info.jim?service=[$self get service_id]&event=[$self get event_id]>
 	    $name</a>"
 
 	puts "<br>"
@@ -137,6 +160,15 @@ epg method next {} {
 	}
 }
 
+epg method recommended {} {
+	set rec ""
+	if {[$self get rec_crid] != ""} {
+		catch { set rec [lindex [
+		    epg fetch dump -crid [$self get rec_crid]] 0] }
+	}
+	return $rec
+}
+
 proc {epg parse} {line} {
 	set e [epg new]
 	$e _parse $line
@@ -146,7 +178,7 @@ proc {epg parse} {line} {
 proc {epg cleanup} {} {
 	global channeldb
 
-	if $channeldb { $channeldb close }
+	if {$channeldb != ""} { $channeldb close }
 }
 
 proc {epg exec} {mode args} {
@@ -158,6 +190,7 @@ proc {epg exec} {mode args} {
 			switch -- $arg {
 				-raw { set raw 1 }
 				-crid { lappend cmd -C $args($arg) }
+				-scrid { lappend cmd -R $args($arg) }
 				-type { lappend cmd -T $args($arg) }
 				-service { lappend cmd -S $args($arg) }
 				-event { lappend cmd -E $args($arg) }
@@ -179,15 +212,18 @@ proc {epg exec} {mode args} {
 proc {epg fetch} {mode args} {
 	global channeldb
 
+	set records ""
 	foreach line [split [epg exec $mode {*}$args] "\n"] {
 		set record [epg parse $line]
-		if $channeldb {
+		if {$channeldb != ""} {
 			set chan [lindex [$channeldb query {
-				select szSvcName, usLcn from TBL_SVC
+				select szSvcName, usLcn, aucDefaultAuthority
+				from TBL_SVC
 				where usSvcId = %s} "[$record get service_id]"
 			    ] 0]
 			$record channel $chan(usLcn) \
-			    [string range $chan(szSvcName) 1 end]
+			    [string range $chan(szSvcName) 1 end] \
+			    $chan(aucDefaultAuthority)
 		}
 		
 		lappend records $record

@@ -26,7 +26,6 @@ puts "<th>Date/Time</th>"
 puts "<th>Mode</th>"
 puts "<th>Series ID</th>"
 puts "</tr>"
-set i 0
 foreach r $res {
 	set name [string range $r(szevtname) 1 end]
 	if {[string first "i7" $name] == 0} {

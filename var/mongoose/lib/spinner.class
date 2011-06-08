@@ -1,0 +1,31 @@
+
+class spinner {
+	name		"spinner"
+	text		"Loading..."
+	img		"/img/loading.gif"
+	size		"1.1em"
+	style		""
+	speed		"slow"
+}
+
+spinner method start {} {
+	puts "<div style=\"
+		align: center;
+		font-size: [$self get size];
+		[$self get style]
+	    \"
+	    id=\"[$self get name]\">
+	    <img src=\"[$self get img]\">
+	    [$self get text]
+	    </div>
+	";
+	puts "
+		<script type=text/javascript>
+		\$(document).ready(function () {
+			\$('#[$self get name]').hide('[$self get speed]');
+		});
+		</script>
+	"
+	flush stdout
+}
+

@@ -22,6 +22,10 @@ set cmd "search"
 if {[dict exists $_cgi full]} { set cmd "searchall" }
 set ct 0
 catch { set ct [dict get $_cgi ct] }
+set crid ""
+catch { set crid [dict get $_cgi crid] }
+set scrid ""
+catch { set scrid [dict get $_cgi scrid] }
 
 puts "
 <form method=get action=/cgi-bin/epg_search.jim>
@@ -89,6 +93,10 @@ puts "</form>"
 
 if {$ct > 0 } {
 	set records [epg fetch dump -type $ct]
+} elseif {$crid ne ""} {
+	set records [epg fetch dump -crid $crid]
+} elseif {$scrid ne ""} {
+	set records [epg fetch dump -scrid $scrid]
 } elseif {$term ne ""} { 
 	set records [epg fetch $cmd -extra $term]
 }

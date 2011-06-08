@@ -1,0 +1,100 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/epg.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set service 0
+catch { set service [dict get $_cgi service] }
+set event 0
+catch { set event [dict get $_cgi event] }
+if {! [dict exists $_cgi bare]} {
+	source /mod/var/mongoose/html/lib/header.jim
+}
+
+#set service 8384
+#set event 25293
+
+set record [lindex [epg fetch dump -service $service -event $event] 0]
+
+puts "
+	<table class=keyval>
+	<tr>
+		<th>Programme</th>
+		<td>[$record get name]</td>
+	</tr><tr>
+		<th>Synopsis</th>
+		<td>[$record get text]</td>
+	</tr><tr>
+		<th>Start</th>
+		<td>[clock format [$record get start] -format {%c %Z}]</td>
+	</tr><tr>
+		<th>Duration</th>
+		<td>[clock format [$record get duration] -format %T]</td>
+	</tr><tr>
+		<th>Type</th>
+		<td>[$record get content_type] ([$record get content_code])</td>
+	</tr>
+"
+
+if {[$record get warning] != ""} {
+	puts "
+	<tr>
+		<th>Warning</th>
+		<td>[$record get warning]</td>
+	</tr>
+	"
+}
+
+if {[$record get event_crid] != ""} {
+	puts "
+	<tr>
+		<th>CRID</th>
+		<td>[$record get channel_crid][$record get event_crid]</td>
+	</tr>
+	"
+}
+
+if {[$record get series_crid] != ""} {
+	puts "
+	<tr>
+		<th nowrap>Series CRID</th><td>
+		<a href=/cgi-bin/epg_search.jim?scrid=[$record get series_crid]>
+			[$record get channel_crid][$record get series_crid]
+			</a>
+		</td>
+	</tr>
+	"
+}
+
+if {[$record get rec_crid] != ""} {
+	set rec [$record recommended]
+	if {$rec != ""} {
+		puts "<tr><th>Recommends</th><td>
+			<a href=/cgi-bin/epg_search.jim?crid=[$rec get event_crid]>
+			[$rec get name]
+			([$rec get channel_crid][$rec get event_crid])
+			</a>
+		</td></tr>"
+	}
+}
+
+puts "
+	<tr>
+		<td colspan=2>
+			[$record icon_set]
+		</td>
+	</tr>
+	</table>
+"
+
+epg cleanup
+if {! [dict exists $_cgi bare]} {
+	source /mod/var/mongoose/html/lib/footer.jim
+}
+

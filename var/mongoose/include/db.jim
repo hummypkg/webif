@@ -2,6 +2,8 @@
 
 package require sqlite3
 
+source /mod/var/mongoose/lib/altrow
+
 proc db_info {db_file} {
 	set db [sqlite3.open $db_file]
 	set tables [$db query {SELECT name FROM sqlite_master WHERE type='table' ORDER BY name}]
@@ -17,11 +19,11 @@ proc db_info {db_file} {
 		puts "<table>"
 		puts "  <tr>"
 		foreach column $columns {
-			puts "    <td>[lindex $column 3]</td>"
+			puts "    <th>[lindex $column 3]</th>"
 		}
 		puts "  </tr>"
 		foreach data $datas {
-			puts "  <tr>"
+			altrow
 			
 			for {set i 1} {$i < [llength $data]} {incr i 2} {
 				puts "    <td>[lindex $data $i]</td>"
@@ -38,3 +40,4 @@ puts {<style type="text/css">table, td, th {border-collapse:collapse; border:1px
 db_info /var/lib/humaxtv/rsv.db
 db_info /var/lib/humaxtv/setup.db
 db_info /var/lib/humaxtv/channel.db
+

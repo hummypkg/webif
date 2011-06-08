@@ -1,7 +1,42 @@
 #!/mod/bin/jimsh
 
 source /mod/var/mongoose/lib/epg.class
+source /mod/var/mongoose/lib/spinner.class
 source /mod/var/mongoose/lib/altrow
+
+[spinner new {
+	text "Loading EPG Data..."
+	size "1.2em"
+	style "margin: 1em;"
+	}] start
+
+puts {
+<div id=dialogue></div>
+<script type=text/javascript>
+	$(document).ready(function() {
+		var $dialog = $('#dialogue').dialog({
+			title: "Programme Details",
+			modal: false,
+			autoOpen: false,
+			height: 500,
+			width: 700,
+			show: 'scale',
+			hide: 'fade',
+			draggable: false,
+			resizable: false,
+			buttons: { "Close":
+			    function() {$(this).dialog('close');}},
+			close: function(e,u) { $('#dialogue').empty().html('<img src="/img/loading.gif" alt="loading">'); }
+		});
+		$('a.event').click(function(e) {
+			e.preventDefault();
+			var url = $(this).attr('href');
+			$('#dialogue').load(url + '&bare=1');
+			$dialog.dialog('open');
+		});
+	});
+</script>
+}
 
 set start [clock milliseconds]
 set records [epg fetch dump -time [clock seconds]]
@@ -25,7 +60,6 @@ proc rsort {v1 v2} {
 	return -1
 }
 
-set i 0
 foreach record [lsort -command rsort $records] {
 	altrow
 	puts "<td>[$record get channel_num]</td>"
