@@ -21,7 +21,7 @@ set got [clock milliseconds]
 puts {
 	<table class=borders>
 	<tr>
-		<th colspan=2>Channel</th>
+		<th colspan=3>Channel</th>
 		<th>On Now</th>
 		<th>On Next</th>
 	</tr>
@@ -38,8 +38,10 @@ proc rsort {v1 v2} {
 
 foreach record [lsort -command rsort $records] {
 	altrow
-	puts "<td>[$record get channel_num]</td>"
-	puts "<td>
+	set num [$record get channel_num]
+	puts "<td>$num</td>"
+	puts "<td>[$record channel_icon 50]</td>
+	    <td>
 	    <a href=/cgi-bin/epg_service.jim?service=[$record get service_id]>
 	    [$record get channel_name]
 	    </a></td>"

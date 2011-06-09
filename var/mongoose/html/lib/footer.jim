@@ -1,21 +1,14 @@
+
+puts {
+<!-- Start of footer -->
+<div class=footer>
+}
+
 set rendertime [expr [expr [clock milliseconds] - $renderstart] / 1000.0]
 
 puts "<font class=footnote>Rendered in: $rendertime seconds</font>"
 
 puts {
-<!-- Start of footer -->
-<div class=footer>
-<ul>
-<li>
-}
-source /mod/var/mongoose/include/mediatomb.jim
-puts {
-MediaTomb Web Interface</a>
-</li>
-<li>
-<a href=/db.shtml> SQLite3 Database Dump </a>
-</li>
-</ul>
 </div>
 </div>
 </body>

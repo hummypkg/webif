@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Humax HD[R] Fox T2</title>
+<title><!--#exec cmd="/mod/var/mongoose/include/model.jim" --></title>
 <link rel="shortcut icon" href=/img/favicon.ico>
 <link href=/css/style.css rel=stylesheet type=text/css>
 <link type="text/css" href="/css/jquery-ui.css" rel="Stylesheet" />     

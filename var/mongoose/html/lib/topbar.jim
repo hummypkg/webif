@@ -6,7 +6,9 @@ puts {
 	<div class=middle>
 		<img border=0 src=/images/516_1_26_Freeview_Logo.png>
 		<span style="font-size: 150%; padding: 0 0 0 2em;">
-			Humax HD[R] Fox T2
+}
+source /mod/var/mongoose/include/model.jim
+puts {
 		</span>
 <!-- Start include diskspace -->
 }

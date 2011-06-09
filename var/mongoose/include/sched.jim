@@ -24,7 +24,7 @@ puts "<th>Duration</th>"
 puts "<th colspan=2>Channel</th>"
 puts "<th>Date/Time</th>"
 puts "<th>Mode</th>"
-puts "<th>Series ID</th>"
+puts "<th>Event/Series ID</th>"
 puts "</tr>"
 foreach r $res {
 	set name [string range $r(szevtname) 1 end]
@@ -46,13 +46,15 @@ foreach r $res {
 		5 { set rsvicon "745_1_10_Video_2Live.png"; set alta "Wake-up" }
 		6 { set rsvicon "745_1_11_Video_1REC.png"; set alta "Sleep" }
 		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png"
-		    set alta "Software Update" }
+		    set alta "Auto Update" }
 		default { set alta "Unknown type $r(ersvtype)" }
 	}
 	if {$name == ""} { set name "-- $alta --" }
 
+	set series 0
 	if {$r(ucRecKind) == 4} {
 		set RKIcon "175_1_11_Series_Record.png"
+		set series 1
 	} else {
 		switch $r(erepeat) {
 			1 {set RKIcon "521_1_00_RP_Daily_C.png"}
@@ -75,11 +77,27 @@ foreach r $res {
 	puts "<td>[clock format $r(nduration) -format %T]</td>"
 	puts "<td>$r(usLcn)</td>"
 	puts "<td>[string range $r(szSvcName) 1 end]</td>"
-	puts "<td>[clock format $r(nsttime) -format {%c %Z}]</td>"
+	if { $r(nsttime) < [clock seconds] } {
+		puts "<td class=blood>"
+	} else {
+		puts "<td>"
+	}
+	puts "[clock format $r(nsttime) -format {%c %Z}]</td>"
 	puts "<td>$rsvicon $RKIcon</td>"
-	puts "<td>$r(szCRID)</td>"
+	puts "<td>"
+	set crid [join [lrange [split $r(szCRID) "/"] 1 end]]
+	if {$crid != ""} {
+		puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
+		if $series { puts -nonewline "s" }
+		puts "crid=/$crid>
+		<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
+		    height=14>
+		$r(szCRID)"
+	}
+	puts "</td>"
 	puts "</tr>"
 }
 puts "</table>"
+puts "<font class=footnote>Click on the CRID to view episodes.</font>"
 $db close
 

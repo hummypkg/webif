@@ -168,6 +168,12 @@ pre
 }
 */
 
+.blood
+{
+	color: #ff4000;
+	background: transparent;
+}
+
 .footnote
 {
 	color: #ff4000;

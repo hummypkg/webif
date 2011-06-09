@@ -101,6 +101,14 @@ epg method type_icon {} {
 	}
 }
 
+epg method channel_icon {{width 0} {style ""}} {
+	set str "<img src=\"/img/channels/[$self get channel_name].jpg\"";
+	if {$width > 0} { append str " width=$width" }
+	if {$style ne ""} { append str " style=\"$style\" }
+	append str " alt=\"\">"
+	return $str
+}
+
 epg method icon_set {{height 0}} {
 	if {$height > 0} { set height "height=$height" } else { set height "" }
 	set icon [$self type_icon]

@@ -1,0 +1,81 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+# Set variables
+
+if {[catch {set fd [open "/var/lib/humaxtv/hostname" r]}]} {
+	set hostname "humax"
+} else {
+	set hostname [string trim [read $fd]]
+	close $fd
+}
+
+# Handle updates
+
+if {[dict exists $_cgi hostname]} {
+	set nhostname [string trim [dict get $_cgi hostname]]
+	if {$nhostname eq $hostname} {
+		puts "Hostname is already '$hostname'."
+	} elseif [string is alnum -strict $hostname] {
+		set fd [open "/var/lib/humaxtv/hostname" w]
+		puts $fd $nhostname
+		close $fd
+		exec hostname -F /var/lib/humaxtv/hostname
+		puts "Hostname successfully updated, reboot recommended."
+	} else {
+		puts "Invalid hostname."
+	}
+	exit
+}
+
+source /mod/var/mongoose/html/lib/header.jim
+puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
+
+puts {
+	<script type=text/javascript>
+	$(document).ready(function () {
+		$(":submit").button();
+		$('form').each(function(i, el) {
+			var id = $(this).attr('id');
+			var output = '#' + id + '_output'
+			$(this).ajaxForm({
+				target: output,
+				success: function() {
+				    $(output).css('font-style', 'italic');
+				    $(output).show('slow');
+				    $(output).delay(2000).fadeOut('slow');
+				}
+			});
+		});
+	});
+	</script>
+}
+
+puts "
+	<h1>Settings</h1>
+	<form id=hostname method=get action=$env(REQUEST_URI)>
+	<table class=keyval>
+	<tr>
+		<th>Hostname</th>
+		<td><input name=hostname value=\"$hostname\"
+		    length=20 maxlength=50>
+		    <input id=hostname_submit value=\"change\" type=submit>
+		    <div id=hostname_output></div>
+		</td>
+	</tr>
+	</table>
+	</form>
+	<br>
+	More coming soon...
+	<br>
+	<br>
+"
+source /mod/var/mongoose/html/lib/footer.jim
+
