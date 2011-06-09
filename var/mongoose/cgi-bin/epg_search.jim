@@ -3,6 +3,7 @@
 package require cgi
 source /mod/var/mongoose/lib/epg.class
 source /mod/var/mongoose/lib/altrow
+source /mod/var/mongoose/lib/cat
 
 puts "Content-Type: text/html"
 puts ""
@@ -10,6 +11,8 @@ puts ""
 source /mod/var/mongoose/html/lib/header.jim
 
 puts "<script type=text/javascript src=/js/highlight.js></script>"
+
+source /mod/var/mongoose/lib/epg_popup
 
 cgi_input
 #cgi_dump
@@ -49,26 +52,34 @@ proc cts {type img text} {
 
 puts {
 	<br>
-	<div style="float: left; clear: left; width: 15em">
-	Content Type Searches:
-	</div>
-	<div style="float: left">
+	<table>
+	<tr><td rowspan=2>Content Type Searches</td>
+	<td>
 }
+
 cts 1 "Movie" "Film/Drama"
+puts "</td><td>"
 cts 2 "News" "News/Current affairs"
-cts 3 "Show" "Show/Game show"
+puts "</td><td>"
 cts 4 "Sports" "Sport"
-cts 5 "Children" "Children"
-cts 10 "Leisure" "Leisure"
-puts {
-	</div>
-	<div style="float: left; margin-left: 15em">
-}
-cts 6 "Music" "Music/Ballet/Dance"
-cts 7 "Art" "Arts/Culture"
-cts 8 "Society" "Social/Political/Economic"
+puts "</td><td>"
 cts 9 "Education" "Education/Science/Factual"
-puts { </div> }
+puts "</td><td>"
+cts 10 "Leisure" "Leisure"
+
+puts "</td></tr><tr><td>"
+
+cts 7 "Art" "Arts/Culture"
+puts "</td><td>"
+cts 3 "Show" "Show/Game show"
+puts "</td><td>"
+cts 5 "Children" "Children"
+puts "</td><td>"
+cts 8 "Society" "Social/Political/Economic"
+puts "</td><td>"
+cts 6 "Music" "Music/Ballet/Dance"
+
+puts "</tr></table>"
 
 if {[llength $res] > 0} {
 	puts {

@@ -3,6 +3,10 @@
 puts "Content-Type: text/html"
 puts ""
 
+#puts "<img style=\"vertical-align: middle\" src=/images/745_1_11_Video_1REC.png><span style=\"vertical-align: middle\">Recording one thing</span>"
+#puts "<img style=\"vertical-align: middle\" src=/images/745_1_11_Video_1REC.png><span style=\"vertical-align: middle\">Recording another thing</span>"
+#puts "<img style=\"vertical-align: middle\" src=/images/745_1_10_Video_2Live.png><span style=\"vertical-align: middle\">Watching something else</span>"
+
 if {[catch {set pid [exec pgrep humaxtv]}]} { exit }
 
 if {[catch {set data [exec lsof -p $pid | grep Video | fgrep .ts]} ]} {
@@ -39,10 +43,12 @@ foreach line $lines {
 
 	incr seen($name)
 
-	lappend output "<img src=/images/$icon>$mode $name"
+	lappend output "<img style=\"vertical-align: middle\"
+	    src=/images/$icon><span
+	    style=\"vertical-align: middle\">$mode&nbsp;$name</span>"
 }
 
 if {[llength $output]} {
-	puts [join $output "<br>\n"]
+	puts [join $output " "]
 }
 

@@ -1,0 +1,28 @@
+puts {
+<div id=dialogue></div>
+<script type=text/javascript>
+	$(document).ready(function() {
+		var $dialog = $('#dialogue').dialog({
+			title: "Programme Details",
+			modal: false,
+			autoOpen: false,
+			height: 500,
+			width: 700,
+			show: 'scale',
+			hide: 'fade',
+			draggable: true,
+			resizable: true,
+			buttons: { "Close":
+			    function() {$(this).dialog('close');}},
+			close: function(e,u) { $('#dialogue').empty().html('<img src="/img/loading.gif" alt="loading">'); }
+		});
+		$('a.event').click(function(e) {
+			e.preventDefault();
+			var url = $(this).attr('href');
+			$('#dialogue').load(url + '&bare=1');
+			$dialog.dialog('open');
+		});
+	});
+</script>
+}
+

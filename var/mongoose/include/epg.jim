@@ -3,6 +3,7 @@
 source /mod/var/mongoose/lib/epg.class
 source /mod/var/mongoose/lib/spinner.class
 source /mod/var/mongoose/lib/altrow
+source /mod/var/mongoose/lib/cat
 
 [spinner new {
 	text "Loading EPG Data..."
@@ -10,33 +11,8 @@ source /mod/var/mongoose/lib/altrow
 	style "margin: 1em;"
 	}] start
 
-puts {
-<div id=dialogue></div>
-<script type=text/javascript>
-	$(document).ready(function() {
-		var $dialog = $('#dialogue').dialog({
-			title: "Programme Details",
-			modal: false,
-			autoOpen: false,
-			height: 500,
-			width: 700,
-			show: 'scale',
-			hide: 'fade',
-			draggable: false,
-			resizable: false,
-			buttons: { "Close":
-			    function() {$(this).dialog('close');}},
-			close: function(e,u) { $('#dialogue').empty().html('<img src="/img/loading.gif" alt="loading">'); }
-		});
-		$('a.event').click(function(e) {
-			e.preventDefault();
-			var url = $(this).attr('href');
-			$('#dialogue').load(url + '&bare=1');
-			$dialog.dialog('open');
-		});
-	});
-</script>
-}
+#cat /mod/var/mongoose/lib/epg_popup
+source /mod/var/mongoose/lib/epg_popup
 
 set start [clock milliseconds]
 set records [epg fetch dump -time [clock seconds]]

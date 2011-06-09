@@ -9,34 +9,14 @@ Status...
 </div>
 </div>
 
-<script type=text/javascript src=/js/ajax.js></script>
-
 <script type=text/javascript>
-function updateResults()
-{
-	var r = document.getElementById('status');
-	if (r && request.readyState == 4 && request.status == 200)
-	{
-		var t = document.getElementById('status_txt');
-		if (t.length)
-		{
-			r.style.display = 'block';
-			t.innerHTML = request.responseText;
-		}
-	}
-}
-
-function go()
-{
-	var url = "/cgi-bin/status.jim";
-
-	request.open("GET", url, true);
-	request.onreadystatechange = updateResults;
-	request.send(null);
-}
-
-go();
-
+$(document).ready(function() {
+	$('#status_txt').load('/cgi-bin/status.jim',
+		function(rt,tt,xml) {
+			if (rt.length)
+				$('#status').show('slow');
+		});
+});
 </script>
 
 <div style="float: left">
@@ -49,10 +29,6 @@ go();
 	<b>Browse Media Files</b>
 	</a>
 	<br>
-	<font class=footnote>
-	(NOTE: The files are encrypted if they were<br>
-	 recorded off air.)
-	</font>
 	</center>
 	
 </div>

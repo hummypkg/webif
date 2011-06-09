@@ -4,6 +4,7 @@ package require cgi
 source /mod/var/mongoose/lib/epg.class
 source /mod/var/mongoose/lib/spinner.class
 source /mod/var/mongoose/lib/altrow
+source /mod/var/mongoose/lib/cat
 
 puts "Content-Type: text/html"
 puts ""
@@ -18,6 +19,8 @@ source /mod/var/mongoose/html/lib/header.jim
 
 cgi_input
 #cgi_dump
+
+source /mod/var/mongoose/lib/epg_popup
 
 set service 0
 set service 4351

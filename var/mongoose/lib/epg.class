@@ -104,21 +104,21 @@ epg method type_icon {} {
 epg method icon_set {{height 0}} {
 	if {$height > 0} { set height "height=$height" } else { set height "" }
 	set icon [$self type_icon]
-	set str ""
+	set set ""
 	if {$icon != ""} {
-		append str "<img src=$icon $height
+		lappend set "<img src=$icon $height
 		    alt=\"[$self get content_type]\"
 		    title=\"[$self get content_type]\">"
 	}
 	if {[$self get rec_crid] != ""} {
-		append str \
+		lappend set \
 		    "<img src=/images/178_1_26_Icon_Recommend.png $height>"
 	}
 	if {[$self get series_crid] != ""} {
-		append str \
+		lappend set \
 		    "<img src=/images/178_1_00_Icon_Serise.png $height>"
 	}
-	return $str
+	return $set
 }
 
 epg method cell {} {
@@ -129,7 +129,7 @@ epg method cell {} {
 
 	puts "<td nowrap valign=top title=\"$text\">"
 
-	puts [$self icon_set 14]
+	puts [join [$self icon_set 14] ""]
 
 	puts "
 	    <a class=event href=/cgi-bin/epg_info.jim?service=[$self get service_id]&event=[$self get event_id]>

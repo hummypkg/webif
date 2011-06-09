@@ -65,6 +65,8 @@ if {[$record get series_crid] != ""} {
 	<tr>
 		<th nowrap>Series CRID</th><td>
 		<a href=/cgi-bin/epg_search.jim?scrid=[$record get series_crid]>
+			<img border=0
+			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			[$record get channel_crid][$record get series_crid]
 			</a>
 		</td>
@@ -77,6 +79,8 @@ if {[$record get rec_crid] != ""} {
 	if {$rec != ""} {
 		puts "<tr><th>Recommends</th><td>
 			<a href=/cgi-bin/epg_search.jim?crid=[$rec get event_crid]>
+			<img border=0
+			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			[$rec get name]
 			([$rec get channel_crid][$rec get event_crid])
 			</a>
@@ -86,8 +90,8 @@ if {[$record get rec_crid] != ""} {
 
 puts "
 	<tr>
-		<td colspan=2>
-			[$record icon_set]
+		<td colspan=2 valign=top>
+			[join [$record icon_set] "&nbsp;"]
 		</td>
 	</tr>
 	</table>
