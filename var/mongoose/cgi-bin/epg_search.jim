@@ -81,22 +81,17 @@ cts 6 "Music" "Music/Ballet/Dance"
 
 puts "</tr></table>"
 
+puts "<table cellpadding=5>"
 if {[llength $res] > 0} {
-	puts {
-		<div style="float: left; clear: left; width: 15em">
-			Keyword Searches:
-		</div>
-		<div style="float: left">
-	}
-	set done 0
+	puts "<tr><td>Keyword Searches</td>"
 	foreach keyword $res {
-		if {$done == 1} { puts "&nbsp;|&nbsp;" } else { incr done }
 		set kw [string range [lindex $keyword 1] 1 end]
-		puts "<a href=$env(REQUEST_URI)?term=[cgi_quote_url $kw]>$kw
-		    </a>"
+		puts "<td><a href=$env(REQUEST_URI)?term=[cgi_quote_url $kw]>$kw
+		    </a></td>"
 	}
-	puts "</div>"
+	puts "</tr>"
 }
+puts "</table>"
 
 $db close
 
