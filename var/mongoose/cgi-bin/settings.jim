@@ -1,5 +1,6 @@
 #!/mod/bin/jimsh
 
+source /mod/var/mongoose/lib/settings.class
 package require cgi
 
 puts "Content-Type: text/html"
@@ -8,32 +9,41 @@ puts ""
 cgi_input
 #cgi_dump
 
-# Set variables
+set settings [settings new]
 
-if {[catch {set fd [open "/var/lib/humaxtv/hostname" r]}]} {
-	set hostname "humax"
-} else {
-	set hostname [string trim [read $fd]]
-	close $fd
-}
+set hostname [$settings hostname]
+set channel_group [$settings channel_group]
 
 # Handle updates
 
-if {[dict exists $_cgi hostname]} {
-	set nhostname [string trim [dict get $_cgi hostname]]
-	if {$nhostname eq $hostname} {
-		puts "Hostname is already '$hostname'."
-	} elseif [string is alnum -strict $hostname] {
-		set fd [open "/var/lib/humaxtv/hostname" w]
-		puts $fd $nhostname
-		close $fd
-		exec hostname -F /var/lib/humaxtv/hostname
-		puts "Hostname successfully updated, reboot recommended."
-	} else {
-		puts "Invalid hostname."
+proc _handle_update {class var old text} {
+	global _cgi
+	global settings
+
+	if {[dict exists $_cgi $var]} {
+		set new [string trim [dict get $_cgi $var]]
+		if {$new == $old} {
+			puts "$text unchanged."
+		} elseif [string is $class -strict $new] {
+			$settings $var $new
+			puts "$text updated."
+		} else {
+			puts "Invalid value for $var."
+		}
+		exit
 	}
-	exit
 }
+
+proc handle_int_update {var old {text "Value"}} {
+	_handle_update digit $var $old $text
+}
+
+proc handle_str_update {var old {text "Value"}} {
+	_handle_update alnum $var $old $text
+}
+
+handle_str_update hostname $hostname Hostname
+handle_int_update channel_group $channel_group "Channel Group"
 
 source /mod/var/mongoose/html/lib/header.jim
 puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
@@ -60,16 +70,48 @@ puts {
 
 puts "
 	<h1>Settings</h1>
-	<form id=hostname method=get action=$env(REQUEST_URI)>
 	<table class=keyval>
 	<tr>
+	<form id=hostname method=get action=$env(REQUEST_URI)>
 		<th>Hostname</th>
 		<td><input name=hostname value=\"$hostname\"
 		    length=20 maxlength=50>
 		    <input id=hostname_submit value=\"change\" type=submit>
 		    <div id=hostname_output></div>
 		</td>
+	</form>
 	</tr>
+"
+
+puts "
+	<tr>
+	<form id=channel_group method=get action=$env(REQUEST_URI)>
+		<th>Channel Group for EPG</th>
+		<td><select id=channel_group name=channel_group
+		    value=[$settings channel_group]>
+"
+
+set i 0
+puts "<option value=0>-- None --"
+foreach grp [$settings channel_groups] {
+	incr i
+	puts -nonewline "<option value=$i"
+	if {$channel_group == $i} {
+		puts -nonewline " selected"
+	}
+	puts ">$grp"
+}
+
+puts "
+		</select>
+		<input name=channel_group value=\"change\" type=submit>
+		<div id=channel_group_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
 	</table>
 	</form>
 	<br>

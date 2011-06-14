@@ -107,6 +107,8 @@ if {$ct > 0 } {
 	set records [epg fetch $cmd -extra $term]
 }
 
+set favlist [epg favlist]
+
 puts {
 	<table class=borders id=results style="clear: both;margin: 0.5em 0 0 0">
 	<tr>
@@ -126,10 +128,13 @@ proc rsort {v1 v2} {
 	return -1
 }
 
-
 set i 0
 foreach record [lsort -command rsort $records] {
+	if {$favlist != "" && [$record get service_id] ni $favlist} {
+		continue
+	}
 	altrow
+	$record get_channel_info
 	puts "<td nowrap>
 	    [clock format [$record get start] -format "%a %d %b %Y"]<br>
 		[clock format [$record get start] -format "%H:%M %Z"]</td>"

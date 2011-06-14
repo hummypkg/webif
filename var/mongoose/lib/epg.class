@@ -1,13 +1,14 @@
 
 if {[expr ! [exists -proc class ]]} { package require oo }
 if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
+if {[expr ! [exists -proc settings ]]} {
+	source /mod/var/mongoose/lib/settings.class
+}
 
 source /mod/var/mongoose/lib/progressbar
 
 set channeldb 0
-catch {
-set channeldb [sqlite3.open /var/lib/humaxtv/channel.db]
-}
+catch { set channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
 
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
@@ -31,12 +32,6 @@ class epg {
 	channel_num	0
 	channel_name	""
 	channel_crid	""
-}
-
-epg method channel {chnum chname chcrid} {
-	set channel_num $chnum
-	set channel_name $chname
-	set channel_crid [string toupper $chcrid]
 }
 
 epg method _parse {line} {
@@ -101,12 +96,35 @@ epg method type_icon {} {
 	}
 }
 
-epg method channel_icon {{width 0} {style ""}} {
-	set str "<img src=\"/img/channels/[$self get channel_name].jpg\"";
+proc {epg channelicon} {name {width 0} {style ""}} {
+	set str "<img src=\"/img/channels/$name.png\"";
 	if {$width > 0} { append str " width=$width" }
 	if {$style ne ""} { append str " style=\"$style\" }
 	append str " alt=\"\">"
 	return $str
+}
+
+epg method channel_icon {{width 0} {style ""}} {
+	set str "<img src=\"/img/channels/[$self get channel_name].png\"";
+	if {$width > 0} { append str " width=$width" }
+	if {$style ne ""} { append str " style=\"$style\" }
+	append str " alt=\"\">"
+	return $str
+}
+
+epg method get_channel_info {} {
+	global channeldb
+
+	if {!$channel_num && $channeldb != ""} {
+		set chan [lindex [$channeldb query {
+			select szSvcName, usLcn, aucDefaultAuthority
+			from TBL_SVC
+			where usSvcId = %s} "[$self get service_id]"
+		    ] 0]
+		set channel_num $chan(usLcn)
+		set channel_name [string range $chan(szSvcName) 1 end]
+		set channel_crid [string toupper $chan(aucDefaultAuthority)]
+	}
 }
 
 epg method icon_set {{height 0}} {
@@ -140,7 +158,7 @@ epg method cell {} {
 	puts [join [$self icon_set 14] ""]
 
 	puts "
-	    <a class=event href=/cgi-bin/epg_info.jim?service=[$self get service_id]&event=[$self get event_id]>
+	    <a class=event href=# xref=/cgi-bin/epg_info.jim?service=[$self get service_id]&event=[$self get event_id]>
 	    $name</a>"
 
 	puts "<br>"
@@ -218,24 +236,25 @@ proc {epg exec} {mode args} {
 }
 
 proc {epg fetch} {mode args} {
-	global channeldb
-
 	set records ""
 	foreach line [split [epg exec $mode {*}$args] "\n"] {
-		set record [epg parse $line]
-		if {$channeldb != ""} {
-			set chan [lindex [$channeldb query {
-				select szSvcName, usLcn, aucDefaultAuthority
-				from TBL_SVC
-				where usSvcId = %s} "[$record get service_id]"
-			    ] 0]
-			$record channel $chan(usLcn) \
-			    [string range $chan(szSvcName) 1 end] \
-			    $chan(aucDefaultAuthority)
-		}
-		
-		lappend records $record
+		lappend records [epg parse $line]
 	}
 	return $records
+}
+
+proc {epg favlist} {} {
+	global channeldb
+
+	set num [[settings] channel_group]
+
+	if {!$num} { return "" }
+
+	return [lmap i [$channeldb query "
+		select TBL_SVC.usSvcid
+		from TBL_SVC join TBL_FAV
+		using(hSvc)
+		where TBL_FAV.eFavGroup == $num
+	"] { lindex $i end }]
 }
 

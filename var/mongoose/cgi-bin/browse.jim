@@ -1,0 +1,182 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(tsfile) "/media/My Video/Have I Got News for You_20110606_2247.ts"
+
+if {[dict exists $_cgi tsfile]} {
+	source /mod/var/mongoose/lib/epg.class
+	set file [dict get $_cgi tsfile]
+	set a [split [exec /mod/bin/hmt -p $file] "\t"]
+
+	# Need to fix 64-bit..
+	set size "??"
+	catch {
+		file stat $file st
+		set size [expr $st(size) / 1048576]
+	}
+	puts "
+<table class=keyval>
+<tr>
+	<th>Title</th>
+	<td>[lindex $a 0]</td>
+</tr><tr>
+	<th>Synopsis</th>
+	<td>[lindex $a 1]</td>
+</tr><tr>
+	<th>Definition</th>
+	<td>[lindex $a 2]</td>
+</tr><tr>
+	<th>Channel</th>
+	<td>[epg channelicon [lindex $a 4] 50 "vertical-align: middle"]
+	    [lindex $a 3] - [lindex $a 4]</td>
+</tr><tr>
+	<th>Start Time</th>
+	<td>"
+	puts [clock format [lindex $a 5] -format "%c %Z"]
+	puts "</td>
+</tr><tr>
+	<th>End Time</th>
+	<td>"
+	puts [clock format [lindex $a 6] -format "%c %Z"]
+	puts "</td>
+</tr><tr>
+	<th>Duration</th>
+	<td>[expr [expr [lindex $a 6] - [lindex $a 5]] / 60] minute(s).</td>
+</tr><tr>
+	<th>Size</th>
+	<td>$size MiB</td>
+</tr><tr>
+	<th>Flags</th>
+	<td>[lindex $a 7]</td>
+</tr>
+</table>
+	"
+	exit
+}
+
+if {[dict exists $_cgi dir]} {
+	set dir [dict get $_cgi dir]
+} else {
+	set dir "/media/My Video"
+}
+
+source /mod/var/mongoose/html/lib/header.jim
+
+puts {
+<div id=dialogue></div>
+<script type=text/javascript>
+	$(document).ready(function() {
+		var $dialog = $('#dialogue').dialog({
+			title: "Recording Details",
+			modal: false, autoOpen: false,
+			height: 600, width: 700,
+			show: 'scale', hide: 'fade',
+			draggable: true, resizable: true,
+			buttons: { "Close":
+			    function() {$(this).dialog('close');}},
+			close: function(e,u) { $('#dialogue').empty().html('<img src="/img/loading.gif" alt="loading">'); }
+		});
+
+		$('a.ts').click(function(e) {
+			e.preventDefault();
+			var file = $(this).attr('file');
+			var url = window.location.pathname + '?tsfile=' +
+			    encodeURIComponent(file);
+			$('#dialogue').load(url);
+			$dialog.dialog('open');
+		});
+	});
+</script>
+}
+
+proc tsfile {file bfile} {
+	puts "
+	    <div style=\"vertical-align: middle\">
+	      <a class=ts file=\"$file\" href=#>
+		<img style=\"vertical-align: middle\"
+		  border=0 width=45 src=/images/741_1_10_Video_Title.png>
+		  $bfile
+	      </a>
+	      <a class=tsopt file=\"$file\" href=#>
+		<img style=\"vertical-align: middle\"
+		    border=0 width=45 src=/images/181_1_00_Help5_OPT_Plus.png>
+	      </a>
+	    </div>
+	"
+}
+
+proc genfile {file bfile} {
+	puts "
+	    <div style=\"vertical-align: middle\">
+	      <a href=#>
+		<img style=\"vertical-align: middle\"
+		  border=0 width=45 src=/images/743_4_10_Video_Xvid_File.png>
+		  $bfile
+	      </a>
+	    </div>
+	"
+}
+
+puts { <div style="border: 1px solid grey; padding: 1em"> }
+puts "<h1>"
+set stub ""
+foreach part [split $dir /] {
+	if {$stub eq "/"} { set name $part } else { set name "/$part" }
+	append stub $name
+	puts "<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $stub]>$name</a>
+}
+puts "</h1>"
+
+set parent [join [lrange [split $dir /] 0 end-1] /]
+if {$parent ne ""} {
+	puts "
+	    <div style=\"vertical-align: middle\">
+		<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $parent]>
+		<img src=/images/711_3_09_Media_Folder_UP.png
+		    style=\"vertical-align: middle\">
+			\[parent directory\]</a>
+	    </div>
+	"
+}
+
+regsub -all -- {\/+} "$dir/*" "/" dir
+
+foreach file [lsort [glob -nocomplain "$dir"]] {
+	set bfile [lindex [split $file /] end]
+	if {[string index $bfile 0] == "\025"} {
+		set bfile [string range $bfile 1 end]
+	}
+	if [file isdirectory "$file"] {
+		puts "<div style=\"vertical-align: middle\">"
+		puts "<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $file]>"
+		puts "<img border=0
+		    style=\"vertical-align: middle\"
+		    src=/images/711_1_09_Media_Folder.png>"
+		puts "$bfile</a><br>"
+		continue
+	}
+	regexp -- {\.([^.]+)$} "$file" allmatch ext
+	switch $ext {
+		nts	{ continue }
+		thm	{ continue }
+		hmt	{ continue }
+		hmi	{ continue }
+		ts	{ tsfile $file $bfile }
+		avi	{ genfile $file $bfile }
+		mpg	{ genfile $file $bfile }
+		wmv	{ genfile $file $bfile }
+		mkv	{ genfile $file $bfile }
+	}
+}
+
+puts "</div>"
+
+source /mod/var/mongoose/html/lib/footer.jim
+

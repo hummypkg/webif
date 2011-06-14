@@ -21,6 +21,7 @@ if {! [dict exists $_cgi bare]} {
 #set event 25293
 
 set record [lindex [epg fetch dump -service $service -event $event] 0]
+$record get_channel_info
 
 puts "
 	<table class=keyval>
@@ -91,7 +92,7 @@ if {[$record get rec_crid] != ""} {
 puts "
 	<tr>
 		<td colspan=2 valign=top>
-			[$record channel_icon]
+			[$record channel_icon 70]
 			[join [$record icon_set] "&nbsp;"]
 		</td>
 	</tr>

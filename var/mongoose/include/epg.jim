@@ -18,6 +18,8 @@ set start [clock milliseconds]
 set records [epg fetch dump -time [clock seconds]]
 set got [clock milliseconds]
 
+set favlist [epg favlist]
+
 puts {
 	<table class=borders>
 	<tr>
@@ -36,7 +38,14 @@ proc rsort {v1 v2} {
 	return -1
 }
 
+foreach record $records {
+	$record get_channel_info
+}
+
 foreach record [lsort -command rsort $records] {
+	if {$favlist != "" && [$record get service_id] ni $favlist} {
+		continue
+	}
 	altrow
 	set num [$record get channel_num]
 	puts "<td>$num</td>"
@@ -51,10 +60,17 @@ foreach record [lsort -command rsort $records] {
 }
 puts "</table>"
 
+puts "
+	<a href=/cgi-bin/settings.jim>
+	<img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
+	Visit settings to change EPG options.
+	</a><br>
+"
+
 set end [clock milliseconds]
 puts "<font class=footnote>
-    Retrieved now in: [expr [expr $got - $start] / 1000.0] seconds.<br>
-    All rendered in: [expr [expr $end - $start] / 1000.0] seconds.
+    Retrieved in: [expr [expr $got - $start] / 1000.0] seconds.
+    Rendered in: [expr [expr $end - $start] / 1000.0] seconds.
     </font>"
 
 epg cleanup

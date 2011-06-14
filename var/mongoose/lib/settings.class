@@ -1,0 +1,78 @@
+
+if {[expr ! [exists -proc class ]]} { package require oo }
+if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
+
+set settingsdb [sqlite3.open /mod/etc/webif.db]
+
+class settings {
+	hostname	""
+	channel_group	0
+}
+
+settings method hostname {{name ""}} {
+	if {$name == ""} {
+		# Get
+		if {[catch {set fd [open "/var/lib/humaxtv/hostname" r]}]} {
+			set name "humax"
+		} else {
+			set name [string trim [read $fd]]
+			close $fd
+		}
+		return $name
+	} else {
+		# Set
+		if [string is alnum -strict $name] {
+			set fd [open "/var/lib/humaxtv/hostname" w]
+			puts $fd $name
+			close $fd
+			exec hostname -F /var/lib/humaxtv/hostname
+		}
+	}
+}
+
+settings method _nval_setting {name {val -1}} {
+	global settingsdb;
+
+	if {$val == -1} {
+		# Get
+		set res [$settingsdb query "
+			select nval from settings
+			where name = '$name'
+		"]
+		if {$res ne ""} {
+			return [lindex [lindex $res end] end]
+		}
+		return 0
+	} else {
+		# Set
+		$settingsdb query "
+			replace into settings(name,nval)
+			values('$name', $val)
+		"
+		return 0
+	}
+}
+
+settings method channel_group {{group -1}} {
+	return [$self _nval_setting channel_group $group]
+}
+
+settings method channel_groups {} {
+	set ret ""
+	set db [sqlite3.open /var/lib/humaxtv/setup.db]
+	set res [$db query {
+		select itemText from TBL_MENUCONFIG
+		where itemName like 'FAV\_CUSTOM\_STR%%' ESCAPE '\'
+	}]
+	$db close
+	foreach g $res {
+		set g $g(itemText)
+		if {[string index $g 0] == "\025"} {
+			lappend ret [string range $g 1 end]
+		} else {
+			lappend ret $g
+		}
+	}
+	return $ret
+}
+

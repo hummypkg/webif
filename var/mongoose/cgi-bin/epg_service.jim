@@ -29,12 +29,13 @@ catch { set service [dict get $_cgi service] }
 set records [epg fetch dump -service $service]
 
 set tr [lindex $records 0]
+$tr get_channel_info
 set channel_num [$tr get channel_num]
 set channel_name [$tr get channel_name]
 
 puts "
 	<div style=\"margin: 0 1em 1em 1em\">
-	[$tr channel_icon 0 {vertical-align:middle}]
+	[$tr channel_icon 80 {vertical-align:middle}]
 	<span style=\"vertical-align: middle\">
 		$channel_num - $channel_name
 	</span>

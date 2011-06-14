@@ -21,11 +21,11 @@ $(document).ready(function() {
 
 <div style="float: left">
 	<center>
-	<a href=/media>
+	<a href=/cgi-bin/browse.jim>
 	<img src=/images/323_1_10_Menu_Video.png border=0 width=217 height=228>
 	</a>
 	<br>
-	<a href=/media>
+	<a href=/cgi-bin/browse.jim>
 	<b>Browse Media Files</b>
 	</a>
 	<br>
@@ -103,9 +103,11 @@ $(document).ready(function() {
 <!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
 MediaTomb Web Interface</a>
 </li><li>
-<a href=/db.shtml target=_blank> SQLite3 Database Dump </a>
+<a href=/db.shtml target=_blank>SQLite3 Database Dump</a>
 </li><li>
-<a href=/jimref.html target=_blank> Jim Reference Manual </a>
+<a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
+<a href=/jim/oo.html target=_blank>OO</a> |
+<a href=/jim/sqlite.html target=_blank>Sqlite</a>
 </li>
 </ul>
 </div>
