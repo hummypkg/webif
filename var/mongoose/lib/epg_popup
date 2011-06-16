@@ -10,12 +10,15 @@ puts {
 			draggable: true, resizable: true,
 			buttons: { "Close":
 			    function() {$(this).dialog('close');}},
-			close: function(e,u) { $('#dialogue').empty().html('<img src="/img/loading.gif" alt="loading">'); }
+			close: function(e,u) { $('#dialogue').empty().html(
+			    '<img src="/img/loading.gif" alt="loading">'); }
 		});
 		$('a.event').click(function(e) {
 			e.preventDefault();
-			var url = $(this).attr('xref');
-			$('#dialogue').load(url + '&bare=1');
+			var url = '/cgi-bin/epg_info.jim?service=' +
+			    $(this).attr('xs') + '&event=' +
+			    $(this).attr('xe') + '&bare=1';
+			$('#dialogue').load(url);
 			$dialog.dialog('open');
 		});
 	});

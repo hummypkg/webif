@@ -54,8 +54,10 @@ foreach record [lsort -command rsort $records] {
 	    <a href=/cgi-bin/epg_service.jim?service=[$record get service_id]>
 	    [$record get channel_name]
 	    </a></td>"
-	puts [$record cell]
-	puts [[$record next] cell]
+	catch {
+		puts [$record cell]
+		puts [[$record next] cell]
+	}
 	puts "</tr>"
 }
 puts "</table>"

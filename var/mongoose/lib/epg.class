@@ -158,7 +158,8 @@ epg method cell {} {
 	puts [join [$self icon_set 14] ""]
 
 	puts "
-	    <a class=event href=# xref=/cgi-bin/epg_info.jim?service=[$self get service_id]&event=[$self get event_id]>
+	    <a class=event href=# xs=[$self get service_id]
+		xe=[$self get event_id]>
 	    $name</a>"
 
 	puts "<br>"

@@ -1,8 +1,8 @@
 <html>
 <head>
 <title><!--#exec cmd="/mod/var/mongoose/include/model.jim" --></title>
-<link rel="shortcut icon" href=/img/favicon.ico>
-<link href=/css/style.css rel=stylesheet type=text/css>
+<link rel="shortcut icon" href=/img/favicon.ico />
+<link href=/css/style.css rel=stylesheet type=text/css />
 <link type="text/css" href="/css/jquery-ui.css" rel="Stylesheet" />     
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/jquery-ui.js"></script>

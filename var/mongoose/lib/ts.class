@@ -1,0 +1,87 @@
+
+if {[expr ! [exists -proc class ]]} { package require oo }
+
+class ts {
+	file		""
+	title		""
+	synopsis	""
+	definition	""
+	channel_num	0
+	channel_name	""
+	start		0
+	end		0
+	flags		""
+	error		""
+}
+
+ts method duration {} {
+	return [expr [expr $end - $start] / 60]
+}
+
+ts method size {} {
+	set sz "??"
+	catch {
+		file stat $file st
+		set sz [expr $st(size) / 1048576]
+	}
+}
+
+ts method _parse {line} {
+	set vars [split $line "\t"]
+
+	set title [lindex $vars 0]
+	set synopsis [lindex $vars 1]
+	set definition [lindex $vars 2]
+	set channel_num [lindex $vars 3]
+	set channel_name [lindex $vars 4]
+	set start [lindex $vars 5]
+	set end [lindex $vars 6]
+	set flags [split [string range [lindex $vars 7] 0 end-1] ,]
+}
+
+ts method flag {f} {
+	if {$f in $flags} {return 1} else {return 0}
+}
+
+ts method unlock {} {
+	set cmd [list /mod/bin/hmt -lock $file]
+	#puts "CMD: $cmd"
+	exec {*}$cmd
+	return 1
+}
+
+ts method lock {} {
+	set cmd [list /mod/bin/hmt +lock $file]
+	#puts "CMD: $cmd"
+	exec {*}$cmd
+	return 1
+}
+
+ts method setfile {f} { set file $f }
+
+proc {ts parse} {file line} {
+	set e [ts new]
+	$e setfile $file
+	$e _parse $line
+	return $e
+}
+
+proc {ts exec} {file} {
+	set raw 0
+	set cmd [list /mod/bin/hmt]
+	lappend cmd "-p"
+	lappend cmd $file
+
+	#puts "CMD -$cmd-"
+
+	return [exec {*}$cmd]
+}
+
+proc {ts fetch} {file} {
+	return [ts parse $file [ts exec $file]]
+}
+
+ts method delete {} {
+	return 1
+}
+
