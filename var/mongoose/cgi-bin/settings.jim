@@ -12,9 +12,13 @@ cgi_input
 set settings [settings new]
 
 set hostname [$settings hostname]
+set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
 
 # Handle updates
+
+#set _cgi(smtp_server) "fred.bob"
+#set env(REQUEST_URI) ''
 
 proc _handle_update {class var old text} {
 	global _cgi
@@ -43,6 +47,7 @@ proc handle_str_update {var old {text "Value"}} {
 }
 
 handle_str_update hostname $hostname Hostname
+_handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 
 source /mod/var/mongoose/html/lib/header.jim
@@ -51,7 +56,8 @@ puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
 puts {
 	<script type=text/javascript>
 	$(document).ready(function () {
-		$(":submit").button();
+		//$(":submit").button();
+		//$(":submit").height(20);
 		$('form').each(function(i, el) {
 			var id = $(this).attr('id');
 			var output = '#' + id + '_output'
@@ -78,6 +84,19 @@ puts "
 		    length=20 maxlength=50>
 		    <input id=hostname_submit value=\"change\" type=submit>
 		    <div id=hostname_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form id=smtp_server method=get action=$env(REQUEST_URI)>
+		<th>SMTP Server for outbound email</th>
+		<td><input name=smtp_server value=\"$smtp_server\"
+		    length=20 maxlength=50>
+		    <input id=smtp_server_submit value=\"change\" type=submit>
+		    <div id=smtp_server_output></div>
 		</td>
 	</form>
 	</tr>

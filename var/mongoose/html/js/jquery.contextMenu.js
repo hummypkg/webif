@@ -13,8 +13,9 @@
 // (C)2008 by Cory S.N. LaViska.
 //
 // For details, visit http://creativecommons.org/licenses/by/3.0/us/
-//
-// Modified 11NOV08 By Bill Beckelman to include option to use left mouse button instead.
+
+// Modified by Andy Fiddaman to support left click and
+// support modification of menu items.
 
 if (jQuery) (function() {
     $.extend($.fn, {
@@ -25,6 +26,7 @@ if (jQuery) (function() {
             if (o.inSpeed == undefined) o.inSpeed = 150;
             if (o.outSpeed == undefined) o.outSpeed = 75;
             if (o.leftButton == undefined) o.leftButton = false;
+	    if (o.beforeShow == undefined) o.beforeShow = false;
             // 0 needs to be -1 for expected results (no fade)
             if (o.inSpeed == 0) o.inSpeed = -1;
             if (o.outSpeed == 0) o.outSpeed = -1;
@@ -34,8 +36,8 @@ if (jQuery) (function() {
                 var offset = $(el).offset();
                 // Add contextMenu class
                 $('#' + o.menu).addClass('contextMenu');
+		if (o.leftButton) $(this).bind('click', false);
                 // Simulate a true right click
-		$(this).bind('click', false);
                 $(this).mousedown(function(e) {
                     var evt = e;
                     $(this).mouseup(function(e) {
@@ -48,6 +50,8 @@ if (jQuery) (function() {
                             var menu = $('#' + o.menu);
 
                             if ($(el).hasClass('disabled')) return false;
+
+			    if (o.beforeShow) o.beforeShow(el, menu);
 
                             // Detect mouse position
                             var d = {}, x, y;
@@ -182,6 +186,15 @@ if (jQuery) (function() {
                     }
                 }
             });
+            return ($(this));
+        },
+
+        // Change context menu text on the fly
+       changeContextMenuItem: function(d, t) {
+            if (d == undefined) return;
+            $(this).each(function() {
+		$(this).find('A[href="' + d + '"]').text(t);
+	    });
             return ($(this));
         },
 

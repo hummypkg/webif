@@ -6,20 +6,20 @@ source /mod/var/mongoose/lib/ts.class
 puts "Content-Type: text/html"
 puts ""
 
-set ignore {nts thm hmt hmi}
-set standard {avi mpg wmv mkv}
+set ignore {.nts .thm .hmt .hmi}
+set standard {.avi .mpg .wmv .mkv}
 
 cgi_input
 #cgi_dump
 
 #set _cgi(tsfile) "/media/My Video/Family Guy/2.19._Excellence_in_Broadcasting.ts"
-#set _cgi(action) "lock"
+#set _cgi(action) "delete"
 #set env(REQUEST_URI) ''
 
-proc tsfile {file bfile} {{i 0}} {
+proc tsfile {file bfile {ajax 0}} {{i 0}} {
 	set ts [ts fetch $file]
+	if {$ajax == 0} { puts "<div class=\"va tsfile\" id=[incr i]>" }
 	puts "
-	    <div class=\"va tsfile\" id=[incr i]>
 	      <a class=ts file=\"$file\" href=#>
 		<img class=va border=0 width=45
 		  src=/images/741_1_10_Video_Title.png>
@@ -31,20 +31,21 @@ proc tsfile {file bfile} {{i 0}} {
 	} else {
 		puts "<img class=va src=/images/172_1_26_SD.png height=21>"
 	}
+	set locked 0
 	if {[$ts flag "Locked"] > 0} {
+		set locked 1
 		puts "<img class=va src=/images/178_1_00_Icon_Lock.png
 		    height=21>"
-		    
 	}
 
 	puts "
 	      <a class=tsopt file=\"$file\" href=#>
-		<img class=\"opt va\" border=0 width=45 did=$i
+		<img class=\"opt va\" border=0 width=45 did=$i locked=$locked
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
-	    </div>
 	"
+	if {$ajax == 0} { puts "</div>" }
 }
 
 proc genfile {file bfile} {
@@ -66,7 +67,7 @@ proc directory {file bfile} {
 	puts "$bfile</a></div>"
 }
 
-proc entry {file} {
+proc entry {file {ajax 0}} {
 	set bfile [lindex [split $file /] end]
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
@@ -75,9 +76,9 @@ proc entry {file} {
 		directory $file $bfile
 		continue
 	}
-	regexp -- {\.([^.]+)$} "$file" allmatch ext
-	if {$ext eq "ts"} {
-		tsfile $file $bfile
+	set ext [file extension $file]
+	if {$ext eq ".ts"} {
+		tsfile $file $bfile $ajax
 		continue
 	}
 	if {$ext in $::ignore} { continue }
@@ -94,7 +95,7 @@ if {[dict exists $_cgi tsfile]} {
 	if {[dict exists $_cgi action]} {
 		switch [dict get $_cgi action] {
 		    entry {
-			entry $file
+			entry $file 1
 		    }
 		    delete {
 			if {[$ts delete]} {
@@ -190,6 +191,48 @@ puts {
 <div id=confirm title="Confirmation Required"></div>
 
 <script type=text/javascript>
+	function bindmenu(selector)
+	{
+		$(selector).contextMenu(
+			{
+				menu: 'optmenu',
+				leftButton: true,
+				beforeShow:
+function(el, menu)
+{
+	if (el.attr('locked') == 1)
+	{
+		$(menu).changeContextMenuItem('#lock', 'Unlock');
+		$('#optmenu').disableContextMenuItems('#delete');
+	}
+	else
+	{
+		$(menu).changeContextMenuItem('#lock', 'Lock');
+		$('#optmenu').enableContextMenuItems('#delete');
+	}
+}
+			},
+function (action, el, pos)
+{
+	var ts = $(el).parent().prevAll('a.ts').last().attr('file');
+	var did = $(el).attr('did');
+	switch (action)
+	{
+	    case 'delete':
+		confirm_action('delete', delete_callback, ts, did);
+		break;
+
+	    case 'lock':
+		confirm_action('change the lock on', lock_callback, ts, did);
+		break;
+
+	    default:
+		alert('Unhandled action: ' + action);
+		break;
+	}
+}
+		);
+	}
 
 	var $confirm = $('#confirm').dialog({
 		modal: true, autoOpen: false,
@@ -234,7 +277,9 @@ puts {
 		$(results).load(url + 'lock', function() {
 			$(results).delay(3000).slideUp(150,
 			    function() {
-				$(el).load(url + 'entry');
+				$(el).load(url + 'entry', function() {
+					bindmenu(el + ' img.opt');
+				});;
 			    }
 			);
 		});
@@ -255,6 +300,9 @@ puts {
 
 	$(document).ready(function() {
 
+		$('#optmenu').disableContextMenuItems('#rename,#title');
+		bindmenu('img.opt');
+
 		$('a.ts').click(function(e) {
 			e.preventDefault();
 			var file = $(this).attr('file');
@@ -264,31 +312,6 @@ puts {
 			$dialog.dialog('open');
 		});
 
-		$('img.opt').contextMenu(
-			{
-				menu: 'optmenu',
-				leftButton: true,
-			},
-function (action, el, pos)
-{
-	var ts = $(el).parent().prevAll('a.ts').last().attr('file');
-	var did = $(el).attr('did');
-	switch (action)
-	{
-	    case 'delete':
-		confirm_action('delete', delete_callback, ts, did);
-		break;
-
-	    case 'lock':
-		confirm_action('change the lock on', lock_callback, ts, did);
-		break;
-
-	    default:
-		alert('Unhandled action: ' + action);
-		break;
-	}
-}
-		);
 	});
 </script>
 }

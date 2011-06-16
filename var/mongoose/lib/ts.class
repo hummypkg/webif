@@ -3,6 +3,7 @@ if {[expr ! [exists -proc class ]]} { package require oo }
 
 class ts {
 	file		""
+	base		""
 	title		""
 	synopsis	""
 	definition	""
@@ -82,6 +83,11 @@ proc {ts fetch} {file} {
 }
 
 ts method delete {} {
+	# Extract file basename
+	foreach f [glob -nocomplain "[file rootname $file].*"] {
+		puts "Removed $f<br>"
+		file delete $f
+	}
 	return 1
 }
 

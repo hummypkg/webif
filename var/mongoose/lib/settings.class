@@ -7,6 +7,7 @@ set settingsdb [sqlite3.open /mod/etc/webif.db]
 class settings {
 	hostname	""
 	channel_group	0
+	smtp_server	""
 }
 
 settings method hostname {{name ""}} {
@@ -26,6 +27,34 @@ settings method hostname {{name ""}} {
 			puts $fd $name
 			close $fd
 			exec hostname -F /var/lib/humaxtv/hostname
+		}
+	}
+}
+
+settings method smtp_server {{server ""}} {
+	if {$server == ""} {
+		# Get
+		if {[catch {set fd [open "/mod/etc/ssmtp/ssmtp.conf" r]}]} {
+			set server "mail"
+		} else {
+			foreach line [split [read $fd] "\n"] {
+				set a [string first "mailhub=" $line]
+				if {$a == 0} {
+					set server [string range $line 8 end]
+					set server [string trim $server]
+				}
+			}
+			close $fd
+		}
+		return $server
+	} else {
+		# Set
+		if {[string is ascii -strict $server]} {
+			set fd [open "/mod/etc/ssmtp/ssmtp.conf" w]
+			puts $fd "mailhub=$server"
+			puts $fd "rewriteDomain=hummypkg.org.uk"
+			puts $fd "hostname=[$self hostname].hummypkg.org.uk"
+			close $fd
 		}
 	}
 }
