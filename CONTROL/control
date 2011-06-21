@@ -1,10 +1,10 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 0.5.1
+Version: 0.5.3
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
-Depends: mongoose(>=2.11-4),jim-sqlite3,jim-cgi,service-control,busybox,lsof,jim-oo,epg(>=1.0.2)
+Depends: mongoose(>=2.11-5),jim,jim-sqlite3,jim-cgi,jim-oo,service-control,busybox(>=1.18.3-1),lsof,epg(>=1.0.2),hmt(>=1.0.4),ssmtp
 Replaces: af123-webif
 Conflicts: af123-webif
 Description: A web interface for the Humax. In development.
