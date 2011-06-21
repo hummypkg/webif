@@ -43,9 +43,8 @@ foreach line $lines {
 
 	incr seen($name)
 
-	lappend output "<img style=\"vertical-align: middle\"
-	    src=/images/$icon><span
-	    style=\"vertical-align: middle\">$mode&nbsp;$name</span>"
+	lappend output "<img class=va src=/images/$icon><span class=va>
+	    $mode&nbsp;$name</span><br>"
 }
 
 if {[llength $output]} {

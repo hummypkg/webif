@@ -185,6 +185,7 @@ puts {
 	<li><a href=#lock>Toggle Lock</a></li>
 	<li><a href=#rename>Rename</a></li>
 	<li><a href=#title>Change Title</a></li>
+	<li><a href=#download>Download</a></li>
 </ul>
 
 <div id=dialogue></div>
@@ -224,6 +225,10 @@ function (action, el, pos)
 
 	    case 'lock':
 		confirm_action('change the lock on', lock_callback, ts, did);
+		break;
+
+	    case 'download':
+		window.location.href = ts;
 		break;
 
 	    default:
@@ -292,8 +297,11 @@ function (action, el, pos)
 		height: 600, width: 700,
 		show: 'scale', hide: 'fade',
 		draggable: true, resizable: true,
-		buttons: { "Close":
-		    function() {$(this).dialog('close');}},
+		buttons: {
+			"Close": function() {
+				$(this).dialog('close');
+			}
+		},
 		close: function(e,u) { $('#dialogue').empty().html(
 		    '<img src="/img/loading.gif" alt="loading">'); }
 	});

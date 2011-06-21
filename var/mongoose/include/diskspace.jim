@@ -5,7 +5,7 @@ if {[os.gethostname] eq "hosting"} {
 	set used "100GB"
 	set perc "10"
 } else {
-	foreach df [split [exec df -h] "\n\r"] {
+	foreach df [split [exec df -h 2>>/dev/null] "\n\r"] {
 		if [string match *sd*2* $df] {
 			regsub -all -- {[[:space:]]+} $df " " df
 			set fields [split $df]
