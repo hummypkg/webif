@@ -14,8 +14,11 @@ $(document).ready(function() {
 		    '&service=' +
 		    escape($(this).attr('name'));
 		$('#result_txt').load(url, function() {
-			$('#results').show('slow');
-			$('#results').delay(3000).hide('slow');
+			if ($('#results').is(":visible") == false)
+			{
+				$('#results').show('slow');
+				$('#results').delay(3000).hide('slow');
+			}
 		});
 	});
 });
