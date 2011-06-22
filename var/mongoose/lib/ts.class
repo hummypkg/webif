@@ -25,6 +25,7 @@ ts method size {} {
 		file stat $file st
 		set sz [expr $st(size) / 1048576]
 	}
+	return $sz
 }
 
 ts method _parse {line} {
