@@ -63,13 +63,13 @@ table.borders, table.borders td, table.borders th
 	empty-cells: show;
 }
 
-table tr.odd
+table tr.odd, table td.odd
 {
 	background: #ccff99;
 	color: black;
 }
 
-table tr.even
+table tr.even, table td.even
 {
 	background: #ffffcc;
 	color: black;

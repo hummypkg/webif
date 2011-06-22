@@ -2,18 +2,6 @@
 
 set services [split [exec /mod/bin/service mlist]]
 
-proc button {state service action} {
-	puts -nonewline "<a href=#>"
-	puts -nonewline "<img border=0 src=/img/$state.png"
-	puts -nonewline " onClick=\"go('$service', '$action'); "
-	puts -nonewline "toggle(this); return false\">"
-	puts "</a>"
-}
-
-proc control {s a} {
-	return "<a href=/cgi-bin/service.jim?action=$a&service=$s>"
-}
-
 foreach service $services {
 	set data [split $service ":"]
 	set name [lindex $data 0]
@@ -21,20 +9,19 @@ foreach service $services {
 	set auto [lindex $data 2]
 	set running [lindex $data 3]
 
-	puts "<tr class=even><td>$name</td>"
+	puts "<tr><td class=even>$name</td>"
 	if (!$installed) {
 		puts "<td colspan=3><i>Not installed</i></td></tr>"
 		continue
 	}
 
-	puts "<td>"
-	if ($auto) { button on $name auto } else { button off $name auto }
-	puts "</td>"
+	puts -nonewline "<td><input type=checkbox class=auto name=\"$name\""
+	if ($auto) { puts -nonewline " checked" }
+	puts "></td>"
 
-	puts "<td>"
-	if ($running) { button on $name toggle } else {
-		button off $name toggle }
-	puts "</td>"
+	puts -nonewline "<td><input type=checkbox class=toggle name=\"$name\"""
+	if ($running) { puts -nonewline " checked" }
+	puts "></td>"
 
 	puts "</tr>"
 }

@@ -1,40 +1,24 @@
 <!--#include virtual="/lib/header.shtml" -->
+<link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
+<script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
+<script type="text/javascript">
 
-<script type=text/javascript src=/js/ajax.js></script>
+$(document).ready(function() {
+	$('input:checkbox').iphoneStyle();
+	// Don't allow turning off the web server from within the web server..
+	$('input:checkbox[name=mongoose][class=toggle]').attr('disabled', true);
 
-<script type=text/javascript>
-function updateResults()
-{
-	var r = document.getElementById('results');
-	if (r && request.readyState == 4 && request.status == 200)
-	{
-		r.style.display = 'block';
-		var t = document.getElementById('result_txt');
-		t.innerHTML = request.responseText;
-	}
-}
-
-function go(service, action)
-{
-	if (service == null || service == "" ||
-	    action == null || action == "")
-		return;
-
-	var url = "/cgi-bin/service.jim?service=" + escape(service) +
-	    "&action=" + escape(action);
-
-	request.open("GET", url, true);
-	request.onreadystatechange = updateResults;
-	request.send(null);
-}
-
-function toggle(obj)
-{
-	if (obj.src.search("on") > -1)
-		obj.src = '/img/off.png';
-	else
-		obj.src = '/img/on.png';
-}
+	$(':checkbox').change(function() {
+		var url = '/cgi-bin/service.jim?action=' +
+		    escape($(this).attr('class')) +
+		    '&service=' +
+		    escape($(this).attr('name'));
+		$('#result_txt').load(url, function() {
+			$('#results').show('slow');
+			$('#results').delay(3000).hide('slow');
+		});
+	});
+});
 
 </script>
 
