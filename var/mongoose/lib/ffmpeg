@@ -1,0 +1,8 @@
+#!/bin/sh
+
+/mod/bin/ffmpeg "$@" 2>&1 | sed '
+	1,8d
+	$d
+'
+exit 0
+

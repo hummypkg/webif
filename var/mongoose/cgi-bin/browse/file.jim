@@ -1,0 +1,101 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/pretty_size
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(file) "/media/My Video/Dangermouse/Series 1/01_rogue_robots.avi"
+
+if {![dict exists $_cgi file]} { exit }
+
+set file [dict get $_cgi file]
+set type [dict get $_cgi type]
+
+file stat $file st
+set sz [pretty_size $st(size)]
+
+if {$type eq "ts"} {
+	source /mod/var/mongoose/lib/epg.class
+	source /mod/var/mongoose/lib/ts.class
+
+	set ts [ts fetch $file]
+
+	puts "
+<table class=keyval>
+<tr>
+	<th>Title</th>
+	<td>[$ts get title]</td>
+</tr><tr>
+	<th>Synopsis</th>
+	<td>[$ts get synopsis]</td>
+</tr><tr>
+	<th>Definition</th>
+	<td>
+	"
+	if {[$ts get definition] eq "HD"} {
+		puts "<img class=va src=/images/172_1_00_HD.png height=21>"
+	} else {
+		puts "<img class=va src=/images/172_1_26_SD.png height=21>"
+	}
+	puts "</td>
+</tr><tr>
+	<th>Channel</th>
+	<td>[epg channelicon [$ts get channel_name] 50 "vertical-align: middle"]
+	    [$ts get channel_num] - [$ts get channel_name]</td>
+</tr><tr>
+	<th>Start Time</th>
+	<td>"
+	puts [clock format [$ts get start] -format "%c %Z"]
+	puts "</td>
+</tr><tr>
+	<th>End Time</th>
+	<td>"
+	puts [clock format [$ts get end] -format "%c %Z"]
+	puts "</td>
+</tr><tr>
+	<th>Duration</th>
+	<td>[$ts duration] minute(s).</td>
+</tr><tr>
+	<th>Size</th>
+	<td>$sz</td>
+</tr><tr>
+	<th>Flags</th>
+	<td>[$ts get flags]</td>
+</tr>
+</table>
+	"
+	exit
+}
+
+# Otherwise, for a general file.
+
+puts "
+<table class=keyval>
+<tr>
+	<th>File</th>
+	<td>$file</td>
+</tr><tr>
+	<th>Size</th>
+	<td>$sz</td>
+</tr><tr>
+	<th>Info</th>
+	<td class=pre id=ffmpeg>
+		<img src=/img/loading.gif><i>Loading...</i>
+	</td>
+</tr>
+</table>
+"
+
+set url "/cgi-bin/browse/ffmpeg.jim?file=[cgi_quote_url $file]"
+puts { <script type="text/javascript"> }
+puts "var url = \"$url\";"
+puts {
+	$('#ffmpeg').load(url);
+</script>
+}
+

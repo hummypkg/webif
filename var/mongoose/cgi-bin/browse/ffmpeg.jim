@@ -1,0 +1,17 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+if [file exists /mod/bin/ffmpeg] {
+	set file [dict get $_cgi file]
+	puts [exec /mod/var/mongoose/lib/ffmpeg -i $file]
+} else {
+	puts "Install ffmpeg package for more information..."
+}
+

@@ -1,0 +1,27 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set file [dict get $_cgi file]
+set type [dict get $_cgi type]
+
+if {$type eq "ts"} {
+	set ts [ts fetch $file]
+	if {[$ts delete]} {
+		puts "Successfully deleted $file."
+	} else {
+		puts "Problem deleting $file, [$ts get error]"
+	}
+	exit
+}
+
+file delete $file
+puts "Successfully deleted $file."
+

@@ -20,12 +20,8 @@ ts method duration {} {
 }
 
 ts method size {} {
-	set sz "??"
-	catch {
-		file stat $file st
-		set sz [expr $st(size) / 1048576]
-	}
-	return $sz
+	file stat $file st
+	return $st(size)
 }
 
 ts method _parse {line} {

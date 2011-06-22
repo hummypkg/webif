@@ -7,58 +7,13 @@ puts "Content-Type: text/html"
 puts ""
 
 set ignore {.nts .thm .hmt .hmi}
-set standard {.avi .mpg .wmv .mkv}
+set include {.ts .avi .mpg .wmv .mkv}
 
 cgi_input
 #cgi_dump
 
-#set _cgi(tsfile) "/media/My Video/Family Guy/2.19._Excellence_in_Broadcasting.ts"
-#set _cgi(action) "delete"
 #set env(REQUEST_URI) ''
-
-proc tsfile {file bfile {ajax 0}} {{i 0}} {
-	set ts [ts fetch $file]
-	if {$ajax == 0} { puts "<div class=\"va tsfile\" id=[incr i]>" }
-	puts "
-	      <a class=ts file=\"$file\" href=#>
-		<img class=va border=0 width=45
-		  src=/images/741_1_10_Video_Title.png>
-		  $bfile
-	      </a>
-	"
-	if {[$ts get definition] eq "HD"} {
-		puts "<img class=va src=/images/172_1_00_HD.png height=21>"
-	} else {
-		puts "<img class=va src=/images/172_1_26_SD.png height=21>"
-	}
-	set locked 0
-	if {[$ts flag "Locked"] > 0} {
-		set locked 1
-		puts "<img class=va src=/images/178_1_00_Icon_Lock.png
-		    height=21>"
-	}
-
-	puts "
-	      <a class=tsopt file=\"$file\" href=#>
-		<img class=\"opt va\" border=0 width=45 did=$i locked=$locked
-		    src=/images/181_1_00_Help5_OPT_Plus.png>
-	      </a>
-	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
-	"
-	if {$ajax == 0} { puts "</div>" }
-}
-
-proc genfile {file bfile} {
-	puts "
-	    <div class=va>
-	      <a href=#>
-		<img class=va border=0 width=45 style=\"padding: 0.3em 0\"
-		  src=/images/743_4_10_Video_Xvid_File.png>
-		  $bfile
-	      </a>
-	    </div>
-	"
-}
+#set _cgi(dir) "/media/My Video/Chuggington"
 
 proc directory {file bfile} {
 	puts "<div class=va>"
@@ -67,8 +22,8 @@ proc directory {file bfile} {
 	puts "$bfile</a></div>"
 }
 
-proc entry {file {ajax 0}} {
-	set bfile [lindex [split $file /] end]
+proc entry {file} {{i 0}} {
+	set bfile [file tail $file]
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
 	}
@@ -77,94 +32,61 @@ proc entry {file {ajax 0}} {
 		continue
 	}
 	set ext [file extension $file]
-	if {$ext eq ".ts"} {
-		tsfile $file $bfile $ajax
-		continue
-	}
-	if {$ext in $::ignore} { continue }
-	if {$ext in $::standard} {
-		genfile $file $bfile
-		continue
-	}
-}
+	if {$ext in $::ignore || $ext ni $::include} { continue }
 
-if {[dict exists $_cgi tsfile]} {
-	set file [dict get $_cgi tsfile]
-	set ts [ts fetch $file]
+	set base [file rootname $file]
 
-	if {[dict exists $_cgi action]} {
-		switch [dict get $_cgi action] {
-		    entry {
-			entry $file 1
-		    }
-		    delete {
-			if {[$ts delete]} {
-				puts "Successfully deleted $file."
-			} else {
-				puts "Problem deleting $file, [$ts get error]"
-			}
-		    }
-		    lock {
-			set action lock
-			if {[$ts flag "Locked"]} { set action unlock }
-			if {[$ts $action]} {
-				puts "Successfully [set action]ed $file."
-			} else {
-				puts "Problem [set action]ing $file,
-				    [$ts get error]"
-			}
-		    }
-		}
-		exit
+	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
+		set type ts
+		set ts [ts fetch $file]
+		set img 741_1_10_Video_Title.png
+		set pad 0
+	} else {
+		set type gen
+		set ts 0
+		set img 743_4_10_Video_Xvid_File.png
+		set pad "2 2 2 2"
 	}
-
-	source /mod/var/mongoose/lib/epg.class
 
 	puts "
-<table class=keyval>
-<tr>
-	<th>Title</th>
-	<td>[$ts get title]</td>
-</tr><tr>
-	<th>Synopsis</th>
-	<td>[$ts get synopsis]</td>
-</tr><tr>
-	<th>Definition</th>
-	<td>
+	    <div class=\"va bf\" id=[incr i]>
+	      <a class=bf file=\"$file\" type=$type href=#>
+		<img class=va border=0 width=45 src=/images/$img
+		    style=\"padding:$pad\">$bfile
+	      </a>
 	"
-	if {[$ts get definition] eq "HD"} {
-		puts "<img class=va src=/images/172_1_00_HD.png height=21>"
-	} else {
-		puts "<img class=va src=/images/172_1_26_SD.png height=21>"
+
+	# Icons
+
+	set locked 0
+	if {$type eq "ts"} {
+		# HD / SD
+		if {[$ts get definition] eq "HD"} {
+			set img "172_1_00_HD"
+		} else {
+			set img "172_1_26_SD"
+		}
+		puts "<img class=va src=/images/$img.png height=21>"
+
+		# Locked
+		if {[$ts flag "Locked"] > 0} {
+			set locked 1
+			puts "<img class=va src=/images/178_1_00_Icon_Lock.png
+			    height=21>"
+		}
 	}
-	puts "</td>
-</tr><tr>
-	<th>Channel</th>
-	<td>[epg channelicon [$ts get channel_name] 50 "vertical-align: middle"]
-	    [$ts get channel_num] - [$ts get channel_name]</td>
-</tr><tr>
-	<th>Start Time</th>
-	<td>"
-	puts [clock format [$ts get start] -format "%c %Z"]
-	puts "</td>
-</tr><tr>
-	<th>End Time</th>
-	<td>"
-	puts [clock format [$ts get end] -format "%c %Z"]
-	puts "</td>
-</tr><tr>
-	<th>Duration</th>
-	<td>[$ts duration] minute(s).</td>
-</tr><tr>
-	<th>Size</th>
-	<td>[$ts size] MiB</td>
-</tr><tr>
-	<th>Flags</th>
-	<td>[$ts get flags]</td>
-</tr>
-</table>
+
+	# Opt+ button
+
+	puts "
+	      <a href=#>
+		<img class=\"opt va\" border=0 width=45 type=$type did=$i
+		    locked=$locked
+		    src=/images/181_1_00_Help5_OPT_Plus.png>
+	      </a>
+	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
 	"
-	exit
+	puts "</div>"
 }
 
 if {[dict exists $_cgi dir]} {
@@ -173,158 +95,29 @@ if {[dict exists $_cgi dir]} {
 	set dir "/media/My Video"
 }
 
+######################################################################
+# Render web page
+
 source /mod/var/mongoose/html/lib/header.jim
 
-puts {
+puts { 
+	<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
+	<script type="text/javascript" src="/js/jquery.contextMenu.js"></script>
 
-<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
-<script type="text/javascript" src="/js/jquery.contextMenu.js"></script>
+	<ul id=optmenu class=contextMenu>
+		<li><a href=#delete>Delete</a></li>
+		<li><a href=#lock>Toggle Lock</a></li>
+		<li><a href=#rename>Rename</a></li>
+		<li><a href=#title>Change Title</a></li>
+		<li><a href=#download>Download</a></li>
+	</ul>
 
-<ul id=optmenu class=contextMenu>
-	<li><a href=#delete>Delete</a></li>
-	<li><a href=#lock>Toggle Lock</a></li>
-	<li><a href=#rename>Rename</a></li>
-	<li><a href=#title>Change Title</a></li>
-	<li><a href=#download>Download</a></li>
-</ul>
+	<div id=dialogue></div>
+	<div id=confirm title="Confirmation Required"></div>
 
-<div id=dialogue></div>
-<div id=confirm title="Confirmation Required"></div>
-
-<script type=text/javascript>
-	function bindmenu(selector)
-	{
-		$(selector).contextMenu(
-			{
-				menu: 'optmenu',
-				leftButton: true,
-				beforeShow:
-function(el, menu)
-{
-	if (el.attr('locked') == 1)
-	{
-		$(menu).changeContextMenuItem('#lock', 'Unlock');
-		$('#optmenu').disableContextMenuItems('#delete');
-	}
-	else
-	{
-		$(menu).changeContextMenuItem('#lock', 'Lock');
-		$('#optmenu').enableContextMenuItems('#delete');
-	}
+	<script type=text/javascript src=/cgi-bin/browse/browse.js></script>
+	<div style="border: 1px solid grey; padding: 1em">
 }
-			},
-function (action, el, pos)
-{
-	var ts = $(el).parent().prevAll('a.ts').last().attr('file');
-	var did = $(el).attr('did');
-	switch (action)
-	{
-	    case 'delete':
-		confirm_action('delete', delete_callback, ts, did);
-		break;
-
-	    case 'lock':
-		confirm_action('change the lock on', lock_callback, ts, did);
-		break;
-
-	    case 'download':
-		window.location.href = ts;
-		break;
-
-	    default:
-		alert('Unhandled action: ' + action);
-		break;
-	}
-}
-		);
-	}
-
-	var $confirm = $('#confirm').dialog({
-		modal: true, autoOpen: false,
-		height: 160, width: 500,
-		show: 'fade', hide: 'fade',
-		draggable: false, resizable: false
-	});
-
-	var confirm_action = function(action, callback, ts, id) {
-		var bts = ts.replace(/.*\/|\.[^.]*$/g, '');
-		$confirm.dialog('option', 'buttons', {
-			'Yes': function() { $(this).dialog('close');
-				callback(ts, id); },
-			'No':  function() {$(this).dialog('close');}
-
-		});
-		$('#confirm').empty().html(
-		    'Are you sure you wish to ' + action + '<br>' +
-		    '<i>' + bts + '</i> ?'
-		);
-		$confirm.dialog('open');
-	}
-
-	var delete_callback = function(ts, id) {
-		var el = 'div.tsfile#' + id;
-		var results = el + ' .results';
-		var url = window.location.pathname + '?tsfile=' +
-		    encodeURIComponent(ts) + '&action=delete';
-		$(results).load(url, function() {
-			$(el).delay(3000).slideUp(300, function() {
-				$(el).remove();
-			});
-		});
-	}
-
-	var lock_callback = function(ts, id) {
-		var el = 'div.tsfile#' + id;
-		var results = el + ' .results';
-		var url = window.location.pathname + '?tsfile=' +
-		    encodeURIComponent(ts) + '&action=';
-
-		$(results).load(url + 'lock', function() {
-			$(results).delay(3000).slideUp(150,
-			    function() {
-				$(el).load(url + 'entry', function() {
-					bindmenu(el + ' img.opt');
-				});;
-			    }
-			);
-		});
-	}
-
-	// Dialogue init
-	var $dialog = $('#dialogue').dialog({
-		title: "Recording Details",
-		modal: false, autoOpen: false,
-		height: 600, width: 700,
-		show: 'scale', hide: 'fade',
-		draggable: true, resizable: true,
-		buttons: {
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function(e,u) { $('#dialogue').empty().html(
-		    '<img src="/img/loading.gif" alt="loading">'); }
-	});
-
-	$(document).ready(function() {
-
-		$('#optmenu').disableContextMenuItems('#rename,#title');
-		bindmenu('img.opt');
-
-		$('a.ts').click(function(e) {
-			e.preventDefault();
-			var file = $(this).attr('file');
-			var url = window.location.pathname + '?tsfile=' +
-			    encodeURIComponent(file);
-			$('#dialogue').load(url);
-			$dialog.dialog('open');
-		});
-
-	});
-</script>
-}
-
-puts { <div style="border: 1px solid grey; padding: 1em"> }
 
 # Breadcrumb path
 puts "<h1>"
@@ -336,6 +129,7 @@ foreach part [split $dir /] {
 }
 puts "</h1>"
 
+# Parent directory
 set parent [join [lrange [split $dir /] 0 end-1] /]
 if {$parent ne ""} {
 	puts "
@@ -347,6 +141,7 @@ if {$parent ne ""} {
 	"
 }
 
+# Strip double slashes
 regsub -all -- {\/+} "$dir/*" "/" dir
 
 foreach file [lsort [glob -nocomplain "$dir"]] {

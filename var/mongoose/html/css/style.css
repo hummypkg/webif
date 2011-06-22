@@ -101,7 +101,7 @@ table.keyval td
 	color: black;
 }
 
-pre
+pre, .pre
 {
         font-family: Consolas, 'Courier New', Courier, monospace;
         color: black;

@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set file [dict get $_cgi file]
+set ts [ts fetch $file]
+
+set action lock
+if {[$ts flag "Locked"]} { set action unlock }
+
+if {[$ts $action]} {
+	puts "Successfully [set action]ed $file."
+} else {
+	puts "Problem [set action]ing $file,
+	    [$ts get error]"
+}
+

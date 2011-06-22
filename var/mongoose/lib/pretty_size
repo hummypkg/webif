@@ -1,0 +1,15 @@
+
+if {[expr ! [exists -proc pretty_size ]]} {
+	proc pretty_size {size} {
+		set units {bytes KiB MiB GiB TiB}
+
+		for {set i 0} {$size > 1023} {incr i} {
+			set size $($size / 1024.0)
+		}
+
+		set size [format "%.2f" $size]
+
+		return "$size [lindex $units $i]"
+	}
+}
+
