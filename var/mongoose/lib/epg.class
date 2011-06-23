@@ -10,6 +10,12 @@ source /mod/var/mongoose/lib/progressbar
 set channeldb 0
 catch { set channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
 
+set epgpath /mnt/hd1/dvbepg/epg.dat
+set hdepgpath /media/drive1/epgsavedata
+if {![file exists $epgpath] && [file exists $hdepgpath]} {
+	set epgpath $hdepgpath
+}
+
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
 #  * event CRID, series CRID, rec CRID
@@ -210,7 +216,7 @@ proc {epg cleanup} {} {
 
 proc {epg exec} {mode args} {
 	set raw 0
-	set cmd [list /mod/bin/epg]
+	set cmd [list /mod/bin/epg -f $epgpath]
 	set extra ""
 	foreach arg $args {
 		if {[string first "-" $arg] == 0} {
