@@ -54,10 +54,12 @@ source /mod/var/mongoose/html/lib/header.jim
 puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
 
 puts {
+	<style type=text/css>
+	.ui-button, .ui-button-text { padding: 0; font-size: 10px; }
+	</style>
 	<script type=text/javascript>
 	$(document).ready(function () {
-		//$(":submit").button();
-		//$(":submit").height(20);
+		$(":submit").button();
 		$('form').each(function(i, el) {
 			var id = $(this).attr('id');
 			var output = '#' + id + '_output'
@@ -75,12 +77,19 @@ puts {
 }
 
 puts "
-	<h1>Settings</h1>
-	<table class=keyval>
+	<fieldset style=\"display: inline\">
+		<legend>
+			General Settings
+		</legend>
+	<table>
+"
+
+puts "
 	<tr>
 	<form id=hostname method=get action=$env(REQUEST_URI)>
-		<th>Hostname</th>
+		<th class=key>Hostname</th>
 		<td><input name=hostname value=\"$hostname\"
+		    class=\"text ui-widget-content ui-corner-all\"
 		    length=20 maxlength=50>
 		    <input id=hostname_submit value=\"change\" type=submit>
 		    <div id=hostname_output></div>
@@ -91,22 +100,10 @@ puts "
 
 puts "
 	<tr>
-	<form id=smtp_server method=get action=$env(REQUEST_URI)>
-		<th>SMTP Server for outbound email</th>
-		<td><input name=smtp_server value=\"$smtp_server\"
-		    length=20 maxlength=50>
-		    <input id=smtp_server_submit value=\"change\" type=submit>
-		    <div id=smtp_server_output></div>
-		</td>
-	</form>
-	</tr>
-"
-
-puts "
-	<tr>
 	<form id=channel_group method=get action=$env(REQUEST_URI)>
-		<th>Channel Group for EPG</th>
+		<th class=key>Channel Group for EPG</th>
 		<td><select id=channel_group name=channel_group
+		    class=\"text ui-widget-content ui-corner-all\"
 		    value=[$settings channel_group]>
 "
 
@@ -123,7 +120,7 @@ foreach grp [$settings channel_groups] {
 
 puts "
 		</select>
-		<input name=channel_group value=\"change\" type=submit>
+		<input name=channel_group value=\"set\" type=submit>
 		<div id=channel_group_output></div>
 		</td>
 	</form>
@@ -132,11 +129,31 @@ puts "
 
 puts "
 	</table>
-	</form>
-	<br>
-	More coming soon...
-	<br>
-	<br>
+	</fieldset>
+	<br><br>
+	<fieldset style=\"display: inline\">
+	<legend> Email Settings </legend>
+	<table>
 "
+
+puts "
+	<tr>
+	<form id=smtp_server method=get action=$env(REQUEST_URI)>
+		<th class=key>SMTP Server for outbound email</th>
+		<td><input name=smtp_server value=\"$smtp_server\"
+		    class=\"text ui-widget-content ui-corner-all\"
+		    length=20 maxlength=50>
+		    <input id=smtp_server_submit value=\"change\" type=submit>
+		    <div id=smtp_server_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	</table>
+	</fieldset>
+"
+
 source /mod/var/mongoose/html/lib/footer.jim
 

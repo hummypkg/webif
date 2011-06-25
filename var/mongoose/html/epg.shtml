@@ -1,9 +1,27 @@
 <!--#include virtual="/lib/header.shtml" -->
+
+<style type=text/css>
+.ui-button, .ui-button-text { padding: 0; font-size: 12px; }
+</style>
+
+<div style="width: 75%">
 <form method=get action=/cgi-bin/epg_search.jim>
-Search EPG: <input name=term size=20 maxlength=255>
-<input type=checkbox name=full>Search descriptions as well as titles.
+<fieldset>
+<legend>EPG Search</legend>
+<label for=term>Query</label>
+<input type=text name=term id=term size=20 maxlength=255
+    class="text ui-widget-content ui-corner-all">
 <input type=submit value=Search>
+<input type=checkbox name=full id=full>
+<label for=full>Search descriptions as well as titles.</label>
+</fieldset>
 </form>
+</div>
+
+<script type=text/javascript>
+	$('input:submit').button();
+</script>
+
 <!--#exec cmd="/mod/var/mongoose/include/epg.jim" -->
 <!--#include virtual="/lib/footer.shtml" -->
 

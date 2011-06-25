@@ -32,12 +32,26 @@ catch { set scrid [dict get $_cgi scrid] }
 
 puts "
 <form method=get action=/cgi-bin/epg_search.jim>
-Search EPG: <input name=term size=20 maxlength=255 value=\"$term\">
-<input type=checkbox name=full"
-if {[dict exists $_cgi full]} { puts " checked" }
-puts ">Search descriptions as well as titles.
+<fieldset>
+<legend>EPG Search</legend>
+<label for=term>Query</label>
+<input type=text name=term id=term size=20 maxlength=255 value=\"$term\"
+    class=\"text ui-widget-content ui-corner-all\">
 <input type=submit value=Search>
+<input type=checkbox name=full id=full"
+if {[dict exists $_cgi full]} { puts -nonewline " checked" }
+puts ">
+<label for=full>Search descriptions as well as titles.</label>
 "
+
+puts {
+	<style type=text/css>
+	.ui-button, .ui-button-text { padding: 0; font-size: 12px; }
+	</style>
+	<script type=text/javascript>
+		$('input:submit').button();
+	</script>
+}
 
 set db [sqlite3.open /var/lib/humaxtv/setup.db]
 set res [$db query {
@@ -53,7 +67,7 @@ proc cts {type img text} {
 puts {
 	<br>
 	<table>
-	<tr><td rowspan=2>Content Type Searches</td>
+	<tr><td rowspan=2 valign=top>Content Type Searches</td>
 	<td>
 }
 
@@ -95,6 +109,7 @@ puts "</table>"
 
 $db close
 
+puts "</fieldset>"
 puts "</form>"
 
 if {$ct > 0 } {

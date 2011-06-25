@@ -1,4 +1,35 @@
 
+function epginfo_callback(data, status, xhr)
+{
+	var width = 85;
+
+	if (status != 'success')
+		return;
+
+	//console.log(status);
+	//console.dir(data);
+
+	$('#titleorig').val(data.title);
+	$('#renametitle').val(data.title);
+	if (data.synopsis.length > width)
+		data.synopsis = data.synopsis.substring(0, width) + '...';
+	$('#synopsis').html(data.synopsis);
+	$('tr.tstype').show('slow');
+}
+
+function insert_folder_size(folder, size)
+{
+	folder = folder.replace(/ /g, '');
+	//console.log("Folder: (%s) = (%s)", folder, size);
+	$('#' + folder).text(' (' + size + 'iB)');
+}
+
+function folder_size_callback(data, status, xhr)
+{
+	//console.log("Status: %s", status);
+	$.each(data, insert_folder_size);
+}
+
 function delete_callback(file, type, id)
 {
 	var el = 'div.bf#' + id;
@@ -24,6 +55,12 @@ function lock_callback(file, type, id)
 	});
 }
 
+function rename_submit()
+{
+	var s = $('#renameform_form').serialize();
+	alert(s);
+}
+
 var $confirm;	// Populated after DOM is loaded.
 
 function confirm_action(action, callback, file, type, id)
@@ -46,6 +83,7 @@ function preparemenu(el, menu)
 {
 	if (el.attr('type') == 'ts')
 	{
+		$('#optmenu').enableContextMenuItems('#lock');
 		if (el.attr('locked') == 1)
 		{
 			$(menu).changeContextMenuItem('#lock', 'Unlock');
@@ -64,20 +102,44 @@ function preparemenu(el, menu)
 	}
 }
 
-function menuclick(action, el, pos)
+
+$(document).ready(function() {
+
+var menuclick = function(action, el, pos)
 {
 	var file = $(el).parent().prevAll('a.bf').last().attr('file');
+	var bfile = file.replace(/.*\/|\.[^.]*$/g, '');
+	bfile = bfile.replace(/[\x00-\x1f]+/g, '');
 	var type = $(el).attr('type');
 	var id = $(el).attr('did');
 	switch (action)
 	{
 	    case 'delete':
-		confirm_action('delete', delete_callback, file, type, id);
+		confirm_action('delete', delete_callback, file,
+		    type, id);
 		break;
 
 	    case 'lock':
 		confirm_action('change the lock on', lock_callback,
 		    file, type, id);
+		break;
+
+	    case 'rename':
+		$('#rename').val(bfile);
+		$('#renameorig').val(file);
+
+		$('#titleorig').val('');
+		$('#renametitle').val('');
+		$('#synopsis').val('');
+		$('tr.tstype').css('display', 'none');
+
+		if (type == 'ts')
+		{
+			$.getJSON('/cgi-bin/browse/epgtitle.jim?file=' +
+			    encodeURIComponent(file), epginfo_callback);
+		}
+
+		$('#renameform').dialog('open');
 		break;
 
 	    case 'download':
@@ -88,9 +150,7 @@ function menuclick(action, el, pos)
 		alert('Unhandled action: ' + action);
 		break;
 	}
-}
-
-$(document).ready(function() {
+};
 
 	// Bind context menu to opt+ image
 	$('img.opt').contextMenu(
@@ -103,7 +163,7 @@ $(document).ready(function() {
 	);
 
 	// Disable items which are not yet implemented.
-	$('#optmenu').disableContextMenuItems('#rename,#title');
+	$('#optmenu').disableContextMenuItems('#title');
 
 	// Create reusable dialogue.
 	var $dialog = $('#dialogue').dialog({
@@ -132,6 +192,19 @@ $(document).ready(function() {
 		$dialog.dialog('open');
 	});
 
+	$('#renameform').dialog({
+		autoOpen: false,
+		height: 'auto', width: 'auto',
+		modal: true,
+		buttons: {
+			"Update": rename_submit,
+			"Close": function() {
+				$(this).dialog('close');
+			}
+		},
+		close: function() { $('#rename').val(''); }
+	});
+
 	// Create re-usable confirmation dialogue.
 	$confirm = $('#confirm').dialog({
 		modal: true, autoOpen: false,
@@ -139,7 +212,11 @@ $(document).ready(function() {
 		show: 'fade', hide: 'fade',
 		draggable: false, resizable: false
 	});
+	
+	var dir = $('#dir').text();
+
+	// Load folder sizes
+	$.getJSON('/cgi-bin/browse/sizes.jim?dir=' + encodeURIComponent(dir),
+		folder_size_callback);
 });
-
-
 

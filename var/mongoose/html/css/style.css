@@ -63,13 +63,13 @@ table.borders, table.borders td, table.borders th
 	empty-cells: show;
 }
 
-table tr.odd, table td.odd
+table tr.odd, table td.odd, table th.odd
 {
 	background: #ccff99;
 	color: black;
 }
 
-table tr.even, table td.even
+table tr.even, table td.even, table th.even
 {
 	background: #ffffcc;
 	color: black;
@@ -86,7 +86,7 @@ table th
 	text-align: left;
 }
 
-table.keyval th
+table.keyval th, th.key
 {
 	background: #ccff99;
 	font-weight: bold;
@@ -174,6 +174,12 @@ pre, .pre
 	background: transparent;
 }
 
+.filesize
+{
+	color: #6a6aff;
+	background: transparent;
+}
+
 .footnote
 {
 	color: #ff4000;
@@ -223,5 +229,15 @@ img.progress
 .va
 {
 	vertical-align: middle;
+}
+
+.block
+{
+	display: block;
+}
+
+input.text
+{
+	padding: .4em;
 }
 

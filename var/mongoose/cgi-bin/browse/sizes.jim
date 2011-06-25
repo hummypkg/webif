@@ -1,0 +1,26 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: application/json"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set _cgi(dir) "/media/My Video"
+
+set dir [dict get $_cgi dir]
+
+#9.4G	/media/My Video/Archive
+#1.4G	/media/My Video/CSI_ Crime Scene Investigation
+puts "{"
+foreach line [split [exec /mod/bin/busybox/du -h "$dir/"] "\n"] {
+	set fields [split $line "\t"]
+	set size [lindex $fields 0]
+	set node [lindex [split [lindex $fields 1] '/'] end]
+	puts "\"$node\" : \"$size\","
+}
+puts "\"dummy\" : \"\""
+puts "}"
+

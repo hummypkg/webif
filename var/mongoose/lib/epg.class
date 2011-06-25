@@ -216,7 +216,7 @@ proc {epg cleanup} {} {
 
 proc {epg exec} {mode args} {
 	set raw 0
-	set cmd [list /mod/bin/epg -f $epgpath]
+	set cmd [list /mod/bin/epg -f $::epgpath]
 	set extra ""
 	foreach arg $args {
 		if {[string first "-" $arg] == 0} {

@@ -2,6 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/ts.class
+source /mod/var/mongoose/lib/pretty_size
 
 puts "Content-Type: text/html"
 puts ""
@@ -19,7 +20,9 @@ proc directory {file bfile} {
 	puts "<div class=va>"
 	puts "<a href=$::env(REQUEST_URI)?dir=[cgi_quote_url $file]>"
 	puts "<img border=0 class=va src=/images/711_1_09_Media_Folder.png>"
-	puts "$bfile</a></div>"
+	regsub -all " +" $bfile "" tbfile
+	puts "$bfile</a><span class=filesize id=\"$tbfile\">
+		</span></div>"
 }
 
 proc entry {file} {{i 0}} {
@@ -34,11 +37,14 @@ proc entry {file} {{i 0}} {
 	set ext [file extension $file]
 	if {$ext in $::ignore || $ext ni $::include} { continue }
 
+	file stat $file st
+	set sz [pretty_size $st(size)]
+
 	set base [file rootname $file]
 
 	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
 		set type ts
-		set ts [ts fetch $file]
+		set ts [ts fetch $file 1]
 		set img 741_1_10_Video_Title.png
 		set pad 0
 	} else {
@@ -52,9 +58,13 @@ proc entry {file} {{i 0}} {
 	    <div class=\"va bf\" id=[incr i]>
 	      <a class=bf file=\"$file\" type=$type href=#>
 		<img class=va border=0 width=45 src=/images/$img
-		    style=\"padding:$pad\">$bfile
+		    style=\"padding:$pad\">
+		$bfile
 	      </a>
 	"
+
+	# Size
+	puts "<span class=filesize> ($sz) </span>"
 
 	# Icons
 
@@ -108,26 +118,65 @@ puts {
 		<li><a href=#delete>Delete</a></li>
 		<li><a href=#lock>Toggle Lock</a></li>
 		<li><a href=#rename>Rename</a></li>
-		<li><a href=#title>Change Title</a></li>
 		<li><a href=#download>Download</a></li>
 	</ul>
+
+	<div id=renameform title="Rename media file" style="display: none">
+		<form id=renameform_form>
+		<input type=hidden name="renameorig" id="renameorig" value="">
+		<input type=hidden name="titleorig" id="titleorig" value="">
+		<table border=0>
+		<tr>
+		<th>
+			<label for="rename">
+				<b>New Filename</b>
+			</label>
+		</th>
+		<td>
+			<input type=text name="rename" id="rename"
+			    value="" size=70 maxlength=255
+			    class="text ui-widget-content ui-corner-all">
+		</td>
+		</tr>
+		<tr style="display: none" class=tstype>
+		<th>
+			<label for="renametitle" style="padding-top: 0.5em">
+				<b>New EPG Title</b>
+			</label>
+		</th>
+		<td>
+			<input type=text name="renametitle" id="renametitle"
+			    value="" size=70 maxlength=255
+			    class="text ui-widget-content ui-corner-all">
+		</td>
+		</tr>
+		<tr style="display: none" class=tstype>
+		<td colspan=2 id=synopsis style="font-style: italic"></td>
+		</tr>
+		</table>
+		</form>
+	</div>
 
 	<div id=dialogue></div>
 	<div id=confirm title="Confirmation Required"></div>
 
 	<script type=text/javascript src=/cgi-bin/browse/browse.js></script>
-	<div style="border: 1px solid grey; padding: 1em">
 }
 
+puts "<span style=\"display:none\" id=dir>$dir</span>"
+
 # Breadcrumb path
-puts "<h1>"
+puts "
+      <fieldset style=\"margin: 1em\">
+      <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
+"
 set stub ""
 foreach part [split $dir /] {
 	if {$stub eq "/"} { set name $part } else { set name "/$part" }
 	append stub $name
 	puts "<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $stub]>$name</a>
 }
-puts "</h1>"
+puts "</legend>"
 
 # Parent directory
 set parent [join [lrange [split $dir /] 0 end-1] /]
@@ -148,7 +197,7 @@ foreach file [lsort [glob -nocomplain "$dir"]] {
 	entry $file
 }
 
-puts "</div>"
+puts "</fieldset>"
 
 source /mod/var/mongoose/html/lib/footer.jim
 
