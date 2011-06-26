@@ -1,0 +1,53 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#renameorig
+#titleorig
+#rename
+#renametitle
+
+#set _cgi(renameorig) "/media/My Video/The Walking Dead/The Walking Dead_20110521_2201.ts"
+#set _cgi(rename) "Last Episode"
+
+if {![dict exists $_cgi renameorig]} { exit }
+
+set file [dict get $_cgi renameorig]
+set newfile [dict get $_cgi rename]
+
+if {[string length [string trim $newfile]] == 0 || $file eq $newfile} {
+	set newfile ""
+}
+
+if {[file isdirectory $file]} {
+	#puts "Directory."
+	if {$newfile ne ""} {
+		set dir [file dirname $file]
+		set newfile "${dir}/${newfile}"
+		file rename $file $newfile
+	}
+} elseif {[set ts [ts fetch $file]] != 0} {
+	#puts "TS file."
+
+	catch {
+		set title [dict get $_cgi renametitle]
+		set titleorig [dict get $_cgi titleorig]
+
+		if {[string length [string trim $title]] > 0 &&
+		    $title ne $titleorig} {
+			$ts settitle $title
+		}
+	}
+	if {$newfile ne ""} { ts renamegroup $file $newfile }
+} else {
+	#puts "Normal file."
+	if {$newfile ne ""} { ts renamegroup $file $newfile }
+}
+

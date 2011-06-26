@@ -146,7 +146,7 @@ puts {
 		</th>
 		<td>
 			<input type=text name="renametitle" id="renametitle"
-			    value="" size=70 maxlength=255
+			    value="" size=70 maxlength=48
 			    class="text ui-widget-content ui-corner-all">
 		</td>
 		</tr>

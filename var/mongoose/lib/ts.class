@@ -95,3 +95,27 @@ ts method delete {} {
 	return 1
 }
 
+ts method settitle {newtitle} {
+	if {[string length newtitle] > 48} { return }
+
+	exec /mod/bin/hmt "+settitle=${newtitle}" $file
+}
+
+proc {ts renamegroup} {from to} {
+	set dir [file dirname $from]
+	set root [file rootname $from]
+
+	# Catch from string without a . character in it
+	if {$root eq $from} { return }
+
+	# Protect special characters in root. In particular [] characters
+	# which are used a lot for torrent names.
+        regsub -all {([\\["$])} $root {\\\1} root
+
+	foreach f [glob -nocomplain "${root}.*"] {
+		set ext [file extension $f]
+		#puts "rename $f \"${dir}/${to}${ext}\""
+		file rename $f "${dir}/${to}${ext}"
+	}
+}
+

@@ -9,16 +9,19 @@ puts ""
 cgi_input
 #cgi_dump
 
+set _cgi(file) "/media/My Video/The Walking Dead/The Walking Dead S01E06.ts"
+
 set file [dict get $_cgi file]
 set ts [ts fetch $file]
+if {[set ts [ts fetch $file]] != 0} {
+	set action lock
+	if {[$ts flag "Locked"]} { set action unlock }
 
-set action lock
-if {[$ts flag "Locked"]} { set action unlock }
-
-if {[$ts $action]} {
-	puts "Successfully [set action]ed $file."
-} else {
-	puts "Problem [set action]ing $file,
-	    [$ts get error]"
+	if {[$ts $action]} {
+		puts "Successfully [set action]ed $file."
+	} else {
+		puts "Problem [set action]ing $file,
+		    [$ts get error]"
+	}
 }
 

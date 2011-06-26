@@ -45,20 +45,15 @@ function delete_callback(file, type, id)
 
 function lock_callback(file, type, id)
 {
-	var el = 'div.bf#' + id;
-	var results = el + ' .results';
-	var url = '/cgi-bin/browse/lock.jim?file=' +
-	    encodeURIComponent(file);
-
-	$(results).load(url, function() {
-		$(results).delay(3000).slideUp(150);
-	});
+	var url = '/cgi-bin/browse/lock.jim?file=' + encodeURIComponent(file);
+	$.get(url, function() { window.location.reload(true); });
 }
 
 function rename_submit()
 {
 	var s = $('#renameform_form').serialize();
-	alert(s);
+	$.get('/cgi-bin/browse/rename.jim?' + s,
+	    function() { window.location.reload(true); });
 }
 
 var $confirm;	// Populated after DOM is loaded.
