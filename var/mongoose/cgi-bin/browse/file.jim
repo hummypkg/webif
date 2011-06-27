@@ -34,6 +34,20 @@ if {$type eq "ts"} {
 	<th>Synopsis</th>
 	<td>[$ts get synopsis]</td>
 </tr><tr>
+	"
+
+	if {[$ts flag "Guidance"] > 0} {
+		puts "
+			<th>Guidance</th>
+			<td><img class=va
+			    src=/images/174_1_26_GuidancePolicy.png height=21>
+			    [$ts get guidance]
+			</td>
+			</tr><tr>
+		"
+	}
+
+	puts "
 	<th>Definition</th>
 	<td>
 	"

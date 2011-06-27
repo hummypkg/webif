@@ -9,7 +9,7 @@ puts ""
 cgi_input
 #cgi_dump
 
-set _cgi(file) "/media/My Video/The Walking Dead/The Walking Dead S01E06.ts"
+#set _cgi(file) "/media/My Video/The Walking Dead/The Walking Dead S01E06.ts"
 
 set file [dict get $_cgi file]
 set ts [ts fetch $file]

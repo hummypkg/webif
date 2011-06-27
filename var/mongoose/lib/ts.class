@@ -13,6 +13,7 @@ class ts {
 	end		0
 	flags		""
 	error		""
+	guidance	""
 }
 
 ts method duration {} {
@@ -35,6 +36,7 @@ ts method _parse {line} {
 	set start [lindex $vars 5]
 	set end [lindex $vars 6]
 	set flags [split [string range [lindex $vars 7] 0 end-1] ,]
+	set guidance [lindex $vars 8]
 }
 
 ts method flag {f} {
