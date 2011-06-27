@@ -221,6 +221,7 @@ foreach part [split $dir /] {
 	append stub $name
 	puts "<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $stub]>$name</a>
 }
+puts "<span class=filesize id=dirsize></span>"
 puts "</legend>"
 
 # Parent directory

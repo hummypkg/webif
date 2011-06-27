@@ -20,13 +20,18 @@ function epginfo_callback(data, status, xhr)
 function insert_folder_size(folder, size)
 {
 	folder = folder.replace(/ /g, '');
+	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
 	//console.log("Folder: (%s) = (%s)", folder, size);
-	$('#' + folder).text(' (' + size + 'iB)');
+	if (folder == "")
+		$('#dirsize').text(' (' + size + 'iB)');
+	else
+		$('#' + folder).text(' (' + size + 'iB)');
 }
 
 function folder_size_callback(data, status, xhr)
 {
 	//console.log("Status: %s", status);
+	//console.dir(data);
 	$.each(data, insert_folder_size);
 }
 
