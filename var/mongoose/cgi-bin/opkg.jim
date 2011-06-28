@@ -1,0 +1,18 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(cmd) {remove binutils}
+
+if {![dict exists $_cgi cmd]} { set _cgi(cmd) status }
+
+set cmd [dict get $_cgi cmd]
+
+puts [exec /mod/var/mongoose/lib/opkg {*}$cmd]
+

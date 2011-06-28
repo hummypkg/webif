@@ -1,52 +1,55 @@
 #!/mod/bin/jimsh
 
-# Build a list of available packages
+source /mod/var/mongoose/lib/pkg.class
 
-set avail_pkgs {}
-foreach pkg [split [exec /bin/opkg list] "\n"] {
-	if [regexp {^ } $pkg] {
-		append descr $pkg
-	} else {
-		if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} \
-		    $pkg full name ver descr] == 0} { continue }
-	}
-	set avail_pkgs($name) [concat $ver "$descr"]
-	#puts "Set: $name = ($ver, $descr)<br>"
+puts {
+
+<style type=text/css>
+.ui-button, .ui-button-text { padding: 0; font-size: 12px; }
+</style>
+
+<script type=text/javascript src=/js/packages.js></script>
+
+<table class=borders>
+<tr>
+	<th>Package</th>
+	<th>Installed</th>
+	<th>Avail</th>
+	<th>Description</th>
+</tr>
+
 }
 
-# Build a list of installed packages - just the names
-set inst_pkgs {}
-foreach pkg [split [exec /bin/opkg list-installed] "\n"] {
-	if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
-	lappend inst_pkgs $name
-	#puts "Inst: $name<br>"
-}
+set avail [pkg avail]
+foreach name [lsort [array names avail]] {
+	set pkg [pkg load $name $avail($name)]
 
-puts "<table class=borders>"
-puts "<tr>"
-puts "<th>Installed</th>"
-puts "<th>Name</th>"
-puts "<th>Version</th>"
-puts "<th>Description</th>"
-puts "</tr>"
-
-foreach name [lsort [array names avail_pkgs]] {
-	set value $avail_pkgs($name)
-	set ver [lindex $value 0]
-	set descr [lrange $value 1 [llength $value]]
-
-	puts "<tr>"
-	puts "<td>"
-	if {[lsearch $inst_pkgs $name] > -1} {
-		puts "<img src=/img/on.png>"
+	if {![$pkg is installed]} {
+		puts "<tr>"
+	} elseif {[$pkg is upgradable]} {
+		puts "<tr class=yellowshade>"
 	} else {
-		puts "<img src=/img/off.png>"
+		puts "<tr class=greenshade>"
 	}
 
-	puts "</td>"
-	puts "<td>$name</td>"
-	puts "<td>$ver</td>"
-	puts "<td>$descr</td>"
+	puts "
+		<td>$name</td>
+		<td>[$pkg get installed]</td>
+		<td>[$pkg get latest]</td>
+		<td>[$pkg get descr]</td>
+	"
+
+	if {![$pkg is installed]} {
+		set type Install
+	} elseif {[$pkg is upgradable]} {
+		set type Upgrade
+	} else {
+		set type Remove
+	}
+
+	puts "<td align=center><button id=\"$name\"
+	    class=[string tolower $type]>$type</button></td>"
+
 	puts "</tr>"
 }
 

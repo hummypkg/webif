@@ -1,6 +1,8 @@
 <!--#include virtual="/lib/header.shtml" -->
 
-<h1>Package Management</h1>
+<h1 class=vam>Package Management
+<button class=vam id=opkgupdate>Update package list from Internet</button>
+</h1>
 <div id=results class=shadowbox style="width: 90%; display: none; margin: 1 0 1em 0">
 <div>
 <pre id=result_txt>
@@ -8,6 +10,8 @@ Results...
 </pre>
 </div>
 </div>
+
+<div id=dialogue style="display: none"><pre id=dresults></pre></div>
 
 <!--#exec cmd="/mod/var/mongoose/include/packages.jim" -->
 

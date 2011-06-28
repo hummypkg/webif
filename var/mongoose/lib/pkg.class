@@ -1,0 +1,84 @@
+
+if {[expr ! [exists -proc class ]]} { package require oo }
+
+class pkg {
+	name		""
+	descr		""
+	installed	""
+	latest		""
+	install_time	0
+}
+
+pkg method _load {nm info} {
+	set name $nm
+	set latest [lindex $info 0]
+	set descr [lrange $info 1 end]
+
+	foreach line [split [exec /bin/opkg status $name] "\n"] {
+		if {[string match {Version: *} $line]} {
+			set installed [string range $line 9 end]
+		}
+		if {[string match {Installed-Time: } $line]} {
+			set install_time [string range $line 16 end]
+		}
+	}
+}
+
+pkg method is {what} {
+	switch $what {
+		installed {
+			if {$installed eq ""} { return 0 }
+			return 1
+		}
+		upgradable {
+			if {$installed eq $latest} { return 0 }
+			return 1
+		}
+	}
+	return 0
+}
+
+proc {pkg load} {nm info} {
+	set e [pkg]
+	$e _load $nm $info
+	return $e
+}
+
+proc {pkg avail} {} {
+	set avail_pkgs {}
+	foreach pkg [split [exec /bin/opkg list] "\n"] {
+		if [regexp {^ } $pkg] {
+			append descr $pkg
+		} else {
+			if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} \
+			    $pkg full name ver descr] == 0} { continue }
+		}
+		set avail_pkgs($name) [concat $ver "$descr"]
+		#puts "Set: $name = ($ver, $descr)<br>"
+	}
+	return $avail_pkgs
+}
+
+proc {pkg installed} {} {
+	# Build a list of installed packages - just the names
+	set inst_pkgs {}
+	foreach pkg [split [exec /bin/opkg list-installed] "\n"] {
+		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
+		lappend inst_pkgs $name
+		#puts "Inst: $name<br>"
+	}
+	return $inst_pkgs
+}
+
+proc {pkg upgradable} {} {
+	#webif - 0.5.3 - 0.5.7
+	set upgr_pkgs {}
+	foreach pkg [split [exec /bin/opkg list-upgradable] "\n"] {
+		if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} $pkg \
+		    dummy name oldver newver] == 0} { continue }
+		set upgr_pkgs($name) [concat $oldver $newver]
+		#puts "Set: $name = ($oldver, $newver)<br>"
+	}
+	return $upgr_pkgs
+}
+

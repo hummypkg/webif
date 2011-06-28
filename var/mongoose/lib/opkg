@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# stderr is always unbuffered so use that...
+/bin/opkg "$@" 1>&2
+exit 0
+
