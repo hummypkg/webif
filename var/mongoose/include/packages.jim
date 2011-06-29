@@ -48,6 +48,7 @@ foreach name [lsort [array names avail]] {
 	}
 
 	puts "<td align=center><button id=\"$name\"
+	    action=[string tolower $type]
 	    class=[string tolower $type]>$type</button></td>"
 
 	puts "</tr>"

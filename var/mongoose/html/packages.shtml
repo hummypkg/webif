@@ -11,7 +11,10 @@ Results...
 </div>
 </div>
 
-<div id=dialogue style="display: none"><pre id=dresults></pre></div>
+<div id=dialogue style="display: none; align: center">
+<pre id=dresults></pre>
+<div id=dspinner><img src=/img/loading.gif>Processing...</div>
+</div>
 
 <!--#exec cmd="/mod/var/mongoose/include/packages.jim" -->
 

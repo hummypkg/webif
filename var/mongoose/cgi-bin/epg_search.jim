@@ -4,7 +4,6 @@ package require cgi
 source /mod/var/mongoose/lib/epg.class
 source /mod/var/mongoose/lib/spinner.class
 source /mod/var/mongoose/lib/altrow
-source /mod/var/mongoose/lib/cat
 
 puts "Content-Type: text/html"
 puts ""
@@ -13,17 +12,25 @@ source /mod/var/mongoose/html/lib/header.jim
 
 puts "<script type=text/javascript src=/js/highlight.js></script>"
 
-source /mod/var/mongoose/lib/epg_popup
-
 cgi_input
 #cgi_dump
+
+source /mod/var/mongoose/lib/epg_search
+
+[spinner new {
+	text "Searching EPG..."
+	size "1.2em"
+	style "margin: 1em;"
+	}] start
+
+source /mod/var/mongoose/lib/epg_popup
+
 #set _cgi [dict create term "doctor who"]
 #set env(REQUEST_URI) "test"
 
-set term ""
-catch { set term [dict get $_cgi term] }
 set cmd "search"
-if {[dict exists $_cgi full]} { set cmd "searchall" }
+if {$searchfull} { set cmd "searchall" }
+
 set ct 0
 catch { set ct [dict get $_cgi ct] }
 set crid ""
@@ -31,107 +38,22 @@ catch { set crid [dict get $_cgi crid] }
 set scrid ""
 catch { set scrid [dict get $_cgi scrid] }
 
-puts "
-<form method=get action=/cgi-bin/epg_search.jim>
-<fieldset>
-<legend>EPG Search</legend>
-<label for=term>Query</label>
-<input type=text name=term id=term size=20 maxlength=255 value=\"$term\"
-    class=\"text ui-widget-content ui-corner-all\">
-<input type=submit value=Search>
-<input type=checkbox name=full id=full"
-if {[dict exists $_cgi full]} { puts -nonewline " checked" }
-puts ">
-<label for=full>Search descriptions as well as titles.</label>
-"
-
-puts {
-	<style type=text/css>
-	.ui-button, .ui-button-text { padding: 0; font-size: 12px; }
-	</style>
-	<script type=text/javascript>
-		$('input:submit').button();
-	</script>
-}
-
-set db [sqlite3.open /var/lib/humaxtv/setup.db]
-set res [$db query {
-	select itemBlob from TBL_USERCONFIG
-	where itemName like 'EPG\_KEYWORD\_%%' ESCAPE '\'
-}]
-
-proc cts {type img text} {
-	puts "<a href=$::env(REQUEST_URI)?ct=$type>
-		<img height=18 border=0 src=/images/173_3_00_G3_$img.png>&nbsp;$text</a>";
-}
-
-puts {
-	<br>
-	<table>
-	<tr><td rowspan=2 valign=top>Content Type Searches</td>
-	<td>
-}
-
-cts 1 "Movie" "Film/Drama"
-puts "</td><td>"
-cts 2 "News" "News/Current affairs"
-puts "</td><td>"
-cts 4 "Sports" "Sport"
-puts "</td><td>"
-cts 9 "Education" "Education/Science/Factual"
-puts "</td><td>"
-cts 10 "Leisure" "Leisure"
-
-puts "</td></tr><tr><td>"
-
-cts 7 "Art" "Arts/Culture"
-puts "</td><td>"
-cts 3 "Show" "Show/Game show"
-puts "</td><td>"
-cts 5 "Children" "Children"
-puts "</td><td>"
-cts 8 "Society" "Social/Political/Economic"
-puts "</td><td>"
-cts 6 "Music" "Music/Ballet/Dance"
-
-puts "</tr></table>"
-
-puts "<table cellpadding=5>"
-if {[llength $res] > 0} {
-	puts "<tr><td>Keyword Searches</td>"
-	foreach keyword $res {
-		set kw [string range [lindex $keyword 1] 1 end]
-		puts "<td><a href=$env(REQUEST_URI)?term=[cgi_quote_url $kw]>$kw
-		    </a></td>"
-	}
-	puts "</tr>"
-}
-puts "</table>"
-
-$db close
-
-puts "</fieldset>"
-puts "</form>"
-
-[spinner new {
-	text "Loading EPG Data..."
-	size "1.2em"
-	style "margin: 1em;"
-	}] start
-
 if {$ct > 0 } {
 	set records [epg fetch dump -type $ct]
 } elseif {$crid ne ""} {
 	set records [epg fetch dump -crid $crid]
 } elseif {$scrid ne ""} {
 	set records [epg fetch dump -scrid $scrid]
-} elseif {$term ne ""} { 
-	set records [epg fetch $cmd -extra $term]
+} elseif {$searchterm ne ""} { 
+	set records [epg fetch $cmd -extra $searchterm]
+} else {
+	set records {}
 }
 
 set favlist [epg favlist]
 
-puts {
+if {[llength $records] > 0} {
+	puts {
 	<table class=borders id=results style="clear: both;margin: 0.5em 0 0 0">
 	<tr>
 		<th>Date</th>
@@ -139,6 +61,9 @@ puts {
 		<th>Programme</th>
 		<th>Synopsis</th>
 	</tr>
+	}
+} else {
+	puts "No results found."
 }
 
 proc rsort {v1 v2} {
@@ -173,10 +98,11 @@ foreach record [lsort -command rsort $records] {
 }
 puts "</table>"
 
-if {$term != ""} {
+if {$searchterm != ""} {
 	puts "
 		<script type=text/javascript>
-		highlight(document.getElementById(\"results\"), \"$term\");
+		highlight(document.getElementById(\"results\"),
+		    \"$searchterm\");
 		</script>
 	"
 }

@@ -1,17 +1,17 @@
 #!/mod/bin/jimsh
 
+package require cgi
 source /mod/var/mongoose/lib/epg.class
 source /mod/var/mongoose/lib/spinner.class
 source /mod/var/mongoose/lib/altrow
-source /mod/var/mongoose/lib/cat
+source /mod/var/mongoose/lib/epg_search
 
 [spinner new {
-	text "Loading EPG Data..."
+	text "Loading Now/Next Information..."
 	size "1.2em"
 	style "margin: 1em;"
 	}] start
 
-#cat /mod/var/mongoose/lib/epg_popup
 source /mod/var/mongoose/lib/epg_popup
 
 set start [clock milliseconds]
