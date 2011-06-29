@@ -1,0 +1,34 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require pack
+
+puts "Content-Type: application/json"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(dir) "/media/My Video"
+
+set root [dict get $_cgi dir]
+# Strip double slashes
+regsub -all -- {\/+} "$root/*" "/" root
+
+puts "{"
+foreach dir [glob -nocomplain "$root"] {
+	if {[file exists "$dir/.series"]} {
+		set fd [open "$dir/.series"]
+		set bytes [read $fd 8]
+		set recs [unpack $bytes -uintle 0 32]
+		set plays [unpack $bytes -uintle 32 32]
+		set diff $($recs - $plays)
+		if {$diff != 0} {
+			set node [lindex [split $dir /] end]
+			puts "\"$node\": $diff,"
+		}
+	}
+}
+puts "\"dummy\" : 0"
+puts "}"
+

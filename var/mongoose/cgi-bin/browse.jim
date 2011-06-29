@@ -17,10 +17,11 @@ cgi_input
 #set _cgi(dir) "/media/My Video/Chuggington"
 
 proc directory {file bfile} {
+	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
 	puts "<a href=$::env(REQUEST_URI)?dir=[cgi_quote_url $file]>"
-	puts "<img border=0 class=va src=/images/711_1_09_Media_Folder.png>"
-	regsub -all " +" $bfile "" tbfile
+	puts "<img border=0 class=va id=\"img$tbfile\"
+	    src=/images/711_1_09_Media_Folder.png>"
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span></div>"
 }

@@ -35,6 +35,21 @@ function folder_size_callback(data, status, xhr)
 	$.each(data, insert_folder_size);
 }
 
+function set_folder_new(folder, cnt)
+{
+	folder = folder.replace(/ /g, '');
+	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+	console.log("Folder: (%s) = (%s)", folder, cnt);
+	$('#img' + folder).attr('src', '/images/711_1_09_Media_Folder_C.png');
+}
+
+function new_folder_callback(data, status, xhr)
+{
+	//console.log("Status: %s", status);
+	//console.dir(data);
+	$.each(data, set_folder_new);
+}
+
 function delete_callback(file, type, id)
 {
 	var el = 'div.bf#' + id;
@@ -218,5 +233,9 @@ var menuclick = function(action, el, pos)
 	// Load folder sizes
 	$.getJSON('/cgi-bin/browse/sizes.jim?dir=' + encodeURIComponent(dir),
 		folder_size_callback);
+
+	// Flag folders with unwatched items
+	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
+		new_folder_callback);
 });
 
