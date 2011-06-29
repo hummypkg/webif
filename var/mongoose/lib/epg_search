@@ -79,8 +79,8 @@ if {[llength $res] > 0} {
 	puts "<tr><td>Keyword Searches</td>"
 	foreach keyword $res {
 		set kw [string range [lindex $keyword 1] 1 end]
-		# Attempt to clean the keyword string.
-		regsub -all {[\000-\037]} $kw "" kw
+		# Clean the keyword string.
+		regexp -nocase {^(\w+)} $kw kw
 		puts "<td><a href=/cgi-bin/epg_search.jim?term=[cgi_quote_url $kw]>$kw
 		    </a></td>"
 	}
