@@ -38,8 +38,10 @@ proc cts {type img text} {
 
 puts {
 	<br>
+	<fieldset>
+	<legend>Content Type Searches</legend>
 	<table>
-	<tr><td rowspan=2 valign=top>Content Type Searches</td>
+	<tr>
 	<td>
 }
 
@@ -65,7 +67,7 @@ cts 8 "Society" "Social/Political/Economic"
 puts "</td><td>"
 cts 6 "Music" "Music/Ballet/Dance"
 
-puts "</tr></table>"
+puts "</tr></table></fieldset>"
 
 set db [sqlite3.open /var/lib/humaxtv/setup.db]
 set res [$db query {
@@ -75,8 +77,12 @@ set res [$db query {
 $db close
 
 if {[llength $res] > 0} {
-	puts "<table cellpadding=5>"
-	puts "<tr><td>Keyword Searches</td>"
+	puts "
+		<fieldset>
+		<legend>Keyword Searches</legend>
+		<table cellpadding=5>
+		<tr>
+	"
 	foreach keyword $res {
 		set kw [string range [lindex $keyword 1] 1 end]
 		# Clean the keyword string.
@@ -84,8 +90,11 @@ if {[llength $res] > 0} {
 		puts "<td><a href=/cgi-bin/epg_search.jim?term=[cgi_quote_url $kw]>$kw
 		    </a></td>"
 	}
-	puts "</tr>"
-	puts "</table>"
+	puts "
+		</tr>
+		</table>
+		</fieldset>
+	"
 }
 
 puts "
