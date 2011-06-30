@@ -15,6 +15,27 @@ puts "<script type=text/javascript src=/js/highlight.js></script>"
 cgi_input
 #cgi_dump
 
+set ct 0
+catch { set ct [dict get $_cgi ct] }
+set crid ""
+catch { set crid [dict get $_cgi crid] }
+set scrid ""
+catch { set scrid [dict get $_cgi scrid] }
+
+if {[dict exists $_cgi term]} {
+	set lterm [dict get $_cgi term]
+
+	if {[string match {CRID:*} $lterm]} {
+		set crid [string range $lterm 5 end]
+	} elseif {[string match {SCRID:*} $lterm]} {
+		set scrid [string range $lterm 6 end]
+	}
+} elseif {$crid ne ""} {
+	set _cgi(term) "CRID:$crid"
+} elseif {$scrid ne ""} {
+	set _cgi(term) "SCRID:$scrid"
+}
+
 source /mod/var/mongoose/lib/epg_search
 
 [spinner new {
@@ -30,13 +51,6 @@ source /mod/var/mongoose/lib/epg_popup
 
 set cmd "search"
 if {$searchfull} { set cmd "searchall" }
-
-set ct 0
-catch { set ct [dict get $_cgi ct] }
-set crid ""
-catch { set crid [dict get $_cgi crid] }
-set scrid ""
-catch { set scrid [dict get $_cgi scrid] }
 
 if {$ct > 0 } {
 	set records [epg fetch dump -type $ct]

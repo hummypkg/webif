@@ -40,7 +40,7 @@ function set_folder_new(folder, cnt)
 	folder = folder.replace(/ /g, '');
 	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
 	console.log("Folder: (%s) = (%s)", folder, cnt);
-	$('#img' + folder).attr('src', '/images/711_1_09_Media_Folder_C.png');
+	$('#img' + folder).attr('src', '/img/Folder_New.png');
 }
 
 function new_folder_callback(data, status, xhr)
