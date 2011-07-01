@@ -1,15 +1,13 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/epg.class
-source /mod/var/mongoose/lib/spinner.class
-source /mod/var/mongoose/lib/altrow
-source /mod/var/mongoose/lib/cat
+source /mod/var/mongoose/lib/setup
+require epg.class spinner.class altrow
 
 puts "Content-Type: text/html"
 puts ""
 
-source /mod/var/mongoose/html/lib/header.jim
+header
 
 [spinner new {
 	text "Loading EPG Data..."
@@ -20,7 +18,7 @@ source /mod/var/mongoose/html/lib/header.jim
 cgi_input
 #cgi_dump
 
-source /mod/var/mongoose/lib/epg_popup
+require epg_popup
 
 set service 0
 set service 4351
@@ -72,5 +70,5 @@ foreach record $records {
 puts "</table>"
 
 epg cleanup
-source /mod/var/mongoose/html/lib/footer.jim
+footer
 

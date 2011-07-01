@@ -1,0 +1,17 @@
+
+if {![exists -proc require]} {
+	proc require {args} {
+		foreach file $args {
+			uplevel source "/mod/var/mongoose/lib/$file"
+		}
+	}
+
+	proc header {} {
+		uplevel source /mod/var/mongoose/html/lib/header.jim
+	}
+
+	proc footer {} {
+		uplevel source /mod/var/mongoose/html/lib/footer.jim
+	}
+}
+

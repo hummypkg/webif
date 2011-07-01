@@ -1,12 +1,13 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/epg.class
+source /mod/var/mongoose/lib/setup
+require epg.class
 
 puts "Content-Type: text/html"
 puts ""
 
-source /mod/var/mongoose/html/lib/header.jim
+header
 
 cgi_input
 #cgi_dump
@@ -31,5 +32,6 @@ if { $raw == 0 } {
 puts "</pre>"
 
 epg cleanup
-source /mod/var/mongoose/html/lib/footer.jim
+
+footer
 

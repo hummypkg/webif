@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc class ]]} { package require oo }
+if {![exists -proc class ]} { package require oo }
 
 class ts {
 	file		""

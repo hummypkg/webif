@@ -1,8 +1,8 @@
 #!/mod/bin/jimsh
 
 package require sqlite3
-
-source /mod/var/mongoose/lib/altrow
+source /mod/var/mongoose/lib/setup
+require altrow
 
 proc db_info {db_file} {
 	set db [sqlite3.open $db_file]

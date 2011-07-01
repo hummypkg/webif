@@ -1,14 +1,13 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/epg.class
-source /mod/var/mongoose/lib/spinner.class
-source /mod/var/mongoose/lib/altrow
+source /mod/var/mongoose/lib/setup
+require epg.class spinner.class altrow
 
 puts "Content-Type: text/html"
 puts ""
 
-source /mod/var/mongoose/html/lib/header.jim
+header
 
 puts "<script type=text/javascript src=/js/highlight.js></script>"
 
@@ -36,7 +35,7 @@ if {[dict exists $_cgi term]} {
 	set _cgi(term) "SCRID:$scrid"
 }
 
-source /mod/var/mongoose/lib/epg_search
+require epg_search
 
 [spinner new {
 	text "Searching EPG..."
@@ -44,7 +43,7 @@ source /mod/var/mongoose/lib/epg_search
 	style "margin: 1em;"
 	}] start
 
-source /mod/var/mongoose/lib/epg_popup
+require epg_popup
 
 #set _cgi [dict create term "doctor who"]
 #set env(REQUEST_URI) "test"
@@ -122,5 +121,5 @@ if {$searchterm != ""} {
 }
 
 epg cleanup
-source /mod/var/mongoose/html/lib/footer.jim
+footer
 

@@ -1,6 +1,6 @@
 
-if {[expr ! [exists -proc class ]]} { package require oo }
-if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
+if {![exists -proc class ]} { package require oo }
+if {![exists -proc sqlite3.open ]} { package require sqlite3 }
 
 set settingsdb [sqlite3.open /mod/etc/webif.db]
 

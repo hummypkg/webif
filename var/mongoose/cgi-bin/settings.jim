@@ -1,7 +1,9 @@
 #!/mod/bin/jimsh
 
-source /mod/var/mongoose/lib/settings.class
 package require cgi
+source /mod/var/mongoose/lib/setup
+require settings.class
+require plugin
 
 puts "Content-Type: text/html"
 puts ""
@@ -17,8 +19,7 @@ set channel_group [$settings channel_group]
 
 # Handle updates
 
-#set _cgi(smtp_server) "fred.bob"
-#set env(REQUEST_URI) ''
+if {![dict exists $env REQUEST_URI]} { set env(REQUEST_URI) "" }
 
 proc _handle_update {class var old text} {
 	global _cgi
@@ -50,7 +51,8 @@ handle_str_update hostname $hostname Hostname
 _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 
-source /mod/var/mongoose/html/lib/header.jim
+header
+
 puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
 
 puts {
@@ -60,7 +62,7 @@ puts {
 	<script type=text/javascript>
 	$(document).ready(function () {
 		$(":submit").button();
-		$('form').each(function(i, el) {
+		$('form.auto').each(function(i, el) {
 			var id = $(this).attr('id');
 			var output = '#' + id + '_output'
 			$(this).ajaxForm({
@@ -86,7 +88,7 @@ puts "
 
 puts "
 	<tr>
-	<form id=hostname method=get action=$env(REQUEST_URI)>
+	<form class=auto id=hostname method=get action=$env(REQUEST_URI)>
 		<th class=key>Hostname</th>
 		<td><input name=hostname value=\"$hostname\"
 		    class=\"text ui-widget-content ui-corner-all\"
@@ -100,7 +102,7 @@ puts "
 
 puts "
 	<tr>
-	<form id=channel_group method=get action=$env(REQUEST_URI)>
+	<form class=auto id=channel_group method=get action=$env(REQUEST_URI)>
 		<th class=key>Channel Group for EPG</th>
 		<td><select id=channel_group name=channel_group
 		    class=\"text ui-widget-content ui-corner-all\"
@@ -138,7 +140,7 @@ puts "
 
 puts "
 	<tr>
-	<form id=smtp_server method=get action=$env(REQUEST_URI)>
+	<form class=auto id=smtp_server method=get action=$env(REQUEST_URI)>
 		<th class=key>SMTP Server for outbound email</th>
 		<td><input name=smtp_server value=\"$smtp_server\"
 		    class=\"text ui-widget-content ui-corner-all\"
@@ -155,5 +157,7 @@ puts "
 	</fieldset>
 "
 
-source /mod/var/mongoose/html/lib/footer.jim
+eval_plugins settings
+
+footer
 

@@ -1,19 +1,18 @@
+source /mod/var/mongoose/lib/setup
 
-if {[expr ! [exists -proc class ]]} { package require oo }
-if {[expr ! [exists -proc sqlite3.open ]]} { package require sqlite3 }
-if {[expr ! [exists -proc settings ]]} {
-	source /mod/var/mongoose/lib/settings.class
-}
+if {![exists -proc class ]} { package require oo }
+if {![exists -proc sqlite3.open ]} { package require sqlite3 }
+if {![exists -proc settings ]} { require settings.class }
 
-source /mod/var/mongoose/lib/progressbar
+require progressbar
 
-set channeldb 0
-catch { set channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
+set ::channeldb 0
+catch { set ::channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
 
-set epgpath /mnt/hd1/dvbepg/epg.dat
-set hdepgpath /media/drive1/epgsavedata
-if {![file exists $epgpath] && [file exists $hdepgpath]} {
-	set epgpath $hdepgpath
+set ::epgpath /mnt/hd1/dvbepg/epg.dat
+set ::hdepgpath /media/drive1/epgsavedata
+if {![file exists $::epgpath] && [file exists $::hdepgpath]} {
+	set ::epgpath $::hdepgpath
 }
 
 #  * service_id, event_id, start, duration, encrypted, name, text
@@ -263,5 +262,17 @@ proc {epg favlist} {} {
 		using(hSvc)
 		where TBL_FAV.eFavGroup == $num
 	"] { lindex $i end }]
+}
+
+proc {epg channellist} {} {
+	global channeldb
+
+	set channels {}
+	lmap i [$channeldb query "
+		select usSvcid, szSvcName
+		from TBL_SVC
+	"] { set channels([string range [lindex $i 3] 1 end]) [lindex $i 1] }
+
+	return $channels
 }
 

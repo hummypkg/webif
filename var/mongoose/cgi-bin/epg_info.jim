@@ -1,7 +1,8 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/epg.class
+source /mod/var/mongoose/lib/setup
+require epg.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -13,9 +14,7 @@ set service 0
 catch { set service [dict get $_cgi service] }
 set event 0
 catch { set event [dict get $_cgi event] }
-if {! [dict exists $_cgi bare]} {
-	source /mod/var/mongoose/html/lib/header.jim
-}
+if {! [dict exists $_cgi bare]} { header }
 
 #set service 8384
 #set event 25293
@@ -105,7 +104,5 @@ puts "
 "
 
 epg cleanup
-if {! [dict exists $_cgi bare]} {
-	source /mod/var/mongoose/html/lib/footer.jim
-}
+if {! [dict exists $_cgi bare]} { footer }
 

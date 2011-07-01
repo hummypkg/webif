@@ -1,6 +1,7 @@
 #!/mod/bin/jimsh
 
-source /mod/var/mongoose/lib/pkg.class
+source /mod/var/mongoose/lib/setup
+require pkg.class
 
 puts {
 

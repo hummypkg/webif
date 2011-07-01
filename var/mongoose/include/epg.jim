@@ -1,10 +1,8 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/epg.class
-source /mod/var/mongoose/lib/spinner.class
-source /mod/var/mongoose/lib/altrow
-source /mod/var/mongoose/lib/epg_search
+source /mod/var/mongoose/lib/setup
+require epg.class spinner.class altrow epg_search
 
 [spinner new {
 	text "Loading Now/Next Information..."
@@ -12,7 +10,7 @@ source /mod/var/mongoose/lib/epg_search
 	style "margin: 1em;"
 	}] start
 
-source /mod/var/mongoose/lib/epg_popup
+require epg_popup
 
 set start [clock milliseconds]
 set records [epg fetch dump -time [clock seconds]]
