@@ -107,7 +107,6 @@ foreach record [lsort -command rsort $records] {
 	puts [$record cell]
 	puts "<td>[$record get text]</td><td>[$record get warning]</td>"
 	puts "</tr>"
-	flush stdout
 }
 puts "</table>"
 

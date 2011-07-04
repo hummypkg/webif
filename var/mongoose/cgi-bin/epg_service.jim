@@ -65,7 +65,6 @@ foreach record $records {
 	puts "<td>[$record get text]</td>"
 	puts "<td>[$record get warning]</td>"
 	puts "</tr>"
-	flush stdout
 }
 puts "</table>"
 
