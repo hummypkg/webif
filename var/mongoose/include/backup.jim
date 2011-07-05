@@ -1,0 +1,51 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require altrow rsv.class
+
+puts {
+<script type=text/javascript src=/cgi-bin/backup/backup.js></script>
+<h2>Backup/Restore</h2>
+
+<div style="clear: both; float: left; width: 40%; border: 1px solid grey;
+    padding: 1em">
+To create a backup of your current favourite channel configuration and
+scheduled recordings, enter a name in the box below and click the button.
+A suggested name has been entered for you.
+
+<p>
+}
+
+puts "<input type=text size=30 maxlength=50 id=backup_name name=file
+    class=\"text ui-widget-content ui-corner-all\"
+    value=\"[clock format [clock seconds] -format "backup-%Y-%b-%d-%H:%M"]\">"
+puts "<button id=backup_button>Create Backup</button>"
+
+puts {
+<br>
+<div id=backup_working class=va style="display: none;">
+<img class=va src=/img/loading.gif>&nbsp;
+    <font class=footnote>Backing up...</font>
+</div>
+</div>
+
+
+<div id=backup_files_outer
+    style="float: left; width: 40%; border: 1px solid grey; margin-left: 1em;
+	padding: 0 1em 1em 1em">
+	<h3>Available Backups</h3>
+	<div id=backup_files style="padding: 0 0 0 2em">
+		<img src=/img/loading.gif>Retrieving list of backups...
+	</div>
+	<br>
+	<button id=restore_button disabled>Restore Backup</button>
+	<button id=delete_button disabled>Delete Backup</button>
+</div>
+
+
+<div id=results class=pre
+    style="display: none; clear: both; float: left; padding: 1em;
+    margin-top: 1em; border: 1px solid grey; width: 70%">
+</div>
+}
+

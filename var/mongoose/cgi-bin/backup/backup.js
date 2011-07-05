@@ -1,0 +1,45 @@
+
+function refresh_files()
+{
+	$('#backup_files').load('/cgi-bin/backup/files.jim', function() {
+		$('input.restore').change(function() {
+			$('#restore_button').removeAttr('disabled')
+			    .button('option', 'disabled', false);
+			$('#delete_button').removeAttr('disabled')
+			    .button('option', 'disabled', false);
+		});
+	});
+}
+
+$(document).ready(function() {
+	$('button').button();
+
+	refresh_files();
+
+	$('#backup_button').click(function() {
+		$('#backup_working').slideDown();
+		$('#results').load('/cgi-bin/backup/backup.jim?' +
+		    $('#backup_name').serialize(), function() {
+			$('#results').slideDown(function() {
+				$('#backup_working').slideUp();
+				refresh_files();
+			});
+		});
+	});
+	$('#delete_button').click(function() {
+		var backup = $('input.restore').val();
+		if (confirm('Confirm deletion of ' + backup))
+		{
+			$('#results').load('/cgi-bin/backup/delete.jim?' +
+			    $('input.restore').serialize(), function() {
+				$('#results').slideDown(function() {
+					refresh_files();
+				});
+			});
+		}
+	});
+	$('#restore_button').click(function() {
+		console.log('Clicked');
+	});
+});
+

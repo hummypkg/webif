@@ -1,8 +1,11 @@
 
 if {![exists -proc require]} {
-	proc require {args} {
+	proc require {args} {{done {}}} {
 		foreach file $args {
-			uplevel source "/mod/var/mongoose/lib/$file"
+			if {[lsearch -exact $done $file] == -1} {
+				uplevel source "/mod/var/mongoose/lib/$file"
+				lappend $done $file
+			}
 		}
 	}
 

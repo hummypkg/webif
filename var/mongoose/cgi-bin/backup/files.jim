@@ -1,0 +1,39 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts "Pragma: nocache"
+puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
+puts ""
+
+set dir "/mod/var/backup"
+
+proc empty {} {
+	puts "<font style=\"color: grey\">
+		<i>No current backup files.</i>
+	      </font>"
+}
+
+if {![file isdirectory $dir]} {
+	empty
+	exit
+}
+
+set backups [glob -nocomplain "$dir/*"]
+
+if {![llength $backups]} {
+	empty
+	exit
+}
+
+foreach backup [glob -nocomplain "$dir/*"] {
+	set b [file tail $backup]
+	puts "<input name=restore_file class=restore
+	    type=radio value=\"$b\">$b <font class=footnote>(
+		[clock format [file mtime $backup] -format {%c %Z}]
+	    )</font></input>
+		<br>
+	"
+}
+

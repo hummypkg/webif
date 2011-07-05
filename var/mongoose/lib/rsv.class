@@ -39,12 +39,25 @@ class rsv {
 	sort			0
 }
 
-rsv method cleanstrings {} {
-	set szevtname [string range $szevtname 1 end]
-	if {[string first "i7" $szevtname] == 0} {
-		set szevtname [string range $szevtname 2 end]
+rsv method name {} {
+	set name [string range $szevtname 1 end]
+	if {[string first "i7" $name] == 0} {
+		set name [string range $name 2 end]
 	}
-	set szSvcName [string range $szSvcName 1 end]
+	if {$name == ""} {
+		switch $ersvtype {
+		    5 { set name "--- Wake-up ---" }
+		    6 { set name "--- Sleep ---" }
+		    7 { set name "--- Auto Update ---" }
+		    default { set name "--- Unknown event type $ersvtype ---" }
+		}
+	}
+
+	return $name
+}
+
+rsv method channel_name {} {
+	return [string range $szSvcName 1 end]
 }
 
 proc {rsv list} {} {

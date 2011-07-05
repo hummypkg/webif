@@ -1,0 +1,31 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+set dir /mod/var/backup
+
+puts "Content-Type: text/html"
+puts "Pragma: nocache"
+puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
+puts ""
+
+cgi_input
+#cgi_dump
+
+if {![dict exists $_cgi restore_file]} {
+	puts "No filename supplied."
+	exit
+}
+
+set file [file tail [dict get $_cgi restore_file]]
+set ffile "/$dir/$file"
+
+if {![file exists $ffile]} {
+	puts "Backup file <i>$file</i> does not exist."
+} elseif {[catch { file delete $ffile } msg]} {
+	puts "Deletion failed: $msg"
+} else {
+	puts "Successfully deleted <i>$file</i>"
+}
+

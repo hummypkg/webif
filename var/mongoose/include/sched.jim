@@ -8,7 +8,7 @@ set events [rsv list]
 puts {
 	<table class=borders>
 	<tr>
-		<th colspan=3>Channel</th>
+		<th colspan=2>Channel</th>
 		<th>Programme</th>
 		<th>Start Time</th>
 		<th>Duration</th>
@@ -19,25 +19,19 @@ puts {
 }
 
 foreach event $events {
-	$event cleanstrings
-
-	set name [$event get szevtname]
+	set name [$event name]
 
 	altrow
 
 	set rsvicon ""
-	set alta ""
 	switch [$event get ersvtype] {
 		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
 		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
 		3 { set rsvicon "175_1_11_Reservation_Record.png" }
-		5 { set rsvicon "745_1_10_Video_2Live.png"; set alta "Wake-up" }
-		6 { set rsvicon "745_1_11_Video_1REC.png"; set alta "Sleep" }
-		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png"
-		    set alta "Auto Update" }
-		default { set alta "Unknown type [$event get ersvtype]" }
+		5 { set rsvicon "745_1_10_Video_2Live.png" }
+		6 { set rsvicon "745_1_11_Video_1REC.png" }
+		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png" }
 	}
-	if {$name == ""} { set name "-- $alta --" }
 
 	set series 0
 	if {[$event get ucRecKind] == 4} {
@@ -62,15 +56,15 @@ foreach event $events {
 
 	if {[$event get usLcn] ne ""} {
 		puts "
-		<td>[$event get usLcn]</td>
 		<td>
-			<img src=\"/img/channels/[$event get szSvcName].png\"
+			<img src=\"/img/channels/[$event channel_name].png\"
 			    width=50>
 		</td>
-		<td nowrap>[$event get szSvcName]</td>
+		<td nowrap>[$event get usLcn]<br>
+			[$event channel_name]</td>
 		"
 	} else {
-		puts "<td colspan=3>&nbsp;<br><br></td>"
+		puts "<td colspan=2>&nbsp;<br><br></td>"
 	}
 
 	puts "<td nowrap>$name</td>"
@@ -85,7 +79,8 @@ foreach event $events {
 	} else {
 		puts "<td nowrap class=va>"
 	}
-	puts "[clock format $s -format {%c %Z}]"
+	puts "[clock format $s -format "%a %d %b %Y"]<br>
+	    [clock format $s -format "%H:%M %Z"]"
 
 	if {$d > 0 && $n > $s && $n < $e} {
 		puts "<br>"

@@ -1,0 +1,73 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+require rsv.class
+
+set dir /mod/var/backup
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+if {![dict exists $_cgi file]} {
+	puts "No filename supplied."
+	exit
+}
+
+set file [file tail [dict get $_cgi file]]
+set ffile "/$dir/$file"
+
+if {[file exists $ffile]} {
+	puts "Backup file <i>$file</i> already exists."
+	exit
+}
+
+if {[catch { set fd [open $ffile w] } msg]} {
+	puts "Error creating backup file. - $msg"
+	exit
+}
+
+puts "Backing up scheduled recordings and events..."
+
+set events [rsv list]
+
+set fields [lsort [[rsv] vars]]
+
+puts $fd "# [join $fields "\t"]"
+
+foreach event $events {
+	puts "  Backing up scheduled event '[$event name]'"
+
+	foreach f $fields {
+		puts -nonewline $fd "event\t[$event get $f]\t"
+	}
+	puts $fd ""
+}
+puts "Done."
+
+puts "Backing up channel favourites..."
+
+set grp 0
+foreach res [$rsvdb query {
+	select	eFavGroup,
+		TBL_FAV.eSvcType,
+		substr(szSvcName, 2) as szSvcName
+	from TBL_FAV join TBL_SVC using (hSvc)
+	order by eFavGroup
+    }] {
+	if {$res(eFavGroup) != $grp} {
+		set grp $res(eFavGroup)
+		puts "  Group $grp"
+	}
+	puts "    $res(szSvcName)"
+	puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)"
+}
+puts "Done."
+
+close $fd
+rsv cleanup
+
