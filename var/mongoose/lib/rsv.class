@@ -1,0 +1,74 @@
+source /mod/var/mongoose/lib/setup
+
+if {![exists -proc class ]} { package require oo }
+if {![exists -proc sqlite3.open ]} { package require sqlite3 }
+if {![exists -proc settings ]} { require settings.class }
+
+set rsvdb [sqlite3.open /var/lib/humaxtv/rsv.db]
+$rsvdb query {attach database '/var/lib/humaxtv/channel.db' as channel}
+
+class rsv {
+	ulslot			0
+	ersvtype		0
+	hsvc			0
+	nsttime			0
+	szsttime		0
+	nduration		0
+	erepeat			0
+	usevtid			0
+	szevtname		{}
+	ulPreOffset		0
+	ulPostOffset		0
+	ulProgramId		0
+	ulSeriesId		0
+	ucVolume		0
+	ucInputMode		0
+	usChNum			0
+	ucRecKind		0
+	ucCRIDType		0
+	szCRID			{}
+	szFPBRecPath		{}
+	szRecordedProgCrid	{}
+	szEventToRecord		{}
+	aulEventToRecordInfo	{}
+	bRecomRsv		0
+	usLastRecordedEvtId	0
+	eReady			0
+	szSvcName		{}
+	usLcn			0
+	sort			0
+}
+
+rsv method cleanstrings {} {
+	set szevtname [string range $szevtname 1 end]
+	if {[string first "i7" $szevtname] == 0} {
+		set szevtname [string range $szevtname 2 end]
+	}
+	set szSvcName [string range $szSvcName 1 end]
+}
+
+proc {rsv list} {} {
+	catch { $::rsvdb query {.mode tcl} }
+	
+	set res [$::rsvdb query {
+		select tbl_reservation.*,
+		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn,
+		    case when ersvtype > 3 then 1 else 0 end as sort
+		from tbl_reservation
+		left join channel.TBL_SVC
+		on main.TBL_RESERVATION.hSvc = channel.TBL_SVC.hSvc
+		order by sort, nsttime
+	}]
+
+	set records {}
+	foreach rec $res {
+		lappend records [rsv new $rec]
+	}
+
+	return $records
+}
+
+proc {rsv cleanup} {} {
+	catch {$::rsvdb close}
+}
+
