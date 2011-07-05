@@ -60,6 +60,10 @@ rsv method channel_name {} {
 	return [string range $szSvcName 1 end]
 }
 
+rsv method set_hsvc {new_hsvc} {
+	set hsvc $new_hsvc
+}
+
 proc {rsv list} {} {
 	catch { $::rsvdb query {.mode tcl} }
 	

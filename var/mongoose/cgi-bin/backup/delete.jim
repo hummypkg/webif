@@ -19,7 +19,7 @@ if {![dict exists $_cgi restore_file]} {
 }
 
 set file [file tail [dict get $_cgi restore_file]]
-set ffile "/$dir/$file"
+set ffile "/$dir/$file.rbk"
 
 if {![file exists $ffile]} {
 	puts "Backup file <i>$file</i> does not exist."

@@ -1,0 +1,86 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+require rsv.class
+
+set dir /mod/var/backup
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set _cgi(restore_file) "backup-2011-Jul-05-19:22"
+
+if {![dict exists $_cgi restore_file]} {
+	puts "No filename supplied."
+	exit
+}
+
+set file [file tail [dict get $_cgi restore_file]]
+set ffile "/$dir/$file.rbk"
+
+if {![file exists $ffile]} {
+	puts "Backup file <i>$file</i> does not exist."
+	exit
+}
+
+if {[catch { set fd [open $ffile r] } msg]} {
+	puts "Error opening backup file. - $msg"
+	exit
+}
+
+puts "Restoring scheduled events..."
+
+set fields [lsort [[rsv] vars]]
+
+foreach line [split [read $fd] "\n"] {
+	set vals [split $line "\t"]
+	if {[lindex $vals 0] ne "event"} { continue }
+	set vars {}
+	set i 0
+	foreach f $fields {
+		if {$f eq "aulEventToRecordInfo"} { continue }
+		incr i
+		lappend vars $f [lindex $vals $i]
+	}
+
+	set rsv [rsv new $vars]
+
+	# Need to fix up channel and CRID mappings in case something has
+	# changed during a channel scan.
+
+	puts "  Restoring [$rsv name]"
+
+	set bad 0
+	# First, the service number
+	set ohsvc [$rsv get hsvc]
+	if {$ohsvc > 0} {
+		set hsvc [$rsvdb query "
+			select hSvc
+			from channel.TBL_SVC
+			where szSvcName = '[$rsv get szSvcName]'
+			limit 1
+		"]
+		if {[llength $hsvc] != 1} {
+			puts "    Cannot find channel, restore failed."
+			set bad 1
+		} else {
+			set hsvc [lindex [lindex $hsvc 0] 1]
+			if {$hsvc != $ohsvc} {
+				puts -nonewline "    Service number has "
+				puts "changed $ohsvc -> $hsvc, fixing."
+				$rsv set_hsvc $hsvc
+			} else {
+				puts "    No change in channel service."
+			}
+		}
+	}
+}
+
+close $fd
+rsv cleanup
+

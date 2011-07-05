@@ -22,11 +22,11 @@ puts "<input type=text size=30 maxlength=50 id=backup_name name=file
 puts "<button id=backup_button>Create Backup</button>"
 
 puts {
-<br>
-<div id=backup_working class=va style="display: none;">
-<img class=va src=/img/loading.gif>&nbsp;
-    <font class=footnote>Backing up...</font>
-</div>
+	<br>
+	<div id=backup_working class=va style="display: none;">
+		<img class=va src=/img/loading.gif>&nbsp;
+		<font class=footnote>Backing up...</font>
+	</div>
 </div>
 
 
@@ -40,6 +40,11 @@ puts {
 	<br>
 	<button id=restore_button disabled>Restore Backup</button>
 	<button id=delete_button disabled>Delete Backup</button>
+	<br>
+	<div id=restore_working class=va style="display: none;">
+		<img class=va src=/img/loading.gif>&nbsp;
+		<font class=footnote>Restoring...</font>
+	</div>
 </div>
 
 

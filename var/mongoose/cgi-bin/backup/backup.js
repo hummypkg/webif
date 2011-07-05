@@ -39,7 +39,19 @@ $(document).ready(function() {
 		}
 	});
 	$('#restore_button').click(function() {
-		console.log('Clicked');
+		$('#restore_working').slideDown();
+		var backup = $('input.restore').val();
+		if (confirm('Are you sure you wish to erase all scheduled ' +
+		    'recordings and restore ' + backup + '?'))
+		{
+			$('#results').load('/cgi-bin/backup/restore.jim?' +
+			    $('input.restore').serialize(), function() {
+				$('#results').slideDown(function() {
+					$('#restore_working').slideUp();
+					refresh_files();
+				});
+			});
+		}
 	});
 });
 

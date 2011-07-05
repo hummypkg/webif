@@ -20,15 +20,15 @@ if {![file isdirectory $dir]} {
 	exit
 }
 
-set backups [glob -nocomplain "$dir/*"]
+set backups [glob -nocomplain "$dir/*.rbk"]
 
 if {![llength $backups]} {
 	empty
 	exit
 }
 
-foreach backup [glob -nocomplain "$dir/*"] {
-	set b [file tail $backup]
+foreach backup $backups {
+	set b [file rootname [file tail $backup]]
 	puts "<input name=restore_file class=restore
 	    type=radio value=\"$b\">$b <font class=footnote>(
 		[clock format [file mtime $backup] -format {%c %Z}]

@@ -19,7 +19,7 @@ if {![dict exists $_cgi file]} {
 }
 
 set file [file tail [dict get $_cgi file]]
-set ffile "/$dir/$file"
+set ffile "/$dir/$file.rbk"
 
 if {[file exists $ffile]} {
 	puts "Backup file <i>$file</i> already exists."
@@ -37,13 +37,15 @@ set events [rsv list]
 
 set fields [lsort [[rsv] vars]]
 
-puts $fd "# [join $fields "\t"]"
+#puts $fd "# [join $fields "\t"]"
 
 foreach event $events {
 	puts "  Backing up scheduled event '[$event name]'"
+	puts -nonewline $fd "event\t"
 
 	foreach f $fields {
-		puts -nonewline $fd "event\t[$event get $f]\t"
+		if {$f eq "aulEventToRecordInfo"} { continue }
+		puts -nonewline $fd "[$event get $f]\t"
 	}
 	puts $fd ""
 }
