@@ -19,7 +19,7 @@ if {[os.gethostname] eq "hosting"} {
 set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
 
 puts "<div style=\"float: right; background:url('/images/345_1_27_ST_USB_BG.png')\">"
-puts "<img src=/images/345_2_14_ST_HDD_$file.png>"
+puts "<img src=/images/345_1_27_ST_USB_$file.png>"
 puts "</div>"
 puts "<span style=\"float: right\">"
 puts "<br>"

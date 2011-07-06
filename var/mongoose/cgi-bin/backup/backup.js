@@ -39,11 +39,11 @@ $(document).ready(function() {
 		}
 	});
 	$('#restore_button').click(function() {
-		$('#restore_working').slideDown();
 		var backup = $('input.restore').val();
 		if (confirm('Are you sure you wish to erase all scheduled ' +
 		    'recordings and restore ' + backup + '?'))
 		{
+			$('#restore_working').slideDown();
 			$('#results').load('/cgi-bin/backup/restore.jim?' +
 			    $('input.restore').serialize(), function() {
 				$('#results').slideDown(function() {
