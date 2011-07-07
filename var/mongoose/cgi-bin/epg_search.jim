@@ -9,7 +9,7 @@ puts ""
 
 header
 
-puts "<script type=text/javascript src=/js/highlight.js></script>"
+puts "<script type=text/javascript src=/js/jquery.highlight.js></script>"
 
 cgi_input
 #cgi_dump
@@ -113,8 +113,7 @@ puts "</table>"
 if {$searchterm != ""} {
 	puts "
 		<script type=text/javascript>
-		highlight(document.getElementById(\"results\"),
-		    \"$searchterm\");
+		\$('#results').highlight('$searchterm');
 		</script>
 	"
 }

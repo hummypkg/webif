@@ -5,6 +5,7 @@ source /mod/var/mongoose/lib/setup
 require altrow
 
 proc db_info {db_file} {
+	if {![file exists $db_file]} { return }
 	set db [sqlite3.open $db_file]
 	set tables [$db query {SELECT name FROM sqlite_master WHERE type='table' ORDER BY name}]
 	
@@ -40,4 +41,5 @@ puts {<style type="text/css">table, td, th {border-collapse:collapse; border:1px
 db_info /var/lib/humaxtv/rsv.db
 db_info /var/lib/humaxtv/setup.db
 db_info /var/lib/humaxtv/channel.db
+#db_info /mnt/hd2/dms_cds.db
 

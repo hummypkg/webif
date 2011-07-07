@@ -12,6 +12,7 @@
 <body>
 
 <!--#include virtual="/lib/topbar.shtml" -->
+<!--#exec cmd="/mod/var/mongoose/include/restart.jim" -->
 
 <div style="clear: both">
 

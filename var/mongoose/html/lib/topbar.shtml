@@ -3,13 +3,13 @@
 <div class=container onclick="location.href='/'; return false;">
 	<div class=left><img src=/images/154_1_00_WIN_MD116_1L.png></div>
 	<div class=middle>
-		<img border=0 src=/images/516_1_26_Freeview_Logo.png>
-		<span style="font-size: 150%; padding: 0 0 0 2em;">
-<!--#exec cmd="/mod/var/mongoose/include/model.jim" -->
-		</span>
-<!-- Start include diskspace -->
+<!-- Start include diskspace - above other items to work around IE feature.. -->
 <!--#exec cmd="/mod/var/mongoose/include/diskspace.jim" -->
 <!-- End include diskspace -->
+		<img border=0 src=/images/516_1_26_Freeview_Logo.png>
+		<span style="font-size: 1.5em; padding: 0 0 0 2em;">
+<!--#exec cmd="/mod/var/mongoose/include/model.jim" -->
+		</span>
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>
 </div>

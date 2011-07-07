@@ -13,7 +13,7 @@ puts ""
 cgi_input
 #cgi_dump
 
-set _cgi(restore_file) "backup-2011-Jul-05-19:22"
+#set _cgi(restore_file) "backup-2011-Jul-05-19:22"
 
 if {![dict exists $_cgi restore_file]} {
 	puts "No filename supplied."
@@ -40,7 +40,7 @@ proc findhsvc {channel} {
 		select hSvc
 		from channel.TBL_SVC
 		where szSvcName = '$channel'
-		or szSvcame = '\025$channel'
+		or szSvcname = '\025$channel'
 		limit 1
 	"]
 
@@ -53,9 +53,13 @@ proc findhsvc {channel} {
 
 puts "Restoring scheduled events..."
 
+$rsvdb query {delete from TBL_RESERVATION}
+
 set fields [lsort [[rsv] vars]]
 
-foreach line [split [read $fd] "\n"] {
+set data [split [read $fd] "\n"]
+
+foreach line $data {
 	set vals [split $line "\t"]
 	if {[lindex $vals 0] ne "event"} { continue }
 	set vars {}
@@ -77,19 +81,49 @@ foreach line [split [read $fd] "\n"] {
 	# First, the service number
 	set ohsvc [$rsv get hsvc]
 	if {$ohsvc > 0} {
-		set hsvc [findhsvc [$rsv get szSvcName]]
+		set hsvc [$rsv fix_hsvc]
 		if {$hsvc == 0} {
 			puts "    Cannot find channel, restore failed."
 			set bad 1
 		} elseif {$hsvc != $ohsvc} {
 			puts -nonewline "    Service number has "
 			puts "changed $ohsvc -> $hsvc, fixing."
-			$rsv set_hsvc $hsvc
 		} else {
 			puts "    No change in channel service."
 		}
 	}
+
+	if {!$bad} { $rsv insert }
 }
+
+puts "Restoring favourite channels..."
+$rsvdb query {delete from channel.TBL_FAV}
+
+foreach line $data {
+	set vals [split $line "\t"]
+	if {[lindex $vals 0] ne "fav"} { continue }
+
+	set group [lindex $vals 1]
+	set type [lindex $vals 2]
+	set chan [lindex $vals 3]
+	set hsvc [findhsvc $chan]
+
+	puts "    $chan"
+
+	if {!$hsvc} {
+		puts "        Cannot map channel name to service."
+		continue
+	}
+
+	set query "
+		insert into channel.TBL_FAV(hSvc, eFavGroup, eSvcType)
+		values($hsvc, $group, $type);
+	"
+
+	$rsvdb query $query
+}
+
+close [open /tmp/.restartpending w]
 
 close $fd
 rsv cleanup

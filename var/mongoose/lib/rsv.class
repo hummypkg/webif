@@ -60,8 +60,53 @@ rsv method channel_name {} {
 	return [string range $szSvcName 1 end]
 }
 
-rsv method set_hsvc {new_hsvc} {
-	set hsvc $new_hsvc
+rsv method fix_hsvc {} {
+	global rsvdb
+
+	set _hsvc [$rsvdb query "
+		select hSvc
+		from channel.TBL_SVC
+		where szSvcName = '$szSvcName'
+		or szSvcname = '\025$szSvcName'
+		limit 1
+	"]
+
+	if {[llength $_hsvc] == 1} {
+		set hsvc [lindex [lindex $_hsvc 0] 1]
+	} else {
+		set hsvc 0
+	}
+	return $hsvc
+}
+
+rsv method insert {} {
+	global rsvdb
+	if {!$ulslot} {
+		set slot [
+		    $rsvdb query {select max(ulslot) FROM TBL_RESERVATION}]
+		set slot [expr 1 + [lindex [lindex $slot 0] 1]]
+		set ulslot $slot
+	}
+
+	set fields [lsort [$self vars]]
+
+	foreach field {aulEventToRecordInfo szSvcName usLcn sort} {
+		set df [lsearch $fields $field]
+		set fields [lreplace $fields $df $df]
+	}
+
+	set vals {}
+	foreach field $fields {
+		lappend vals "'[$self get $field]'"
+	}
+
+	set query "insert into TBL_RESERVATION("
+	append query [join $fields ","]
+	append query ") values("
+	append query [join $vals ","]
+	append query ");"
+
+	$rsvdb query $query
 }
 
 proc {rsv list} {} {

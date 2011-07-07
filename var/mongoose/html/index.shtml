@@ -19,6 +19,8 @@ $(document).ready(function() {
 });
 </script>
 
+<div style="clear: both">
+
 <div style="float: left">
 	<center>
 	<a href=/cgi-bin/browse.jim>
@@ -57,7 +59,13 @@ $(document).ready(function() {
 	</center>
 </div>
 
-<div style="float: left; clear: left">
+<!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
+
+</div>
+
+<div style="clear: both">
+
+<div style="float: left">
 	<center>
 	<a href=/services.shtml>
 	<img src=/img/spanner.jpg border=0 width=217 height=228>
@@ -97,12 +105,11 @@ $(document).ready(function() {
 	</center>
 </div>
 
+</div>
+
 <div class=footer>
 <ul>
 <li>
-<!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
-MediaTomb Web Interface</a>
-</li><li>
 <a href=/db.shtml target=_blank>SQLite3 Database Dump</a>
 </li><li>
 <a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |

@@ -18,13 +18,26 @@ if {[os.gethostname] eq "hosting"} {
 
 set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
 
-puts "<div style=\"float: right; background:url('/images/345_1_27_ST_USB_BG.png')\">"
-puts "<img src=/images/345_1_27_ST_USB_$file.png>"
-puts "</div>"
-puts "<span style=\"float: right\">"
-puts "<br>"
-puts "Total space: $size<br>"
-puts "Used: $used ($perc%)"
-puts "</span>"
+# The HD model only has the USB images which are blue. I prefer the green
+# one so use those if available.
+if {[file exists /opt/share/images/blue/345_2_14_ST_HDD_01.png]} {
+	set prefix 345_2_14_ST_HDD
+} else {
+	set prefix 345_1_27_ST_USB
+}
 
+puts "
+
+	<span style=\"float: right; 
+	    background:url('/images/345_1_27_ST_USB_BG.png')
+	    no-repeat\">
+		<img src=/images/${prefix}_$file.png>
+	</span>
+
+	<span style=\"float: right\">
+		<br>
+		Total space: $size<br>
+		Used: $used ($perc%)
+	</span>
+"
 

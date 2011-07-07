@@ -8,5 +8,18 @@ close $fd
 regexp {URL=([^"]*)} $data match
 set url [string range $match 4 [string length $match]]
 
-puts "<a href=$url>";
+puts "
+<div style=\"float: left; padding-top: 5em\">
+	<center>
+	<a href=$url>
+	<img src=/img/mediatomb.png width=180>
+	</a>
+	<br>
+	<a href=$url>
+	<b>MediaTomb</b>
+	</a>
+	<br>
+	</center>
+</div>
+"
 

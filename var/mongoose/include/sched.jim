@@ -8,6 +8,7 @@ set events [rsv list]
 puts {
 	<table class=borders>
 	<tr>
+		<th></th>
 		<th colspan=2>Channel</th>
 		<th>Programme</th>
 		<th>Start Time</th>
@@ -53,6 +54,8 @@ foreach event $events {
 	if {$RKIcon ne ""} {
 		set RKIcon "<img src='images/$RKIcon' height=20>
 	}
+
+	puts "<td>[$event get ulslot]</td>"
 
 	if {[$event get usLcn] ne ""} {
 		puts "
@@ -126,4 +129,10 @@ foreach event $events {
 }
 puts "</table>"
 puts "<font class=footnote>Click on the CRID to view episodes.</font>"
+
+puts {
+	<button onclick="window.location='/backup.shtml';">
+		Backup/Restore Scheduled Recordings/Events.
+	</button>
+}
 

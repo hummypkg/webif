@@ -40,8 +40,7 @@ $(document).ready(function() {
 	});
 	$('#restore_button').click(function() {
 		var backup = $('input.restore').val();
-		if (confirm('Are you sure you wish to erase all scheduled ' +
-		    'recordings and restore ' + backup + '?'))
+		if (confirm('!!!!!!!!!!!!!!!!!!!!!!!!! PLEASE CONFIRM !!!!!!!!!!!!!!!!!!!!!!!!!\n\nAre you sure you wish to erase all scheduled recordings and favourite channels and then restore them from\n' + backup + '?'))
 		{
 			$('#restore_working').slideDown();
 			$('#results').load('/cgi-bin/backup/restore.jim?' +
@@ -49,6 +48,8 @@ $(document).ready(function() {
 				$('#results').slideDown(function() {
 					$('#restore_working').slideUp();
 					refresh_files();
+					alert('!!!!!!!!!!!!!! PLEASE NOTE !!!!!!!!!!!!!!\n\nAfter a restore you must restart the box using the link at the top of the screen or via the remote control and then add at least one scheduled entry using the remote control (which you can then delete).');
+					window.location.reload(true);
 				});
 			});
 		}

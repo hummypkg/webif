@@ -18,6 +18,7 @@ puts {
 }
 
 source /mod/var/mongoose/html/lib/topbar.jim
+source /mod/var/mongoose/include/restart.jim
 
 puts {
 <div style="clear: both">

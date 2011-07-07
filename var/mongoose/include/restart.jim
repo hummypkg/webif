@@ -1,0 +1,16 @@
+#!/mod/bin/jimsh
+
+if {![file exists /tmp/.restartpending]} { exit }
+
+puts {
+	<center>
+	<div style="width: 60%; height: 0.8em;
+	    background: url(/img/stripes.gif) repeat-x;"></div>
+	<div style="width: 60%; text-align: center; padding: 0.5em">
+	A restart is required in order to complete a scheduling operation.
+	</div>
+	<div style="width: 60%; height: 0.8em;
+	    background: url(/img/stripes.gif) repeat-x;"></div>
+	</center>
+}
+
