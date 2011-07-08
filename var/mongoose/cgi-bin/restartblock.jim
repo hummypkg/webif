@@ -1,0 +1,7 @@
+#!/mod/bin/jimsh
+
+puts "Content-Type: text/html"
+puts ""
+
+source /mod/var/mongoose/include/restart.jim
+

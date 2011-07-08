@@ -45,14 +45,36 @@ ts method flag {f} {
 
 ts method unlock {} {
 	set cmd [list /mod/bin/hmt -lock $file]
-	#puts "CMD: $cmd"
 	exec {*}$cmd
 	return 1
 }
 
 ts method lock {} {
 	set cmd [list /mod/bin/hmt +lock $file]
-	#puts "CMD: $cmd"
+	exec {*}$cmd
+	return 1
+}
+
+ts method unenc {} {
+	set cmd [list /mod/bin/hmt -protect $file]
+	exec {*}$cmd
+	return 1
+}
+
+ts method enc {} {
+	set cmd [list /mod/bin/hmt +protect $file]
+	exec {*}$cmd
+	return 1
+}
+
+ts method set_new {} {
+	set cmd [list /mod/bin/hmt +new $file]
+	exec {*}$cmd
+	return 1
+}
+
+ts method set_watched {} {
+	set cmd [list /mod/bin/hmt -new $file]
 	exec {*}$cmd
 	return 1
 }

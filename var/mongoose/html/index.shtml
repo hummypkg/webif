@@ -58,9 +58,6 @@ $(document).ready(function() {
 	<br>
 	</center>
 </div>
-
-<!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
-
 </div>
 
 <div style="clear: both">
@@ -107,6 +104,9 @@ $(document).ready(function() {
 
 </div>
 
+<div style="clear: both">
+<!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
+</div>
 <div class=footer>
 <ul>
 <li>

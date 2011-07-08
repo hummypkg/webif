@@ -1,0 +1,27 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(file) "/media/My Video/The Walking Dead/The Walking Dead S01E06.ts"
+
+set file [dict get $_cgi file]
+set ts [ts fetch $file]
+if {[set ts [ts fetch $file]] != 0} {
+	set action enc
+	if {[$ts flag "Encrypted"]} { set action unenc }
+
+	if {[$ts $action]} {
+		puts "Successfully [set action]ed $file."
+	} else {
+		puts "Problem [set action]ing $file,
+		    [$ts get error]"
+	}
+}
+

@@ -1,16 +1,52 @@
 #!/mod/bin/jimsh
 
-if {![file exists /tmp/.restartpending]} { exit }
+if {[file exists /tmp/.restartpending]} {
 
 puts {
 	<center>
-	<div style="width: 60%; height: 0.8em;
+	<div style="width: 60%; height: 0.7em;
 	    background: url(/img/stripes.gif) repeat-x;"></div>
-	<div style="width: 60%; text-align: center; padding: 0.5em">
-	A restart is required in order to complete a scheduling operation.
+	<div style="font-size: 1.2em; width: 60%; text-align: center; padding: 0.5em">
+	A warm restart is required in order to complete a scheduling operation.
+	<br>
+	<font class=blood>
+}
+
+# Is humaxtv doing anything?
+set pid [exec pgrep humaxtv]
+set c 0
+catch { set c [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts | wc -l] }
+
+if {$c > 0} {
+	puts "Cannot restart whilst box is busy."
+} else {
+	puts {
+		Restart via the remote control or
+		<small><button id=restart_humaxtv>Restart now</button></small>
+	}
+}
+
+puts {
+	</font>
 	</div>
-	<div style="width: 60%; height: 0.8em;
+	<div style="width: 60%; height: 0.7em; margin-bottom: 2em;
 	    background: url(/img/stripes.gif) repeat-x;"></div>
 	</center>
+	<script type=text/javascript>
+	$('#restart_humaxtv').button();
+	$('#restart_humaxtv').click(function() {
+		if (confirm('Are you sure you wish to perform a warm restart now?'))
+		{
+			$.ajax({
+				url: '/cgi-bin/restart.jim',
+				success: function() {
+					window.location.reload(true);
+				}
+			});
+		}
+	});
+	</script>
+}
+
 }
 

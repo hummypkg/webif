@@ -52,6 +52,13 @@ div.footer
 	padding-top: 2em;
 }
 
+div.warningbox
+{
+	background: url('/img/redshade.png') repeat-x;
+	padding: 0.5em;
+	margin: 1em;
+}
+
 table
 {
 	empty-cells: show;
@@ -234,6 +241,11 @@ img.progress
 .block
 {
 	display: block;
+}
+
+.hidden
+{
+	display: none;
 }
 
 input.text

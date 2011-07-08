@@ -7,6 +7,17 @@ puts {
 <script type=text/javascript src=/cgi-bin/backup/backup.js></script>
 <h2>Backup/Restore</h2>
 
+<div id=restart_block></div>
+<div id=restore_warning class="hidden warningbox">
+<center>
+<b>!!!!!!!!!!!!!! PLEASE NOTE !!!!!!!!!!!!!!
+<br><br>
+After restoring the scheduled recordings you <b>MUST</b> restart the box using
+the link at the top of the screen or via the remote control and then add
+at least one scheduled entry using the remote control
+(which you can then delete).
+</div>
+
 <div style="clear: both; float: left; width: 40%; border: 1px solid grey;
     padding: 1em">
 To create a backup of your current favourite channel configuration and

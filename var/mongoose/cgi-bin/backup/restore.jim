@@ -99,6 +99,7 @@ foreach line $data {
 puts "Restoring favourite channels..."
 $rsvdb query {delete from channel.TBL_FAV}
 
+set grp 0
 foreach line $data {
 	set vals [split $line "\t"]
 	if {[lindex $vals 0] ne "fav"} { continue }
@@ -107,6 +108,11 @@ foreach line $data {
 	set type [lindex $vals 2]
 	set chan [lindex $vals 3]
 	set hsvc [findhsvc $chan]
+
+	if {$grp != $group} {
+		set grp $group
+		puts "  Group $grp"
+	}
 
 	puts "    $chan"
 

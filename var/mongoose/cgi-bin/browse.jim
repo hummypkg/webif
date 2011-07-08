@@ -46,15 +46,11 @@ proc entry {file} {{i 0}} {
 	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
 		set type ts
 		set ts [ts fetch $file 1]
-		set img 741_1_10_Video_Title.png
-		set pad 0
-		set newpad "top: -6; left: 4;"
+		set img Video_TS
 	} else {
 		set type gen
 		set ts 0
-		set img 743_4_10_Video_Xvid_File.png
-		set pad "2"
-		set newpad "top: -2; left: 2;"
+		set img Video_Other
 	}
 
 	puts "
@@ -69,26 +65,9 @@ proc entry {file} {{i 0}} {
 		if {![file exists "[file rootname $file].hmi"]} { set new 1 }
 	}
 
-	if {$new} {
-		# Overlay the new image over the media one.
-		puts "
-		    <span style=\"position: relative; left: 0; top 0;
-		      padding: $pad\">
-			<img class=va border=0 width=45 src=/images/$img
-			    style=\"padding: $pad;
-				position: relative; top: 0; left: 0\">
-			<img class=va border=0
-			    src=/images/743_1_10_Video_New.png
-			    style=\"position: absolute; $newpad
-			      width: 18\">
-		    </span>
-		"
-	} else {
-		puts "
-			<img class=va border=0 width=45 src=/images/$img
-			    style=\"padding:$pad\">
-		"
-	}
+	if {$new} { append img _New }
+
+	puts "<img class=va border=0 src=/img/$img.png>"
 
 	puts "
 		$bfile
@@ -101,11 +80,15 @@ proc entry {file} {{i 0}} {
 	# Icons
 
 	set locked 0
+	set encd 0
+	set def unknown
 	if {$type eq "ts"} {
 		# HD / SD
 		if {[$ts get definition] eq "HD"} {
+			set def HD
 			set img "172_1_00_HD"
 		} else {
+			set def SD
 			set img "172_1_26_SD"
 		}
 		puts "<img class=va src=/images/$img.png height=21>"
@@ -119,6 +102,7 @@ proc entry {file} {{i 0}} {
 
 		# Encrypted
 		if {[$ts flag "Encrypted"] > 0} {
+			set encd 1
 			puts "<img class=va
 			    src=/images/749_1_26_Video_Encryption.png
 			    height=21>"
@@ -137,7 +121,7 @@ proc entry {file} {{i 0}} {
 	puts "
 	      <a href=#>
 		<img class=\"opt va\" border=0 width=45 type=$type did=$i
-		    locked=$locked
+		    locked=$locked encd=$encd def=$def new=$new
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
@@ -163,6 +147,8 @@ puts {
 	<ul id=optmenu class=contextMenu>
 		<li><a href=#delete>Delete</a></li>
 		<li><a href=#lock>Toggle Lock</a></li>
+		<li><a href=#enc>Toggle Enc</a></li>
+		<li><a href=#new>Toggle New</a></li>
 		<li><a href=#rename>Rename</a></li>
 		<li><a href=#download>Download</a></li>
 	</ul>

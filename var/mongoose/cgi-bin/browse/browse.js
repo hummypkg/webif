@@ -69,6 +69,18 @@ function lock_callback(file, type, id)
 	$.get(url, function() { window.location.reload(true); });
 }
 
+function enc_callback(file, type, id)
+{
+	var url = '/cgi-bin/browse/enc.jim?file=' + encodeURIComponent(file);
+	$.get(url, function() { window.location.reload(true); });
+}
+
+function new_callback(file, type, id)
+{
+	var url = '/cgi-bin/browse/new.jim?file=' + encodeURIComponent(file);
+	$.get(url, function() { window.location.reload(true); });
+}
+
 function rename_submit()
 {
 	var s = $('#renameform_form').serialize();
@@ -98,6 +110,26 @@ function preparemenu(el, menu)
 {
 	if (el.attr('type') == 'ts')
 	{
+		if (el.attr('def') == 'HD')
+		{
+			$('#optmenu').enableContextMenuItems('#enc');
+			if (el.attr('encd') == 1)
+				$(menu).changeContextMenuItem('#enc',
+				    'Remove ENC');
+			else
+				$(menu).changeContextMenuItem('#enc',
+				    'Set ENC');
+		}
+		else
+			$('#optmenu').disableContextMenuItems('#enc');
+
+		$('#optmenu').enableContextMenuItems('#new');
+		if (el.attr('new') == 1)
+			$(menu).changeContextMenuItem('#new', 'Mark watched');
+		else
+			$(menu).changeContextMenuItem('#new', 'Mark new');
+
+
 		$('#optmenu').enableContextMenuItems('#lock');
 		if (el.attr('locked') == 1)
 		{
@@ -114,7 +146,10 @@ function preparemenu(el, menu)
 	{
 		$('#optmenu').enableContextMenuItems('#delete');
 		$('#optmenu').disableContextMenuItems('#lock');
+		$('#optmenu').disableContextMenuItems('#enc');
+		$('#optmenu').disableContextMenuItems('#new');
 	}
+
 }
 
 
@@ -136,6 +171,16 @@ var menuclick = function(action, el, pos)
 
 	    case 'lock':
 		confirm_action('change the lock on', lock_callback,
+		    file, type, id);
+		break;
+
+	    case 'enc':
+		confirm_action('change the ENC flag on', enc_callback,
+		    file, type, id);
+		break;
+
+	    case 'new':
+		confirm_action('change the New flag on', new_callback,
 		    file, type, id);
 		break;
 

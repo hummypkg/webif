@@ -48,8 +48,9 @@ $(document).ready(function() {
 				$('#results').slideDown(function() {
 					$('#restore_working').slideUp();
 					refresh_files();
-					alert('!!!!!!!!!!!!!! PLEASE NOTE !!!!!!!!!!!!!!\n\nAfter a restore you must restart the box using the link at the top of the screen or via the remote control and then add at least one scheduled entry using the remote control (which you can then delete).');
-					window.location.reload(true);
+					$('#restore_warning').slideDown();
+					$('#restart_block').load(
+					    '/cgi-bin/restartblock.jim');
 				});
 			});
 		}
