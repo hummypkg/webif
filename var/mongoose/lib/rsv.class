@@ -8,7 +8,7 @@ set rsvdb [sqlite3.open /var/lib/humaxtv/rsv.db]
 $rsvdb query {attach database '/var/lib/humaxtv/channel.db' as channel}
 
 class rsv {
-	ulslot			0
+	ulslot			-1
 	ersvtype		0
 	hsvc			0
 	nsttime			0
@@ -81,9 +81,9 @@ rsv method fix_hsvc {} {
 
 rsv method insert {} {
 	global rsvdb
-	if {!$ulslot} {
+	if {$ulslot < 0} {
 		set slot [
-		    $rsvdb query {select max(ulslot) FROM TBL_RESERVATION}]
+		    $rsvdb query {select max(ulslot) FROM TBL_RESERVATION;}]
 		set slot [expr 1 + [lindex [lindex $slot 0] 1]]
 		set ulslot $slot
 	}
@@ -97,7 +97,10 @@ rsv method insert {} {
 
 	set vals {}
 	foreach field $fields {
-		lappend vals "'[$self get $field]'"
+		# Escape any quotes embedded in the data.
+		regsub -all {'} [$self get $field] {''} f
+		lappend vals "'$f'"
+		#lappend vals "'[$self get $field]'"
 	}
 
 	set query "insert into TBL_RESERVATION("

@@ -126,9 +126,11 @@ epg method get_channel_info {} {
 			from TBL_SVC
 			where usSvcId = %s} "[$self get service_id]"
 		    ] 0]
-		set channel_num $chan(usLcn)
-		set channel_name [string range $chan(szSvcName) 1 end]
-		set channel_crid [string toupper $chan(aucDefaultAuthority)]
+		if {[dict exists $chan usLcn]} {
+			set channel_num $chan(usLcn)
+			set channel_name [string range $chan(szSvcName) 1 end]
+			set channel_crid [string toupper $chan(aucDefaultAuthority)]
+		}
 	}
 }
 

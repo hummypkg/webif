@@ -41,7 +41,7 @@ $(document).ready(function() {
 	</a>
 	<br>
 	<a href=/sched.shtml>
-	<b>Scheduled Recordings</b>
+	<b>Scheduled Events</b>
 	</a>
 	<br>
 	</center>

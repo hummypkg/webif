@@ -13,7 +13,7 @@ puts ""
 cgi_input
 #cgi_dump
 
-#set _cgi(restore_file) "backup-2011-Jul-05-19:22"
+#set _cgi(restore_file) "backup-2011-Jul-09-20:37"
 
 if {![dict exists $_cgi restore_file]} {
 	puts "No filename supplied."
@@ -53,7 +53,8 @@ proc findhsvc {channel} {
 
 puts "Restoring scheduled events..."
 
-$rsvdb query {delete from TBL_RESERVATION}
+$rsvdb query {begin transaction;}
+$rsvdb query {delete from TBL_RESERVATION;}
 
 set fields [lsort [[rsv] vars]]
 
@@ -96,7 +97,10 @@ foreach line $data {
 	if {!$bad} { $rsv insert }
 }
 
+$rsvdb query {commit transaction;}
+
 puts "Restoring favourite channels..."
+$rsvdb query {begin transaction;}
 $rsvdb query {delete from channel.TBL_FAV}
 
 set grp 0
@@ -128,6 +132,8 @@ foreach line $data {
 
 	$rsvdb query $query
 }
+
+$rsvdb query {commit transaction;}
 
 close [open /tmp/.restartpending w]
 
