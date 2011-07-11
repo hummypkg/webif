@@ -1,0 +1,111 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<style type=text/css>
+button.install
+{
+	display: none;
+	background-image: none;
+	background: #ccff99;
+}
+button.remove
+{
+	display: none;
+	background-image: none;
+	background: #ff6666;
+}
+button.upgrade
+{
+	display: none;
+}
+</style>
+
+<div class=va style="padding: 0 0 1em 0">
+<h1 style="display: inline" class=va>Package Management</h1>
+<small>
+<button class=va id=opkgupdate style="display: none">
+Update package list from Internet
+</button>
+</small>
+</div>
+
+<div id=results class=shadowbox
+    style="width: 90%; display: none; margin: 1 0 1em 0">
+	<div>
+		<pre id=result_txt>
+		Updating package list...
+		</pre>
+	</div>
+</div>
+
+<div id=dialogue style="display: none; align: center">
+	<pre id=dresults></pre>
+	<div id=dspinner><img src=/img/loading.gif>Processing request...</div>
+</div>
+
+<script type=text/javascript>
+
+var opkg = '/cgi-bin/opkg.jim?cmd=';
+
+$(document).ready(function() {
+	$('#opkgupdate').button().show('slow');
+
+	$('#pkgtabs').tabs({load: setup_buttons});
+
+	var $dialog = $('#dialogue').dialog({
+		title: "Package Management Results",
+		modal: false, autoOpen: false,
+		height: 500, width: 700,
+		show: 'scale', hide: 'fade',
+		draggable: true, resizable: true,
+		buttons: { "Close":
+		    function() {$(this).dialog('close');}},
+		close: function(e,u) { window.location.reload(true); }
+	});
+
+	function setup_buttons()
+	{
+		$('button.remove, button.install, button.upgrade')
+		    .button()
+		    .click(function() {
+			if ($(this).attr('action') == 'remove' &&
+			    !confirm('Please confirm removal of the ' +
+			    $(this).attr('id') + ' package.'))
+				return;
+			$('#dspinner').show();
+			$('#dresults').load(opkg + encodeURIComponent(
+			    $(this).attr('action') + ' ' + $(this).attr('id')),
+			    function() { $('#dspinner').hide('slow') });
+			$dialog.dialog('open');
+		}).fadeIn('slow');
+	}
+
+	$('#opkgupdate').click(function() {
+		$('#result_txt').load(opkg + 'update', function() {
+			$('#results').delay(3000).slideUp('slow');
+		});
+		$('#results').slideDown('slow');
+	});
+});
+
+
+</script>
+
+<div id=pkgtabs>
+<ul>
+	<li>
+		<a href=/cgi-bin/pkg.jim?type=inst>
+		<span>Installed</span>
+		</a>
+	</li><li>
+		<a href=/cgi-bin/pkg.jim?type=upgr>
+		<span>Upgrades</span>
+		</a>
+	</li><li>
+		<a href=/cgi-bin/pkg.jim?type=avail>
+		<span>Available</span>
+		</a>
+	</li>
+</ul>
+</div>
+
+<!--#include virtual="/lib/footer.shtml" -->

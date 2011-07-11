@@ -2,9 +2,8 @@ source /mod/var/mongoose/lib/setup
 
 if {![exists -proc class ]} { package require oo }
 if {![exists -proc sqlite3.open ]} { package require sqlite3 }
-if {![exists -proc settings ]} { require settings.class }
 
-require progressbar
+require settings.class progressbar rsv.class
 
 set ::channeldb 0
 catch { set ::channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
@@ -14,6 +13,8 @@ set ::hdepgpath /media/drive1/epgsavedata
 if {![file exists $::epgpath] && [file exists $::hdepgpath]} {
 	set ::epgpath $::hdepgpath
 }
+
+set ::rsvlookup [rsv lookuptab]
 
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
@@ -37,6 +38,10 @@ class epg {
 	channel_num	0
 	channel_name	""
 	channel_crid	""
+	channel_hsvc	0
+
+	sched_type	0
+	rsv		0
 }
 
 epg method _parse {line} {
@@ -82,7 +87,7 @@ epg method remaining {} {
 
 epg method type_icon {} {
 	set img ""
-	switch -- [$self get content_code] {
+	switch -- $content_code {
 		1 { set img "Movie" }
 		2 { set img "News" }
 		3 { set img "Show" }
@@ -110,7 +115,7 @@ proc {epg channelicon} {name {width 0} {style ""}} {
 }
 
 epg method channel_icon {{width 0} {style ""}} {
-	set str "<img src=\"/img/channels/[$self get channel_name].png\"";
+	set str "<img src=\"/img/channels/$channel_name.png\"";
 	if {$width > 0} { append str " width=$width" }
 	if {$style ne ""} { append str " style=\"$style\" }
 	append str " alt=\"\">"
@@ -122,15 +127,28 @@ epg method get_channel_info {} {
 
 	if {!$channel_num && $channeldb != ""} {
 		set chan [lindex [$channeldb query {
-			select szSvcName, usLcn, aucDefaultAuthority
+			select szSvcName, usLcn, aucDefaultAuthority, hsvc
 			from TBL_SVC
-			where usSvcId = %s} "[$self get service_id]"
+			where usSvcId = %s} $service_id
 		    ] 0]
 		if {[dict exists $chan usLcn]} {
 			set channel_num $chan(usLcn)
 			set channel_name [string range $chan(szSvcName) 1 end]
 			set channel_crid [string toupper $chan(aucDefaultAuthority)]
+			set channel_hsvc $chan(hSvc)
 		}
+	}
+}
+
+epg method get_rsv {} {
+	if {$hsvc == 0} { $self get_channel_info }
+	if {$hsvc == 0} { return }
+
+	if {$rsv == 0 && $event_crid ne ""} {
+		set rsv [rsv entry $event_crid $hsvc]
+	}
+	if {$rsv == 0 && $series_crid ne ""} {
+		set rsv [rsv entry $series_crid $hsvc]
 	}
 }
 
@@ -140,40 +158,59 @@ epg method icon_set {{height 0}} {
 	set set ""
 	if {$icon != ""} {
 		lappend set "<img src=$icon $height
-		    alt=\"[$self get content_type]\"
-		    title=\"[$self get content_type]\">"
+		    alt=\"$content_type\" title=\"$content_type\">"
 	}
-	if {[$self get rec_crid] != ""} {
+
+	set sched_type 0
+	if {$event_crid ne "" && "$channel_hsvc$event_crid" in $::rsvlookup} {
+		set sched_type 1
 		lappend set \
-		    "<img src=/images/178_1_26_Icon_Recommend.png $height>"
+		    "<img src=/images/175_1_11_Reservation_Record.png $height>"
+	} elseif {$series_crid ne "" &&
+	    "$channel_hsvc$series_crid" in $::rsvlookup} {
+		set sched_type 2
 	}
-	if {[$self get series_crid] != ""} {
+
+	if {$sched_type == 2} {
+		lappend set \
+		    "<img src=/images/175_1_11_Series_Record.png $height>"
+	} elseif {$series_crid ne ""} {
 		lappend set \
 		    "<img src=/images/178_1_00_Icon_Serise.png $height>"
 	}
+
+	if {$rec_crid ne ""} {
+		lappend set \
+		    "<img src=/images/178_1_26_Icon_Recommend.png $height>"
+	}
+
 	return $set
 }
 
 epg method cell {} {
-	set name [$self get name]
-	set text [$self get text]
-	
 	set percent [$self percent]
 
 	puts "<td nowrap valign=top title=\"$text\">"
 
 	puts [join [$self icon_set 14] ""]
 
+	if {$series_crid ne ""} {
+		set recopts 2
+	} else {
+		set recopts 1
+	}
+
 	puts "
-	    <a class=event href=# xs=[$self get service_id]
-		xe=[$self get event_id]>
-	    $name</a>"
+	    <a class=event href=# xs=$service_id xe=$event_id
+		sch=$sched_type rec=$recopts>
+	    $name</a>
+	"
 
 	puts "<br>"
 
 	puts "<font class=footnote>"
-	puts "[clock format [$self get start] -format %H:%M]"
-	puts " ([clock format [$self get duration] -format %T])"
+	puts "[clock format $start -format %H:%M]"
+	puts " ([clock format $duration -format %T])"
 	if {$percent > 0 && $percent < 100} {
 		puts "<br>[progressbar $percent]"
 		puts "$percent% [clock format [$self elapsed] -format %T] /
@@ -184,8 +221,8 @@ epg method cell {} {
 }
 
 epg method next {} {
-	set tm [expr [$self get start] + [$self get duration] + 60]
-	set nextlist [epg fetch dump -service [$self get service_id] -time $tm]
+	set tm $($start + $duration + 60)
+	set nextlist [epg fetch dump -service $service_id -time $tm]
 
 	if {[llength nextlist] > 0} {
 		return [lindex $nextlist 0]
@@ -196,9 +233,9 @@ epg method next {} {
 
 epg method recommended {} {
 	set rec ""
-	if {[$self get rec_crid] != ""} {
+	if {$rec_crid ne ""} {
 		catch { set rec [lindex [
-		    epg fetch dump -crid [$self get rec_crid]] 0] }
+		    epg fetch dump -crid $rec_crid] 0] }
 	}
 	return $rec
 }

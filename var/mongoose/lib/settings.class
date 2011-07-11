@@ -2,12 +2,25 @@
 if {![exists -proc class ]} { package require oo }
 if {![exists -proc sqlite3.open ]} { package require sqlite3 }
 
-set settingsdb [sqlite3.open /mod/etc/webif.db]
+if {![file exists /mod/etc/webif.db]} {
+	set settingsdb [sqlite3.open /mod/etc/webif.db]
+	catch {
+		$settingsdb query {
+			CREATE TABLE settings(name text, nval int, tval text);
+		}
+		$settingsdb query {
+			CREATE UNIQUE INDEX key on settings(name);
+		}
+	}
+} else {
+	set settingsdb [sqlite3.open /mod/etc/webif.db]
+}
 
 class settings {
 	hostname	""
 	channel_group	0
 	smtp_server	""
+	pkgdev		0
 }
 
 settings method hostname {{name ""}} {
@@ -84,6 +97,10 @@ settings method _nval_setting {name {val -1}} {
 
 settings method channel_group {{group -1}} {
 	return [$self _nval_setting channel_group $group]
+}
+
+settings method pkgdev {{val -1}} {
+	return [$self _nval_setting pkgdev $val]
 }
 
 settings method channel_groups {} {

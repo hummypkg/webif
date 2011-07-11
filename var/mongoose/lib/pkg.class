@@ -3,25 +3,25 @@ if {[expr ! [exists -proc class ]]} { package require oo }
 
 class pkg {
 	name		""
+	latest		""
 	descr		""
 	installed	""
-	latest		""
-	install_time	0
 }
 
-pkg method _load {nm info} {
-	set name $nm
-	set latest [lindex $info 0]
-	set descr [lrange $info 1 end]
+set ::pkgmeta {}
 
-	foreach line [split [exec /bin/opkg status $name] "\n"] {
-		if {[string match {Version: *} $line]} {
-			set installed [string range $line 9 end]
-		}
-		if {[string match {Installed-Time: } $line]} {
-			set install_time [string range $line 16 end]
-		}
-	}
+pkg method _load {nm} {
+	set name $nm
+	set info [join [split [exec /bin/opkg list $nm] "\n"] " "]
+	regexp {^([^ ]+) - ([^ ]+) - (.*)$} $info full xname latest descr
+	set info [exec /bin/opkg list-installed $nm]
+	regexp {^([^ ]+) - ([^ ]+)$} $info full xname installed
+
+	return $self
+}
+
+proc {pkg load} {nm} {
+	return [[pkg] _load $nm]
 }
 
 pkg method is {what} {
@@ -38,28 +38,19 @@ pkg method is {what} {
 	return 0
 }
 
-proc {pkg load} {nm info} {
-	set e [pkg]
-	$e _load $nm $info
-	return $e
-}
-
 proc {pkg avail} {} {
+	set inst_pkgs [pkg inst]
 	set avail_pkgs {}
 	foreach pkg [split [exec /bin/opkg list] "\n"] {
-		if [regexp {^ } $pkg] {
-			append descr $pkg
-		} else {
-			if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} \
-			    $pkg full name ver descr] == 0} { continue }
-		}
-		set avail_pkgs($name) [concat $ver "$descr"]
-		#puts "Set: $name = ($ver, $descr)<br>"
+		if [regexp {^ } $pkg] { continue }
+		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
+		if {$name ni $inst_pkgs} { lappend avail_pkgs $name }
+		#puts "New: $name<br>"
 	}
 	return $avail_pkgs
 }
 
-proc {pkg installed} {} {
+proc {pkg inst} {} {
 	# Build a list of installed packages - just the names
 	set inst_pkgs {}
 	foreach pkg [split [exec /bin/opkg list-installed] "\n"] {
@@ -70,15 +61,43 @@ proc {pkg installed} {} {
 	return $inst_pkgs
 }
 
-proc {pkg upgradable} {} {
+proc {pkg upgr} {} {
 	#webif - 0.5.3 - 0.5.7
 	set upgr_pkgs {}
 	foreach pkg [split [exec /bin/opkg list-upgradable] "\n"] {
-		if {[regexp {^([^ ]+) - ([^ ]+) - (.*)$} $pkg \
-		    dummy name oldver newver] == 0} { continue }
-		set upgr_pkgs($name) [concat $oldver $newver]
-		#puts "Set: $name = ($oldver, $newver)<br>"
+		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
+		lappend upgr_pkgs $name
+		#puts "Upgr: $name<br>"
 	}
 	return $upgr_pkgs
+}
+
+proc {pkg loadmeta} {} {
+	if {[llength $::pkgmeta]} { return }
+	if {![file exists "/mod/var/pkg.meta"]} {
+		pkg fetchmeta
+	} else {
+		set meta [open "/mod/var/pkg.meta" r]
+		set ::pkgmeta [read $meta]
+		$meta close
+	}
+}
+
+proc {pkg fetchmeta} {} {
+	set f [socket stream hummypkg.org.uk:80]
+	$f puts -nonewline "GET /pkg.meta HTTP/1.1\r\n"
+	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
+	$f puts -nonewline "\r\n"
+
+	set line [string trim [$f gets]]
+	while {[string length $line]} {
+		set line [string trim [$f gets]]
+	}
+	set ::pkgmeta [$f read]
+	$f close
+
+	set ff [open "/mod/var/pkg.meta" w]
+	puts $ff $::pkgmeta
+	$ff close
 }
 

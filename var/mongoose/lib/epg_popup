@@ -2,23 +2,61 @@ puts {
 <div id=dialogue></div>
 <script type=text/javascript>
 	$(document).ready(function() {
+		var $buttons1 = {
+		    "Close" : function() {$(this).dialog('close');}
+		};
+		var $buttons2 = $.extend(
+		    {"Record Programme" : function() {
+			$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
+			    'service=' +
+			    encodeURIComponent($('#dialogue').attr('xs')) +
+			    '&event=' +
+			    encodeURIComponent($('#dialogue').attr('xe')) +
+			    '&type=1');
+			$(":button:contains('Record')").fadeOut('slow');
+		    }},
+		    $buttons1);
+		var $buttons3 = $.extend(
+		    {"Record Series" : function() {
+			$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
+			    'service=' +
+			    encodeURIComponent($('#dialogue').attr('xs')) +
+			    '&event=' +
+			    encodeURIComponent($('#dialogue').attr('xe')) +
+			    '&type=2');
+			$(":button:contains('Record')").fadeOut('slow');
+		    }},
+		    $buttons2);
+
 		var $dialog = $('#dialogue').dialog({
 			title: "Programme Details",
 			modal: false, autoOpen: false,
 			height: 500, width: 700,
 			show: 'scale', hide: 'fade',
 			draggable: true, resizable: true,
-			buttons: { "Close":
-			    function() {$(this).dialog('close');}},
+			buttons: $buttons1,
 			close: function(e,u) { $('#dialogue').empty().html(
 			    '<img src="/img/loading.gif" alt="loading">'); }
 		});
 		$('a.event').click(function(e) {
 			e.preventDefault();
+			var sch = $(this).attr('sch');
+			var rec = $(this).attr('rec');
+			if (sch != 0)
+				$dialog.dialog("option", "buttons", $buttons1);
+			else if (rec == 2)
+				$dialog.dialog("option", "buttons", $buttons3);
+			else if (rec == 1)
+				$dialog.dialog("option", "buttons", $buttons2);
+			else
+				$dialog.dialog("option", "buttons", $buttons1);
 			var url = '/cgi-bin/epg_info.jim?service=' +
 			    $(this).attr('xs') + '&event=' +
 			    $(this).attr('xe') + '&bare=1';
 			$('#dialogue').load(url);
+			$('#dialogue')
+			    .attr('xs', $(this).attr('xs'))
+			    .attr('xe', $(this).attr('xe'));
 			$dialog.dialog('open');
 		});
 	});

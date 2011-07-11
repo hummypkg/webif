@@ -35,7 +35,13 @@ puts "
 		<td>[clock format [$record get start] -format {%c %Z}]</td>
 	</tr><tr>
 		<th>Duration</th>
-		<td>[clock format [$record get duration] -format %T]</td>
+		<td>[clock format [$record get duration] -format %T]
+"
+if {[$record showing]} {
+	puts [progressbar [$record percent]]
+}
+puts "
+	</td>
 	</tr><tr>
 		<th>Type</th>
 		<td>[$record get content_type] ([$record get content_code])</td>
@@ -102,6 +108,8 @@ puts "
 		Show raw EPG info
 	</a>
 "
+
+puts "<div id=epginfo_extra class=footnote></div>"
 
 epg cleanup
 if {! [dict exists $_cgi bare]} { footer }

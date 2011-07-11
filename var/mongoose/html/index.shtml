@@ -60,7 +60,7 @@ $(document).ready(function() {
 </div>
 </div>
 
-<div style="clear: both">
+<div style="clear: both; padding-top: 1em">
 
 <div style="float: left">
 	<center>
@@ -77,11 +77,11 @@ $(document).ready(function() {
 
 <div style="float: left">
 	<center>
-	<a href=/packages.shtml>
+	<a href=/pkg.shtml>
 	<img src=/img/packages.jpg border=0 width=217 height=228>
 	</a>
 	<br>
-	<a href=/packages.shtml>
+	<a href=/pkg.shtml>
 	<b>Package Management</b>
 	</a>
 	<br>

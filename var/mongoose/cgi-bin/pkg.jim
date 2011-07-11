@@ -1,0 +1,98 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require settings.class pkg.class altrow
+
+if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
+
+puts "Content-Type: text/html"
+puts "Pragma: no-cache"
+puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
+puts ""
+
+cgi_input
+#cgi_dump
+if {![dict exists $_cgi type]} { set _cgi(type) avail }
+
+proc pkgrow {pkg} {
+	set name [$pkg get name]
+	altrow
+	puts "
+		<td nowrap>$name</td>
+	"
+
+	if {$::type eq "avail"} {
+		puts "<td nowrap>[$pkg get latest]</td>"
+	} else {
+		puts "<td nowrap>[$pkg get installed]</td>"
+	}
+
+	if {$::type eq "upgr"} {
+		puts "<td nowrap>[$pkg get latest]</td>"
+	}
+
+	if {[dict exists $::pkgmeta $name]} {
+		puts "<td>$::pkgmeta($name)</td>"
+	} else {
+		puts "<td>[$pkg get descr]</td>"
+	}
+
+	if {![$pkg is installed]} {
+		set type Install
+	} elseif {$::type eq "upgr" && [$pkg is upgradable]} {
+		set type Upgrade
+	} else {
+		set type Remove
+	}
+
+	puts "<td align=center><small><button id=\"[$pkg get name]\"
+	    action=[string tolower $type]
+	    class=[string tolower $type]>$type</button></small></td>"
+
+	puts "</tr>"
+}
+
+pkg loadmeta
+
+set type $_cgi(type)
+
+set pkgs [pkg $type]
+
+if {[llength $pkgs] > 0} {
+	puts "<table><tr><th>Package</th>"
+
+	if {$type eq "avail"} {
+		puts "<th>Available</th>"
+	} else {
+		puts "<th>Installed</th>"
+	}
+
+	if {$type eq "upgr"} {
+		puts "<th>Avail</th>"
+	}
+
+	puts "
+		<th>Description</th>
+		<th>&nbsp;&nbsp;Action&nbsp;&nbsp;</th>
+		</tr>
+	"
+
+	foreach pkg $pkgs {
+		if {$filter && ![dict exists $::pkgmeta $pkg]} { continue }
+		pkgrow [pkg load $pkg]
+	}
+	puts "</table>"
+	if {$filter} {
+		puts "<font class=footnote>This is a filtered package list. To show all packages, enable the <i>Show development and advanced packages</i> in the settings screen.</font>"
+	}
+} else {
+	puts "<i>No packages "
+	switch $type {
+		inst { puts "are installed." }
+		upgr { puts "are available for upgrade." }
+		avail { puts "are available for installation." }
+	}
+	puts "</i>"
+}
+

@@ -1,0 +1,73 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require epg.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(service) 4351
+#set _cgi(event) 41795
+#set _cgi(type) 1
+
+if {![dict exists $_cgi service] || ![dict exists $_cgi event]} {
+	puts "Error, insufficient parameters passed."
+	exit
+}
+
+set service $_cgi(service)
+set event $_cgi(event)
+set type 1
+if {[dict exists $_cgi type]} { set type $_cgi(type) }
+
+set event [lindex [epg fetch dump -service $service -event $event] 0]
+if {$event eq ""} {
+	puts "Error, cannot find event to schedule."
+	exit
+}
+if {[$event percent] > 0} {
+	puts "Error, cannot record programme which has already started showing."
+	exit
+}
+
+$event get_channel_info
+
+set args {}
+
+set args(ersvtype)		3
+set args(hsvc)			[$event get channel_hsvc]
+set args(nsttime)		[$event get start]
+set args(nduration)		[$event get duration]
+set args(usevtid)		[$event get event_id]
+set args(szevtname)		"\025[$event get name]"
+set args(eReady)		30
+
+if {$type == 1} {
+	# Event
+	set args(ucCRIDType)	49
+	set args(ucRecKind)	1
+	set args(szCRID) "[$event get channel_crid][$event get event_crid]"
+	set args(szEventToRecord)	"1$args(szCRID)|"
+} else {
+	# Series
+	set args(ucCRIDType)	50
+	set args(ucRecKind)	4
+	set args(szCRID) "[$event get channel_crid][$event get series_crid]"
+	set args(szFPBRecPath)		"$args(szevtname)"
+}
+
+set msg ""
+#set msg "Testing"
+if {$msg ne "" || [catch {[rsv new $args] insert} msg]} {
+	puts "Error encountered while scheduling the recording: <i>$msg</i>"
+} else {
+	puts "Successfully scheduled recording of <i>[$event get name]</i>"
+	#close [open /tmp/.restartpending w]
+}
+
+epg cleanup
+

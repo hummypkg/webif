@@ -6,7 +6,7 @@ source /mod/var/mongoose/lib/setup
 set dir /mod/var/backup
 
 puts "Content-Type: text/html"
-puts "Pragma: nocache"
+puts "Pragma: no-cache"
 puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
 puts ""
 
