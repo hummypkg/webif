@@ -16,7 +16,9 @@ puts {
 }
 
 source /mod/var/mongoose/html/lib/topbar.jim
+puts "<div id=restart_block>"
 source /mod/var/mongoose/include/restart.jim
+puts "</div>"
 
 puts {
 <div style="clear: both">

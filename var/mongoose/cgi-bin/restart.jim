@@ -3,6 +3,7 @@
 puts "Content-Type: text/html"
 puts ""
 
-puts [exec /etc/init.d/S90settop restart]
-file delete /tmp/.restartpending
+#puts [exec /etc/init.d/S90settop restart]
+#file delete /tmp/.restartpending
+puts [exec killall humaxtv]
 

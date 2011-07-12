@@ -2,30 +2,28 @@ puts {
 <div id=dialogue></div>
 <script type=text/javascript>
 	$(document).ready(function() {
+		function doschedule(type)
+		{
+			$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
+			    'service=' +
+			    encodeURIComponent($('#dialogue').attr('xs')) +
+			    '&event=' +
+			    encodeURIComponent($('#dialogue').attr('xe')) +
+			    '&type=' + type, function() {
+				$('#restart_block')
+				    .load('/cgi-bin/restartblock.jim');
+			});
+			$(":button:contains('Record')").fadeOut('slow');
+		}
+	
 		var $buttons1 = {
 		    "Close" : function() {$(this).dialog('close');}
 		};
 		var $buttons2 = $.extend(
-		    {"Record Programme" : function() {
-			$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
-			    'service=' +
-			    encodeURIComponent($('#dialogue').attr('xs')) +
-			    '&event=' +
-			    encodeURIComponent($('#dialogue').attr('xe')) +
-			    '&type=1');
-			$(":button:contains('Record')").fadeOut('slow');
-		    }},
+		    {"Record Programme": function() { doschedule(1) }},
 		    $buttons1);
 		var $buttons3 = $.extend(
-		    {"Record Series" : function() {
-			$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
-			    'service=' +
-			    encodeURIComponent($('#dialogue').attr('xs')) +
-			    '&event=' +
-			    encodeURIComponent($('#dialogue').attr('xe')) +
-			    '&type=2');
-			$(":button:contains('Record')").fadeOut('slow');
-		    }},
+		    {"Record Series": function() { doschedule(2) }},
 		    $buttons2);
 
 		var $dialog = $('#dialogue').dialog({

@@ -1,23 +1,48 @@
 #!/mod/bin/jimsh
 
+package require cgi
 package require sqlite3
 source /mod/var/mongoose/lib/setup
 require altrow
 
+puts "Content-Type: text/html"
+puts ""
+
+header
+
+cgi_input
+#cgi_dump
+
+set ftab [cgi_get tab]
+set fdb [cgi_get db]
+
+if {$fdb != 0} {
+	puts "<h1><a href=/cgi-bin/db.jim>Remove filters</a></h1>"
+}
+
 proc db_info {db_file} {
+	global _cgi fdb ftab
+
+	if {$fdb != 0 && [file tail $db_file] ne $fdb} { return }
 	if {![file exists $db_file]} { return }
+
 	set db [sqlite3.open $db_file]
-	set tables [$db query {SELECT name FROM sqlite_master WHERE type='table' ORDER BY name}]
-	
-	puts "<h1>$db_file</h1>"
+	set tables [$db query {
+		select name from sqlite_master
+		where type='table' order by name
+	}]
+
+	puts "<h1><a href=/cgi-bin/db.jim?db=[file tail $db_file]>
+		$db_file</a></h1>"
 	
 	foreach table $tables {
-		set table_name [lindex $table 1]
-		set columns [$db query "pragma table_info($table_name)"]
-		set datas [$db query "SELECT * FROM $table_name"]
+		set table [lindex $table 1]
+		if {$ftab != 0 && $ftab ne $table} { continue }
+		set columns [$db query "pragma table_info($table)"]
+		set datas [$db query "SELECT * FROM $table order by 1"]
 		
-		puts "<h2>$table_name</h2>"
-		puts "<table>"
+		puts "<h2><a href=/cgi-bin/db.jim?db=[file tail $db_file]&tab=$table>$table</a></h2>"
+		puts "<table class=borders>"
 		puts "  <tr>"
 		foreach column $columns {
 			puts "    <th>[lindex $column 3]</th>"
@@ -37,9 +62,10 @@ proc db_info {db_file} {
 	$db close
 }
 
-puts {<style type="text/css">table, td, th {border-collapse:collapse; border:1px solid black;}</style>}
 db_info /var/lib/humaxtv/rsv.db
 db_info /var/lib/humaxtv/setup.db
 db_info /var/lib/humaxtv/channel.db
-#db_info /mnt/hd2/dms_cds.db
+db_info /mnt/hd2/dms_cds.db
+
+footer
 

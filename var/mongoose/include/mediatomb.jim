@@ -12,7 +12,7 @@ puts "
 <div style=\"float: left; padding-top: 5em\">
 	<center>
 	<a href=$url>
-	<img src=/img/mediatomb.png width=180>
+	<img border=0 src=/img/mediatomb.png width=180>
 	</a>
 	<br>
 	<a href=$url>

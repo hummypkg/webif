@@ -106,11 +106,12 @@ $(document).ready(function() {
 
 <div style="clear: both">
 <!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
+<!--#exec cmd="/mod/var/mongoose/include/transmission.jim" -->
 </div>
 <div class=footer>
 <ul>
 <li>
-<a href=/db.shtml target=_blank>SQLite3 Database Dump</a>
+<a href=/cgi-bin/db.jim target=_blank>SQLite3 Database Dump</a>
 </li><li>
 <a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
 <a href=/jim/oo.html target=_blank>OO</a> |

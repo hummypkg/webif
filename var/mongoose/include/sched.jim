@@ -125,14 +125,24 @@ foreach event $events {
 		puts "</a>"
 	}
 	puts "</td>"
+	if {[$event get aulEventToRecordInfo] != ""} {
+		puts "<td>*</td>"
+	}
 	puts "</tr>"
 }
 puts "</table>"
 puts "<font class=footnote>Click on the CRID to view episodes.</font>"
 
 puts {
+	<small>
 	<button onclick="window.location='/backup.shtml';">
-		Backup/Restore Scheduled Recordings/Events.
+		Backup/Restore Scheduled Recordings/Events
 	</button>
+	<button onclick="window.location='/cgi-bin/db.jim?db=rsv.db&tab=TBL_RESERVATION';">
+		Raw database view
+	</button>
+	<script type=text/javascript>
+		$('button').button();
+	</script>
 }
 

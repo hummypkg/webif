@@ -7,7 +7,6 @@ puts {
 <script type=text/javascript src=/cgi-bin/backup/backup.js></script>
 <h2>Backup/Restore</h2>
 
-<div id=restart_block></div>
 <div id=restore_warning class="hidden warningbox">
 <center>
 <b>!!!!!!!!!!!!!! PLEASE NOTE !!!!!!!!!!!!!!
