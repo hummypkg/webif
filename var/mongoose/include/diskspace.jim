@@ -5,13 +5,18 @@ if {[os.gethostname] eq "hosting"} {
 	set used "100GB"
 	set perc "10"
 } else {
+	set used 0
+	set size 0
+	set perc 0
 	foreach df [split [exec df -h 2>>/dev/null] "\n\r"] {
-		if [string match *sd?2* $df] {
+		if {[string match *sd?2* $df] || \
+		    [string match *media/drive1* $df]} {
 			regsub -all -- {[[:space:]]+} $df " " df
 			set fields [split $df]
 			set size [lindex $fields 1]
 			set used [lindex $fields 2]
 			set perc [string trimright [lindex $fields 4] "%"]
+			break
 		}
 	}
 }
