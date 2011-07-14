@@ -1,0 +1,10 @@
+
+proc chunk {chk} {
+	puts -nonewline [format "%x\r\n" [string length $chk]]
+	puts -nonewline "$chk\r\n"
+	flush stdout
+}
+
+# Kick the browser into life...
+chunk [string range [format "%301d" 0] 1 end-1]
+

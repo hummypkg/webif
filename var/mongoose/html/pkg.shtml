@@ -42,12 +42,17 @@ Update package list from Internet
 	<div id=dspinner><img border=0 src=/img/loading.gif>Processing request...</div>
 </div>
 
+<script type=text/javascript src=/js/iajax.js></script>
 <script type=text/javascript>
 
 var opkg = '/cgi-bin/opkg.jim?cmd=';
 
 $(document).ready(function() {
-	$('#opkgupdate').button().show('slow');
+
+	$('#opkgupdate')
+	    .button()
+	    .click(function() { execopkg('update'); })
+	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
 		load: setup_buttons,
@@ -66,6 +71,37 @@ $(document).ready(function() {
 		close: function(e,u) { window.location.reload(true); }
 	});
 
+	jQuery.ajaxSetup({progressInterval: 1});
+
+	function loaddata(data, isfinal)
+	{
+		console.log('loaddata called, final=' + isfinal);
+		console.log('Data: ' + data);
+		$('#dresults').append(data);
+		if (isfinal)
+			$('#dspinner').hide('slow');
+	}
+
+	function execopkg(arg)
+	{
+		$('#dspinner').show();
+		$dialog.dialog('open');
+		$('#dresults').empty();
+		$.ajax({
+			type: "GET",
+			url: opkg + arg,
+			progress: loaddata,
+			success: function(data) {
+				console.log("ajax success");
+				loaddata(data, true);
+			},
+			error: function(_, _, e) {
+				console.log("ajax error");
+				alert(e);
+			}
+		});
+	}
+
 	function setup_buttons()
 	{
 		$('button.remove, button.install, button.upgrade')
@@ -75,20 +111,10 @@ $(document).ready(function() {
 			    !confirm('Please confirm removal of the ' +
 			    $(this).attr('id') + ' package.'))
 				return;
-			$('#dspinner').show();
-			$('#dresults').load(opkg + encodeURIComponent(
-			    $(this).attr('action') + ' ' + $(this).attr('id')),
-			    function() { $('#dspinner').hide('slow') });
-			$dialog.dialog('open');
+			execopkg(encodeURIComponent($(this).attr('action') +
+			    ' ' + $(this).attr('id')));
 		}).fadeIn('slow');
 	}
-
-	$('#opkgupdate').click(function() {
-		$('#result_txt').load(opkg + 'update', function() {
-			$('#results').delay(3000).slideUp('slow');
-		});
-		$('#results').slideDown('slow');
-	});
 });
 
 

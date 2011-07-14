@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require pkg.class
+require pkg.class chunked
 
 puts "Content-Type: text/html"
 puts "Transfer-Encoding: chunked"
@@ -11,22 +11,8 @@ puts ""
 cgi_input
 #cgi_dump
 
-#set _cgi(cmd) {remove binutils}
+set cmd [cgi_get cmd update]
 
-if {![dict exists $_cgi cmd]} { set _cgi(cmd) update }
-
-set cmd [dict get $_cgi cmd]
-
-proc chunk {chk} {
-	puts -nonewline [format "%x\r\n" [string length $chk]]
-	puts -nonewline "$chk\r\n"
-	flush stdout
-}
-
-# Kick the browser into life...
-chunk [string range [format "%301d" 0] 1 end-1]
-
-#puts [exec /mod/var/mongoose/lib/opkg {*}$cmd]
 set bcmd "|/mod/var/mongoose/lib/opkg $cmd"
 set fd [open $bcmd r]
 while {[gets $fd line] >= 0} {
