@@ -5,6 +5,17 @@ proc chunk {chk} {
 	flush stdout
 }
 
-# Kick the browser into life...
-chunk [string range [format "%301d" 0] 1 end-1]
+proc chunk_pad {{len 256}} {
+	incr len
+	chunk [string range [format "%${len}d" 0] 1 end-1]
+}
+
+proc start_chunked {{type "text/html"}} {
+	puts -nonewline "Content-Type: $type\r\n"
+	puts -nonewline "Transfer-Encoding: chunked\r\n\r\n"
+}
+
+proc end_chunked {} {
+	puts -nonewline "0\r\n\r\n\r\n"
+}
 

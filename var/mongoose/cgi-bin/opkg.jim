@@ -4,19 +4,18 @@ package require cgi
 source /mod/var/mongoose/lib/setup
 require pkg.class chunked
 
-puts "Content-Type: text/html"
-puts "Transfer-Encoding: chunked"
-puts ""
-
 cgi_input
 #cgi_dump
 
 set cmd [cgi_get cmd update]
 
+start_chunked
+
 set bcmd "|/mod/var/mongoose/lib/opkg $cmd"
 set fd [open $bcmd r]
 while {[gets $fd line] >= 0} {
 	chunk "$line\r\n"
+	#chunk_pad
 }
 close $fd
 
@@ -26,6 +25,5 @@ if {$cmd eq "update"} {
 	chunk "Done.\r\n"
 }
 
-chunk ""
-puts "\r\n"
+end_chunked
 
