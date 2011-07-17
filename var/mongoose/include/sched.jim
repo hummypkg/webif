@@ -6,10 +6,47 @@ require altrow rsv.class progressbar
 set events [rsv list]
 
 puts {
-	<table class=borders>
+<script type=text/javascript>
+
+$.tablesorter.addParser({
+	id: 'programme',
+	is: function () { return false; },
+	format: function(s) {
+		return s.toLowerCase().replace(/---/, 'zzz');
+	},
+	type: 'text'
+});
+
+$.tablesorter.addParser({
+	id: 'date',
+	is: function () { return false; },
+	format: function(s) {
+		var d = new Date(s.substring(0, s.length - 4));
+		return d.getTime();
+	},
+	type: 'numeric'
+});
+
+$(document).ready(function() {
+	$('#schedtable').tablesorter({
+	    headers: {
+		1: { sorter: false },
+		3: { sorter: 'programme' },
+		4: { sorter: 'date' },
+		5: { sorter: 'date' },
+		5: { sorter: false },
+		6: { sorter: false },
+		7: { sorter: false }
+	    }
+	});
+});
+</script>
+
+	<table id=schedtable class="borders tablesorter">
+	<thead>
 	<tr>
 		<th></th>
-		<th colspan=2>Channel</th>
+		<th>&nbsp;</th><th>Channel</th>
 		<th>Programme</th>
 		<th>Start Time</th>
 		<th>Duration</th>
@@ -17,6 +54,8 @@ puts {
 		<th>Event/Series ID</th>
 		<th>Events</th>
 	</tr>
+	</thead>
+	<tbody>
 }
 
 foreach event $events {
@@ -67,7 +106,7 @@ foreach event $events {
 			[$event channel_name]</td>
 		"
 	} else {
-		puts "<td colspan=2>&nbsp;<br><br></td>"
+		puts "<td>&nbsp;<br><br></td><td>&nbsp;</td>"
 	}
 
 	puts "<td nowrap>$name</td>"
@@ -130,7 +169,7 @@ foreach event $events {
 	}
 	puts "</tr>"
 }
-puts "</table>"
+puts "</tbody></table>"
 puts "<font class=footnote>Click on the CRID to view episodes.</font>"
 
 puts {

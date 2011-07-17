@@ -1,6 +1,6 @@
 
 proc eval_plugins {hook} {
-	foreach plugin [glob /mod/var/mongoose/plugin/*] {
+	foreach plugin [glob -nocomplain /mod/var/mongoose/plugin/*] {
 		if {[file isfile "$plugin/$hook.hook"]} {
 			uplevel source "$plugin/$hook.hook"
 		} 
