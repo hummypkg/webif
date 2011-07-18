@@ -95,9 +95,14 @@ foreach record [lsort -command rsort $records] {
 	}
 	altrow
 	$record get_channel_info
-	puts "<td nowrap>
+
+	set ended [$record ended]
+
+	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>"}
+	puts "
 	    [clock format [$record get start] -format "%a %d %b %Y"]<br>
-		[clock format [$record get start] -format "%H:%M %Z"]</td>"
+		[clock format [$record get start] -format "%H:%M %Z"]"
+	puts "</td>"
 	puts "<td>[$record get channel_num]</td>"
 	puts "<td>[$record channel_icon 50]</td>"
 	puts "<td nowrap>

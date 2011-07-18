@@ -16,11 +16,24 @@ set event 0
 catch { set event [dict get $_cgi event] }
 if {! [dict exists $_cgi bare]} { header }
 
-#set service 8384
-#set event 25293
+#set service 8448
+#set event 30843
 
 set record [lindex [epg fetch dump -service $service -event $event] 0]
 $record get_channel_info
+set others [$record othertimes]
+
+puts {
+	<style type=text/css>
+	font.also
+	{
+		font-size: 0.9em;
+		font-style: italic;
+		color: #333;
+		background: transparent;
+	}
+	</style>
+}
 
 puts "
 	<table class=keyval>
@@ -32,7 +45,29 @@ puts "
 		<td>[$record get text]</td>
 	</tr><tr>
 		<th>Start</th>
-		<td>[clock format [$record get start] -format {%c %Z}]</td>
+		<td>[clock format [$record get start] -format {%c %Z}]
+"
+
+foreach o $others {
+	if {[$o ended]} { continue }
+	$o get_channel_info
+	$o process_sched
+	if {[$o get series_crid] eq ""} { set ro 1 } else { set ro 2 }
+	puts -nonewline "<br><font class=also>&nbsp;&nbsp;&nbsp;&nbsp;"
+	puts -nonewline "Also: "
+	puts -nonewline "<a class=event href=# xs=[$o get service_id] "
+	puts -nonewline "xe=[$o get event_id] "
+	puts -nonewline "sch=[$o get sched_type] rec=$ro>"
+	puts -nonewline "[clock format [$o get start] -format {%c %Z}]"
+	puts -nonewline " on "
+	puts -nonewline [$o channel_icon 16]
+	puts -nonewline "[$o get channel_name] "
+	puts "</a>"
+	puts "</font>"
+}
+
+puts "
+		</td>
 	</tr><tr>
 		<th>Duration</th>
 		<td>[clock format [$record get duration] -format %T]
@@ -60,8 +95,13 @@ if {[$record get warning] != ""} {
 if {[$record get event_crid] != ""} {
 	puts "
 	<tr>
-		<th>CRID</th>
-		<td>[$record get channel_crid][$record get event_crid]</td>
+		<th>CRID</th><td>
+		<a href=/cgi-bin/epg_search.jim?crid=[$record get event_crid]>
+			<img border=0 height=14
+			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
+			[$record get channel_crid][$record get event_crid]
+			</a>
+		</td>
 	</tr>
 	"
 }

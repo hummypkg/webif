@@ -70,8 +70,15 @@ epg method percent {} {
 }
 
 epg method showing {} {
-	set percent [$self percent]
-	if {$percent > 0 && $percent < 100} { return 1 } else { return 0 }
+	set now [clock seconds]
+	if {$start > $now} { return 0 }
+	if {$start + $duration < $now} { return 0 }
+	return 1
+}
+
+epg method ended {} {
+	if {$start + $duration < [clock seconds]} { return 1 }
+	return 0
 }
 
 epg method elapsed {} {
@@ -152,15 +159,7 @@ epg method get_rsv {} {
 	}
 }
 
-epg method icon_set {{height 0}} {
-	if {$height > 0} { set height "height=$height" } else { set height "" }
-	set icon [$self type_icon]
-	set set ""
-	if {$icon != ""} {
-		lappend set "<img src=$icon $height
-		    alt=\"$content_type\" title=\"$content_type\">"
-	}
-
+epg method process_sched {} {
 	set sched_type 0
 	if {$event_crid ne "" && "$channel_hsvc$event_crid" in $::rsvlookup} {
 		set sched_type 1
@@ -170,6 +169,18 @@ epg method icon_set {{height 0}} {
 	    "$channel_hsvc$series_crid" in $::rsvlookup} {
 		set sched_type 2
 	}
+}
+
+epg method icon_set {{height 0}} {
+	if {$height > 0} { set height "height=$height" } else { set height "" }
+	set icon [$self type_icon]
+	set set ""
+	if {$icon != ""} {
+		lappend set "<img src=$icon $height
+		    alt=\"$content_type\" title=\"$content_type\">"
+	}
+
+	$self process_sched
 
 	if {$sched_type == 2} {
 		lappend set \
@@ -238,6 +249,18 @@ epg method recommended {} {
 		    epg fetch dump -crid $rec_crid] 0] }
 	}
 	return $rec
+}
+
+epg method othertimes {} {
+	if {$event_crid eq ""} { return "" }
+
+	set others ""
+	foreach other [epg fetch dump -crid $event_crid] {
+		if {[$other get service_id] == $service_id &&
+		    [$other get event_id] == $event_id} { continue }
+		lappend others $other
+	}
+	return $others
 }
 
 proc {epg parse} {line} {
