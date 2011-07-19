@@ -55,6 +55,8 @@ cts 9 "Education" "Education/Science/Factual"
 puts "</td><td>"
 cts 10 "Leisure" "Leisure"
 
+puts "</td><td><a href=/epg.shtml>Now/Next</a>"
+
 puts "</td></tr><tr><td>"
 
 cts 7 "Art" "Arts/Culture"

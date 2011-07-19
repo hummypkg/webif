@@ -1,8 +1,14 @@
 #!/bin/sh
 
-/mod/bin/ffmpeg "$@" 2>&1 | sed '
-	1,8d
-	$d
-'
+if [ -x /mod/bin/ffprobe ]; then
+	/mod/bin/ffprobe "$@" 2>&1 | sed '
+		1,10d
+	'
+else
+	/mod/bin/ffmpeg "$@" 2>&1 | sed '
+		1,8d
+		$d
+	'
+fi
 exit 0
 

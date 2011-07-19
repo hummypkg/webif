@@ -17,7 +17,7 @@ foreach df [split [exec df -h 2>>/dev/null] "\n\r"] {
 		extract $df
 		break;
 	}
-	if {[string match *media/drive* $df]} {
+	if {[string match *media/drive? $df]} {
 		extract $df
 	}
 }

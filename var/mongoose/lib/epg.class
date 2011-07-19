@@ -163,8 +163,6 @@ epg method process_sched {} {
 	set sched_type 0
 	if {$event_crid ne "" && "$channel_hsvc$event_crid" in $::rsvlookup} {
 		set sched_type 1
-		lappend set \
-		    "<img src=/images/175_1_11_Reservation_Record.png $height>"
 	} elseif {$series_crid ne "" &&
 	    "$channel_hsvc$series_crid" in $::rsvlookup} {
 		set sched_type 2
@@ -181,6 +179,10 @@ epg method icon_set {{height 0}} {
 	}
 
 	$self process_sched
+	if {$sched_type == 1} {
+		lappend set \
+		    "<img src=/images/175_1_11_Reservation_Record.png $height>"
+	}
 
 	if {$sched_type == 2} {
 		lappend set \
