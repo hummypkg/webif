@@ -203,7 +203,8 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'download':
-		window.location.href = file;
+		window.location.href = '/cgi-bin/browse/download.jim?file=' +
+		    encodeURIComponent(file);
 		break;
 
 	    default:

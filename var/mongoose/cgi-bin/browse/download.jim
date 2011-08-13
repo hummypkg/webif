@@ -1,0 +1,48 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require sqlite3
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+cgi_input
+#cgi_dump
+
+set file [dict get $_cgi file]
+set rfile [file normalize $file]
+set ts [ts fetch $file]
+
+set dmsfile /mnt/hd2/dms_cds.db
+
+set url $file
+set mime "video/ts"
+if {[file exists $dmsfile]} {
+	set db [sqlite3.open /mnt/hd2/dms_cds.db]
+	set muri [$db query "
+		select tblresource.mimetype, contenturi
+		from tblresource join tblmedia using (mediaid)
+		where localurl = '$rfile'
+		"]
+	if {$muri != ""} {
+		set rec [lindex $muri 0]
+		set xuri [lindex $rec 3]
+		set mime [lindex $rec 1]
+		set url "http://$env(HTTP_HOST):9000/web/$xuri"
+	}
+}
+
+puts "Content-Type: text/plain"
+puts "Refresh: 0; url=$url"
+puts "Content-length: 0"
+puts ""
+
+#puts "Pragma: public"
+#puts "Expires: 0"
+#puts "Cache-Control: must-revalidate, post-check=0, pre-check=0"
+#puts "Content-Type: application/force-download"
+#puts "Content-Type: application/download"
+#puts "Content-Type: $mime"
+#puts "Content-Disposition: attachment; filename=\"[file tail $file]\""
+#puts "Content-Transfer-Encoding: binary"
+#puts "Content-Length: [file size $rfile]"
+
