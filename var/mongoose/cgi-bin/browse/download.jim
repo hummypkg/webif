@@ -5,6 +5,8 @@ package require sqlite3
 source /mod/var/mongoose/lib/setup
 require ts.class
 
+#puts "Content-Type: text/plain\r\n\r\n"
+
 cgi_input
 #cgi_dump
 
@@ -21,8 +23,7 @@ if {[file exists $dmsfile]} {
 	set muri [$db query "
 		select tblresource.mimetype, contenturi
 		from tblresource join tblmedia using (mediaid)
-		where localurl = '$rfile'
-		"]
+		where localurl = '%s'" $rfile]
 	if {$muri != ""} {
 		set rec [lindex $muri 0]
 		set xuri [lindex $rec 3]
