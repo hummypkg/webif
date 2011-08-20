@@ -27,6 +27,7 @@ foreach line [split [exec /mod/bin/busybox/du -h "$dir/"] "\n"] {
 # Handle symbolic links.
 foreach file [glob -nocomplain "$dir/*"] {
 	if {[catch {set lk [file readlink $file]}]} continue
+	if {![file isdirectory $lk]} continue
 	foreach line [split [exec /mod/bin/busybox/du -h "$lk"] "\n"] {
 		set fields [split $line "\t"]
 		if {[lindex $fields 1] eq $lk} {
