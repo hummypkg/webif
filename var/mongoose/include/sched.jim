@@ -3,8 +3,6 @@
 source /mod/var/mongoose/lib/setup
 require altrow rsv.class progressbar
 
-set events [rsv list]
-
 puts {
 <script type=text/javascript>
 
@@ -28,7 +26,7 @@ $.tablesorter.addParser({
 });
 
 $(document).ready(function() {
-	$('#schedtable').tablesorter({
+	$('table.tablesorter').tablesorter({
 	    headers: {
 		1: { sorter: false },
 		3: { sorter: 'programme' },
@@ -41,24 +39,28 @@ $(document).ready(function() {
 	});
 });
 </script>
-
-	<table id=schedtable class="borders tablesorter">
-	<thead>
-	<tr>
-		<th></th>
-		<th>&nbsp;</th><th>Channel</th>
-		<th>Programme</th>
-		<th>Start Time</th>
-		<th>Duration</th>
-		<th>Mode</th>
-		<th>Event/Series ID</th>
-		<th>Events</th>
-	</tr>
-	</thead>
-	<tbody>
 }
 
-foreach event $events {
+proc eventheader {} {
+	puts {
+		<table class="borders tablesorter">
+		<thead>
+		<tr>
+			<th></th>
+			<th>&nbsp;</th><th>Channel</th>
+			<th>Programme</th>
+			<th>Start Time</th>
+			<th>Duration</th>
+			<th>Mode</th>
+			<th>Event/Series ID</th>
+			<th>Events</th>
+		</tr>
+		</thead>
+		<tbody>
+	}
+}
+
+proc eventrow {event} {
 	set name [$event name]
 
 	altrow
@@ -169,8 +171,31 @@ foreach event $events {
 	}
 	puts "</tr>"
 }
-puts "</tbody></table>"
-puts "<font class=footnote>Click on the CRID to view episodes.</font>"
+
+proc eventfooter {} {
+	puts "</tbody></table>"
+}
+
+set events [rsv list pending]
+if {[llength $events] > 0} {
+	puts "<h2>Pending Scheduled Events</h2>"
+	eventheader
+	foreach event $events {eventrow $event}
+	eventfooter
+	puts {
+		<small>
+		<button onclick="window.location='/cgi-bin/db.jim?db=rsvp.db&tab=pending';">
+		Raw database view
+		</button>
+		</small>
+	}
+}
+
+puts "<h2>Scheduled Events</h2>"
+set events [rsv list]
+eventheader
+foreach event $events {eventrow $event}
+eventfooter
 
 puts {
 	<small>

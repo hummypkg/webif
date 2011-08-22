@@ -62,6 +62,7 @@ proc db_info {db_file} {
 	$db close
 }
 
+db_info /var/lib/humaxtv/rsvp.db
 db_info /var/lib/humaxtv/rsv.db
 db_info /var/lib/humaxtv/setup.db
 db_info /var/lib/humaxtv/channel.db

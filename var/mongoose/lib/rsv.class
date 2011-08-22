@@ -6,7 +6,16 @@ if {![exists -proc settings ]} { require settings.class }
 
 set rsvdb [sqlite3.open /var/lib/humaxtv/rsv.db]
 $rsvdb query {attach database '/var/lib/humaxtv/channel.db' as channel}
-catch { $rsvdb query {.mode tcl} }
+
+if {![file exists /var/lib/humaxtv/rsvp.db]} {
+	file copy /var/lib/humaxtv/rsv.db /var/lib/humaxtv/rsvp.db
+	set tdb [sqlite3.open /var/lib/humaxtv/rsvp.db]
+	$tdb query {drop table TBL_VERSION}
+	$tdb query {alter table TBL_RESERVATION rename to pending}
+	$tdb query {delete from pending}
+	$tdb close
+}
+$rsvdb query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
 
 class rsv {
 	ulslot			-1
@@ -38,6 +47,10 @@ class rsv {
 	szSvcName		{}
 	usLcn			0
 	sort			0
+}
+
+rsv method clear_ulslot {} {
+	set ulslot -1
 }
 
 rsv method name {} {
@@ -81,25 +94,27 @@ rsv method fix_hsvc {} {
 	return $hsvc
 }
 
-rsv method insert {} {
+rsv method insert {{table pending}} {
 	global rsvdb
 
 	# Find a spare slot.
 	if {$ulslot < 0} {
-		set slots [lmap i [
-		    $rsvdb query {
-			select ulslot FROM TBL_RESERVATION
-			order by ulslot;
-		    }] {lindex $i 1}]
-
-		set max [lindex $i end]
-		for {set i 0} {$i < $max} {incr i} {
-			if {$i ni $slots} {
-				set ulslot $i
-				break
+		set slotlist [$rsvdb query "
+				select ulslot FROM $table
+				order by ulslot;
+			    "]
+		if {[llength $slotlist] > 0} {
+			set slots [lmap i $slotlist {lindex $i 1}]
+			set max [lindex $i end]
+			for {set i 0} {$i < $max} {incr i} {
+				if {$i ni $slots} {
+					set ulslot $i
+					break
+				}
 			}
+			if {$ulslot < 0} { set ulslot $($max + 1) }
 		}
-		if {$ulslot == -1} { set ulslot $($max + 1) }
+		if {$ulslot < 0} { set ulslot 0 }
 	}
 
 	set fields [lsort [$self vars]]
@@ -117,7 +132,7 @@ rsv method insert {} {
 		#lappend vals "'[$self get $field]'"
 	}
 
-	set query "insert into TBL_RESERVATION("
+	set query "insert into ${table}("
 	append query [join $fields ","]
 	append query ") values("
 	append query [join $vals ","]
@@ -126,16 +141,16 @@ rsv method insert {} {
 	$rsvdb query $query
 }
 
-proc {rsv list} {} {
-	set res [$::rsvdb query {
-		select tbl_reservation.*,
+proc {rsv list} {{table tbl_reservation}} {
+	set res [$::rsvdb query "
+		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn,
 		    case when ersvtype > 3 then 1 else 0 end as sort
-		from tbl_reservation
+		from $table
 		left join channel.TBL_SVC
-		on main.TBL_RESERVATION.hSvc = channel.TBL_SVC.hSvc
+		on $table.hSvc = channel.TBL_SVC.hSvc
 		order by sort, nsttime
-	}]
+	"]
 
 	set records {}
 	foreach rec $res {
@@ -146,31 +161,32 @@ proc {rsv list} {} {
 }
 
 proc {rsv lookuptab} {} {
-	set res [$::rsvdb query {
-		select tbl_reservation.szCRID, channel.TBL_SVC.hSvc
-		from tbl_reservation left join channel.TBL_SVC
-		on main.TBL_RESERVATION.hSvc = channel.TBL_SVC.hSvc
-		where ersvtype <= 3
-	}]
-
-
 	set records {}
-	foreach rec $res {
-		lappend records "$rec(hSvc)/[file tail $rec(szCRID)]"
+	foreach tab {tbl_reservation pending} {
+		set res [$::rsvdb query "
+			select $tab.szCRID, channel.TBL_SVC.hSvc
+			from $tab left join channel.TBL_SVC
+			on $tab.hSvc = channel.TBL_SVC.hSvc
+			where ersvtype <= 3
+		"]
+
+		foreach rec $res {
+			lappend records "$rec(hSvc)/[file tail $rec(szCRID)]"
+		}
 	}
 
 	return $records
 }
 
-proc {rsv entry} {crid svc} {
-	set res [$::rsvdb query {
-		select tbl_reservation.*,
+proc {rsv entry} {{table TBL_RESERVATION} crid svc} {
+	set res [$::rsvdb query "
+		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn
-		from tbl_reservation
+		from $table
 		left join channel.TBL_SVC
-		on main.TBL_RESERVATION.hSvc = channel.TBL_SVC.hSvc
-		where szCRID like '%%%s' and tbl_reservation.hsvc = '%s'
-	} $crid $svc]
+		on $table.hSvc = channel.TBL_SVC.hSvc
+		where szCRID like '%%%s' and $table.hsvc = '%s'
+	" $crid $svc]
 
 	if {[llength $res] > 0} {
 		return [rsv new [lindex $res 0]]
@@ -180,5 +196,15 @@ proc {rsv entry} {crid svc} {
 
 proc {rsv cleanup} {} {
 	catch {$::rsvdb close}
+}
+
+proc {rsv commit} {} {
+	$::rsvdb query {begin transaction}
+	foreach rec [rsv list pending] {
+		$rec clear_ulslot
+		$rec insert TBL_RESERVATION
+	}
+	$::rsvdb query {delete from pending}
+	$::rsvdb query {commit transaction}
 }
 
