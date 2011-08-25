@@ -1,11 +1,11 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 0.6.4-1
+Version: 0.6.5
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
-Depends: mongoose(>=3.0-2),jim(>=0.71-1),jim-sqlite3(>=0.71-1),jim-cgi(>=0.4),jim-oo,jim-pack,service-control,busybox(>=1.18.3-1),lsof,epg(>=1.0.2),hmt(>=1.0.6),ssmtp
+Depends: mongoose(>=3.0-2),jim(>=0.71-1),jim-sqlite3(>=0.71-1),jim-cgi(>=0.4),jim-oo,jim-pack,service-control,busybox(>=1.18.3-1),lsof,epg(>=1.0.3),hmt(>=1.0.6),ssmtp
 Replaces: af123-webif
 Conflicts: af123-webif
-Suggests: ffmpeg
+Suggests: ffmpeg,webif-iphone
 Description: An evolving web interface for the Humax.
