@@ -291,6 +291,7 @@ proc {epg exec} {mode args} {
 				-service { lappend cmd -S $args($arg) }
 				-event { lappend cmd -E $args($arg) }
 				-time { lappend cmd -@ $args($arg) }
+				-day { lappend cmd -/ $args($arg) }
 				-extra { set extra $args($arg) }
 				default { error "Invalid option, $arg" }
 			}

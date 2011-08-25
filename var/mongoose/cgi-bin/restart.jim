@@ -19,8 +19,10 @@ if {[cgi_get now] eq "yes"} {
 file delete /tmp/.restartpending
 header
 
-# Commit pending reservations.
-rsv commit
+# Commit pending reservations on older mod versions.
+if {![file exists /sbin/rsvsync] && ![file exists /mod/boot/rsvsync]} {
+	rsv commit
+}
 
 puts { 
 <link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
