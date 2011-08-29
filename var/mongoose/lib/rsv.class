@@ -12,6 +12,7 @@ if {![file exists /var/lib/humaxtv/rsvp.db]} {
 	set tdb [sqlite3.open /var/lib/humaxtv/rsvp.db]
 	$tdb query {drop table TBL_VERSION}
 	$tdb query {alter table TBL_RESERVATION rename to pending}
+	$tdb query {alter table pending add column action int}
 	$tdb query {delete from pending}
 	$tdb close
 }
@@ -47,6 +48,7 @@ class rsv {
 	szSvcName		{}
 	usLcn			0
 	sort			0
+	action			0
 }
 
 rsv method clear_ulslot {} {
@@ -73,6 +75,42 @@ rsv method name {} {
 
 rsv method channel_name {} {
 	return [string range $szSvcName 1 end]
+}
+
+rsv method icon {} {
+	set rsvicon ""
+	switch [$self get ersvtype] {
+		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
+		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
+		3 { set rsvicon "175_1_11_Reservation_Record.png" }
+		5 { set rsvicon "745_1_10_Video_2Live.png" }
+		6 { set rsvicon "745_1_11_Video_1REC.png" }
+		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png" }
+	}
+	return $rsvicon
+}
+
+rsv method RKIcon {} {
+	if {[$self get ucRecKind] == 4} {
+		set RKIcon "175_1_11_Series_Record.png"
+	} else {
+		switch [$self get erepeat] {
+			1 {set RKIcon "521_1_00_RP_Daily_C.png"}
+			2 {set RKIcon "521_1_00_RP_Weekly_C.png"}
+			3 {set RKIcon "521_1_00_RP_Weekdays_C.png"}
+			4 {set RKIcon "521_1_00_RP_Weekend_C.png"}
+			default {set RKIcon ""}
+		}
+	}
+	return $RKIcon
+}
+
+rsv method set_delete {} {
+	set action 1
+}
+
+rsv method remove_pending {} {
+	$::rsvdb query "delete from pending where ulslot = [$self get ulslot]"
 }
 
 rsv method fix_hsvc {} {
@@ -121,6 +159,11 @@ rsv method insert {{table pending}} {
 
 	foreach field {aulEventToRecordInfo szSvcName usLcn sort} {
 		set df [lsearch $fields $field]
+		set fields [lreplace $fields $df $df]
+	}
+
+	if {$table ne "pending"} {
+		set df [lsearch $fields "action"]
 		set fields [lreplace $fields $df $df]
 	}
 
@@ -194,6 +237,21 @@ proc {rsv entry} {{table TBL_RESERVATION} crid svc} {
 	return 0
 }
 
+proc {rsv slot} {{table TBL_RESERVATION} slot} {
+	set res [$::rsvdb query "
+		select $table.*,
+		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn
+		from $table
+		left join channel.TBL_SVC
+		on $table.hSvc = channel.TBL_SVC.hSvc
+		where ulslot = %s" $slot]
+
+	if {[llength $res] > 0} {
+		return [rsv new [lindex $res 0]]
+	}
+	return 0
+}
+
 proc {rsv cleanup} {} {
 	catch {$::rsvdb close}
 }
@@ -201,8 +259,10 @@ proc {rsv cleanup} {} {
 proc {rsv commit} {} {
 	$::rsvdb query {begin transaction}
 	foreach rec [rsv list pending] {
-		$rec clear_ulslot
-		$rec insert TBL_RESERVATION
+		if {[$rec get action] == 0} {
+			$rec clear_ulslot
+			$rec insert TBL_RESERVATION
+		}
 	}
 	$::rsvdb query {delete from pending}
 	$::rsvdb query {commit transaction}

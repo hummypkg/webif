@@ -4,6 +4,7 @@ source /mod/var/mongoose/lib/setup
 require altrow rsv.class progressbar
 
 puts {
+<div id=dialogue></div>
 <script type=text/javascript>
 
 $.tablesorter.addParser({
@@ -38,55 +39,91 @@ $(document).ready(function() {
 	    }
 	});
 });
+
+$(document).ready(function() {
+	function docancel()
+	{
+		var table = $('#dialogue').attr('table');
+		var slot = $('#dialogue').attr('slot');
+
+		if (confirm('Really remove scheduled event?'))
+		{
+			$.get('/cgi-bin/sched_cancel.jim?slot=' + slot +
+			    '&table=' + table, function() {
+				window.location.reload(true);
+			});
+			$('#dialogue').dialog('close');
+		}
+	}
+
+	var $buttons1 = {
+	    "Close" : function() {$(this).dialog('close');}
+	};
+	var $buttons2 = $.extend(
+	    {"Cancel Event": function() { docancel() }},
+	    $buttons1);
+
+	var $dialog = $('#dialogue').dialog({
+		title: "Schedule Details",
+		modal: false, autoOpen: false,
+		height: 500, width: 700,
+		show: 'scale', hide: 'fade',
+		draggable: true, resizable: true,
+		buttons: $buttons2,
+		close: function(e,u) { $('#dialogue').empty().html(
+		    '<img src="/img/loading.gif" alt="loading">'); }
+	});
+
+	function schedpopup(e, o)
+	{
+		e.preventDefault();
+		var slot = o.attr('slot');
+		var table = o.attr('table');
+		$('#dialogue').attr('slot', slot).attr('table', table);
+
+		var url = '/cgi-bin/sched_info.jim?slot=' + slot +
+		    '&table=' + table;
+		$('#dialogue').load(url);
+		$dialog.dialog('open');
+	}
+	$('a.schedule').click(function(e) { schedpopup(e, $(this)) });
+});
 </script>
 }
 
-proc eventheader {} {
+proc eventheader {{table TBL_RESERVATION}} {
 	puts {
 		<table class="borders tablesorter">
 		<thead>
 		<tr>
+	}
+
+	if {$table eq "pending" } { puts "<th>Action</th>" }
+
+	puts {
 			<th></th>
 			<th>&nbsp;</th><th>Channel</th>
 			<th>Programme</th>
 			<th>Start Time</th>
 			<th>Duration</th>
 			<th>Mode</th>
-			<th>Event/Series ID</th>
-			<th>Events</th>
 		</tr>
 		</thead>
 		<tbody>
 	}
 }
 
-proc eventrow {event} {
+proc eventrow {event {table TBL_RESERVATION}} {
 	set name [$event name]
 
 	altrow
 
-	set rsvicon ""
-	switch [$event get ersvtype] {
-		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
-		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
-		3 { set rsvicon "175_1_11_Reservation_Record.png" }
-		5 { set rsvicon "745_1_10_Video_2Live.png" }
-		6 { set rsvicon "745_1_11_Video_1REC.png" }
-		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png" }
-	}
-
-	set series 0
+	set rsvicon [$event icon]
+	set RKIcon [$event RKIcon]
 	if {[$event get ucRecKind] == 4} {
-		set RKIcon "175_1_11_Series_Record.png"
 		set series 1
 	} else {
-		switch [$event get erepeat] {
-			1 {set RKIcon "521_1_00_RP_Daily_C.png"}
-			2 {set RKIcon "521_1_00_RP_Weekly_C.png"}
-			3 {set RKIcon "521_1_00_RP_Weekdays_C.png"}
-			4 {set RKIcon "521_1_00_RP_Weekend_C.png"}
-			default {set RKIcon ""}
-		}
+		set series 0
 	}
 
 	if {$rsvicon ne ""} {
@@ -94,6 +131,16 @@ proc eventrow {event} {
 	}
 	if {$RKIcon ne ""} {
 		set RKIcon "<img src='images/$RKIcon' height=20>
+	}
+
+	if {$table eq "pending"} {
+		if {[$event get action] == 0} {
+			set icon "add"
+		} else {
+			set icon "close"
+		}
+		puts "<td align=center>
+		    <img class=va width=30 src=/img/$icon.png></td>"
 	}
 
 	puts "<td>[$event get ulslot]</td>"
@@ -111,7 +158,10 @@ proc eventrow {event} {
 		puts "<td>&nbsp;<br><br></td><td>&nbsp;</td>"
 	}
 
-	puts "<td nowrap>$name</td>"
+	puts "<td nowrap>
+		<a slot=[$event get ulslot] table=$table
+		href=# class=schedule>$name</a>
+		</td>"
 
 	set s [$event get nsttime]
 	set d [$event get nduration]
@@ -138,36 +188,12 @@ proc eventrow {event} {
 	puts "<td>[clock format [$event get nduration] -format %T]</td>"
 
 	puts "<td nowrap>$rsvicon $RKIcon</td>"
-	puts "<td nowrap>"
-	set crid [join [lrange [split [$event get szCRID] /] 1 end]]
-	if {$crid != ""} {
-		puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
-		if $series { puts -nonewline "s" }
-		puts "crid=/$crid>
-		<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
-		    height=14>
-		[$event get szCRID]"
-		puts "</a>"
-	}
-	puts "</td>"
-	puts "<td nowrap>"
-	set flag 0
-	foreach ev [split [$event get szEventToRecord] "|"] {
-		if {$ev eq ""} { continue }
-		set ev [string range $ev 1 end]
-		if {$flag} { puts "<br>" }
-		incr flag
-		set crid [join [lrange [split $ev /] 1 end]]
-		puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
-		puts "crid=/$crid>
-		<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
-		    height=14> 
-		$ev"
-		puts "</a>"
-	}
-	puts "</td>"
 	if {[$event get aulEventToRecordInfo] != ""} {
-		puts "<td>*</td>"
+		puts "<td><img src=/img/lightning.png
+		    alt=\"Accepted by Humax\"
+		    title=\"Accepted by Humax\"></td>"
+	} else {
+		puts "<td>&nbsp;</td>"
 	}
 	puts "</tr>"
 }
@@ -178,9 +204,9 @@ proc eventfooter {} {
 
 set events [rsv list pending]
 if {[llength $events] > 0} {
-	puts "<h2>Pending Scheduled Events</h2>"
-	eventheader
-	foreach event $events {eventrow $event}
+	puts "<h2>Pending Schedule Events</h2>"
+	eventheader pending
+	foreach event $events {eventrow $event pending}
 	eventfooter
 	puts {
 		<small>

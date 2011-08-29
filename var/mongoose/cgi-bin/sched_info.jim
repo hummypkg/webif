@@ -1,0 +1,123 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require rsv.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set table [cgi_get table TBL_RESERVATION]
+set slot [cgi_get slot 0]
+
+set event [rsv slot $table $slot]
+
+set rsvicon [$event icon]
+if {$rsvicon ne ""} {
+	set rsvicon "<img src='images/$rsvicon' height=20>
+}
+
+set RKIcon [$event RKIcon]
+if {$RKIcon ne ""} {
+	set RKIcon "<img src='images/$RKIcon' height=20>
+}
+
+if {[$event get ucRecKind] == 4} {
+	set series 1
+} else {
+	set series 0
+}
+
+puts "
+	<table class=keyval>
+	<tr>
+		<th>Event [$event get ulslot]</th>
+		<td class=va>$rsvicon $RKIcon</td>
+	</tr><tr>
+		<th>Channel</th>
+		<td class=va>
+"
+if {[$event get usLcn] ne ""} {
+	puts "
+		<img class=va width=50
+		    src=\"/img/channels/[$event channel_name].png\">
+		- [$event get usLcn] - [$event channel_name]
+	"
+}
+
+puts "
+		</td>
+	</tr><tr>
+		<th>Event Name</th>
+		<td>[$event name]</td>
+	</tr><tr>
+		<th>Start</th>
+"
+
+set s [$event get nsttime]
+set d [$event get nduration]
+set e $($s + $d)
+set n [clock seconds]
+
+if { $n > $e } {
+	puts "<td class=blood nowrap class=va>"
+} else {
+	puts "<td nowrap class=va>"
+}
+puts "[clock format $s -format "%a %d %b %Y"]
+    [clock format $s -format "%H:%M %Z"]"
+
+if {$d > 0 && $n > $s && $n < $e} {
+	puts "<br>"
+	set perc [expr [expr $n - $s] * 100 / $d]
+	puts "<img class=va src=/images/745_1_11_Video_1REC.png>"
+	puts [progressbar $perc]
+}
+
+puts "
+		</td>
+	</tr><tr>
+		<th>Duration</th>
+		<td>[clock format [$event get nduration] -format %T]</td>
+	</tr>
+"
+
+set crid [join [lrange [split [$event get szCRID] /] 1 end]]
+if {$crid != ""} {
+	puts "<tr><th>"
+	if $series { puts "Series" } else { puts "Event" }
+	puts " CRID</th><td>"
+	puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
+	if $series { puts -nonewline "s" }
+	puts "crid=/$crid>
+	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
+	    height=14>
+	[$event get szCRID]"
+	puts "</a></td></tr>"
+}
+puts "<tr><th>Events</th><td>"
+set flag 0
+foreach ev [split [$event get szEventToRecord] "|"] {
+	if {$ev eq ""} { continue }
+	set ev [string range $ev 1 end]
+	if {$flag} { puts "<br>" }
+	incr flag
+	set crid [join [lrange [split $ev /] 1 end]]
+	puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
+	puts "crid=/$crid>
+	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
+	    height=14> 
+	$ev"
+	puts "</a>"
+}
+puts "</td></tr>"
+puts "<tr><th>Accepted</th><td>"
+if {[$event get aulEventToRecordInfo] != ""} {
+	puts "Yes"
+}
+puts "</td></tr>"
+puts "</table>"
+
