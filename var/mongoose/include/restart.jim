@@ -35,7 +35,7 @@ puts {
 	<script type=text/javascript>
 	$('#restart_humaxtv').button();
 	$('#restart_humaxtv').click(function() {
-		if (confirm('Are you sure you wish to perform a warm restart now?'))
+		if (confirm('Are you sure you wish to perform a restart now?'))
 			window.location = '/cgi-bin/restart.jim';
 	});
 	</script>

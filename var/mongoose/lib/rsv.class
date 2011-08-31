@@ -65,7 +65,7 @@ rsv method name {} {
 		    5 { set name "--- Wake-up ---" }
 		    6 { set name "--- Sleep ---" }
 		    7 { set name "--- Auto Update ---" }
-		    11 { set name "--- DSO Event? ---" }
+		    11 { set name "--- DSO Event ---" }
 		    default { set name "--- Unknown event type $ersvtype ---" }
 		}
 	}
@@ -230,6 +230,25 @@ proc {rsv entry} {{table TBL_RESERVATION} crid svc} {
 		on $table.hSvc = channel.TBL_SVC.hSvc
 		where szCRID like '%%%s' and $table.hsvc = '%s'
 	" $crid $svc]
+
+	if {[llength $res] > 0} {
+		return [rsv new [lindex $res 0]]
+	}
+	return 0
+}
+
+proc {rsv fetch} {{table TBL_RESERVATION} hsvc nsttime usevtid events} {
+	set res [$::rsvdb query "
+		select $table.*,
+		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn
+		from $table
+		left join channel.TBL_SVC
+		on $table.hSvc = channel.TBL_SVC.hSvc
+		where $table.hsvc = '%s'
+		and $table.nsttime = '%s'
+		and $table.usevtid = '%s'
+		and $table.szEventToRecord = '%s'
+	" $hsvc $nsttime $usevtid $events]
 
 	if {[llength $res] > 0} {
 		return [rsv new [lindex $res 0]]

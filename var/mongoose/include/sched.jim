@@ -127,10 +127,10 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	}
 
 	if {$rsvicon ne ""} {
-		set rsvicon "<img src='images/$rsvicon' height=20>
+		set rsvicon "<img src='/images/$rsvicon' height=20>
 	}
 	if {$RKIcon ne ""} {
-		set RKIcon "<img src='images/$RKIcon' height=20>
+		set RKIcon "<img src='/images/$RKIcon' height=20>
 	}
 
 	if {$table eq "pending"} {
