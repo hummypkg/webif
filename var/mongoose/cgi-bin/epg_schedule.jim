@@ -71,7 +71,7 @@ if {$type == 1} {
 #puts $args
 
 set msg ""
-if {![file exists /mod/.schedule.testing]} { set msg "Disabled during testing" }
+#if {![file exists /mod/.schedule.testing]} { set msg "Disabled during testing" }
 if {$msg ne "" || [catch {[rsv new $args] insert} msg]} {
 	puts "Error encountered while scheduling the recording: <i>$msg</i>"
 } else {

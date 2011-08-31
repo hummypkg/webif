@@ -17,6 +17,9 @@ if {![file exists /var/lib/humaxtv/rsvp.db]} {
 	$tdb close
 }
 $rsvdb query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
+# This is required to upgrade old tables and will be removed in a future
+# version.
+catch { $rsvdb query {alter table pending add column action int} }
 
 class rsv {
 	ulslot			-1
