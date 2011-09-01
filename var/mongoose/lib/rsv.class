@@ -119,13 +119,13 @@ rsv method remove_pending {} {
 rsv method fix_hsvc {} {
 	global rsvdb
 
-	set _hsvc [$rsvdb query "
+	set _hsvc [$rsvdb query {
 		select hSvc
 		from channel.TBL_SVC
-		where szSvcName = '$szSvcName'
-		or szSvcname = '\025$szSvcName'
+		where szSvcName = '%s'
+		or szSvcname = '\025%s'
 		limit 1
-	"]
+	} $szSvcName $szSvcName]
 
 	if {[llength $_hsvc] == 1} {
 		set hsvc [lindex [lindex $_hsvc 0] 1]

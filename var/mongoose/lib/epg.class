@@ -136,7 +136,7 @@ epg method get_channel_info {} {
 		set chan [lindex [$channeldb query {
 			select szSvcName, usLcn, aucDefaultAuthority, hsvc
 			from TBL_SVC
-			where usSvcId = %s} $service_id
+			where usSvcId = '%s'} $service_id
 		    ] 0]
 		if {[dict exists $chan usLcn]} {
 			set channel_num $chan(usLcn)
