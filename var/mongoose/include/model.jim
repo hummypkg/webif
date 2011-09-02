@@ -1,15 +1,7 @@
 #!/mod/bin/jimsh
 
-if {[catch {set fp [open /etc/model r]}]} {
-	set model {HD[R]}
-} else {
-	set model [string trim [read $fp]]
-	close $fp
-}
+source /mod/var/mongoose/lib/setup
+require system.class
 
-if {[catch {set hostname [string trim [exec hostname]]}]} {
-	set hostname "humax"
-}
-
-puts "Humax $model Fox T2 ($hostname)"
+puts "Humax [system model] Fox T2 ([system hostname])"
 

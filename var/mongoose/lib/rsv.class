@@ -240,18 +240,19 @@ proc {rsv entry} {{table TBL_RESERVATION} crid svc} {
 	return 0
 }
 
-proc {rsv fetch} {{table TBL_RESERVATION} hsvc nsttime usevtid events} {
+proc {rsv fetch} {{table TBL_RESERVATION} ersvtype hsvc nsttime usevtid events} {
 	set res [$::rsvdb query "
 		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn
 		from $table
 		left join channel.TBL_SVC
 		on $table.hSvc = channel.TBL_SVC.hSvc
-		where $table.hsvc = '%s'
+		where $table.ersvtype = '%s'
+		and $table.hsvc = '%s'
 		and $table.nsttime = '%s'
 		and $table.usevtid = '%s'
 		and $table.szEventToRecord = '%s'
-	" $hsvc $nsttime $usevtid $events]
+	" $ersvtype $hsvc $nsttime $usevtid $events]
 
 	if {[llength $res] > 0} {
 		return [rsv new [lindex $res 0]]

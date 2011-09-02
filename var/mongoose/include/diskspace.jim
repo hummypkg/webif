@@ -1,27 +1,9 @@
 #!/mod/bin/jimsh
 
-proc extract {line} {
-	regsub -all -- {[[:space:]]+} $line " " line
-	set fields [split $line]
-	set ::size [lindex $fields 1]
-	set ::used [lindex $fields 2]
-	set ::perc [string trimright [lindex $fields 4] "%"]
-}
+source /mod/var/mongoose/lib/setup
+require system.class
 
-set used 0
-set size 0
-set perc 0
-
-foreach df [split [exec df -h 2>>/dev/null] "\n\r"] {
-	if {[string match *sd?2* $df]} {
-		extract $df
-		break;
-	}
-	if {[string match *media/drive? $df]} {
-		extract $df
-	}
-}
-
+lassign [system diskspace] size used perc
 set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
 
 # The HD model only has the USB images which are blue. I prefer the green

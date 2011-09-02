@@ -1,0 +1,64 @@
+
+if {![exists -proc class ]} { package require oo }
+
+class system {}
+
+proc {system model} {} {
+	if {[catch {set fp [open /etc/model r]}]} {
+		set model {HD[R]}
+	} else {
+		set model [string trim [read $fp]]
+		close $fp
+	}
+	return $model
+}
+
+proc {system hostname} {} {
+	if {[catch {set hostname [string trim [exec hostname]]}]} {
+		set hostname "humax"
+	}
+	return $hostname
+}
+
+proc {system diskspace} {} {
+	switch [system model] {
+		HDR { set part /mnt/hd2 }
+		HD { set part /media/drive1 }
+	}
+
+	set size 0
+	set used 0
+	set perc 0
+	foreach line [split [exec df -h $part 2>>/dev/null] "\n\r"] {
+		if {[string match "/*" $line]} {
+			regsub -all -- {[[:space:]]+} $line " " line
+			set fields [split $line]
+			set size [lindex $fields 1]
+			set used [lindex $fields 2]
+			set perc [string trimright [lindex $fields 4] "%"]
+			break
+		}
+	}
+
+	return [list $size $used $perc]
+}
+
+proc {system busy} {} {
+	# Is humaxtv doing anything?
+	set pid [exec pgrep humaxtv]
+	set c 0
+	catch { set c [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts | wc -l] }
+
+	if {$c > 0} { return 1 }
+	return 0
+}
+
+proc {system reboot} {} {
+	exec /etc/init.d/S90settop shut
+	exec /sbin/reboot
+}
+
+proc {system restartpending} {} {
+	close [open /tmp/.restartpending w]
+}
+

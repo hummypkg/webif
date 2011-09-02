@@ -1,5 +1,8 @@
 #!/mod/bin/jimsh
 
+source /mod/var/mongoose/lib/setup
+require system.class
+
 if {[file exists /tmp/.restartpending]} {
 
 puts {
@@ -12,12 +15,7 @@ puts {
 	<font class=blood>
 }
 
-# Is humaxtv doing anything?
-set pid [exec pgrep humaxtv]
-set c 0
-catch { set c [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts | wc -l] }
-
-if {$c > 0} {
+if {[system busy]} {
 	puts "Cannot restart whilst box is busy."
 } else {
 	puts {

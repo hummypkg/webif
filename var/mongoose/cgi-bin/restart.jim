@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require rsv.class
+require rsv.class system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -11,8 +11,7 @@ cgi_input
 if {[cgi_get now] eq "yes"} {
 	# - Busybox reboot does sync the disk but may still not be clean enough.
 	puts "Restarting."
-	exec /etc/init.d/S90settop shut
-	exec /sbin/reboot
+	system reboot
 	exit
 }
 

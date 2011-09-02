@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require epg.class
+require epg.class system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -76,7 +76,7 @@ if {$msg ne "" || [catch {[rsv new $args] insert} msg]} {
 	puts "Error encountered while scheduling the recording: <i>$msg</i>"
 } else {
 	puts "Successfully scheduled recording of <i>[$event get name]</i>"
-	close [open /tmp/.restartpending w]
+	system restartpending
 }
 
 epg cleanup
