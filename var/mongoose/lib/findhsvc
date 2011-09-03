@@ -1,41 +1,38 @@
 
-if {![exists -proc findhsvc]} {
-
+if {![exists -proc get_channel_attr]} {
 	require rsv.class
 
-	proc findhsvc {channel} {
+	proc get_channel_attr {channel {field hSvc}} {
 		global rsvdb
 
-		set hsvc [$rsvdb query "
-			select hSvc
+		set ff [$rsvdb query "
+			select $field
 			from channel.TBL_SVC
 			where szSvcName = '$channel'
 			or szSvcname = '\025$channel'
 			limit 1
 		"]
 
-		if {[llength $hsvc] == 1} {
-			return [lindex [lindex $hsvc 0] 1]
-		} else {
-			return 0
+		if {[llength $ff] == 1} {
+			return [lindex [lindex $ff 0] 1]
 		}
+		return ""
 	}
 
-	proc findhsvcbylcn {lcn} {
+	proc get_channel_attr_bylcn {lcn {field hSvc}} {
 		global rsvdb
 
-		set hsvc [$rsvdb query "
-			select hSvc
+		set ff [$rsvdb query "
+			select $field
 			from channel.TBL_SVC
 			where usLcn = $lcn
 			limit 1
 		"]
 
-		if {[llength $hsvc] == 1} {
-			return [lindex [lindex $hsvc 0] 1]
-		} else {
-			return 0
+		if {[llength $ff] == 1} {
+			return [lindex [lindex $ff 0] 1]
 		}
+		return 0
 	}
 }
 

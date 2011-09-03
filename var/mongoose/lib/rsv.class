@@ -82,7 +82,7 @@ rsv method channel_name {} {
 
 rsv method icon {} {
 	set rsvicon ""
-	switch [$self get ersvtype] {
+	switch $ersvtype {
 		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
 		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
 		3 { set rsvicon "175_1_11_Reservation_Record.png" }
@@ -94,16 +94,18 @@ rsv method icon {} {
 }
 
 rsv method RKIcon {} {
-	if {[$self get ucRecKind] == 4} {
-		set RKIcon "175_1_11_Series_Record.png"
-	} else {
-		switch [$self get erepeat] {
+	switch $ucRecKind {
+	    2 { set RKIcon "178_1_26_Icon_Split.png" }
+	    4 { set RKIcon "175_1_11_Series_Record.png" }
+	    default {
+		switch $erepeat {
 			1 {set RKIcon "521_1_00_RP_Daily_C.png"}
 			2 {set RKIcon "521_1_00_RP_Weekly_C.png"}
 			3 {set RKIcon "521_1_00_RP_Weekdays_C.png"}
 			4 {set RKIcon "521_1_00_RP_Weekend_C.png"}
 			default {set RKIcon ""}
 		}
+	    }
 	}
 	return $RKIcon
 }
@@ -113,7 +115,7 @@ rsv method set_delete {} {
 }
 
 rsv method remove_pending {} {
-	$::rsvdb query "delete from pending where ulslot = [$self get ulslot]"
+	$::rsvdb query "delete from pending where ulslot = $ulslot"
 }
 
 rsv method fix_hsvc {} {

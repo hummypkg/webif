@@ -3,7 +3,7 @@
 package require cgi
 source /mod/var/mongoose/lib/setup
 
-require rsv.class
+require rsv.class findhsvc
 
 set dir /mod/var/backup
 
@@ -31,24 +31,6 @@ if {![file exists $ffile]} {
 if {[catch { set fd [open $ffile r] } msg]} {
 	puts "Error opening backup file. - $msg"
 	exit
-}
-
-proc findhsvc {channel} {
-	global rsvdb
-
-	set hsvc [$rsvdb query "
-		select hSvc
-		from channel.TBL_SVC
-		where szSvcName = '$channel'
-		or szSvcname = '\025$channel'
-		limit 1
-	"]
-
-	if {[llength $hsvc] == 1} {
-		return [lindex [lindex $hsvc 0] 1]
-	} else {
-		return 0
-	}
 }
 
 puts "Restoring scheduled events..."
@@ -111,7 +93,7 @@ foreach line $data {
 	set group [lindex $vals 1]
 	set type [lindex $vals 2]
 	set chan [lindex $vals 3]
-	set hsvc [findhsvc $chan]
+	set hsvc [get_channel_attr $chan]
 
 	if {$grp != $group} {
 		set grp $group
