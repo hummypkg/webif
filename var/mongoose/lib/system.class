@@ -45,7 +45,7 @@ proc {system diskspace} {} {
 
 proc {system busy} {} {
 	# Is humaxtv doing anything?
-	set pid [exec pgrep humaxtv]
+	set pid [exec /mod/bin/busybox/pgrep humaxtv]
 	set c 0
 	catch { set c [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts | wc -l] }
 
