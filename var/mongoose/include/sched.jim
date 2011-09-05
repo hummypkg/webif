@@ -91,8 +91,14 @@ $(document).ready(function() {
 </script>
 }
 
-proc eventheader {{table TBL_RESERVATION}} {
+proc eventheader {{table TBL_RESERVATION} note} {
 	puts {
+		<fieldset style="display: inline; padding: 1em">
+		<legend>
+	}
+	puts "<h3>$note</h3>"
+	puts {
+		</legend>
 		<table class="borders tablesorter">
 		<thead>
 		<tr>
@@ -199,13 +205,12 @@ proc eventrow {event {table TBL_RESERVATION}} {
 }
 
 proc eventfooter {} {
-	puts "</tbody></table>"
+	puts "</tbody></table></fieldset>"
 }
 
 set events [rsv list pending]
 if {[llength $events] > 0} {
-	puts "<h2>Pending Schedule Events</h2>"
-	eventheader pending
+	eventheader pending "Pending Scheduled Events"
 	foreach event $events {eventrow $event pending}
 	eventfooter
 	puts {
@@ -217,13 +222,13 @@ if {[llength $events] > 0} {
 	}
 }
 
-puts "<h2>Scheduled Events</h2>"
 set events [rsv list]
-eventheader
+eventheader "live" "Scheduled Events"
 foreach event $events {eventrow $event}
 eventfooter
 
 puts {
+	<br>
 	<small>
 	<button onclick="window.location='/backup.shtml';">
 		Backup/Restore Scheduled Recordings/Events

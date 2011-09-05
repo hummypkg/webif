@@ -117,7 +117,7 @@ foreach line $data {
 
 $rsvdb query {commit transaction;}
 
-close [open /tmp/.restartpending w]
+system restartpending
 
 close $fd
 rsv cleanup

@@ -29,7 +29,7 @@ proc {system diskspace} {} {
 	set size 0
 	set used 0
 	set perc 0
-	foreach line [split [exec df -h $part 2>>/dev/null] "\n\r"] {
+	foreach line [split [exec /mod/bin/busybox/df -h $part 2>>/dev/null] "\n\r"] {
 		if {[string match "/*" $line]} {
 			regsub -all -- {[[:space:]]+} $line " " line
 			set fields [split $line]
