@@ -111,6 +111,8 @@ $(document).ready(function() {
 <div class=footer>
 <ul>
 <li>
+<a href=/cgi-bin/channel.jim>Channel Information</a>
+</li><li>
 <a href=/cgi-bin/db.jim target=_blank>SQLite3 Database Dump</a>
 </li><li>
 <a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |

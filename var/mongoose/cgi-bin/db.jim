@@ -8,6 +8,14 @@ require altrow
 puts "Content-Type: text/html"
 puts ""
 
+set databases {
+	/var/lib/humaxtv/rsvp.db
+	/var/lib/humaxtv/rsv.db
+	/var/lib/humaxtv/setup.db
+	/var/lib/humaxtv/channel.db
+	/mnt/hd2/dms_cds.db
+}
+
 header
 
 cgi_input
@@ -62,11 +70,16 @@ proc db_info {db_file} {
 	$db close
 }
 
-db_info /var/lib/humaxtv/rsvp.db
-db_info /var/lib/humaxtv/rsv.db
-db_info /var/lib/humaxtv/setup.db
-db_info /var/lib/humaxtv/channel.db
-db_info /mnt/hd2/dms_cds.db
+if {$fdb == 0} {
+	puts "Please choose database to view:<ul>"
+	foreach db $databases {
+		puts "<li><a href=$::env(REQUEST_URI)?db=[file tail $db]>
+		    $db</a></li>"
+	}
+	puts "</ul>"
+} else {
+	foreach db $databases { db_info $db }
+}
 
 footer
 

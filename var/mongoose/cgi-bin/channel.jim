@@ -1,0 +1,113 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require sqlite3
+source /mod/var/mongoose/lib/setup
+require altrow progressbar epg.class
+
+puts "Content-Type: text/html"
+puts ""
+
+header
+
+cgi_input
+
+proc f2c {frequency} {
+	set ch int($((($frequency / 1000) - 303.25) / 8))
+	return [expr int($ch)]
+}
+
+if {[catch {set db [sqlite3.open /var/lib/humaxtv/channel.db]} msg]} {
+	puts "Error opening channel database: $msg"
+	exit
+}
+
+puts "
+	<button id=expandall>Expand All</button>
+	<button id=collapseall>Collapse All</button>
+	<br><br>
+	<table class=borders>
+	<tr>
+		<th>Channel</th>
+		<th>Frequency</th>
+		<th>Signal Strength</th>
+		<th>Signal Quality</th>
+		<th>Channels</th>
+	</tr>
+"
+foreach tw [$db query {
+		select tsIdx, usTsID, ulFrequency, ucLevel, ucQuality
+		from TBL_TS
+		order by ulFrequency
+	}] {
+	lassign $tw x tsIdx x usTsID x ulFrequency x ucLevel x ucQuality
+
+	altrow
+	puts "
+		<td>[f2c $ulFrequency]</td>
+		<td>[expr $ulFrequency / 1000.0] MHz</td>
+	"
+	puts "<td>[progressbar $ucLevel]</td>"
+	puts "<td>[progressbar $ucQuality]</td>"
+
+	set channels [$db query {
+		select usLcn, szSvcName, szPrvName, aucDefaultAuthority
+		from TBL_SVC left join TBL_PRV using (prvIdx)
+		where tsIdx = %s
+		order by usLcn
+		} $tsIdx]
+	puts "<td>[llength $channels]
+		<a class=mchan ts=$tsIdx href=#>
+			<img border=0 height=14
+			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
+			    view
+		</a></td>"
+	puts "</tr>"
+	puts "<tr id=mchan_$tsIdx class=mchan style=\"display: none\">
+		<td colspan=5>"
+	puts "<table style=\"margin-left: 5em\">"
+	puts "<tr>
+		<th colspan=3>Channel</th>
+		<th>Provider</th>
+		<th>Authority</th>
+	      </tr>"
+	foreach chan $channels {
+		lassign $chan x lcn x name x prv x auth
+		set name [string range $name 1 end]
+		set prv [string range $prv 3 end]
+		altrow
+		puts "<td class=va>"
+		puts "[epg channelicon $name 50]</td>
+		    <td>$lcn</td><td>$name</td>"
+		puts "</td><td>"
+		puts $prv
+		puts "</td><td>"
+		puts $auth
+		puts "</td>"
+		puts "</tr>"
+	}
+	puts "</table>"
+	puts "</td></tr>"
+}
+
+puts "</table>"
+
+puts {
+<script type=text/javascript>
+
+$(document).ready(function() {
+	$('a.mchan').click(function(e) {
+		e.preventDefault();
+		$('#mchan_' + $(this).attr('ts')).slideToggle('slow');
+	});
+	$('#expandall').button().click(function() {
+		$('tr.mchan').slideDown('slow');
+	});
+	$('#collapseall').button().click(function() {
+		$('tr.mchan').slideUp('slow');
+	});
+});
+
+</script>
+}
+
