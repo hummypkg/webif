@@ -140,6 +140,18 @@ rsv method fix_hsvc {} {
 rsv method insert {{table pending}} {
 	global rsvdb
 
+	# Duplicate check - all tables
+	foreach tab {pending TBL_RESERVATION} {
+		set rec [$rsvdb query "
+			select ulslot from $tab
+			where szCRID = '%s'
+		" $szCRID]
+		if {[llength $rec] > 0} {
+			throw 20 "Duplicate reservation."
+			return
+		}
+	}
+
 	# Find a spare slot.
 	if {$ulslot < 0} {
 		set slotlist [$rsvdb query "
@@ -321,6 +333,8 @@ proc {rsv construct} {event type} {
 		if {[string match {*#?} $args(szCRID)]} {
 			set args(ucRecKind)	2
 			set args(szCRID) [string range $args(szCRID) 0 end-2]
+			# TOTO - check to see how many parts there are...
+			append args(szEventToRecord) $args(szEventToRecord)
 		}
 	} else {
 		# Series
