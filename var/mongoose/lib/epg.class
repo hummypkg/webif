@@ -197,6 +197,11 @@ epg method icon_set {{height 0}} {
 		    "<img src=/images/178_1_26_Icon_Recommend.png $height>"
 	}
 
+	if {[string match {/*#?} $event_crid]} {
+		lappend set \
+		    "<img src=/images/178_1_26_Icon_Split.png $height>"
+	}
+
 	return $set
 }
 

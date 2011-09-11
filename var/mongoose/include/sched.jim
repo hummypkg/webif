@@ -173,24 +173,28 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	set e $($s + $d)
 	set n [clock seconds]
 
-	if { $n > $e } {
-		puts "<td class=blood nowrap class=va>"
-	} else {
-		puts "<td nowrap class=va>"
-	}
-	puts "[clock format $s -format "%a %d %b %Y"]<br>
+	set ds "[clock format $s -format "%a %d %b %Y"]<br>
 	    [clock format $s -format "%H:%M %Z"]"
 
-	if {$d > 0 && $n > $s && $n < $e} {
-		puts "<br>"
-		set perc [expr [expr $n - $s] * 100 / $d]
-		puts "<img class=va src=/images/745_1_11_Video_1REC.png>"
-		puts [progressbar $perc]
+	if { $n > $e && [$event get ersvtype] <= 3} {
+		puts "<td nowrap class=va
+			alt=\"$ds\" title=\"$ds\">
+			--- -- --- ----<br>--:--"
+		puts "</td><td>--:--:--</td>"
+	} else {
+		puts "<td nowrap class=\"va"
+		if {$n > $e} { puts " blood" }
+		puts "\">$ds"
+		if {$d > 0 && $n > $s && $n < $e} {
+			puts "<br>"
+			set perc [expr [expr $n - $s] * 100 / $d]
+			puts "<img class=va
+			    src=/images/745_1_11_Video_1REC.png>"
+			puts [progressbar $perc]
+		}
+		puts "</td><td>"
+		puts "[clock format [$event get nduration] -format %T]</td>"
 	}
-
-	puts "</td>"
-
-	puts "<td>[clock format [$event get nduration] -format %T]</td>"
 
 	puts "<td nowrap>$rsvicon $RKIcon</td>"
 	if {[$event get aulEventToRecordInfo] != ""} {

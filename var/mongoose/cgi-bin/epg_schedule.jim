@@ -10,10 +10,6 @@ puts ""
 cgi_input
 #cgi_dump
 
-#set _cgi(service) 4170
-#set _cgi(event) 38584
-#set _cgi(type) 2
-
 if {![dict exists $_cgi service] || ![dict exists $_cgi event]} {
 	puts "Error, insufficient parameters passed."
 	exit
@@ -35,44 +31,8 @@ if {[$event percent] > 0} {
 	exit
 }
 
-$event get_channel_info
-
-set args {}
-
-set args(ersvtype)		3
-set args(hsvc)			[$event get channel_hsvc]
-set args(nsttime)		[$event get start]
-set args(nduration)		[$event get duration]
-set args(usevtid)		[$event get event_id]
-set args(szevtname)		"\025[$event get name]"
-set args(eReady)		30
-
-set ccrid [$event get channel_crid]
-
-if {$type == 1} {
-	# Event
-	set args(ucCRIDType)		49
-	set args(ucRecKind)		1
-	set args(szCRID) 		"$ccrid[$event get event_crid]"
-	set args(szEventToRecord)	"1$args(szCRID)|"
-} else {
-	# Series
-	set args(ucCRIDType)		50
-	set args(ucRecKind)		4
-	set args(szCRID)		"$ccrid[$event get series_crid]"
-	set args(szFPBRecPath)		"$args(szevtname)"
-	set progs [lmap i [epg fetch dump -scrid [$event get series_crid]] {
-		if {[set ecrid [$i get event_crid]] eq ""} { continue }
-		list "1$::ccrid$ecrid"
-	}]
-	set args(szEventToRecord)	 "[join $progs "|"]|"
-}
-
-#puts $args
-
-set msg ""
-#if {![file exists /mod/.schedule.testing]} { set msg "Disabled during testing" }
-if {$msg ne "" || [catch {[rsv new $args] insert} msg]} {
+set r [rsv construct $event $type]
+if {[catch {$r insert} msg]} {
 	puts "Error encountered while scheduling the recording: <i>$msg</i>"
 } else {
 	puts "Successfully scheduled recording of <i>[$event get name]</i>"

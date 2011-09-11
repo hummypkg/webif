@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require rsv.class
+require rsv.class progressbar
 
 puts "Content-Type: text/html"
 puts ""
