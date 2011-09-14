@@ -120,6 +120,7 @@ $(document).ready(function() {
 <a href=/jim/sqlite.html target=_blank>Sqlite</a>
 </li>
 </ul>
+<!--#exec cmd="/mod/var/mongoose/include/modversion.jim" -->
 </div>
 
 <!--#include virtual="/lib/footer.shtml" -->

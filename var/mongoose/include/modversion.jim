@@ -1,0 +1,9 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require system.class
+
+puts "<font class=blood style=\"font-size: 0.9em; float: right; clear: right\">
+	Custom firmware version: [system modversion]
+</font>"
+

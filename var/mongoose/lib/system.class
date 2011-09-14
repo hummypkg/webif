@@ -20,6 +20,17 @@ proc {system hostname} {} {
 	return $hostname
 }
 
+proc {system modversion} {} {
+	if {[catch {set fp [open /etc/modversion r]}]} {
+		set modver "1.02"
+	} else {
+		set modver [string trim [read $fp]]
+		close $fp
+	}
+	lassign [split $modver ""] a b c
+	return [format "%d.%d%d" $a $b $c]
+}
+
 proc {system diskspace} {} {
 	switch [system model] {
 		HDR { set part /mnt/hd2 }
