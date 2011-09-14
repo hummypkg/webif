@@ -137,11 +137,11 @@ rsv method fix_hsvc {} {
 	return $hsvc
 }
 
-rsv method insert {{table pending}} {
+rsv method insert {{table pending} {force 0}} {
 	global rsvdb
 
 	# Duplicate check - all tables
-	if {$szCRID ne "" && $action == 0} {
+	if {!$force && $szCRID ne "" && $action == 0} {
 		foreach tab {pending TBL_RESERVATION} {
 			set rec [$rsvdb query "
 				select ulslot from $tab
@@ -302,7 +302,7 @@ proc {rsv commit} {} {
 	foreach rec [rsv list pending] {
 		if {[$rec get action] == 0} {
 			$rec clear_ulslot
-			$rec insert TBL_RESERVATION
+			$rec insert TBL_RESERVATION 1
 		}
 	}
 	$::rsvdb query {delete from pending}

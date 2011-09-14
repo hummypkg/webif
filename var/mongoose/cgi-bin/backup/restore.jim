@@ -29,11 +29,11 @@ if {![file exists $ffile]} {
 }
 
 if {[catch { set fd [open $ffile r] } msg]} {
-	puts "Error opening backup file. - $msg"
+	puts "Error opening <i>$file</i> - $msg"
 	exit
 }
 
-puts "Restoring scheduled events..."
+puts "Restoring scheduled events from <i>$file</i>..."
 
 $rsvdb query {begin transaction;}
 $rsvdb query {delete from TBL_RESERVATION;}
@@ -76,7 +76,11 @@ foreach line $data {
 		}
 	}
 
-	if {!$bad} { $rsv insert }
+	if {!$bad} {
+		if {[catch {$rsv insert pending 1} msg]} {
+			puts "    Error inserting event, $msg"
+		}
+	}
 }
 
 $rsvdb query {commit transaction;}
