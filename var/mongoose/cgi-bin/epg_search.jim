@@ -9,6 +9,8 @@ puts ""
 
 header
 
+require totop
+
 puts "<script type=text/javascript src=/js/jquery.highlight.js></script>"
 
 cgi_input

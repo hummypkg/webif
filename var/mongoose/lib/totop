@@ -1,0 +1,13 @@
+puts {
+<script type="text/javascript" src="/js/jquery.ui.totop.js"></script>
+<script type="text/javascript" src="/js/easing.js"></script>
+<link href=/css/ui.totop.css rel=stylesheet type=text/css />
+<script type=text/javascript>
+	$(document).ready(function() {
+		$().UItoTop({easingType: 'easeOutQuart'});
+		$('.backtotop').click(function() {
+			$('html, body').animate({scrollTop: 0}, 500);
+		});
+	});
+</script>
+}

@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require epg.class spinner.class altrow epg_search
+require epg.class spinner.class altrow epg_search totop
 
 [spinner new {
 	text "Loading Now/Next Information..."

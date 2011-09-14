@@ -9,6 +9,8 @@ puts ""
 
 header
 
+require totop
+
 [spinner new {
 	text "Loading EPG Data..."
 	size "1.2em"

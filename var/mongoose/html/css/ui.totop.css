@@ -1,0 +1,30 @@
+
+#toTop {
+    background: url("/img//ui.totop.png") no-repeat scroll left top transparent;
+    border: medium none;
+    bottom: 110px;
+    display: none;
+    height: 51px;
+    margin-left: 50px;
+    overflow: hidden;
+    position: fixed;
+    text-decoration: none;
+    text-indent: -999px;
+    width: 77px;
+    z-index: 2000;
+}
+
+#toTopHover {
+    background: url("/img/ui.totop.png") no-repeat scroll left -51px transparent;
+    display: block;
+    float: left;
+    height: 51px;
+    opacity: 0;
+    overflow: hidden;
+    width: 77px;
+}
+
+#toTop:active, #toTop:focus {
+    outline: medium none;
+}
+
