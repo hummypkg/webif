@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require rsv.class
+require rsv.class system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -23,4 +23,6 @@ if {$table eq "pending"} {
 $event clear_ulslot
 $event set_delete
 $event insert
+
+system restartpending
 

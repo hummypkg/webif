@@ -345,6 +345,11 @@ proc {rsv construct} {event type} {
 				    $args(szEventToRecord)
 			}
 		}
+	} elseif {$type == 3} {
+		# Reminder
+		set args(ersvtype)		2
+		set args(szsttime)	[clock format $args(nsttime) \
+		    -format {%Y%m%d%H%M%S}]
 	} else {
 		# Series
 		set args(ucCRIDType)		50
