@@ -208,7 +208,7 @@ epg method icon_set {{height 0}} {
 epg method cell {} {
 	set percent [$self percent]
 
-	puts "<td nowrap valign=top title=\"$text\">"
+	puts "<td nowrap valign=top>"
 
 	puts [join [$self icon_set 14] ""]
 

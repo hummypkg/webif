@@ -1,5 +1,6 @@
 
 if {![exists -proc class ]} { package require oo }
+if {![exists -proc sqlite3.open ]} { package require sqlite3 }
 
 class system {}
 
@@ -71,5 +72,24 @@ proc {system reboot} {} {
 
 proc {system restartpending} {} {
 	close [open /tmp/.restartpending w]
+}
+
+proc {system padding} {} {
+	set start 0
+	set stop 0
+	set db [sqlite3.open /var/lib/humaxtv/setup.db]
+	foreach l [$db query "
+		select itemName, itemValue
+		from TBL_MENUCONFIG
+		where itemName in ('START_PADDING_TIME', 'STOP_PADDING_TIME')
+	"] {
+		lassign $l x name x val
+		switch $name {
+		    "START_PADDING_TIME" { set start $val }
+		    "STOP_PADDING_TIME" { set stop $val }
+		}
+	}
+	$db close
+	return [list $start $stop]
 }
 
