@@ -77,7 +77,9 @@ proc {system restartpending} {} {
 proc {system padding} {} {
 	set start 0
 	set stop 0
-	set db [sqlite3.open /var/lib/humaxtv/setup.db]
+	if {[catch {set db [sqlite3.open /var/lib/humaxtv/setup.db]} msg]} {
+		return {0 0}
+	}
 	foreach l [$db query "
 		select itemName, itemValue
 		from TBL_MENUCONFIG

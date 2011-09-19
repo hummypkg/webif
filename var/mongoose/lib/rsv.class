@@ -76,6 +76,14 @@ rsv method name {} {
 	return $name
 }
 
+rsv method padded {} {
+	if {$ulPreOffset > 0 || $ulPostOffset > 0} {
+		return 1
+	} else {
+		return 0
+	}
+}
+
 rsv method channel_name {} {
 	return [string range $szSvcName 1 end]
 }

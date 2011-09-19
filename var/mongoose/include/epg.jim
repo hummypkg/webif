@@ -45,7 +45,7 @@ foreach record [lsort -command rsort $records] {
 		continue
 	}
 	set num [$record get channel_num]
-	if {$num == 0 || $num >= 800} { continue }
+	if {$num == 0} { continue }
 	altrow
 	puts "<td>$num</td>"
 	puts "<td>[$record channel_icon 50]</td>
