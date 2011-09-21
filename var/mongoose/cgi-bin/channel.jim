@@ -32,7 +32,9 @@ puts "
 		<th>Frequency</th>
 		<th>Signal Strength</th>
 		<th>Signal Quality</th>
+		<th>Mux</th>
 		<th>Channels</th>
+		<th>&gt;799</th>
 	</tr>
 "
 foreach tw [$db query {
@@ -56,12 +58,31 @@ foreach tw [$db query {
 		where tsIdx = %s
 		order by usLcn
 		} $tsIdx]
+
+	set mux "???"
+	set ehs 0
+	foreach chan $channels {
+		lassign $chan x lcn x name
+		set name [string range $name 1 end]
+		if {$lcn >= 800} { incr ehs }
+		switch $name {
+			"BBC ONE" { set mux "PSB1/BBC A" }
+			"ITV1" { set mux "PSB2/DL&amp;4" }
+			"BBC One HD" { set mux "PSB3/BBC B (HD)" }
+			"ITV3" { set mux "COM4/SDN" }
+			"Dave" { set mux "COM5/ARQ A" }
+			"Film4" { set mux "COM6/ARQ B" }
+		}
+	}
+	puts "<td>$mux</td>"
+
 	puts "<td>[llength $channels]
 		<a class=mchan ts=$tsIdx href=#>
 			<img border=0 height=14
 			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			    view
 		</a></td>"
+	puts "<td>$ehs</th>"
 	puts "</tr>"
 	puts "<tr id=mchan_$tsIdx class=mchan style=\"display: none\">
 		<td colspan=5>"
