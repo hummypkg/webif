@@ -33,7 +33,7 @@ jQuery.ajaxPrefilter(function(options, _, jqXHR) {
                         }
                     }
                 } catch(e) {
-                    alert(e);
+                    console.log(e);
                 }
             }, options.progressInterval);
 
