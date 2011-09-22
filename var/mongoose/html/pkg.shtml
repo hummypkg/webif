@@ -42,7 +42,7 @@ Update package list from Internet
 	<div id=dspinner><img border=0 src=/img/loading.gif>Processing request...</div>
 </div>
 
-<script type=text/javascript src=/js/iajax.js></script>
+<!-- <script type=text/javascript src=/js/iajax.js></script> -->
 <script type=text/javascript>
 
 var opkg = '/cgi-bin/opkg.jim?cmd=';
@@ -71,35 +71,38 @@ $(document).ready(function() {
 		close: function(e,u) { window.location.reload(true); }
 	});
 
-	jQuery.ajaxSetup({progressInterval: 1});
-
-	function loaddata(data, isfinal)
-	{
-		console.log('loaddata called, final=' + isfinal);
-		console.log('Data: ' + data);
-		$('#dresults').append(data);
-		if (isfinal)
-			$('#dspinner').hide('slow');
-	}
+//	jQuery.ajaxSetup({progressInterval: 1});
+//
+//	function loaddata(data, isfinal)
+//	{
+//		console.log('loaddata called, final=' + isfinal);
+//		console.log('Data: ' + data);
+//		$('#dresults').append(data);
+//		if (isfinal)
+//			$('#dspinner').hide('slow');
+//	}
 
 	function execopkg(arg)
 	{
 		$('#dspinner').show();
 		$dialog.dialog('open');
-		$('#dresults').empty();
-		$.ajax({
-			type: "GET",
-			url: opkg + arg,
-			progress: loaddata,
-			success: function(data) {
-				console.log("ajax success");
-				loaddata(data, true);
-			},
-			error: function(_, _, e) {
-				console.log("ajax error");
-				alert(e);
-			}
+		$('#dresults').load(opkg + arg, function() {
+			$('#dspinner').hide('slow');
 		});
+//		$('#dresults').empty();
+//		$.ajax({
+//			type: "GET",
+//			url: opkg + arg,
+//			progress: loaddata,
+//			success: function(data) {
+//				console.log("ajax success");
+//				loaddata(data, true);
+//			},
+//			error: function(_, _, e) {
+//				console.log("ajax error");
+//				alert(e);
+//			}
+//		});
 	}
 
 	function setup_buttons()
