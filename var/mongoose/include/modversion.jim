@@ -4,6 +4,7 @@ source /mod/var/mongoose/lib/setup
 require system.class
 
 puts "<font class=blood style=\"font-size: 0.9em; float: right; clear: right\">
+	Web interface version: [system pkgver webif]<br>
 	Custom firmware version: [system modversion]
 </font>"
 
