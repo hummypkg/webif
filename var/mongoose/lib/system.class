@@ -60,11 +60,12 @@ proc {system diskspace} {} {
 }
 
 proc {system busy} {} {
-	# Is humaxtv doing anything?
+	# Is humaxtv doing anything important?
 	set pid [exec /mod/bin/busybox/pgrep humaxtv]
 	set c 0
-	catch { set c [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts | wc -l] }
-
+	foreach line [split [exec /mod/bin/lsof -p $pid] "\n"] {
+		if {[string match {*Video*.ts} $line]} { incr c }
+	}
 	if {$c > 0} { return 1 }
 	return 0
 }
