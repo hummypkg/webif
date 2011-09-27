@@ -1,0 +1,71 @@
+
+table.epggrid td
+{
+	white-space: nowrap;
+	padding: 2px;
+}
+
+td.epgdate
+{
+	border-left: 1px solid #669933;
+	border-right: 1px solid #669933;
+	border-top: 1px solid #669933;
+}
+
+td.epgtime
+{
+	border-left: 1px solid #669933;
+}
+
+td.epgchan, td.epgchan img
+{
+	border-top: 1px solid #669933;
+	vertical-align: middle;
+}
+
+td.epgprog
+{
+	margin: 0 0.2em;
+	padding: 0 0.2em;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+td.epgprog div
+{
+	overflow: hidden;
+}
+
+.meter-wrap
+{
+	position: relative;
+}
+
+.meter-wrap
+{
+	background: transparent;
+}
+
+.meter-value
+{
+	margin: 0;
+	padding: 0;
+	height: 28px;
+	background-color: #0a0;
+	width: 40%;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+            
+.meter-text
+{
+	position: absolute;
+	top:0;
+	left:0;
+	color: #fff;
+	width: 100%;
+	padding-top: 3px;
+	vertical-align: middle;
+}
+
