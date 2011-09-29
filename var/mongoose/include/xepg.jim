@@ -20,29 +20,15 @@ set stt [clock seconds]
 set stt [expr int($stt / 1800) * 1800]
 
 set ett $($stt + 14400)
-set records [epg fetch dump -trange "$stt:$ett"]
+if {$::qepg} {
+	set records [epg dbfetch dump -trange "$stt:$ett"]
+} else {
+	require channelsort
+	set records [channelsort [epg fetch dump -trange "$stt:$ett"]]
+}
 set got [clock milliseconds]
 
 set favlist [epg favlist]
-
-proc rsort {v1 v2} {
-	set v1s [$v1 get channel_num]
-	set v2s [$v2 get channel_num]
-
-	if {$v1s > $v2s } { return 1 }
-	if {$v1s == $v2s} {
-		set v1t [$v1 get start]
-		set v2t [$v2 get start]
-		if {$v1t > $v2t} { return 1 }
-		if {$v1t == $v2t} { return 0 }
-		return -1
-	}
-	return -1
-}
-
-foreach record $records {
-	$record get_channel_info
-}
 
 puts {
 <table class=epggrid style="float: left; clear: both">
@@ -67,7 +53,7 @@ puts "</tr>"
 
 set lcn 0
 set bg "odd"
-foreach record [lsort -command rsort $records] {
+foreach record $records {
 	if {$favlist != "" && [$record get service_id] ni $favlist} {
 		continue
 	}
@@ -143,13 +129,13 @@ puts {
 $(document).ready(function() {
 
 $('#epgswitch').button().click(function() {
-	window.location = '/epg.html';
+	window.location = '/epg.shtml';
 });
 $('#earlier').button().click(function() {
-	window.location = '/xepg.html?stt=<?php echo $stt - 3600*4; ?>';
+	window.location = '/xepg.shtml?stt=<?php echo $stt - 3600*4; ?>';
 });
 $('#later').button().click(function() {
-	window.location = '/xepg.html?stt=<?php echo $ett; ?>';
+	window.location = '/xepg.shtml?stt=<?php echo $ett; ?>';
 });
 
 });

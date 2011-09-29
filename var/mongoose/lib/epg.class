@@ -5,13 +5,21 @@ if {![exists -proc sqlite3.open ]} { package require sqlite3 }
 
 require settings.class progressbar rsv.class
 
-set ::channeldb 0
-catch { set ::channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
 
 set ::epgpath /mnt/hd1/dvbepg/epg.dat
+set ::epgdbpath /mnt/hd1/epg.db
 set ::hdepgpath /media/drive1/epgsavedata
 if {![file exists $::epgpath] && [file exists $::hdepgpath]} {
 	set ::epgpath $::hdepgpath
+	set ::epgdbpath /media/drive1/epg.db
+}
+
+set ::channeldb 0
+set ::qepg 0
+catch { set ::channeldb [sqlite3.open /var/lib/humaxtv/channel.db] }
+if {[file exists $::epgdbpath]} {
+	$::channeldb query {attach database '%s' as epg} $::epgdbpath
+	set ::qepg 1
 }
 
 set ::rsvlookup [rsv lookuptab]
@@ -310,6 +318,56 @@ proc {epg exec} {mode args} {
 	#puts "CMD -$cmd-"
 
 	return [exec {*}$cmd]
+}
+
+proc {epg dbfetch} {mode args} {
+	set records {}
+	set extra ""
+	set q "select distinct *,
+	    usLcn as channel_num,
+	    substr(szSvcName, 2) as channel_name,
+	    aucDefaultAuthority as channel_crid,
+	    hSvc as channel_hsvc
+	    from epg.epg e join TBL_SVC c
+	    on e.service_id = c.usSvcId where 1 "
+	foreach arg $args {
+		if {[string first "-" $arg] == 0} {
+			set v $args($arg)
+			switch -- $arg {
+				-crid { append q \
+				    "and e.event_crid = '$v' " }
+				-scrid { append q \
+				    "and e.series_crid = '$v' " }
+				-type { append q \
+				    "and e.content_type = $v " }
+				-service { append q \
+				    "and e.service_id = $v " }
+				-event { append q \
+				    "and e.event_id = $v " }
+				-time { append q \
+				    "and e.start < $v and e.end > $v " }
+				-trange {
+					lassign [split $v :] stt ett
+					append q "and (
+					(e.start > $stt and e.start < $ett) or
+					(e.end > $stt and e.end < $ett) or
+					(e.start < $stt and e.end > $stt)
+					) "
+				}
+
+				default { error "Invalid option, $arg" }
+			}
+		}
+	}
+	append q "order by channel_num, start"
+
+	#puts "QUERY -$q-"
+
+	set records {}
+	foreach rec [$::channeldb query $q] {
+		lappend records [epg new $rec]
+	}
+	return $records
 }
 
 proc {epg fetch} {mode args} {

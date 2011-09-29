@@ -1,4 +1,0 @@
-<!--#include virtual="/lib/header.shtml" -->
-<!--#exec cmd="/mod/var/mongoose/include/fepg.jim" -->
-<!--#include virtual="/lib/footer.shtml" -->
-

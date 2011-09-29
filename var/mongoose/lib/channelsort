@@ -1,0 +1,22 @@
+proc _channelsort {v1 v2} {
+	set v1s [$v1 get channel_num]
+	set v2s [$v2 get channel_num]
+
+	if {$v1s > $v2s } { return 1 }
+	if {$v1s == $v2s} {
+		set v1t [$v1 get start]
+		set v2t [$v2 get start]
+		if {$v1t > $v2t} { return 1 }
+		if {$v1t == $v2t} { return 0 }
+		return -1
+	}
+	return -1
+}
+
+proc channelsort {records} {
+	foreach record $records {
+		$record get_channel_info
+	}
+	return [lsort -command _channelsort $records]
+}
+
