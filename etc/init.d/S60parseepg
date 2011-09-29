@@ -1,0 +1,43 @@
+#!/bin/sh
+
+export PATH=/mod/bin:/mod/usr/bin:/mod/bin/busybox:/bin:/sbin
+export LD_LIBRARY_PATH=/mod/lib:/lib:/usr/lib
+export TZ=GMT+0BST,M3.5.0/1,M10.5.0/2
+
+if [ -f /mnt/hd1/dvbepg/epg.dat ]; then
+	epg=/mnt/hd1/dvbepg/epg.dat
+	epgdb=/mnt/hd1/epg.db
+else
+	epg=/media/drive1/epgsavedata
+	epgdb=/media/drive1/epg.db
+fi
+
+case "$1" in
+	start)
+		(
+			while [ 1 ]; do
+				if [ -f $epgdb ]; then
+					touch $epgdb.stamp
+					now=`stat -c %Z $epgdb.stamp`
+					dbstamp=`stat -c %Z $epgdb`
+					age=`expr $now - $dbstamp`
+				else
+					age=99999
+				fi
+				echo "EPG Database age: $age"
+				if [ $age -gt 28800 ]; then
+					sleep 120
+					echo "Generating EPG database..."
+					/mod/bin/epg -f $epg sqlitedump $epgdb
+				fi
+				sleep 3712
+			done
+		) &
+		;;
+	stop)
+		;;
+	*)
+		exit 1
+		;;
+esac
+
