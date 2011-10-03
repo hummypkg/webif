@@ -88,6 +88,18 @@ function rename_submit()
 	    function() { window.location.reload(true); });
 }
 
+function savestream_submit()
+{
+	var s = $('#savestream_form').serialize();
+	var sf = $('#save_stream').attr('file');
+	$('#savestream_spin').show();
+	$.get('/cgi-bin/browse/savestream.jim?sfile=' +
+	    encodeURIComponent(sf) + '&' + s,
+	    function() {
+		window.location.reload(true);
+	    });
+}
+
 var $confirm;	// Populated after DOM is loaded.
 
 function confirm_action(action, callback, file, type, id)
@@ -266,6 +278,19 @@ var menuclick = function(action, el, pos)
 		close: function() { $('#rename').val(''); }
 	});
 
+	$('#savestreamform').dialog({
+		autoOpen: false,
+		height: 'auto', width: 'auto',
+		modal: true,
+		buttons: {
+			"Save": savestream_submit,
+			"Cancel": function() {
+				$(this).dialog('close');
+			}
+		},
+		close: function() { $('#savestream_name').val(''); }
+	});
+
 	// Create re-usable confirmation dialogue.
 	$confirm = $('#confirm').dialog({
 		modal: true, autoOpen: false,
@@ -283,5 +308,18 @@ var menuclick = function(action, el, pos)
 	// Flag folders with unwatched items
 	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
 		new_folder_callback);
+
+	$('#dedup').button().click(function() {
+		window.location = '/cgi-bin/dedup.jim?dir='
+		    + encodeURIComponent(dir);
+	});
+
+	$('#save_stream').button().click(function() {
+		$('#savestream_spin').hide();
+		$('#savestreamform').dialog('open');
+		$('#savestream_detail').load(
+		    '/cgi-bin/browse/ffmpeg.jim?file=' +
+		    encodeURIComponent($('#save_stream').attr('file')));
+	});
 });
 

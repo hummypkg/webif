@@ -1,0 +1,102 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size altrow
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get dir "/media/My Video"]
+set doit [cgi_get doit 0]
+
+# Strip double slashes
+
+header
+
+puts "<fieldset style=\"display: inline\">
+<legend>De-duplicate <span id=dir>$dir</span></legend>
+<table class=borders>
+<tr>
+	<th>File</th>
+	<th>Proposed Filename</th>
+	<th>Proposed Title</th>
+	<th>Status</th>
+</tr>
+"
+
+regsub -all -- {\/+} "$dir/*" "/" dir
+
+foreach file [lsort [glob -nocomplain "$dir"]] {
+	if {[file extension $file] ne ".hmt"} { continue }
+	altrow
+	set ts [ts fetch $file 1]
+	set base [file tail [file rootname $file]]
+	puts "<td nowrap>$base</td>"
+	set syn [$ts get synopsis]
+	regsub -nocase -all -- {^new series\.* *} $syn "" syn
+	regsub -all -- { *[:].*$} $syn "" syn
+	if {[string length $syn] > 40} {
+		regsub -all -- { *[\.].*$} $syn "" syn
+	}
+	if {[string length $syn] < 6} {
+		append syn " [$ts get title]"
+	}
+	regsub -all -- {[\/ &]} $syn "_" fn
+	puts "<td>$fn</td>"
+	puts "<td>$syn</td>"
+	puts "<td>"
+	if {[file exists "$dir/$fn.hmt"]} {
+		puts "Duplicate"
+	} elseif {[string length $syn] > 40} {
+		puts "Cannot process"
+	} elseif {$base eq $fn} {
+		puts "Already done"
+	} elseif {$doit} {
+		# Dooooo, it.
+		$ts settitle $syn
+		$ts renamegroup $file $fn
+		puts "Done"
+	}
+	
+	puts "</td>"
+	puts "</tr>"
+}
+
+puts {
+</table>
+</fieldset>
+<div style="padding-top: 2em">
+<small>
+<button id=browse>Back to media browser</button>
+}
+
+if {!$doit} { puts "<button id=dedup>Process folder</button>" }
+
+puts {
+</small>
+
+</div>
+
+<script type=text/javascript>
+$('#browse').button().click(function() {
+	window.location = '/cgi-bin/browse.jim?dir=' +
+	    encodeURIComponent($('#dir').text());
+});
+}
+
+if {!$doit} {
+	puts {
+	$('#dedup').button().click(function() {
+		window.location = window.location + '&doit=1';
+	});
+	}
+}
+
+puts "</script>"
+
+footer
+

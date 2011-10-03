@@ -189,6 +189,32 @@ puts {
 		</form>
 	</div>
 
+	<div id=savestreamform title="Save streamed content"
+	    style="display: none">
+		<div class=pre id=savestream_detail></div>
+		<form id=savestream_form>
+}
+puts "<input type=hidden name=dir value=\"$dir\">"
+puts {
+		<table border=0>
+		<tr>
+		<th>
+			<label for="savestream_name">
+				<b>Filename</b>
+			</label>
+		</th>
+		<td>
+			<input type=text name="savestream_name"
+			    id="savestream_name"
+			    value="" size=70 maxlength=255
+			    class="text ui-widget-content ui-corner-all">
+			<img id=savestream_spin src=/img/loading.gif>
+		</td>
+		</tr>
+		</table>
+		</form>
+	</div>
+
 	<div id=dialogue></div>
 	<div id=confirm title="Confirmation Required"></div>
 
@@ -231,6 +257,22 @@ foreach file [lsort [glob -nocomplain "$dir"]] {
 }
 
 puts "</fieldset>"
+
+# De-duplicate
+
+puts {
+	<small><button id=dedup>De-duplicate/tidy this folder</button></small>
+}
+
+# Streamer file
+
+if {[file exists /mnt/hd3/Streamer_down_file]} {
+	puts {
+<small><button id=save_stream file=/mnt/hd3/Streamer_down_file>
+	Save last streamed content (e.g. iPlayer/YouTube)
+</button></small>
+}
+}
 
 footer
 

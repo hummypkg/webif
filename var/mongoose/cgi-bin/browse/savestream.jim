@@ -1,0 +1,21 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get dir "/media/My Video"]
+set file [file tail [cgi_get savestream_name]]
+set sfile [cgi_get savestream_source "/mnt/hd3/Streamer_down_file"]
+if {$file == "0"} { exit }
+if {[string length [string trim $file]] == 0} { exit }
+
+if {[file extension $file] ne ".mp4"} { append file ".mp4" }
+
+file copy $sfile "$dir/$file"
+

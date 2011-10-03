@@ -41,8 +41,9 @@ set ett $(int($stt + $seconds))
 set offset $(($ostt - $stt) / 1800.0)
 
 set chanpx 120
-set eventpx 780
+set eventpx 1000
 set totalpx $($chanpx + $eventpx)
+set contwidth $($totalpx + 50)
 
 set hourpx $($eventpx / $hours)
 set minpx $($hourpx / 60.0)
@@ -65,7 +66,8 @@ puts "<button id=later>Later &gt;&gt;&gt;</button>"
 puts "</div>"
 
 puts "
-<div id=xepg> <div id=xepgnow></div>
+<div id=xepg style=\"min-width: ${contwidth}px; overflow: auto\">
+<div id=xepgnow></div>
 <div id=xegrid>
 "
 
@@ -96,7 +98,8 @@ foreach e $records {
 
 		puts "[$e channel_icon 30]&nbsp;"
 		puts "$chnum
-	    <a href=/cgi-bin/epg_service.jim?service=[$e get service_id]>
+	    <a href=/cgi-bin/epg_service.jim?service=[$e get service_id]
+		title=\"[$e get channel_name]\">
 	    [$e get channel_name]
 	    </a></div>"
 
