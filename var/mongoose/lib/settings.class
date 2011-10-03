@@ -19,6 +19,7 @@ if {![file exists /mod/etc/webif.db]} {
 class settings {
 	hostname	""
 	channel_group	0
+	epg_style	"standard"
 	smtp_server	""
 	pkgdev		0
 }
@@ -97,6 +98,18 @@ settings method _nval_setting {name {val -1}} {
 
 settings method channel_group {{group -1}} {
 	return [$self _nval_setting channel_group $group]
+}
+
+settings method epg_style {{style -1}} {
+	if {$style != -1} {
+		if {$style eq "grid"} { set style 1 } else { set style 0}
+		return [$self _nval_setting epg_style $style]
+	}
+	set val [$self _nval_setting epg_style]
+	if {$val == 1} {
+		return "grid"
+	}
+	return "standard"
 }
 
 settings method pkgdev {{val -1}} {

@@ -27,7 +27,7 @@ $(document).ready(function() {
 		});
 	});
 	$('#delete_button').click(function() {
-		var backup = $('input.restore').val();
+		var backup = $('input.restore:checked').val();
 		if (confirm('Confirm deletion of ' + backup))
 		{
 			$('#results').load('/cgi-bin/backup/delete.jim?' +
@@ -39,7 +39,7 @@ $(document).ready(function() {
 		}
 	});
 	$('#restore_button').click(function() {
-		var backup = $('input.restore').val();
+		var backup = $('input.restore:checked').val();
 		if (confirm('!!!!!!!!!!!!!!!!!!!!!!!!! PLEASE CONFIRM !!!!!!!!!!!!!!!!!!!!!!!!!\n\nAre you sure you wish to erase all scheduled recordings and favourite channels and then restore them from\n' + backup + '?'))
 		{
 			$('#restore_working').slideDown();

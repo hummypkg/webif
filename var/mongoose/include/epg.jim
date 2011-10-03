@@ -14,7 +14,7 @@ require epg_popup
 
 set start [clock milliseconds]
 set now [clock seconds]
-set then $($now + 7200)
+set then $($now + 14400)
 if {$::qepg} {
 	set records [epg dbfetch dump -trange "$now:$then"]
 } else {
@@ -26,6 +26,11 @@ set got [clock milliseconds]
 set favlist [epg favlist]
 
 puts {
+	<small><button id=switch>Switch to grid-style Now/Next</button></small>
+	<script type=text/javascript>
+		$('#switch').button().click(function() {
+			window.location = '/cgi-bin/xepg.jim'; });
+	</script>
 	<table class=borders>
 	<tr>
 		<th colspan=3>Channel</th>

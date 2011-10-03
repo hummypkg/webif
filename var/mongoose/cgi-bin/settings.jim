@@ -16,6 +16,7 @@ set settings [settings new]
 set hostname [$settings hostname]
 set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
+set epg_style [$settings epg_style]
 set pkgdev [$settings pkgdev]
 
 # Handle updates
@@ -51,6 +52,7 @@ proc handle_str_update {var old {text "Value"}} {
 handle_str_update hostname $hostname Hostname
 _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
+handle_str_update epg_style $epg_style "EPG Type"
 if {[dict exists $_cgi pkgdevoff] && ![dict exists $_cgi pkgdev]} {
 	set _cgi(pkgdev) 0
 }
@@ -109,11 +111,34 @@ puts "
 
 puts "
 	<tr>
+	<form class=auto id=epg_style method=get action=$env(REQUEST_URI)>
+		<th class=key>Default Now/Next style</th>
+		<td><select id=epg_style name=epg_style
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=standard"
+if {$epg_style ne "grid"} { puts " selected" }
+puts ">Standard\n"
+puts "<option value=grid"
+if {$epg_style eq "grid"} { puts " selected" }
+puts ">Grid\n"
+puts "
+		</select>
+		<small>
+		<input name=epg_style value=\"set\" type=submit>
+		</small>
+		<div id=epg_style_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
 	<form class=auto id=channel_group method=get action=$env(REQUEST_URI)>
 		<th class=key>Channel Group for EPG</th>
 		<td><select id=channel_group name=channel_group
-		    class=\"text ui-widget-content ui-corner-all\"
-		    value=[$settings channel_group]>
+		    class=\"text ui-widget-content ui-corner-all\">
 "
 
 set i 0

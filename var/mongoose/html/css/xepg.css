@@ -1,0 +1,113 @@
+div#xepg
+{
+	position: relative;
+}
+
+div#xepgnow
+{
+	display: none;
+	position: absolute;
+	width: 2px;
+	height: 100%;
+	background: yellow;
+	top: 0px;
+	left: 0px;
+	z-index: 9999;
+	box-shadow: 2px 2px 11px #666;
+	-moz-box-shadow: 2px 2px 11px #666;
+	-webkit-box-shadow: 2px 2px 11px #666;
+	opacity:0.7;
+	/*filter:alpha(opacity=70);*/
+}
+
+div.xetick
+{
+	display: none;
+	position: absolute;
+	width: 1px;
+	height: 100%;
+	background: #ccc;
+	top: 0px;
+	left: 0px;
+/*
+	z-index: 9999;
+	box-shadow: 2px 2px 11px #666;
+	-moz-box-shadow: 2px 2px 11px #666;
+	-webkit-box-shadow: 2px 2px 11px #666;
+	opacity:0.7;
+*/
+	/*filter:alpha(opacity=70);*/
+}
+
+div#epgdate
+{
+	border-left: 1px solid #669933;
+	border-right: 1px solid #669933;
+	border-top: 1px solid #669933;
+	clear: left;
+	float: left;
+}
+
+/*
+div#xegrid
+{
+}
+*/
+
+div.xerow
+{
+}
+
+div.xechan
+{
+	vertical-align: middle;
+	float: left;
+	clear: left;
+	white-space: nowrap;
+	overflow: hidden;
+	height: 25px;
+	padding: 3px 0;
+	margin: 3px 0;
+}
+
+div.xechan img
+{
+	vertical-align: middle;
+}
+
+div.xetime
+{
+	float: left;
+	border-left: 1px solid #669933;
+}
+
+div.xeprog
+{
+	overflow: hidden;
+	white-space: nowrap;
+	float: left;
+	vertical-align: middle;
+	height: 25px;
+	padding: 4px 0 3px 2px;
+	margin: 3px 0 3px 2px;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+div.xeprog span
+{
+	font-style: italic;
+	font-size: 0.7em;
+}
+
+div#buttons
+{
+	padding: 0.5em;
+}
+
+button#later
+{
+	margin-left: 2em;
+}
+

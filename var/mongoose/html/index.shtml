@@ -48,11 +48,11 @@ $(document).ready(function() {
 </div>
 <div style="float: left">
 	<center>
-	<a href=/epg.shtml>
+	<a href=<!--#exec cmd="/mod/var/mongoose/include/epgloc.jim" -->>
 	<img src=/images/328_1_26_Menu_TV_Guide.png border=0 width=217 height=228>
 	</a>
 	<br>
-	<a href=/epg.shtml>
+	<a href=<!--#exec cmd="/mod/var/mongoose/include/epgloc.jim" -->>
 	<b>EPG</b>
 	</a>
 	<br>

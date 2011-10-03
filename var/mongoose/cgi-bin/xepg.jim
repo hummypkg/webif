@@ -1,0 +1,226 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+puts "Content-Type: text/html"
+puts ""
+header
+
+require epg.class spinner.class altrow epg_search totop
+
+cgi_input
+
+puts {<link type="text/css" href="/css/xepg.css" rel="Stylesheet" />}
+
+[spinner new {
+	text "Loading Now/Next Information..."
+	size "1.2em"
+	style "margin: 1em;"
+	}] start
+
+require epg_popup
+
+set stt [cgi_get stt [clock seconds]]
+if {$stt <= [clock seconds]} {
+	set stt [clock seconds]
+	set current 1
+} else {
+	set current 0
+}
+
+set favlist [epg favlist]
+
+set hours 4.0
+set seconds $($hours * 3600)
+
+set ostt $stt
+set stt [expr int($stt / 1800.0) * 1800]
+
+set ett $(int($stt + $seconds))
+set offset $(($ostt - $stt) / 1800.0)
+
+set chanpx 120
+set eventpx 780
+set totalpx $($chanpx + $eventpx)
+
+set hourpx $($eventpx / $hours)
+set minpx $($hourpx / 60.0)
+set secpx $($minpx / 60.0)
+
+set start [clock milliseconds]
+if {$::qepg} {
+	set records [epg dbfetch dump -trange "$stt:$ett"]
+} else {
+	require channelsort
+	set records [channelsort [epg fetch dump -trange "$stt:$ett"]]
+}
+set got [clock milliseconds]
+
+puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
+if {$stt > [clock seconds]} {
+	puts "<button id=earlier>&lt;&lt;&lt; Earlier</button>"
+}
+puts "<button id=later>Later &gt;&gt;&gt;</button>"
+puts "</div>"
+
+puts "
+<div id=xepg> <div id=xepgnow></div>
+<div id=xegrid>
+"
+
+puts "<div id=epgdate style=\"width: ${eventpx}px; margin-left: ${chanpx}px;\">"
+puts [clock format $stt -format {%a %D}]
+puts "</div>"
+
+puts "<div class=xechan style=\"width: ${chanpx}px;\">&nbsp;</div>"
+for {set i 0} {$i < $hours * 2} {incr i} {
+	puts "<div class=xetime id=xe$i
+	    style=\"width: [expr $minpx * 30]px\">"
+	puts "[clock format $($stt + 1800 * $i) -format "%H:%M"]</div>"
+}
+
+set lim 0
+set lcn 0
+set bg "odd"
+
+foreach e $records {
+	if {$favlist != "" && [$e get service_id] ni $favlist} {
+		continue
+	}
+	set chnum [$e get channel_num]
+	if {$chnum == 0} { continue }
+
+	if {$chnum != $lcn} {
+		puts "<div class=xechan style=\"width: ${chanpx}px;\">"
+
+		puts "[$e channel_icon 30]&nbsp;"
+		puts "$chnum
+	    <a href=/cgi-bin/epg_service.jim?service=[$e get service_id]>
+	    [$e get channel_name]
+	    </a></div>"
+
+		set lcn $chnum
+		set le 0
+		set pos 0
+		if {$bg eq "odd"} { set bg "even" } else { set bg "odd" }
+	}
+
+	set es [$e get start]
+	set ee [expr $es + [$e get duration]]
+
+	if {$es < $le} continue
+
+	if {$es < $stt} { set es $stt }
+	if {$ee > $ett} { set ee $ett }
+	set le $ee
+
+	set left [expr int(($es - $stt) * $secpx)]
+	set right [expr int(($ee - $stt - 1) * $secpx)]
+	set px $($right - $left)
+	if {$pos < $left} {
+		set px $($px + $left - $pos - 1)
+	} elseif {$pos > $left} {
+		set px $($px - ($pos - $left - 1))
+	}
+	incr pos $px
+
+	$e process_sched
+
+	set recopts 1
+	if {[$e get series_crid] ne ""} { set recopts 2 }
+
+	set perc [$e percent]
+	set showing 0
+	if {$perc > 0 && $perc < 100} { set showing 1 }
+
+	set txt "[cgi_quote_html [$e get name]] <span>([\
+	    clock format $es -format "%H:%M"] - [\
+	    clock format $ee -format "%H:%M"])"
+	if {$showing} { append txt " ($perc%)" }
+	append txt "</span>"
+
+	set htxt "[cgi_quote_html [$e get name]] ([\
+	    clock format $es -format "%H:%M"] - [\
+	    clock format $ee -format "%H:%M"])"
+	if {$showing} { append hxt " ($perc%)" }
+
+	puts "<div class=\"xeprog $bg\"
+	    style=\"width: [expr $px - 4]px;\" title=\"$htxt\">
+	    <a class=event href=# xs=[$e get service_id]
+		xe=[$e get event_id] sch=[$e get sched_type]
+		rec=$recopts>"
+	puts $txt
+	puts "</a>"
+	puts "</div>"
+}
+puts "<div id=keypos style=\"float: left; clear: left;\"></div>"
+puts "</div>"
+puts "</div>"
+
+set earlier $($stt - 3600 * 4)
+
+puts "
+
+<div style=\"clear: both;\">
+<small><button id=epgswitch>
+	Switch to standard now/next display.
+</button></small>
+</div>
+
+<script type=text/javascript>
+\$(document).ready(function() {
+
+\$('#epgswitch').button().click(function() {
+	window.location = '/epg.shtml';
+});
+\$('#earlier').button().click(function() {
+	window.location = '/cgi-bin/xepg.jim?stt=$earlier';
+});
+\$('#later').button().click(function() {
+	window.location = '/cgi-bin/xepg.jim?stt=$ett';
+});
+"
+
+if {$current} {
+	puts {
+
+var kt = $('#xe0');
+var ktpos = kt.position();
+
+var height = $('#keypos').position().top - ktpos.top;
+
+	}
+	puts "var nowpos = ktpos.left + (kt.width() * $offset);"
+	puts {
+if (window.console)
+	console.log('NOWPOS: %d', nowpos);
+$('#xepgnow')
+	.css('left', nowpos + 'px')
+	.css('top', ktpos.top)
+	.height(height)
+	.show('slow');
+	}
+}
+
+puts "
+});
+</script>
+"
+
+puts "
+	<a href=/cgi-bin/settings.jim>
+	<img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
+	Visit settings to change EPG options.
+	</a><br>
+"
+
+set end [clock milliseconds]
+puts "<font class=footnote>
+    Retrieved in: [expr [expr $got - $start] / 1000.0] seconds.
+    </font>"
+
+epg cleanup
+
+footer
+

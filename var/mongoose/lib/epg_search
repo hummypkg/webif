@@ -55,7 +55,14 @@ cts 9 "Education" "Education/Science/Factual"
 puts "</td><td>"
 cts 10 "Leisure" "Leisure"
 
-puts "</td><td><a href=/epg.shtml>Now/Next</a>"
+puts "</td><td>"
+
+if {[[settings] epg_style] eq "grid"} {
+	puts "<a href=/cgi-bin/xepg.jim>"
+} else {
+	puts "<a href=/epg.shtml>"
+}
+puts "Now/Next</a>"
 
 puts "</td></tr><tr><td>"
 
