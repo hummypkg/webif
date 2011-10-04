@@ -28,9 +28,11 @@ puts "<fieldset style=\"display: inline\">
 </tr>
 "
 
-regsub -all -- {\/+} "$dir/*" "/" dir
+regsub -all -- {\/+} "$dir/*" "/" sdir
 
-foreach file [lsort [glob -nocomplain "$dir"]] {
+set seen {}
+
+foreach file [lsort [glob -nocomplain "$sdir"]] {
 	if {[file extension $file] ne ".hmt"} { continue }
 	altrow
 	set ts [ts fetch $file 1]
@@ -40,27 +42,45 @@ foreach file [lsort [glob -nocomplain "$dir"]] {
 	regsub -nocase -all -- {^new series\.* *} $syn "" syn
 	regsub -all -- { *[:].*$} $syn "" syn
 	if {[string length $syn] > 40} {
-		regsub -all -- { *[\.].*$} $syn "" syn
+		lassign [split $syn "."] v w
+		set syn $v
+		if {[string length $syn] < 6 && [string length $w] < 6} {
+			append syn "_$w"
+		}
 	}
-	if {[string length $syn] < 6} {
-		append syn " [$ts get title]"
+	if {[string length $syn] < 10} {
+		if {[string match "${syn}*" [$ts get title]]} {
+			set syn [$ts get title]
+		} else {
+			append syn " [$ts get title]"
+		}
 	}
 	regsub -all -- {[\/ &]} $syn "_" fn
 	puts "<td>$fn</td>"
 	puts "<td>$syn</td>"
 	puts "<td>"
-	if {[file exists "$dir/$fn.hmt"]} {
-		puts "Duplicate"
+	if {$fn in $seen} {
+		puts -nonewline "Duplicate"
+		if {$doit} {
+			set dupdir "$dir/_duplicates"
+			if {![file exists $dupdir]} { file mkdir $dupdir }
+			while {[file exists $dupdir/$fn.hmt]} {
+				append fn "~"
+			}
+			ts renamegroup $file "_duplicates/$fn"
+			puts -nonewline " - Renamed to _duplicates/$fn"
+		}
 	} elseif {[string length $syn] > 40} {
-		puts "Cannot process"
+		puts -nonewline "Cannot process"
 	} elseif {$base eq $fn} {
-		puts "Already done"
+		puts -nonewline "Nothing to do"
 	} elseif {$doit} {
 		# Dooooo, it.
 		$ts settitle $syn
-		$ts renamegroup $file $fn
-		puts "Done"
+		ts renamegroup $file $fn
+		puts -nonewline "Done"
 	}
+	lappend seen $fn
 	
 	puts "</td>"
 	puts "</tr>"
