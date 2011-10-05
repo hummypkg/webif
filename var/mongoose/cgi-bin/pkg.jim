@@ -48,7 +48,7 @@ proc pkgrow {pkg} {
 
 	puts "<td align=center><small><button id=\"[$pkg get name]\"
 	    action=[string tolower $type]
-	    class=[string tolower $type]>$type</button></small></td>"
+	    class=\"va [string tolower $type]\">$type</button></small></td>"
 
 	puts "</tr>"
 }

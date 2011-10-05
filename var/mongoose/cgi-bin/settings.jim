@@ -60,7 +60,13 @@ handle_int_update pkgdev $pkgdev "Development Package Display"
 
 header
 
-puts {<script type="text/javascript" src="/js/jquery.form.js"></script>}
+puts {
+<script type="text/javascript" src="/js/jquery.form.js"></script>
+<script type="text/javascript" src="/js/jconfirmaction.jquery.js"></script>
+<link href=/css/jconfirmaction.jquery.css rel=stylesheet type=text/css />
+<script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
+<link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
+}
 
 puts {
 	<script type=text/javascript>
@@ -83,9 +89,6 @@ puts {
 }
 
 puts "
-<link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
-<script type=\"text/javascript\" src=\"/js/iphone-style-checkboxes.js\">
-</script>
 	<fieldset style=\"display: inline\">
 		<legend>
 			General Settings
@@ -222,6 +225,25 @@ puts "
 "
 
 eval_plugins settings
+
+puts {
+<br><br>
+<fieldset style="display: inline">
+<legend> Reset Custom Firmware </legend>
+<button id=cfwreset>
+Click to remove all packages and settings installed by the custom firmware.
+</button>
+</fieldset>
+<script type=text/javascript>
+$('#cfwreset').jConfirmAction({
+	yesAnswer: "Delete"
+}, function(el) {
+	$('html').html('Restart the Humax using the remote control.');
+	$.get('/cgi-bin/cfwreset');
+});
+</script>
+
+}
 
 footer
 

@@ -25,16 +25,18 @@ button.upgrade
 <button class=va id=opkgupdate style="display: none">
 Update package list from Internet
 </button>
+<button class=va id=opkgupgradeall style="display: none">
+Upgrade all packages
+</button>
 </small>
 </div>
 
-<div id=results class=shadowbox
-    style="width: 90%; display: none; margin: 1 0 1em 0">
-	<div>
-		<pre id=result_txt>
-		Updating package list...
-		</pre>
-	</div>
+<div id=refreshing class=shadowbox
+    style="display: none; margin: 1 0 1em 0">
+<div>
+	<img border=0 src=/img/loading.gif>
+	Refreshing...
+</div>
 </div>
 
 <div id=dialogue style="display: none; align: center">
@@ -42,7 +44,7 @@ Update package list from Internet
 	<div id=dspinner><img border=0 src=/img/loading.gif>Processing request...</div>
 </div>
 
-<!-- <script type=text/javascript src=/js/iajax.js></script> -->
+<script type=text/javascript src=/js/iajax.js></script>
 <script type=text/javascript>
 
 var opkg = '/cgi-bin/opkg.jim?cmd=';
@@ -52,6 +54,11 @@ $(document).ready(function() {
 	$('#opkgupdate')
 	    .button()
 	    .click(function() { execopkg('update'); })
+	    .fadeIn('slow');
+
+	$('#opkgupgradeall')
+	    .button()
+	    .click(function() { execopkg('upgrade'); })
 	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
@@ -68,41 +75,54 @@ $(document).ready(function() {
 		draggable: true, resizable: true,
 		buttons: { "Close":
 		    function() {$(this).dialog('close');}},
-		close: function(e,u) { window.location.reload(true); }
+		close: function(e,u) {
+			$('#refreshing').show('slow');
+			$('#pkgtabs').hide('fast');
+			window.location.reload(true);
+		}
 	});
 
-//	jQuery.ajaxSetup({progressInterval: 1});
-//
-//	function loaddata(data, isfinal)
-//	{
-//		console.log('loaddata called, final=' + isfinal);
-//		console.log('Data: ' + data);
-//		$('#dresults').append(data);
-//		if (isfinal)
-//			$('#dspinner').hide('slow');
-//	}
+	jQuery.ajaxSetup({progressInterval: 1});
+
+	function loaddata(data, isfinal)
+	{
+		//console.log('loaddata called, final=' + isfinal);
+		//console.log('Data: ' + data);
+		$('#dresults').append(data);
+		if (isfinal)
+		{
+			$('#dspinner').hide('slow');
+			if (!$('#dresults').text())
+				$('#dresults').append('Nothing to do.');
+		}
+	}
 
 	function execopkg(arg)
 	{
+		$('button.va')
+		    .attr('disabled', true)
+		    .addClass('ui-state-disabled');
 		$('#dspinner').show();
+		$('#dresults').empty();
 		$dialog.dialog('open');
-		$('#dresults').load(opkg + arg, function() {
-			$('#dspinner').hide('slow');
-		});
-//		$('#dresults').empty();
-//		$.ajax({
-//			type: "GET",
-//			url: opkg + arg,
-//			progress: loaddata,
-//			success: function(data) {
-//				console.log("ajax success");
-//				loaddata(data, true);
-//			},
-//			error: function(_, _, e) {
-//				console.log("ajax error");
-//				alert(e);
-//			}
+
+//		$('#dresults').load(opkg + arg, function() {
+//			$('#dspinner').hide('slow');
 //		});
+
+		$.ajax({
+			type: "GET",
+			url: opkg + arg,
+			progress: loaddata,
+			success: function(data) {
+				//console.log("ajax success");
+				loaddata(data, true);
+			},
+			error: function(_, _, e) {
+				//console.log("ajax error");
+				alert(e);
+			}
+		});
 	}
 
 	function setup_buttons()
