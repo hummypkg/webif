@@ -9,17 +9,23 @@ cgi_input
 
 set cmd [cgi_get cmd update]
 
+proc opkg {cmd} {
+	chunk ">>> opkg $cmd\r\n"
+	set bcmd "|/mod/var/mongoose/lib/opkg $cmd"
+	set fd [open $bcmd r]
+	while {[gets $fd line] >= 0} {
+		chunk "$line\r\n"
+		#chunk_pad
+	}
+	close $fd
+}
+
 start_chunked
 
-set bcmd "|/mod/var/mongoose/lib/opkg $cmd"
-set fd [open $bcmd r]
-while {[gets $fd line] >= 0} {
-	chunk "$line\r\n"
-	#chunk_pad
-}
-close $fd
+if {$cmd eq "upgrade"} { opkg update }
+opkg $cmd
 
-if {$cmd eq "update"} {
+if {$cmd eq "update" || $cmd eq "upgrade"} {
 	chunk "Updating package meta information\r\n"
 	pkg fetchmeta
 	chunk "Done.\r\n"

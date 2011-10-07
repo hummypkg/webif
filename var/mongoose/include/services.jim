@@ -3,11 +3,7 @@
 set services [split [exec /mod/bin/service mlist]]
 
 foreach service $services {
-	set data [split $service ":"]
-	set name [lindex $data 0]
-	set installed [lindex $data 1]
-	set auto [lindex $data 2]
-	set running [lindex $data 3]
+	lassign [split $service ":"] name installed auto running
 
 	puts "<tr><td class=even>$name</td>"
 	if (!$installed) {
