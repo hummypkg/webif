@@ -18,6 +18,7 @@ proc opkg {cmd} {
 		#chunk_pad
 	}
 	close $fd
+	chunk "\r\n"
 }
 
 start_chunked

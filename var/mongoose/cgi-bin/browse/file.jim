@@ -77,6 +77,12 @@ if {$type eq "ts"} {
 </tr><tr>
 	<th>Size</th>
 	<td>$sz</td>
+"
+set dlna [$ts dlnaloc]
+if {[llength $dlna]} {
+	puts "</tr><tr><th>DLNA&nbsp;URL</th><td>[lindex $dlna 0]</td>"
+}
+puts "
 </tr><tr>
 	<th>Flags</th>
 	<td>[$ts get flags]</td>

@@ -1,6 +1,6 @@
 <!-- start of topbar -->
 
-<div class=container onclick="location.href='/'; return false;">
+<div id=topbar class=container onclick="location.href='/'; return false;">
 	<div class=left><img src=/images/154_1_00_WIN_MD116_1L.png></div>
 	<div class=middle>
 <!-- Start include diskspace - above other items to work around IE feature.. -->
@@ -13,5 +13,11 @@
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>
 </div>
+<script type=text/javascript>
+$('#topbar').hover(
+    function() { $(this).css('cursor', 'pointer'); },
+    function() { $(this).css('cursor', 'auto'); }
+);
+</script>
 
 <!-- end of topbar -->
