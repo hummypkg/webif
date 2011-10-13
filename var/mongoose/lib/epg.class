@@ -257,6 +257,17 @@ epg method next {} {
 	}
 }
 
+epg method previous {} {
+	set tm $($start - 60)
+	set prevlist [epg fetch dump -service $service_id -time $tm]
+
+	if {[llength prevlist] > 0} {
+		return [lindex $prevlist 0]
+	} else {
+		return ""
+	}
+}
+
 epg method recommended {} {
 	set rec ""
 	if {$rec_crid ne ""} {
