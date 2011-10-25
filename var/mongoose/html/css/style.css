@@ -258,3 +258,8 @@ input.text
 	background-color: yellow;
 }
 
+.focused
+{
+	border: 2px solid red;
+}
+
