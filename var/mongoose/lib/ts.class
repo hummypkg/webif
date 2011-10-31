@@ -164,5 +164,22 @@ proc {ts renamegroup} {from to} {
 		#puts "rename $f \"${dir}/${to}${ext}\""
 		file rename $f "${dir}/${to}${ext}"
 	}
+
+	exec /mod/bin/hmt "+setfilename=$to" "${dir}/${to}.hmt"
+
+	set ndir [file normalize $dir]
+
+	if {![catch {set db [sqlite3.open $::dmsfile]}]} {
+		set x [lindex [$db query {select mediaid from tblMedia
+		    where localUrl = '%s'} [file normalize $from]] 0]
+		lassign $x key mediaid
+		if {$mediaid ne ""} {
+			$db query {update tblMedia set localUrl = '%s'
+			    where mediaid = %s} "${ndir}/{$to}.ts" $mediaid
+			$db query {update tblMedia set title = '%s'
+			    where mediaid = %s} "{$to}.ts" $mediaid
+		}
+	$db close
+	}
 }
 

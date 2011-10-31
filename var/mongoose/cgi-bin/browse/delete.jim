@@ -23,5 +23,6 @@ if {$type eq "ts"} {
 }
 
 file delete $file
+file delete "[file rootname $file].hmi"
 puts "Successfully deleted $file."
 

@@ -36,6 +36,14 @@ proc {system pkgver} {{pkg webif}} {
 	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
 }
 
+proc {system mediaroot} {} {
+	switch [system model] {
+		HDR { return "/media/My Video" }
+		HD { return "/media/drive1/Video" }
+	}
+	return ""
+}
+
 proc {system diskspace} {} {
 	switch [system model] {
 		HDR { set part /mnt/hd2 }
