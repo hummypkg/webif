@@ -1,0 +1,155 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set tsfile [cgi_get file]
+set rfile [file normalize $tsfile]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+set len [$ts duration 1]
+
+if {[cgi_get do] eq "it"} {
+	set base [file rootname $rfile]
+	set origdir "$dir/_original"
+	if {![file exists $origdir]} { file mkdir $origdir }
+
+	set shname [file tail $base]
+	puts "Processing $shname"
+
+	puts "Moving recording to $origdir"
+
+	foreach f [glob -nocomplain "${base}.*"] {
+		set tail [file tail $f]
+		puts "  $tail"
+		file rename $f "${origdir}/$tail"
+	}
+
+	puts [exec /mod/bin/nicesplice \
+	    -in "$origdir/$shname" \
+	    -out "$dir/$shname" \
+	    -cutBookMarks]
+
+	exit
+}
+
+header
+
+puts "
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<script type=\"text/javascript\" src=\"/js/jquery.progressbar.js\"></script>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
+<tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
+
+set flag 0
+foreach b [$ts bookmarks] {
+	if $flag { puts -nonewline ", " }
+	incr flag
+	puts -nonewline [clock format $b -format "%T"]
+}
+
+puts "</td></tr>
+</table>
+
+<div style=\"position: relative; top: 15px; left: 20px\">
+"
+
+proc div {type left right} {
+	set width $($right - $left)
+	puts "<div class=$type style=\"left: ${left}px; width: ${width}px\">
+	    $type</div>"
+}
+
+set last 0
+set start -1
+foreach b [$ts bookmarks] {
+	if {$start < 0} {
+		set start $b
+		continue
+	}
+	set end $b
+
+	set left $($start * 500 / $len)
+	set right $($end * 500 / $len)
+
+	div cut $last $($left - 1)
+	div keep $left $($right - 1)
+
+	set last $right
+
+	set start -1
+}
+
+if {$start > 0} {
+	div keep $start 500
+} else {
+	div cut $last 500
+}
+
+puts "</div>"
+
+puts {
+
+<div style="margin-top: 50px"></div>
+
+<div id=cropdiv><button id=cropit>Perform crop operation</button></div>
+<div id=progressdiv style="display: none">
+Cropping: <div id=progressbar></div>
+}
+puts "<button id=back dir=\"[cgi_quote_url $dir]\"
+    style=\"display: none\">Back to media list</button>"
+puts {
+<div id=output class=pre style="margin-top: 10px"></div>
+</div>
+
+<script type=text/javascript>
+
+var handle = 0;
+var pct = 0;
+
+function update()
+{
+	$('#progressbar').reportprogress(++pct);
+	if (pct == 100)
+	{
+		clearInterval(handle);
+		pct = 0;
+	}
+}
+
+$(document).ready(function() {
+
+$('#progressbar').reportprogress(0);
+
+$('#back').button().click(function() {
+	window.location = '/cgi-bin/browse.jim?dir=' + $(this).attr('dir');
+});
+
+$('#cropit').button().click(function() {
+	$('#cropdiv').hide('slow');
+	$('#progressdiv').show('slow');
+	handle = setInterval("update()", 100);
+	$('#output').load(document.URL + '&do=it', function() {
+		$('#progressbar').reportprogress(100);
+		clearInterval(handle);
+		pct = 0;
+		$('#back').show();
+	});
+});
+
+});
+</script>
+</div>
+
+}
+

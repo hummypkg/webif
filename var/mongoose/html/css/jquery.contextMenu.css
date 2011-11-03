@@ -54,9 +54,15 @@
 	classes to the respective LI element(s)
 */
 
-.contextMenu LI.edit A { background-image: url(images/page_white_edit.png); }
-.contextMenu LI.cut A { background-image: url(images/cut.png); }
-.contextMenu LI.copy A { background-image: url(images/page_white_copy.png); }
-.contextMenu LI.paste A { background-image: url(images/page_white_paste.png); }
-.contextMenu LI.delete A { background-image: url(images/page_white_delete.png); }
-.contextMenu LI.quit A { background-image: url(images/door.png); }
+.contextMenu LI.pwedit A { background-image: url(/img/context/page_white_edit.png); }
+.contextMenu LI.pwcopy A { background-image: url(/img/context/page_white_copy.png); }
+.contextMenu LI.pwpaste A { background-image: url(/img/context/page_white_paste.png); }
+.contextMenu LI.pwdelete A { background-image: url(/img/context/page_white_delete.png); }
+.contextMenu LI.edit A { background-image: url(/img/context/edit.png); }
+.contextMenu LI.copy A { background-image: url(/img/context/copy.png); }
+.contextMenu LI.paste A { background-image: url(/img/context/paste.png); }
+.contextMenu LI.delete A { background-image: url(/img/context/delete.png); }
+.contextMenu LI.cut A { background-image: url(/img/context/cut.png); }
+.contextMenu LI.quit A { background-image: url(/img/context/door.png); }
+
+

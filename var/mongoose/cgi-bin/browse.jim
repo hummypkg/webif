@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require ts.class pretty_size
+require ts.class pretty_size system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -82,6 +82,7 @@ proc entry {file} {{i 0}} {
 	set locked 0
 	set encd 0
 	set def unknown
+	set bx 0
 	if {$type eq "ts"} {
 		# HD / SD
 		if {[$ts get definition] eq "HD"} {
@@ -114,6 +115,8 @@ proc entry {file} {{i 0}} {
 			    src=/images/174_1_26_GuidancePolicy.png
 			    height=21>"
 		}
+
+		set bx [$ts get bookmarks]
 	}
 
 	# Opt+ button
@@ -121,7 +124,7 @@ proc entry {file} {{i 0}} {
 	puts "
 	      <a href=#>
 		<img class=\"opt va\" border=0 width=45 type=$type did=$i
-		    locked=$locked encd=$encd def=$def new=$new
+		    locked=$locked encd=$encd def=$def new=$new bx=$bx
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
@@ -129,11 +132,7 @@ proc entry {file} {{i 0}} {
 	puts "</div>"
 }
 
-if {[dict exists $_cgi dir]} {
-	set dir [dict get $_cgi dir]
-} else {
-	set dir "/media/My Video"
-}
+set dir [cgi_get dir [system mediaroot]]
 
 ######################################################################
 # Render web page
@@ -145,12 +144,17 @@ puts {
 	<script type="text/javascript" src="/js/jquery.contextMenu.js"></script>
 
 	<ul id=optmenu class=contextMenu>
-		<li><a href=#delete>Delete</a></li>
+		<li class=delete><a href=#delete>Delete</a></li>
 		<li><a href=#lock>Toggle Lock</a></li>
 		<li><a href=#enc>Toggle Enc</a></li>
 		<li><a href=#new>Toggle New</a></li>
 		<li><a href=#rename>Rename</a></li>
 		<li><a href=#download>Download</a></li>
+}
+if {[file exists /mod/bin/nicesplice]} {
+	puts { <li class="cut separator"><a href=#crop>Crop</a></li> }
+}
+puts {
 	</ul>
 
 	<div id=renameform title="Rename media file" style="display: none">

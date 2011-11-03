@@ -79,16 +79,22 @@ if {$type eq "ts"} {
 	<td>$sz</td>
 "
 set dlna [$ts dlnaloc]
+lassign $dlna url
 if {[llength $dlna]} {
-	puts "</tr><tr><th>DLNA&nbsp;URL</th><td>[lindex $dlna 0]</td>"
+	puts "</tr><tr><th>DLNA&nbsp;URL</th>
+	   <td><a href=\"$url\">$url</a></td>"
 }
 puts "
 </tr><tr>
 	<th>Flags</th>
-	<td>[$ts get flags]</td>
-</tr>
-</table>
-	"
+	<td>[$ts get flags]
+"
+if {[$ts get bookmarks]} {
+		puts " \[Bookmarks: [$ts get bookmarks]\]"
+}
+
+	puts "</tr>"
+	puts "</table>"
 	exit
 }
 

@@ -263,3 +263,25 @@ input.text
 	border: 2px solid red;
 }
 
+div.cut, div.keep
+{
+	position: absolute;
+	top: 0px;
+	text-align: center;
+	overflow: hidden;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+div.keep
+{
+	background: green;
+	color: white;
+}
+
+div.cut
+{
+	background: #ff4000;
+	color: black;
+}
+

@@ -16,10 +16,13 @@ class ts {
 	flags		""
 	error		""
 	guidance	""
+	bookmarks	0
 }
 
-ts method duration {} {
-	return [expr [expr $end - $start] / 60]
+ts method duration {{raw 0}} {
+	set d [expr $end - $start]
+	if {!$raw} { set d $($d / 60) }
+	return $d
 }
 
 ts method size {} {
@@ -30,15 +33,15 @@ ts method size {} {
 ts method _parse {line} {
 	set vars [split $line "\t"]
 
-	set title [lindex $vars 0]
-	set synopsis [lindex $vars 1]
-	set definition [lindex $vars 2]
-	set channel_num [lindex $vars 3]
-	set channel_name [lindex $vars 4]
-	set start [lindex $vars 5]
-	set end [lindex $vars 6]
-	set flags [split [string range [lindex $vars 7] 0 end-1] ,]
-	set guidance [lindex $vars 8]
+	lassign [split $line "\t"] \
+	    title synopsis definition channel_num channel_name \
+	    start end flags_list guidance bookmarks
+
+	set flags [split [string range $flags_list 0 end-1] ,]
+}
+
+ts method bookmarks {} {
+	return [exec /mod/bin/hmt -bookmarks $file]
 }
 
 ts method flag {f} {

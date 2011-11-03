@@ -127,13 +127,16 @@ function preparemenu(el, menu)
 			$('#optmenu').enableContextMenuItems('#enc');
 			if (el.attr('encd') == 1)
 				$(menu).changeContextMenuItem('#enc',
-				    'Remove ENC');
+				    'Remove Enc');
 			else
 				$(menu).changeContextMenuItem('#enc',
-				    'Set ENC');
+				    'Set Enc');
+			$('#optmenu').disableContextMenuItems('#crop');
 		}
+		else if (el.attr('bx') > 0)
+			$('#optmenu').enableContextMenuItems('#crop');
 		else
-			$('#optmenu').disableContextMenuItems('#enc');
+			$('#optmenu').disableContextMenuItems('#crop');
 
 		$('#optmenu').enableContextMenuItems('#new');
 		if (el.attr('new') == 1)
@@ -160,6 +163,7 @@ function preparemenu(el, menu)
 		$('#optmenu').disableContextMenuItems('#lock');
 		$('#optmenu').disableContextMenuItems('#enc');
 		$('#optmenu').disableContextMenuItems('#new');
+		$('#optmenu').disableContextMenuItems('#crop');
 	}
 
 }
@@ -216,6 +220,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'download':
 		window.location.href = '/cgi-bin/browse/download.jim?file=' +
+		    encodeURIComponent(file);
+		break;
+
+	    case 'crop':
+		window.location.href = '/cgi-bin/browse/crop.jim?file=' +
 		    encodeURIComponent(file);
 		break;
 
