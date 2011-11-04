@@ -65,6 +65,9 @@ rsv method name {} {
 	}
 	if {$name == ""} {
 		switch $ersvtype {
+		    1 { set name "--- Unnamed reminder ---" }
+		    2 { set name "--- Unnamed reminder ---" }
+		    3 { set name "--- Unnamed recording ---" }
 		    5 { set name "--- Wake-up ---" }
 		    6 { set name "--- Sleep ---" }
 		    7 { set name "--- Auto Update ---" }

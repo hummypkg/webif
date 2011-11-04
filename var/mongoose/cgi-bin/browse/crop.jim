@@ -91,7 +91,9 @@ foreach b [$ts bookmarks] {
 }
 
 if {$start > 0} {
-	div keep $start 500
+	set left $($start * 500 / $len)
+	div cut $last $($left - 1)
+	div keep $left 500
 } else {
 	div cut $last 500
 }
