@@ -111,6 +111,8 @@ proc entry {file} {{i 0}} {
 		}
 		if {[$ts flag "ODEncrypted"] > 0} {
 			set odencd 1
+		} else {
+			puts "<img class=va src=/img/Decrypted.png height=21>"
 		}
 
 		# Guidance
