@@ -156,6 +156,12 @@ function preparemenu(el, menu)
 			$(menu).changeContextMenuItem('#lock', 'Lock');
 			$('#optmenu').enableContextMenuItems('#delete');
 		}
+
+		if (el.attr('odencd') == 1)
+			$('#optmenu').enableContextMenuItems('#decrypt');
+		else
+			$('#optmenu').disableContextMenuItems('#decrypt');
+	
 	}
 	else
 	{
@@ -163,6 +169,7 @@ function preparemenu(el, menu)
 		$('#optmenu').disableContextMenuItems('#lock');
 		$('#optmenu').disableContextMenuItems('#enc');
 		$('#optmenu').disableContextMenuItems('#new');
+		$('#optmenu').disableContextMenuItems('#decrypt');
 		$('#optmenu').disableContextMenuItems('#crop');
 	}
 
@@ -225,6 +232,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'crop':
 		window.location.href = '/cgi-bin/browse/crop.jim?file=' +
+		    encodeURIComponent(file);
+		break;
+
+	    case 'decrypt':
+		window.location.href = '/cgi-bin/browse/decrypt.jim?file=' +
 		    encodeURIComponent(file);
 		break;
 

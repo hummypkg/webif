@@ -81,6 +81,7 @@ proc entry {file} {{i 0}} {
 
 	set locked 0
 	set encd 0
+	set odencd 0
 	set def unknown
 	set bx 0
 	if {$type eq "ts"} {
@@ -108,6 +109,9 @@ proc entry {file} {{i 0}} {
 			    src=/images/749_1_26_Video_Encryption.png
 			    height=21>"
 		}
+		if {[$ts flag "ODEncrypted"] > 0} {
+			set odencd 1
+		}
 
 		# Guidance
 		if {[$ts flag "Guidance"] > 0} {
@@ -125,6 +129,7 @@ proc entry {file} {{i 0}} {
 	      <a href=#>
 		<img class=\"opt va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
+		    odencd=$odencd
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
@@ -150,6 +155,9 @@ puts {
 		<li><a href=#new>Toggle New</a></li>
 		<li><a href=#rename>Rename</a></li>
 		<li><a href=#download>Download</a></li>
+}
+if {[system model] eq "HDR"} {
+	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
 }
 if {[file exists /mod/bin/nicesplice]} {
 	puts { <li class="cut separator"><a href=#crop>Crop</a></li> }
