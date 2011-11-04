@@ -29,6 +29,9 @@ if {[cgi_get do] eq "it"} {
 	foreach f [glob -nocomplain "${base}.*"] {
 		set tail [file tail $f]
 		puts "  $tail"
+		while {[file exists "$origdir/$tail"]} {
+			append tail "~"
+		}
 		file rename $f "${origdir}/$tail"
 	}
 
