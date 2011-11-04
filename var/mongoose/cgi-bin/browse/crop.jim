@@ -108,7 +108,9 @@ puts {
 <div id=progressdiv style="display: none">
 Cropping: <div id=progressbar></div>
 }
-puts "<button id=back dir=\"[cgi_quote_url $dir]\"
+puts "<button id=back
+    dir=\"[cgi_quote_url $dir]\"
+    rfile=\"[cgi_quote_url $rfile]\"
     style=\"display: none\">Back to media list</button>"
 puts {
 <div id=output class=pre style="margin-top: 10px"></div>
@@ -117,16 +119,14 @@ puts {
 <script type=text/javascript>
 
 var handle = 0;
-var pct = 0;
 
 function update()
 {
-	$('#progressbar').reportprogress(++pct);
-	if (pct == 100)
-	{
-		clearInterval(handle);
-		pct = 0;
-	}
+	$.get('/cgi-bin/browse/crop_progress.jim?file='
+	    + $('#back').attr('rfile'), function(data) {
+		if (handle)
+			$('#progressbar').reportprogress(data);
+	});
 }
 
 $(document).ready(function() {
@@ -142,10 +142,10 @@ $('#cropit').button().click(function() {
 	$('#progressdiv').show('slow');
 	handle = setInterval("update()", 100);
 	$('#output').load(document.URL + '&do=it', function() {
-		$('#progressbar').reportprogress(100);
 		clearInterval(handle);
-		pct = 0;
+		handle = 0;
 		$('#back').show();
+		$('#progressbar').reportprogress(100);
 	});
 });
 
