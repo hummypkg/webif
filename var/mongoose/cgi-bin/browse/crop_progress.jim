@@ -9,15 +9,16 @@ puts "Content-Type: text/html\r\n\r\n"
 cgi_input
 #cgi_dump
 
-set tsfile [cgi_get file]
-set rfile [file normalize $tsfile]
-set nfile [file rootname $rfile]
+set tsfile [file normalize [cgi_get file]]
 
-if {![file exists "$rfile.decrypting"]} {
+set origfile "[file dirname $tsfile]/_original/[file tail $tsfile]"
+set newfile [file rootname $tsfile]
+
+if {![file exists $newfile]} {
 	puts "0"
 } else {
-	set sz [file size $rfile]
-	set nsz [file size $nfile]
+	set sz [file size $origfile]
+	set nsz [file size $newfile]
 
 	puts [expr $nsz * 100 / $sz]
 }

@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require ts.class
+require ts.class pretty_size
 
 puts "Content-Type: text/html\r\n\r\n"
 
@@ -17,6 +17,9 @@ set dir [file dirname $rfile]
 set len [$ts duration 1]
 
 if {[cgi_get do] eq "it"} {
+
+	set cropstart [clock milliseconds]
+
 	set base [file rootname $rfile]
 	set origdir "$dir/_original"
 	if {![file exists $origdir]} { file mkdir $origdir }
@@ -24,21 +27,31 @@ if {[cgi_get do] eq "it"} {
 	set shname [file tail $base]
 	puts "Processing $shname"
 
-	puts "Moving recording to $origdir"
+	if {[file exists "$origdir/$shname.ts"]} {
+		puts "This recording already exists within _original"
+		puts "Cannot continue."
+		exit
+	}
 
+	puts "Moving recording to $origdir"
 	foreach f [glob -nocomplain "${base}.*"] {
 		set tail [file tail $f]
 		puts "  $tail"
-		while {[file exists "$origdir/$tail"]} {
-			append tail "~"
-		}
-		file rename $f "${origdir}/$tail"
+		file rename $f "$origdir/$tail"
 	}
 
 	puts [exec /mod/bin/nicesplice \
 	    -in "$origdir/$shname" \
 	    -out "$dir/$shname" \
 	    -cutBookMarks]
+
+	set newname "$shname-[clock seconds]"
+	puts "Renaming file group to $newname"
+	ts renamegroup "$dir/$shname.ts" $newname
+	exec /mod/bin/hmt "+setfilename=$newname" "$dir/$newname.hmt"
+
+	set croptime [expr [expr [clock milliseconds] - $cropstart] / 1000.0]
+	puts "Time taken: $croptime"
 
 	exit
 }
@@ -52,6 +65,7 @@ puts "
 <table class=keyval cellpadding=5>
 <tr><th>File:</th><td>$rfile</td></tr>
 <tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]]</td></tr>
 <tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
 
 set flag 0
@@ -61,11 +75,9 @@ foreach b [$ts bookmarks] {
 	puts -nonewline [clock format $b -format "%T"]
 }
 
-puts "</td></tr>
-</table>
+puts "</td></tr><tr><th>File</th><td>"
 
-<div style=\"position: relative; top: 15px; left: 20px\">
-"
+puts "<div style=\"position: relative; top: -10px\">"
 
 proc div {type left right} {
 	set width $($right - $left)
@@ -73,6 +85,7 @@ proc div {type left right} {
 	    $type</div>"
 }
 
+set keeping 0
 set last 0
 set start -1
 foreach b [$ts bookmarks] {
@@ -81,6 +94,8 @@ foreach b [$ts bookmarks] {
 		continue
 	}
 	set end $b
+
+	incr keeping $($end - $start)
 
 	set left $($start * 500 / $len)
 	set right $($end * 500 / $len)
@@ -94,6 +109,7 @@ foreach b [$ts bookmarks] {
 }
 
 if {$start > 0} {
+	incr keeping $($len - $start)
 	set left $($start * 500 / $len)
 	div cut $last $($left - 1)
 	div keep $left 500
@@ -101,13 +117,24 @@ if {$start > 0} {
 	div cut $last 500
 }
 
-puts "</div>"
+set keepperc $($keeping * 100.0 / $len)
+set esttime $(int($keeping * 0.025))
+
+puts "
+</div>
+</td></tr>
+<tr><th>Keeping:</th><td>
+[clock format $keeping -format "%T"] ([format "%.2f" $keepperc]%)
+</td></tr>
+<tr><th>Time:</th>
+<td>Cropping will take around [clock format $esttime -format "%T"]</td></tr>
+</table>
+"
 
 puts {
-
-<div style="margin-top: 50px"></div>
-
-<div id=cropdiv><button id=cropit>Perform crop operation</button></div>
+<div id=cropdiv>
+<button id=cropit>Perform crop operation</button>
+</div>
 <div id=progressdiv style="display: none">
 Cropping: <div id=progressbar></div>
 }
@@ -143,8 +170,9 @@ $('#back').button().click(function() {
 $('#cropit').button().click(function() {
 	$('#cropdiv').hide('slow');
 	$('#progressdiv').show('slow');
-	handle = setInterval("update()", 100);
-	$('#output').load(document.URL + '&do=it', function() {
+	handle = setInterval("update()", 1000);
+	$('#output').text('Please do not interrupt...')
+	    .load(document.URL + '&do=it', function() {
 		clearInterval(handle);
 		handle = 0;
 		$('#back').show();
