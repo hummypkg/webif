@@ -10,7 +10,7 @@ require ts.class
 cgi_input
 #cgi_dump
 
-set file [cgi_get file "/media/My Video/Chuggington/Hodge_and_the_Chugnav.ts"]
+set file [cgi_get file]
 set rfile [file normalize $file]
 set ts [ts fetch $file]
 
@@ -18,11 +18,14 @@ set ts [ts fetch $file]
 set url $file
 set mime "video/ts"
 
-# Unless the DLNA option is available.
-set dlna [$ts dlnaloc]
-if {[llength $dlna]} { lassign $dlna url mime }
+# If it's encrypted on disk and the DLNA option is available, then use
+# the server to perform decryption on the fly.
+if {[$ts flag "ODEncrypted"] > 0} {
+	set dlna [$ts dlnaloc]
+	if {[llength $dlna]} { lassign $dlna url mime }
 
-puts "DLNA: $dlna"
+	#puts "DLNA: $dlna"
+}
 
 puts "Content-Type: text/plain"
 puts "Refresh: 0; url=$url"

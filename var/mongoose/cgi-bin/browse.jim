@@ -80,7 +80,7 @@ proc entry {file} {{i 0}} {
 	# Icons
 
 	set locked 0
-	set encd 0
+	set encd 1
 	set odencd 0
 	set def unknown
 	set bx 0
@@ -109,10 +109,9 @@ proc entry {file} {{i 0}} {
 			    src=/images/749_1_26_Video_Encryption.png
 			    height=21>"
 		}
-		if {[$ts flag "ODEncrypted"] > 0} {
-			set odencd 1
-		} else {
+		if {![$ts flag "ODEncrypted"]} {
 			puts "<img class=va src=/img/Decrypted.png height=21>"
+			set odencd 0
 		}
 
 		# Guidance
