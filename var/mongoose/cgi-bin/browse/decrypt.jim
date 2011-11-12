@@ -18,6 +18,7 @@ set len [$ts duration 1]
 lassign [$ts dlnaloc] url
 
 if {[cgi_get do] eq "it"} {
+
 	set base [file rootname $rfile]
 	set origdir "$dir/_original"
 	if {![file exists $origdir]} { file mkdir $origdir }

@@ -80,8 +80,8 @@ proc entry {file} {{i 0}} {
 	# Icons
 
 	set locked 0
-	set encd 1
-	set odencd 0
+	set encd 0
+	set odencd 1
 	set def unknown
 	set bx 0
 	if {$type eq "ts"} {

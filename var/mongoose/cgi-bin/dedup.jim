@@ -74,6 +74,8 @@ foreach file [lsort [glob -nocomplain "$sdir"]] {
 		puts -nonewline "Cannot process"
 	} elseif {$base eq $fn} {
 		puts -nonewline "Nothing to do"
+	} elseif {[file exists "$dir/$fn.ts"]} {
+		puts -nonewline "Preserving"
 	} elseif {$doit} {
 		# Dooooo, it.
 		$ts settitle $syn
