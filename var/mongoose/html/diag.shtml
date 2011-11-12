@@ -1,0 +1,25 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<fieldset style="display: inline">
+<legend>Diagnostics</legend>
+Diagnostic:
+<input name=seq id=seq value=general size=30 maxlength=50
+    class="text ui-widget-content ui-corner-all">
+<button id=rundiag>Run Diagnostic</button>
+</fieldset>
+
+<div style="margin-top: 2em; display: none" class=pre id=results>
+<br><br>
+<i>Running diagnostic, please wait...</i>
+<br><br>
+</div>
+
+<script type=text/javascript>
+$('#rundiag').button().click(function() {
+	$('#results').slideDown().load('/cgi-bin/diag.jim?diag=' +
+	    encodeURIComponent($('#seq').val()));
+});
+</script>
+
+<!--#include virtual="/lib/footer.shtml" -->
+

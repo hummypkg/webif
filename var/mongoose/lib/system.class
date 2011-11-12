@@ -21,13 +21,14 @@ proc {system hostname} {} {
 	return $hostname
 }
 
-proc {system modversion} {} {
+proc {system modversion} {{short 0}} {
 	if {[catch {set fp [open /etc/modversion r]}]} {
-		set modver "1.02"
+		set modver "102"
 	} else {
 		set modver [string trim [read $fp]]
 		close $fp
 	}
+	if {$short} { return $modver }
 	lassign [split $modver ""] a b c
 	return [format "%d.%d%d" $a $b $c]
 }

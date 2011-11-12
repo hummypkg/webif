@@ -135,3 +135,76 @@ settings method channel_groups {} {
 	return $ret
 }
 
+settings method aclusers {} {
+	if {![file exists "/mod/etc/htpasswd"]} { return {} }
+	set fd [open "/mod/etc/htpasswd" r]
+	set users {}
+	foreach line [string trim [split [read $fd] "\n"]] {
+		set info [split $line ":"]
+		if {[llength $info] != 3} { continue }
+		lappend users $info
+	}
+	$fd close
+	return $users
+}
+
+settings method mongooseauth {{mode 1}} {
+	set fd [open "/mod/etc/mongoose.conf" r]
+	set fdnew [open "/mod/etc/mongoose.conf.new" w]
+	foreach line [string trim [split [read $fd] "\n"]] {
+		if {[string match -nocase {authentication_domain*} $line]} {
+			continue
+		}
+		if {[string match -nocase {global_passwords_file*} $line]} {
+			continue
+		}
+		if {$line ne ""} { puts $fdnew $line }
+	}
+	$fd close
+	if {$mode} {
+		puts $fdnew "authentication_domain webif"
+		puts $fdnew "global_passwords_file /mod/etc/htpasswd"
+	}
+	$fdnew close
+	file delete "/mod/etc/mongoose.conf"
+	file rename "/mod/etc/mongoose.conf.new" "/mod/etc/mongoose.conf"
+}
+
+settings method addacluser {user pass} {
+	set msg ""
+	if {![llength [$self aclusers]]} {
+		$self mongooseauth 1
+		append msg "Enabled web server authentication<br>"
+	}
+	set cmd "/mod/sbin/mongoose -A /mod/etc/htpasswd webif $user $pass"
+	exec {*}$cmd
+	append msg "Successfully updated user $user"
+	return $msg
+}
+
+settings method delacluser {user} {
+	if {![file exists "/mod/etc/htpasswd"]} { return }
+	set fd [open "/mod/etc/htpasswd" r]
+	set fdnew [open "/mod/etc/htpasswd.new" w]
+	set num 0
+	foreach line [string trim [split [read $fd] "\n"]] {
+		lassign [split $line ":"] xuser
+		if {$xuser eq $user} { continue }
+		if {$line ne ""} {
+			puts $fdnew $line
+			incr num
+		}
+	}
+	$fd close
+	$fdnew close
+	file delete "/mod/etc/htpasswd"
+	file rename "/mod/etc/htpasswd.new" "/mod/etc/htpasswd"
+	set msg "Successfully removed user $user"
+
+	if {$num == 0} {
+		$self mongooseauth 0
+		append msg "<br>Disabled web server authentication<br>"
+	}
+	return $msg
+}
+
