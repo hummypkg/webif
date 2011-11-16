@@ -131,9 +131,9 @@ function preparemenu(el, menu)
 			else
 				$(menu).changeContextMenuItem('#enc',
 				    'Set Enc');
-			$('#optmenu').disableContextMenuItems('#crop');
 		}
-		else if (el.attr('bx') > 0)
+
+		if (el.attr('bx') > 0)
 			$('#optmenu').enableContextMenuItems('#crop');
 		else
 			$('#optmenu').disableContextMenuItems('#crop');

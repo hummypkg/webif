@@ -65,7 +65,7 @@ puts "
 <table class=keyval cellpadding=5>
 <tr><th>File:</th><td>$rfile</td></tr>
 <tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
-<tr><th>Size:</th><td>[pretty_size [$ts size]]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
 <tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
 
 set flag 0
@@ -119,6 +119,7 @@ if {$start > 0} {
 
 set keepperc $($keeping * 100.0 / $len)
 set esttime $(int($keeping * 0.025))
+if {[$ts get definition] eq "HD"} { set esttime $($esttime * 4) }
 
 puts "
 </div>
@@ -131,16 +132,16 @@ puts "
 </table>
 "
 
-puts {
+puts "
 <div id=cropdiv>
 <button id=cropit>Perform crop operation</button>
 </div>
-<div id=progressdiv style="display: none">
+<div id=progressdiv style=\"display: none\">
 Cropping: <div id=progressbar></div>
-}
-puts "<button id=back
+<button id=back
     dir=\"[cgi_quote_url $dir]\"
     rfile=\"[cgi_quote_url $rfile]\"
+    perc=\"$keepperc\"
     style=\"display: none\">Back to media list</button>"
 puts {
 <div id=output class=pre style="margin-top: 10px"></div>
@@ -152,8 +153,10 @@ var handle = 0;
 
 function update()
 {
-	$.get('/cgi-bin/browse/crop_progress.jim?file='
-	    + $('#back').attr('rfile'), function(data) {
+	$.get('/cgi-bin/browse/crop_progress.jim'
+	    + '?perc=' + $('#back').attr('perc')
+	    + '&file=' + $('#back').attr('rfile'),
+	    function(data) {
 		if (handle)
 			$('#progressbar').reportprogress(data);
 	});
@@ -172,7 +175,8 @@ $('#cropit').button().click(function() {
 	$('#progressdiv').show('slow');
 	handle = setInterval("update()", 1000);
 	$('#output').text('Please do not interrupt...')
-	    .load(document.URL + '&do=it', function() {
+	    .load(document.URL + '&do=it',
+	    function() {
 		clearInterval(handle);
 		handle = 0;
 		$('#back').show();
