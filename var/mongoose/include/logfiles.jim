@@ -1,0 +1,11 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+
+foreach file [glob -nocomplain /tmp/*.log] {
+	puts "<a href=# class=log file=\"$file\">
+	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
+	    [file tail $file]
+	    </a><br>"
+}
+

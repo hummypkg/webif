@@ -1,6 +1,6 @@
 <!--#include virtual="/lib/header.shtml" -->
 
-<fieldset style="display: inline">
+<fieldset style="display: inline; float: left; clear: left">
 <legend>Diagnostics</legend>
 Diagnostic:
 <input name=seq id=seq value=general size=30 maxlength=50
@@ -8,16 +8,28 @@ Diagnostic:
 <button id=rundiag>Run Diagnostic</button>
 </fieldset>
 
-<div style="margin-top: 2em; display: none" class=pre id=results>
-<br><br>
-<i>Running diagnostic, please wait...</i>
-<br><br>
-</div>
+<fieldset style="display: inline; float: left; clear: left">
+<legend>Log Files</legend>
+<!--#exec cmd="/mod/var/mongoose/include/logfiles.jim" -->
+</fieldset>
+
+<div style="margin-top: 2em; display: none; float: left; clear: left"
+class=pre id=results></div>
 
 <script type=text/javascript>
 $('#rundiag').button().click(function() {
-	$('#results').slideDown().load('/cgi-bin/diag.jim?diag=' +
+	$('#results')
+	    .slideDown()
+	    .text('\n\nRunning diagnostic, please wait...\n\n')
+	    .load('/cgi-bin/diag.jim?diag=' +
 	    encodeURIComponent($('#seq').val()));
+});
+$('a.log').click(function() {
+	$('#results')
+	    .slideDown()
+	    .text('\n\nLoading log, please wait...\n\n')
+	    .load('/cgi-bin/cat.jim?file=' +
+	    encodeURIComponent($(this).attr('file')));
 });
 </script>
 

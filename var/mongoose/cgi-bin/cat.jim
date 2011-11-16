@@ -1,0 +1,25 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require system.class chunked pretty_size
+
+cgi_input
+#cgi_dump
+
+set file [cgi_get file "-"]
+if {$file eq "-"} { exit }
+
+start_chunked
+
+if {![file exists $file]} {
+	chunk ">>> File $file does not exist.\r\n"
+} else {
+	chunk ">>> Contents of $file [pretty_size [file size $file]]\r\n"
+	set fp [open $file r]
+	chunk [read $fp]
+	close $fp
+}
+
+end_chunked
+

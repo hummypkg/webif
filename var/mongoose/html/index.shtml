@@ -65,7 +65,7 @@ $(document).ready(function() {
 <div style="float: left">
 	<center>
 	<a href=/services.shtml>
-	<img src=/img/spanner.jpg border=0 width=217 height=228>
+	<img src=/img/spanner.png border=0 width=217 height=228>
 	</a>
 	<br>
 	<a href=/services.shtml>
@@ -78,7 +78,7 @@ $(document).ready(function() {
 <div style="float: left">
 	<center>
 	<a href=/pkg.shtml>
-	<img src=/img/packages.jpg border=0 width=217 height=228>
+	<img src=/img/packages.png border=0 width=217 height=228>
 	</a>
 	<br>
 	<a href=/pkg.shtml>
