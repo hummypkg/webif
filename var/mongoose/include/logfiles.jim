@@ -1,11 +1,11 @@
 #!/mod/bin/jimsh
 
 source /mod/var/mongoose/lib/setup
+require pretty_size
 
 foreach file [glob -nocomplain /tmp/*.log] {
 	puts "<a href=# class=log file=\"$file\">
 	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
-	    [file tail $file]
-	    </a><br>"
+	    [file tail $file]</a> ([pretty_size [file size $file]]) <br>"
 }
 
