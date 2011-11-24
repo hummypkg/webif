@@ -3,7 +3,8 @@
 <fieldset style="display: inline; float: left; clear: left">
 <legend>Diagnostics</legend>
 Diagnostic:
-<input name=seq id=seq value=general size=30 maxlength=50
+<input name=seq id=seq autocorrect=off autocapitalize=off
+    value=general size=30 maxlength=50
     class="text ui-widget-content ui-corner-all">
 <button id=rundiag>Run Diagnostic</button>
 </fieldset>
