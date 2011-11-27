@@ -53,11 +53,6 @@ proc entry {file} {{i 0}} {
 		set img Video_Other
 	}
 
-	puts "
-	    <div class=\"va bf\" id=[incr i]>
-	      <a class=bf file=\"$file\" type=$type href=#>
-	"
-
 	set new 0
 	if {$type eq "ts"} {
 		if {[$ts flag "New"] > 0} { set new 1 }
@@ -67,11 +62,18 @@ proc entry {file} {{i 0}} {
 
 	if {$new} { append img _New }
 
-	puts "<img class=va border=0 src=/img/$img.png>"
+	set fscl "fs"
+	if {$type eq "ts"} {
+		set fscl "fs fsts"
+	}
 
 	puts "
-		$bfile
-	      </a>
+	    <div class=\"va bf\" id=[incr i]>
+		<img class=va border=0 src=/img/$img.png>
+		<input class=\"$fscl\" type=checkbox>
+		<a class=bf file=\"$file\" type=$type href=#>
+		    $bfile
+	        </a>
 	"
 
 	# Size
@@ -275,6 +277,11 @@ puts "</fieldset>"
 
 puts {
 	<small><button id=dedup>De-duplicate/tidy this folder</button></small>
+}
+
+# Join
+if {[file exists /mod/bin/nicesplice]} {
+	puts { <button id=join>Join</button> }
 }
 
 # Streamer file

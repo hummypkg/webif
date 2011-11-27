@@ -70,7 +70,9 @@ proc {system diskspace} {} {
 
 proc {system busy} {} {
 	# Is humaxtv doing anything important?
-	set pid [exec /mod/bin/busybox/pgrep humaxtv]
+	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {
+		return 0
+	}
 	set c 0
 	foreach line [split [exec /mod/bin/lsof -p $pid] "\n"] {
 		if {[string match {*Video*.ts} $line]} { incr c }

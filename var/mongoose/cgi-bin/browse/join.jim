@@ -1,0 +1,64 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+header
+
+cgi_input
+#cgi_dump
+
+puts {
+<style>
+#filelist { list-style-type: none; margin: 0; padding: 0; }
+#filelist li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;
+	height: 35px; }
+#filelist li span { position: absolute; margin-left: -1.3em; }
+span.pl { padding-left: 2em; }
+</style>
+
+<p><b>
+Drag the files below into order, enter a name for the resulting file and then
+click the <i>Join</i> button.</b>
+}
+
+puts "<ul id=filelist>"
+foreach file [split [cgi_get files] ","] {
+	set ts [ts fetch $file]
+	puts "<li class=\"va ui-state-default\" id=\"$file\"><span
+	    class=\"va ui-icon ui-icon-arrowthick-2-n-s\"></span>
+	    <img class=va src=/img/Video_TS.png>
+	    <span class=pl>
+	    $file ([clock format [$ts duration 1] -format "%T"])
+	    <br><i style=\"font-size: 0.8em\">[$ts get title]</i>
+	    </span>
+	</li>"
+}
+puts "</ul>"
+
+puts {
+<br><br>
+Name for joined file:
+    <input id=dest name=dfile class="text ui-widget-content ui-corner-all"
+    length=20 maxlength=50>
+<button id=dojoin>Join</button>
+
+<div id=results class=pre></div>
+
+<script type=text/javascript>
+$('#filelist').sortable().disableSelection();
+$('#dojoin').button().click(function() {
+	var files = $('#filelist').sortable('toArray');
+	var sfiles = new Array();
+	for (x in files)
+		sfiles.push(encodeURIComponent(files[x]));
+	$('#results').load('/cgi-bin/browse/join_backend.jim?files=' +
+	    sfiles.join() + '&dest=' + $('#dest').val());
+});
+</script>
+}
+
+footer
+

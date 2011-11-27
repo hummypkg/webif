@@ -342,5 +342,31 @@ var menuclick = function(action, el, pos)
 		    '/cgi-bin/browse/ffmpeg.jim?file=' +
 		    encodeURIComponent($('#save_stream').attr('file')));
 	});
+
+	$('#join').button()
+	    .prop('disabled', true)
+	    .addClass('ui-state-disabled')
+	    .click(function() {
+		var files = new Array();
+		var els = $('input.fsts:checked + a').each(function() {
+			files.push(encodeURIComponent($(this).attr('file')));
+		});
+		//console.log("%o", files);
+		window.location.href = '/cgi-bin/browse/join.jim?files=' +
+		    files.join();
+	    });
+
+	$('input.fs').change(function() {
+		var num = $('input.fsts:checked').size();
+		if (num > 1)
+			$('#join')
+			    .removeProp('disabled')
+			    .removeClass('ui-state-disabled');
+		else
+			$('#join')
+			    .prop('disabled', true)
+			    .addClass('ui-state-disabled');
+
+	});
 });
 
