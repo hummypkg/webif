@@ -37,6 +37,11 @@ proc {system pkgver} {{pkg webif}} {
 	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
 }
 
+proc {system pkginst} {pkg} {
+	if {[exec opkg list-installed $pkg] ne ""} {
+	    return 1 } else { return 0 }
+}
+
 proc {system mediaroot} {} {
 	switch [system model] {
 		HDR { return "/media/My Video" }

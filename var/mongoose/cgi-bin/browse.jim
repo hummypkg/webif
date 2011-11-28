@@ -7,6 +7,8 @@ require ts.class pretty_size system.class
 puts "Content-Type: text/html"
 puts ""
 
+set nicesplice [system pkginst nicesplice]
+
 set ignore {.nts .thm .hmt .hmi}
 set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov}
 
@@ -162,7 +164,7 @@ puts {
 if {[system model] eq "HDR"} {
 	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
 }
-if {[file exists /mod/bin/nicesplice]} {
+if $nicesplice {
 	puts { <li class="cut separator"><a href=#crop>Crop</a></li> }
 }
 puts {
@@ -271,28 +273,40 @@ foreach file [lsort [glob -nocomplain "$dir"]] {
 	entry $file
 }
 
+puts "Select <a href=# id=selectall>all</a> | <a href=# id=deselectall>none</a>"
+
 puts "</fieldset>"
+
+puts "<div class=brow>"
+
+puts {
+<button id=delete>Delete</button>
+}
+
+# Join
+if $nicesplice {
+	puts { <button id=join>Join</button> }
+}
+
+puts "</div><div class=brow style=\"margin-top: 3px\">"
 
 # De-duplicate
 
 puts {
-	<small><button id=dedup>De-duplicate/tidy this folder</button></small>
-}
-
-# Join
-if {[file exists /mod/bin/nicesplice]} {
-	puts { <button id=join>Join</button> }
+	<button id=dedup>De-duplicate/tidy this folder</button>
 }
 
 # Streamer file
 
 if {[file exists /mnt/hd3/Streamer_down_file]} {
-	puts {
-<small><button id=save_stream file=/mnt/hd3/Streamer_down_file>
-	Save last streamed content (e.g. iPlayer/YouTube)
-</button></small>
+		puts {
+	<button id=save_stream file=/mnt/hd3/Streamer_down_file>
+		Save last streamed content (e.g. iPlayer/YouTube)
+	</button>
+	}
 }
-}
+
+puts "</div>"
 
 footer
 

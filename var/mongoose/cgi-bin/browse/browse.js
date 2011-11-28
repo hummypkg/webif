@@ -1,3 +1,23 @@
+(function($)
+{
+	$.fn.enable = function()
+	{
+		return this.each(function() {
+			$(this)
+			    .removeClass('ui-state-disabled')
+			    .removeProp('disabled');
+		});
+	};
+
+	$.fn.disable = function()
+	{
+		return this.each(function() {
+			$(this)
+			    .addClass('ui-state-disabled')
+			    .prop('disabled', true);
+		});
+	};
+})(jQuery);
 
 function epginfo_callback(data, status, xhr)
 {
@@ -343,9 +363,16 @@ var menuclick = function(action, el, pos)
 		    encodeURIComponent($('#save_stream').attr('file')));
 	});
 
-	$('#join').button()
-	    .prop('disabled', true)
-	    .addClass('ui-state-disabled')
+	$('#selectall').click(function(e) {
+		e.preventDefault();
+		$('input.fs').attr('checked', true).trigger('change');
+	});
+	$('#deselectall').click(function(e) {
+		e.preventDefault();
+		$('input.fs:checked').attr('checked', false).trigger('change');
+	});
+
+	$('#join').button().disable()
 	    .click(function() {
 		var files = new Array();
 		var els = $('input.fsts:checked + a').each(function() {
@@ -356,17 +383,25 @@ var menuclick = function(action, el, pos)
 		    files.join();
 	    });
 
+	$('#delete').button().disable()
+	    .click(function() {
+		console.log("delete");
+	    });
+
 	$('input.fs').change(function() {
+		var num = $('input.fs:checked').size();
+		if (num > 0)
+			$('#delete').enable();
+		else
+			$('#delete').disable();
+	
 		var num = $('input.fsts:checked').size();
 		if (num > 1)
-			$('#join')
-			    .removeProp('disabled')
-			    .removeClass('ui-state-disabled');
+			$('#join').enable();
 		else
-			$('#join')
-			    .prop('disabled', true)
-			    .addClass('ui-state-disabled');
+			$('#join').disable();
 
 	});
+
 });
 

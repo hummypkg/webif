@@ -6,21 +6,26 @@ require ts.class pretty_size
 
 puts "Content-Type: text/html\r\n\r\n"
 
-cgi_input
+cgi_input 1
 #cgi_dump
 
 set joinstart [clock milliseconds]
 
 set cmd {/mod/bin/nicesplice}
+set dst [file rootname [cgi_get dest "joined"]]
 
 foreach file [split [cgi_get files] ","] {
+	set file [cgi_unquote_input $file]
 	lappend cmd "-in" [file rootname $file]
 	set dir [file dirname $file]
 }
-lappend cmd "-out" "$dir/[cgi_get dest]"
+lappend cmd "-out" "$dir/$dst"
 
 puts "($cmd)"
 puts [exec {*}$cmd]
+
+set ts [ts fetch "$dir/$dst.ts"]
+$ts settitle $dst
 
 set jointime [expr [expr [clock milliseconds] - $joinstart] / 1000.0]
 puts "Time taken: $jointime"

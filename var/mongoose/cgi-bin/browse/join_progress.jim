@@ -1,0 +1,23 @@
+#!/mod/bin/jimsh
+
+package require cgi
+#source /mod/var/mongoose/lib/setup
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set expected [cgi_get esize 1]
+set file [file normalize [cgi_get file]]
+
+if {![file exists $file]} {
+	puts "0"
+} else {
+	set sz [file size $file]
+
+	set perc [expr $sz * 100 / $expected]
+	if {$perc > 100} { set perc 100 }
+	puts $perc
+}
+
