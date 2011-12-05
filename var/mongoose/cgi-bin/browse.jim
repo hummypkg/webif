@@ -16,14 +16,16 @@ cgi_input
 #cgi_dump
 
 #set env(REQUEST_URI) ''
-#set _cgi(dir) "/media/My Video/Chuggington"
+#set _cgi(dir) "/media/My Video/\[Don't Die Young\]"
 
 proc directory {file bfile} {
 	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
-	puts "<a href=$::env(REQUEST_URI)?dir=[cgi_quote_url $file]>"
 	puts "<img border=0 class=va id=\"img$tbfile\"
 	    src=/images/711_1_09_Media_Folder.png>"
+	puts "<input class=\"fs fsdir\" type=checkbox>"
+	puts "<a href=\"$::env(REQUEST_URI)?dir=[cgi_quote_url $file]\"
+	    file=\"$file\">"
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span></div>"
 }
@@ -269,11 +271,14 @@ if {$parent ne ""} {
 # Strip double slashes
 regsub -all -- {\/+} "$dir/*" "/" dir
 
+# Escape square brackets (for glob)
+regsub -all {([\\[])} $dir {\\\1} dir
+
 foreach file [lsort [glob -nocomplain "$dir"]] {
 	entry $file
 }
 
-puts "Select <a href=# id=selectall>all</a> | <a href=# id=deselectall>none</a>"
+puts "<a href=# id=selectall>Select all</a> | <a href=# id=deselectall>none</a>"
 
 puts "</fieldset>"
 
@@ -281,6 +286,9 @@ puts "<div class=brow>"
 
 puts {
 <button id=delete>Delete</button>
+<div id=deletewait class=blood style="display: none">
+<img src=/img/loading.gif>Deleting may take some time, please be patient...
+</div>
 }
 
 # Join

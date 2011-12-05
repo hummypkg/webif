@@ -69,6 +69,11 @@ Joining: <div id=progressbar></div>
 puts {
 <script type=text/javascript>
 
+$('#filelist li').hover(
+    function() { $(this).css('cursor', 'pointer'); },
+    function() { $(this).css('cursor', 'auto'); }
+);
+
 var handle = 0;
 
 function update()

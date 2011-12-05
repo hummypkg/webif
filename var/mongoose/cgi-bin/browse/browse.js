@@ -19,6 +19,11 @@
 	};
 })(jQuery);
 
+function disableall()
+{
+	$('button,a,input').disable();
+}
+
 function epginfo_callback(data, status, xhr)
 {
 	var width = 85;
@@ -76,7 +81,10 @@ function delete_callback(file, type, id)
 	var results = el + ' .results';
 	var url = '/cgi-bin/browse/delete.jim?file=' +
 	    encodeURIComponent(file) + '&type=' + type;
-	$(results).load(url, function() {
+	$(results)
+	    .html('<img src=/img/loading.gif>Deleting, please wait...')
+	    .slideDown('slow')
+	    .load(url, function() {
 		$(el).delay(3000).slideUp(300, function() {
 			$(el).remove();
 		});
@@ -350,6 +358,11 @@ var menuclick = function(action, el, pos)
 	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
 		new_folder_callback);
 
+	// Uncheck everything
+	$('input.fs:checked').attr('checked', false);
+
+	// Buttons
+
 	$('#dedup').button().click(function() {
 		window.location = '/cgi-bin/dedup.jim?dir='
 		    + encodeURIComponent(dir);
@@ -385,7 +398,24 @@ var menuclick = function(action, el, pos)
 
 	$('#delete').button().disable()
 	    .click(function() {
-		console.log("delete");
+		var files = new Array();
+		var els = $('input.fs:checked + a').each(function() {
+			files.push(encodeURIComponent($(this).attr('file')));
+		});
+		//console.log("%o", files);
+		var str = 'Are you sure you want to delete ' + files.length +
+		    ' file';
+		if (files.length != 1) str += 's';
+		str += '?';
+		if (confirm(str))
+		{
+			disableall();
+			$('#deletewait').slideDown('slow');
+			window.location.href =
+			    '/cgi-bin/browse/mdelete.jim?dir=' +
+			    encodeURIComponent(dir) + '&files=' +
+		    	    files.join();
+		}
 	    });
 
 	$('input.fs').change(function() {

@@ -1,0 +1,55 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+header
+
+cgi_input 1
+#cgi_dump
+set dir [cgi_unquote_input [cgi_get dir]]
+
+puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
+puts "<ul style=\"list-style-type: square\">"
+foreach file [split [cgi_get files] ","] {
+	set file [cgi_unquote_input $file]
+	puts -nonewline "<li>\"$file\"..."
+
+	if {[file isdirectory $file]} {
+		puts -nonewline "Directory..."
+		puts [exec /mod/bin/busybox/rm -rf $file]
+		puts -nonewline "Done..."
+	} elseif {[string match {*.ts} $file]} {
+		set ts [ts fetch $file]
+		if {[catch {$ts delete} msg]} {
+			puts -nonewline "Error loading TS file..."
+		} else {
+			puts -nonewline "Done..."
+		}
+	} else {
+		if {[catch {file delete $ts} msg]} {
+			puts -nonewline "Error: $msg"
+		} else {
+			catch {file delete "[file rootname $file].hmi"}
+			puts -nonewline "Done..."
+		}
+	}
+	puts "</li>"
+}
+puts "</ul>"
+puts "<button id=back dir=\"$dir\">Back to media list</button>";
+
+puts {
+<script type=text/javascript>
+$('#deleting').slideUp('slow');
+$('#back').button().click(function() {
+	window.location.href = '/cgi-bin/browse.jim?dir=' +
+	    encodeURIComponent($('#back').attr('dir'));
+});
+</script>
+}
+
+footer
+
