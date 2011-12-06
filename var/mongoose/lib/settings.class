@@ -116,6 +116,10 @@ settings method pkgdev {{val -1}} {
 	return [$self _nval_setting pkgdev $val]
 }
 
+settings method sortorder {{val -1}} {
+	return [$self _nval_setting sortorder $val]
+}
+
 settings method channel_groups {} {
 	set ret ""
 	set db [sqlite3.open /var/lib/humaxtv/setup.db]

@@ -21,6 +21,7 @@ span.pl { padding-left: 2em; }
 
 <link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
 <script type="text/javascript" src="/js/jquery.progressbar.js"></script>
+<script type="text/javascript" src="/js/touchbridge.js"></script>
 
 <p><b>
 Drag the files below into order, enter a name for the resulting file and then

@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require ts.class pretty_size system.class
+require ts.class pretty_size system.class settings.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -17,6 +17,15 @@ cgi_input
 
 #set env(REQUEST_URI) ''
 #set _cgi(dir) "/media/My Video/\[Don't Die Young\]"
+
+if {![dict exists $env QUERY_STRING]} { set env(QUERY_STRING) "root" }
+
+set order [cgi_get order -]
+if {$order eq "-"} {
+	set order [[settings new] sortorder]
+} else {
+	[settings new] sortorder $order
+}
 
 proc directory {file bfile} {
 	regsub -all " +" $bfile "" tbfile
@@ -192,7 +201,7 @@ puts {
 		<tr style="display: none" class=tstype>
 		<th>
 			<label for="renametitle" style="padding-top: 0.5em">
-				<b>New EPG Title</b>
+				<b>New Medialist Title</b>
 			</label>
 		</th>
 		<td>
@@ -274,11 +283,58 @@ regsub -all -- {\/+} "$dir/*" "/" dir
 # Escape square brackets (for glob)
 regsub -all {([\\[])} $dir {\\\1} dir
 
-foreach file [lsort [glob -nocomplain "$dir"]] {
-	entry $file
+proc s_time {a b} {
+	set ad [file isdirectory $a]
+	set bd [file isdirectory $b]
+
+	if {$ad && !$bd} { return -1 }
+	if {$bd && !$ad} { return 1 }
+	if {$ad && $bd} {
+		if {$a < $b} { return -1 }
+		if {$a > $b} { return 1 }
+		return 0
+	}
+
+	file stat $a l
+	set at $l(ctime)
+	file stat $b l
+	set bt $l(ctime)
+
+	if {$at < $bt} { return -1 }
+	if {$at > $bt} { return 1 }
+	return 0
 }
 
+set files [glob -nocomplain $dir]
+switch $order {
+	1 {		set files [lsort -command s_time $files] }
+	default {	set files [lsort $files] }
+}
+
+foreach file $files { entry $file }
+
 puts "<a href=# id=selectall>Select all</a> | <a href=# id=deselectall>none</a>"
+
+# Sort icons
+puts "<div id=sortdiv>"
+set sortlist {{0 sort_name name} {1 sort_date date}}
+foreach sl $sortlist {
+	lassign $sl index img descr
+
+	if {$index} { puts "  |  " }
+
+	set tag "Currently sorting"
+	if {$order != $index} {
+		puts "
+		    <a href=$env(REQUEST_URI)?$env(QUERY_STRING)&order=$index>"
+		set tag "Sort"
+	}
+	puts "<img class=va border=0 src=/img/$img.gif> $tag by $descr"
+	if {$order != $index} {
+		puts "</a>"
+	}
+}
+puts "</div>"
 
 puts "</fieldset>"
 
