@@ -9,8 +9,7 @@ puts "Content-Type: text/html\r\n\r\n"
 cgi_input
 #cgi_dump
 
-set tsfile [cgi_get file]
-set rfile [file normalize $tsfile]
+set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 

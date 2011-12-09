@@ -193,9 +193,15 @@ function preparemenu(el, menu)
 		}
 
 		if (el.attr('odencd') == 1)
+		{
 			$('#optmenu').enableContextMenuItems('#decrypt');
+			$('#optmenu').disableContextMenuItems('#audio');
+		}
 		else
+		{
 			$('#optmenu').disableContextMenuItems('#decrypt');
+			$('#optmenu').enableContextMenuItems('#audio');
+		}
 	
 	}
 	else
@@ -205,6 +211,7 @@ function preparemenu(el, menu)
 		$('#optmenu').disableContextMenuItems('#enc');
 		$('#optmenu').disableContextMenuItems('#new');
 		$('#optmenu').disableContextMenuItems('#decrypt');
+		$('#optmenu').disableContextMenuItems('#audio');
 		$('#optmenu').disableContextMenuItems('#crop');
 	}
 
@@ -272,6 +279,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'decrypt':
 		window.location.href = '/cgi-bin/browse/decrypt.jim?file=' +
+		    encodeURIComponent(file);
+		break;
+
+	    case 'audio':
+		window.location.href = '/cgi-bin/browse/audio.jim?file=' +
 		    encodeURIComponent(file);
 		break;
 

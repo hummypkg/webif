@@ -14,42 +14,17 @@ set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-lassign [$ts dlnaloc] url
 
 if {[cgi_get do] eq "it"} {
 	set xstart [clock milliseconds]
 
 	set base [file rootname $rfile]
-	set origdir "$dir/_original"
-	if {![file exists $origdir]} { file mkdir $origdir }
-
 	set shname [file tail $base]
 	puts "Processing $shname"
 
-	exec wget -O "$rfile.decrypting" $url
-
-	puts "Moving recording to $origdir"
-
-	foreach f [glob -nocomplain "${base}.*"] {
-		if {[file extension $f] eq ".decrypting"} { continue }
-		set tail [file tail $f]
-		puts "  $tail"
-		file rename $f "${origdir}/$tail"
-	}
-
-	file rename "$rfile.decrypting" $rfile
-
-	foreach ext {nts hmt thm} {
-		set sidecar "$shname.$ext"
-		if {[file exists "$origdir/$sidecar"]} {
-			puts "Copying back sidecar $ext"
-			file copy "$origdir/$sidecar" "$dir/$sidecar"
-		}
-	}
-
-	if {[file exists "$dir/$shname.hmt"]} {
-		exec /mod/bin/hmt -encrypted "$dir/$shname.hmt"
-	}
+	puts [exec /mod/bin/ffmpeg -y -benchmark -v 0 \
+	    -i $rfile -f mp2 \
+	    -vn -acodec copy "${base}.mp3"]
 
 	set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]
 	puts "Time taken: $xtime"
@@ -66,22 +41,15 @@ puts "
 <table class=keyval cellpadding=5>
 <tr><th>File:</th><td>$rfile</td></tr>
 <tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
-<tr><th>DLNA URL</th><td>$url</td></tr>
 </table>
 "
-
-if {$url eq ""} {
-	puts "This file has not been indexed by the media server.
-	    Cannot decrypt."
-	exit
-}
 
 puts {
 
 <div style="margin-top: 10px"></div>
-<div id=decryptdiv><button id=decryptit>Perform decryption</button></div>
+<div id=audiodiv><button id=audioit>Perform audio extraction</button></div>
 <div id=progressdiv style="display: none">
-Decrypting: <div id=progressbar></div>
+Extracting audio: <div id=progressbar></div>
 }
 puts "<button id=back
     dir=\"[cgi_quote_url $dir]\"
@@ -97,7 +65,7 @@ var handle = 0;
 
 function update()
 {
-	$.get('/cgi-bin/browse/decrypt_progress.jim?file='
+	$.get('/cgi-bin/browse/audio_progress.jim?file='
 	    + $('#back').attr('rfile'), function(data) {
 		if (handle)
 			$('#progressbar').reportprogress(data);
@@ -112,8 +80,8 @@ $('#back').button().click(function() {
 	window.location = '/cgi-bin/browse.jim?dir=' + $(this).attr('dir');
 });
 
-$('#decryptit').button().click(function() {
-	$('#decryptdiv').hide('slow');
+$('#audioit').button().click(function() {
+	$('#audiodiv').hide('slow');
 	$('#progressdiv').show('slow');
 	handle = setInterval("update()", 1000);
 	$('#output').load(document.URL + '&do=it', function() {

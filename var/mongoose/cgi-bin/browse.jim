@@ -184,6 +184,9 @@ puts {
 if {[system model] eq "HDR"} {
 	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
 }
+if {[system pkginst ffmpeg]} {
+	puts { <li><a href=#audio>Extract Audio</a></li> }
+}
 if $nicesplice {
 	puts { <li class="cut separator"><a href=#crop>Crop</a></li> }
 }
