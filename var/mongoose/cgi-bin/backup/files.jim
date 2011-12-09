@@ -20,7 +20,18 @@ if {![file isdirectory $dir]} {
 	exit
 }
 
-set backups [glob -nocomplain "$dir/*.rbk"]
+proc s_time {a b} {
+	file stat $a l
+	set at $l(ctime)
+	file stat $b l
+	set bt $l(ctime)
+
+	if {$at < $bt} { return -1 }
+	if {$at > $bt} { return 1 }
+	return 0
+}
+
+set backups [lsort -command s_time [glob -nocomplain "$dir/*.rbk"]]
 
 if {![llength $backups]} {
 	empty
