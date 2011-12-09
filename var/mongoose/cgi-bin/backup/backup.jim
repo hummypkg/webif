@@ -13,12 +13,23 @@ puts ""
 cgi_input
 #cgi_dump
 
-if {![dict exists $_cgi file]} {
-	puts "No filename supplied."
-	exit
+set now [clock seconds]
+set file [file tail [cgi_get file \
+    [clock format $now -format "auto-%Y-%b-%d-%H:%M"]]]
+
+if {[string match {auto-*} $file]} {
+	# Delete any automatic backups over 7 days old.
+	set mt $(7 * 3600)
+	foreach af [glob -nocomplain "$dir/auto-*"] {
+		set aft [file mtime $af]
+		set diff $($now - $aft)
+		if {$diff > $mt} {
+			puts "Removing $af"
+			file delete $af 
+		}
+	}
 }
 
-set file [file tail [dict get $_cgi file]]
 set ffile "/$dir/$file.rbk"
 
 if {[file exists $ffile]} {

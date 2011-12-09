@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export tmpf=/tmp/cronf.$$
+
+ana=/mod/etc/anacrontab
+grep -v 'backup/backup.jim' $ana > $tmpf
+cp $tmpf $ana
+
+exit 0
+
