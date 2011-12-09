@@ -20,9 +20,13 @@ if {$type eq "ts"} {
 		puts "Problem deleting $file, [$ts get error]"
 	}
 	exit
+} elseif {$type eq "dir"} {
+	puts -nonewline "Directory..."
+	puts [exec /mod/bin/busybox/rm -rf $file]
+	puts -nonewline "Done..."
+} else {
+	file delete $file
+	file delete "[file rootname $file].hmi"
+	puts "Successfully deleted $file."
 }
-
-file delete $file
-file delete "[file rootname $file].hmi"
-puts "Successfully deleted $file."
 

@@ -33,10 +33,19 @@ proc directory {file bfile} {
 	puts "<img border=0 class=va id=\"img$tbfile\"
 	    src=/images/711_1_09_Media_Folder.png>"
 	puts "<input class=\"fs fsdir\" type=checkbox>"
-	puts "<a href=\"$::env(REQUEST_URI)?dir=[cgi_quote_url $file]\"
+	puts "<a class=dbf
+	    href=\"$::env(REQUEST_URI)?dir=[cgi_quote_url $file]\"
 	    file=\"$file\">"
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
-		</span></div>"
+		</span>"
+	puts "
+	      <a href=#>
+		<img class=\"dopt va\" border=0 width=45 
+		    src=/images/181_1_00_Help5_OPT_Plus.png>
+	      </a>
+	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
+	"
+	puts "</div>"
 }
 
 proc entry {file} {{i 0}} {
@@ -181,6 +190,11 @@ if $nicesplice {
 puts {
 	</ul>
 
+	<ul id=doptmenu class=contextMenu>
+		<li class=delete><a href=#delete>Delete</a></li>
+		<li><a href=#rename>Rename</a></li>
+	</ul>
+
 	<div id=renameform title="Rename media file" style="display: none">
 		<form id=renameform_form>
 		<input type=hidden name="renameorig" id="renameorig" value="">
@@ -212,6 +226,26 @@ puts {
 		</tr>
 		<tr style="display: none" class=tstype>
 		<td colspan=2 id=synopsis style="font-style: italic"></td>
+		</tr>
+		</table>
+		</form>
+	</div>
+
+	<div id=drenameform title="Rename directory" style="display: none">
+		<form id=drenameform_form>
+		<input type=hidden name="renameorig" id="drenameorig" value="">
+		<table border=0>
+		<tr>
+		<th>
+			<label for="drename">
+				<b>New Directory Name</b>
+			</label>
+		</th>
+		<td>
+			<input type=text name="rename" id="drename"
+			    value="" size=70 maxlength=255
+			    class="text ui-widget-content ui-corner-all">
+		</td>
 		</tr>
 		</table>
 		</form>

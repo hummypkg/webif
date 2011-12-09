@@ -116,6 +116,13 @@ function rename_submit()
 	    function() { window.location.reload(true); });
 }
 
+function drename_submit()
+{
+	var s = $('#drenameform_form').serialize();
+	$.get('/cgi-bin/browse/rename.jim?' + s,
+	    function() { window.location.reload(true); });
+}
+
 function savestream_submit()
 {
 	var s = $('#savestream_form').serialize();
@@ -274,6 +281,47 @@ var menuclick = function(action, el, pos)
 	}
 };
 
+var dmenuclick = function(action, el, pos)
+{
+	var direl = $(el).parent().parent();
+	var file = $(el).parent().prevAll('a.dbf').last().attr('file');
+	var bfile = file.replace(/.*\//g, '');
+	bfile = bfile.replace(/[\x00-\x1f]+/g, '');
+	var results = $(el).parent().next('div.results');
+
+	switch (action)
+	{
+	    case 'delete':
+		var url = '/cgi-bin/browse/delete.jim?file=' +
+		    encodeURIComponent(file) + '&type=dir';
+
+		if (confirm('Are you sure you wish to delete "' + file +
+		    '" and all files within it?'))
+		{
+			$(results)
+			    .html('<img src=/img/loading.gif>' +
+			    'Deleting, please wait...')
+			    .slideDown('slow')
+			    .load(url, function() {
+				$(direl).delay(3000).slideUp(300, function() {
+					$(direl).remove();
+				});
+			});
+		}
+		break;
+
+	    case 'rename':
+		$('#drename').val(bfile);
+		$('#drenameorig').val(file);
+		$('#drenameform').dialog('open');
+		break;
+
+	    default:
+		alert('Unhandled action: ' + action);
+		break;
+	}
+};
+
 	// Bind context menu to opt+ image
 	$('img.opt').contextMenu(
 		{
@@ -282,6 +330,14 @@ var menuclick = function(action, el, pos)
 			beforeShow: preparemenu
 		},
 		menuclick
+	);
+
+	$('img.dopt').contextMenu(
+		{
+			menu: 'doptmenu',
+			leftButton: true,
+		},
+		dmenuclick
 	);
 
 	// Disable items which are not yet implemented.
@@ -325,6 +381,19 @@ var menuclick = function(action, el, pos)
 			}
 		},
 		close: function() { $('#rename').val(''); }
+	});
+
+	$('#drenameform').dialog({
+		autoOpen: false,
+		height: 'auto', width: 'auto',
+		modal: true,
+		buttons: {
+			"Update": drename_submit,
+			"Close": function() {
+				$(this).dialog('close');
+			}
+		},
+		close: function() { $('#drename').val(''); }
 	});
 
 	$('#savestreamform').dialog({
