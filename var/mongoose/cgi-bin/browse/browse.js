@@ -217,6 +217,17 @@ function preparemenu(el, menu)
 
 }
 
+function preparedmenu(el, menu)
+{
+	if (el.attr('noflat') != undefined)
+	{
+		if (el.attr('noflat') > 0)
+			$(menu).changeContextMenuItem('#flat', 'Allow Flatten');
+		else
+			$(menu).changeContextMenuItem('#flat',
+			    'Prevent Flatten');
+	}
+}
 
 $(document).ready(function() {
 
@@ -328,6 +339,12 @@ var dmenuclick = function(action, el, pos)
 		$('#drenameform').dialog('open');
 		break;
 
+	    case 'flat':
+		var url = '/cgi-bin/browse/flat.jim?file=' +
+		    encodeURIComponent(file);
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
 	    default:
 		alert('Unhandled action: ' + action);
 		break;
@@ -347,7 +364,8 @@ var dmenuclick = function(action, el, pos)
 	$('img.dopt').contextMenu(
 		{
 			menu: 'doptmenu',
-			leftButton: true
+			leftButton: true,
+			beforeShow: preparedmenu
 		},
 		dmenuclick
 	);

@@ -1,0 +1,28 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/ts.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get file]
+if {![file isdirectory $dir]} { exit }
+set noflat 0
+if {[string match {\[*\]} [file tail $dir]]} { 
+	set ndir [string range [file tail $dir] 1 end-1]
+	file rename $dir "[file dirname $dir]/$ndir"
+	puts "Unflagged directory as noflatten."
+	exit
+}
+if {[file exists "$dir/.noflatten"]} {
+	file delete "$dir/.noflatten"
+	puts "Unflagged directory as noflatten."
+} else {
+	close [open "$dir/.noflatten" w]
+	puts "Flagged directory as noflatten."
+}
+

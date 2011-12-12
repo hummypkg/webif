@@ -8,6 +8,7 @@ puts "Content-Type: text/html"
 puts ""
 
 set nicesplice [system pkginst nicesplice]
+set flatten [system pkginst flatten]
 
 set ignore {.nts .thm .hmt .hmi}
 set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov}
@@ -15,8 +16,10 @@ set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov}
 cgi_input
 #cgi_dump
 
-#set env(REQUEST_URI) ''
-#set _cgi(dir) "/media/My Video/\[Don't Die Young\]"
+if {![dict exists env REQUEST_URI]} {
+	set env(REQUEST_URI) ''
+	set _cgi(dir) "/media/My Video/"
+}
 
 if {![dict exists $env QUERY_STRING]} { set env(QUERY_STRING) "root" }
 
@@ -28,6 +31,8 @@ if {$order eq "-"} {
 }
 
 proc directory {file bfile} {
+	global flatten
+
 	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
 	puts "<img border=0 class=va id=\"img$tbfile\"
@@ -38,11 +43,30 @@ proc directory {file bfile} {
 	    file=\"$file\">"
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span>"
-	puts "
+
+	set noflat 0
+	if $flatten {
+		if {[string match {\[*\]} [file tail $file]]} { set noflat 1 }
+		if {[file exists "$file/.noflatten"]} {
+			set noflat 1
+		}
+
+		if $noflat {
+			puts "<img alt=\"No-flatten\" title=\"No-flatten\"
+			    class=va src=/img/flat-tyre.png height=21>"
+		}
+	}
+
+	puts -nonewline "
 	      <a href=#>
-		<img class=\"dopt va\" border=0 width=45 
+		<img class=\"dopt va\" border=0 width=45 "
+	if $flatten { puts -nonewline "noflat=$noflat " }
+	puts "
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
+	"
+
+	puts "
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
 	"
 	puts "</div>"
@@ -196,6 +220,13 @@ puts {
 	<ul id=doptmenu class=contextMenu>
 		<li class=delete><a href=#delete>Delete</a></li>
 		<li><a href=#rename>Rename</a></li>
+}
+
+if $flatten {
+	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
+}
+
+puts {
 	</ul>
 
 	<div id=renameform title="Rename media file" style="display: none">
