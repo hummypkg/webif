@@ -347,7 +347,7 @@ var dmenuclick = function(action, el, pos)
 	$('img.dopt').contextMenu(
 		{
 			menu: 'doptmenu',
-			leftButton: true,
+			leftButton: true
 		},
 		dmenuclick
 	);

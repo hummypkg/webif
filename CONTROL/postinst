@@ -8,7 +8,7 @@ ana=$PKG_ROOT/etc/anacrontab
 grep -v 'backup/backup.jim' $ana > $tmpf
 (
 	cat $tmpf
-	echo "1 30 /mod/var/mongoose/cgi-bin/backup/backup.jim"
+	echo "1 8 sched_backup /mod/var/mongoose/cgi-bin/backup/backup.jim"
 ) > $ana
 
 $PKG_ROOT/etc/init.d/S02anacron start < /dev/null > /dev/null 2>&1 &
