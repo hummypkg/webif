@@ -16,8 +16,8 @@ set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov}
 cgi_input
 #cgi_dump
 
-if {![dict exists env REQUEST_URI]} {
-	set env(REQUEST_URI) ''
+if {![dict exists $env REQUEST_URI]} {
+	set env(REQUEST_URI) ""
 	set _cgi(dir) "/media/My Video/"
 }
 
