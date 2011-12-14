@@ -79,8 +79,8 @@ function delete_callback(file, type, id)
 {
 	var el = 'div.bf#' + id;
 	var results = el + ' .results';
-	var url = '/cgi-bin/browse/delete.jim?file=' +
-	    encodeURIComponent(file) + '&type=' + type;
+	var url = '/cgi-bin/browse/delete.jim?file=' + file +
+	    '&type=' + type;
 	$(results)
 	    .html('<img src=/img/loading.gif>Deleting, please wait...')
 	    .slideDown('slow')
@@ -93,19 +93,19 @@ function delete_callback(file, type, id)
 
 function lock_callback(file, type, id)
 {
-	var url = '/cgi-bin/browse/lock.jim?file=' + encodeURIComponent(file);
+	var url = '/cgi-bin/browse/lock.jim?file=' + file;
 	$.get(url, function() { window.location.reload(true); });
 }
 
 function enc_callback(file, type, id)
 {
-	var url = '/cgi-bin/browse/enc.jim?file=' + encodeURIComponent(file);
+	var url = '/cgi-bin/browse/enc.jim?file=' + file;
 	$.get(url, function() { window.location.reload(true); });
 }
 
 function new_callback(file, type, id)
 {
-	var url = '/cgi-bin/browse/new.jim?file=' + encodeURIComponent(file);
+	var url = '/cgi-bin/browse/new.jim?file=' + file;
 	$.get(url, function() { window.location.reload(true); });
 }
 
@@ -148,7 +148,7 @@ function confirm_action(action, callback, file, type, id)
 	});
 	$('#confirm').empty().html(
 	    'Are you sure you wish to ' + action + '<br>' +
-	    '<i>' + bfile + '</i> ?'
+	    '<i>' + decodeURIComponent(bfile) + '</i> ?'
 	);
 	$confirm.dialog('open');
 }
@@ -261,8 +261,8 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'rename':
-		$('#rename').val(bfile);
-		$('#renameorig').val(file);
+		$('#rename').val(decodeURIComponent(bfile));
+		$('#renameorig').val(decodeURIComponent(file));
 
 		$('#titleorig').val('');
 		$('#renametitle').val('');
@@ -272,7 +272,7 @@ var menuclick = function(action, el, pos)
 		if (type == 'ts')
 		{
 			$.getJSON('/cgi-bin/browse/epgtitle.jim?file=' +
-			    encodeURIComponent(file), epginfo_callback);
+			    file, epginfo_callback);
 		}
 
 		$('#renameform').dialog('open');
@@ -280,22 +280,22 @@ var menuclick = function(action, el, pos)
 
 	    case 'download':
 		window.location.href = '/cgi-bin/browse/download.jim?file=' +
-		    encodeURIComponent(file);
+		    file;
 		break;
 
 	    case 'crop':
 		window.location.href = '/cgi-bin/browse/crop.jim?file=' +
-		    encodeURIComponent(file);
+		    file;
 		break;
 
 	    case 'decrypt':
 		window.location.href = '/cgi-bin/browse/decrypt.jim?file=' +
-		    encodeURIComponent(file);
+		    file;
 		break;
 
 	    case 'audio':
 		window.location.href = '/cgi-bin/browse/audio.jim?file=' +
-		    encodeURIComponent(file);
+		    file;
 		break;
 
 	    default:
@@ -315,10 +315,11 @@ var dmenuclick = function(action, el, pos)
 	switch (action)
 	{
 	    case 'delete':
-		var url = '/cgi-bin/browse/delete.jim?file=' +
-		    encodeURIComponent(file) + '&type=dir';
+		var url = '/cgi-bin/browse/delete.jim?file=' + file +
+		    '&type=dir';
 
-		if (confirm('Are you sure you wish to delete "' + file +
+		if (confirm('Are you sure you wish to delete "' +
+		    decodeURIComponent(file) +
 		    '" and all files within it?'))
 		{
 			$(results)
@@ -334,14 +335,13 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'rename':
-		$('#drename').val(bfile);
-		$('#drenameorig').val(file);
+		$('#drename').val(decodeURIComponent(bfile));
+		$('#drenameorig').val(decodeURIComponent(file));
 		$('#drenameform').dialog('open');
 		break;
 
 	    case 'flat':
-		var url = '/cgi-bin/browse/flat.jim?file=' +
-		    encodeURIComponent(file);
+		var url = '/cgi-bin/browse/flat.jim?file=' + file;
 		$.get(url, function() { window.location.reload(true); });
 		break;
 
@@ -394,8 +394,8 @@ var dmenuclick = function(action, el, pos)
 		e.preventDefault();
 		var file = $(this).attr('file');
 		var type = $(this).attr('type');
-		var url = '/cgi-bin/browse/file.jim?file=' +
-		    encodeURIComponent(file) + '&type=' + type;
+		var url = '/cgi-bin/browse/file.jim?file=' + file
+		    + '&type=' + type;
 		$('#dialogue').load(url);
 		$dialog.dialog('open');
 	});
@@ -499,7 +499,7 @@ var dmenuclick = function(action, el, pos)
 	    .click(function() {
 		var files = new Array();
 		var els = $('input.fs:checked + a').each(function() {
-			files.push(encodeURIComponent($(this).attr('file')));
+			files.push($(this).attr('file'));
 		});
 		//console.log("%o", files);
 		var str = 'Are you sure you want to delete ' + files.length +
