@@ -338,6 +338,11 @@ proc {rsv construct} {event type} {
 
 	set ccrid [$event get channel_crid]
 
+	# Fallback from series to event if there is no series CRID.
+	if {$type == 2 && [$event get series_crid] eq ""} {
+		set type 1
+	}
+
 	if {$type == 1} {
 		# Event
 		set args(ucCRIDType)		49

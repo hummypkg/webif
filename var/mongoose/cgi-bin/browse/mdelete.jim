@@ -29,7 +29,7 @@ foreach file [split [cgi_get files] ","] {
 			puts -nonewline "Done..."
 		}
 	} else {
-		if {[catch {file delete $ts} msg]} {
+		if {[catch {file delete $file} msg]} {
 			puts -nonewline "Error: $msg"
 		} else {
 			catch {file delete "[file rootname $file].hmi"}

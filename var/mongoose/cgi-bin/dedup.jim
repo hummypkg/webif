@@ -40,6 +40,7 @@ foreach file [lsort [glob -nocomplain "$sdir"]] {
 	puts "<td nowrap>$base</td>"
 	set syn [$ts get synopsis]
 	regsub -nocase -all -- {^new series\.* *} $syn "" syn
+	regsub -nocase -all -- {^cbeebies\. *} $syn "" syn
 	regsub -all -- { *[:].*$} $syn "" syn
 	if {[string length $syn] > 40} {
 		lassign [split $syn "."] v w
