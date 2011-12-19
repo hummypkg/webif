@@ -1,7 +1,7 @@
 source /mod/var/mongoose/lib/setup
 
-if {![exists -proc class ]} { package require oo }
-if {![exists -proc sqlite3.open ]} { package require sqlite3 }
+if {![exists -proc class]} { package require oo }
+if {![exists -proc sqlite3.open]} { package require sqlite3 }
 require settings.class system.class
 
 set rsvdb [sqlite3.open /var/lib/humaxtv/rsv.db]
@@ -52,6 +52,17 @@ class rsv {
 	usLcn			0
 	sort			0
 	action			0
+}
+
+rsv method aul {} {
+	if {![exists -proc binary]} { package require binary }
+	set aul {}
+	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
+		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
+		    iiii service start end event_id
+		lappend aul [list $service $start $end $event_id]
+	}
+	return $aul
 }
 
 rsv method clear_ulslot {} {
@@ -123,6 +134,16 @@ rsv method RKIcon {} {
 
 rsv method set_delete {} {
 	set action 1
+}
+
+rsv method set_unpad {} {
+	set action 2
+}
+
+rsv method set_pad {{pre 60} {post 60}} {
+	set action 3
+	set ulPreOffset $pre
+	set ulPostOffset $post
 }
 
 rsv method remove_pending {} {

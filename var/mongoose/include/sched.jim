@@ -38,6 +38,8 @@ $(document).ready(function() {
 		7: { sorter: false }
 	    }
 	});
+	$('table.tablesorter thead th').filter('[class!=header]')
+	    .addClass('headerplain');
 });
 
 $(document).ready(function() {
@@ -133,10 +135,21 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	}
 
 	if {$rsvicon ne ""} {
-		set rsvicon "<img src='/images/$rsvicon' height=20>
+		set rsvicon "<img src='/images/$rsvicon' height=20>"
+		if {[$event get ersvtype] == 3} {
+			if {[$event padded]} {
+				set padding "<- [expr [$event get ulPreOffset] / 60], [expr [$event get ulPostOffset] / 60] ->"
+				append rsvicon \
+				    "<img src=/img/pad.png height=20
+				     title=\"$padding\" alt=\"$padding\">"
+			} else {
+				append rsvicon \
+				    "<img src=/img/ar.png height=20>"
+			}
+		}
 	}
 	if {$RKIcon ne ""} {
-		set RKIcon "<img src='/images/$RKIcon' height=20>
+		set RKIcon "<img src='/images/$RKIcon' height=20>"
 	}
 
 	if {$table eq "pending"} {
@@ -196,14 +209,13 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		puts "[clock format [$event get nduration] -format %T]</td>"
 	}
 
-	puts "<td nowrap>$rsvicon $RKIcon</td>"
+	puts "<td nowrap>$rsvicon $RKIcon</td><td>"
 	if {[$event get aulEventToRecordInfo] != ""} {
-		puts "<td><img src=/img/lightning.png
+		puts "<img src=/img/lightning.png
 		    alt=\"Accepted by Humax\"
-		    title=\"Accepted by Humax\"></td>"
-	} else {
-		puts "<td>&nbsp;</td>"
+		    title=\"Accepted by Humax\">"
 	}
+	puts "</td>";
 	puts "</tr>"
 }
 

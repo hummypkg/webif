@@ -10,6 +10,16 @@ table.tablesorter .header {
 	height: auto;
 }
 
+table.tablesorter .headerplain {
+	background-image: url(/img/tsort/bgplain.png);
+	background-repeat: no-repeat;
+	border-left: 1px solid #FFF;
+	border-right: 1px solid #000;
+	border-top: 1px solid #FFF;
+	padding-top: 8px;
+	height: auto;
+}
+
 table.tablesorter .headerSortUp {
 	background-image: url(/img/tsort/asc.png);
 	background-repeat: no-repeat;
