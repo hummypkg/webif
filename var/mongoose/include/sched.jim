@@ -153,10 +153,11 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	}
 
 	if {$table eq "pending"} {
-		if {[$event get action] == 0} {
-			set icon "add"
-		} else {
-			set icon "close"
+		switch [$event get action] {
+		    0 { set icon "add" }
+		    1 { set icon "close" }
+		    2 { set icon "ar" }
+		    3 { set icon "pad" }
 		}
 		puts "<td align=center>
 		    <img class=va width=30 src=/img/$icon.png></td>"
