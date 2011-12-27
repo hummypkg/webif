@@ -73,6 +73,7 @@ puts "
 if {$url eq ""} {
 	puts "This file has not been indexed by the media server.
 	    Cannot decrypt."
+	puts "Have you enabled <i>Content Sharing</i> in the Humax menus?"
 	exit
 }
 

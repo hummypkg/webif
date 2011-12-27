@@ -89,6 +89,10 @@ $(document).ready(function() {
 		$dialog.dialog('open');
 	}
 	$('a.schedule').click(function(e) { schedpopup(e, $(this)) });
+
+	$('table.tablesorter').hover(
+		function() { $(this).addClass('hover'); },
+		function() { $(this).removeClass('hover'); });
 });
 </script>
 }

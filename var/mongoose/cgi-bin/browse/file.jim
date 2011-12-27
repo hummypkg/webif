@@ -65,15 +65,22 @@ if {$type eq "ts"} {
 	<th>Start Time</th>
 	<td>"
 	puts [clock format [$ts get start] -format "%c %Z"]
+	puts "<font class=also>(Scheduled: [
+	    clock format [$ts get schedstart] -format "%c %Z"])</font>"
 	puts "</td>
 </tr><tr>
 	<th>End Time</th>
 	<td>"
 	puts [clock format [$ts get end] -format "%c %Z"]
+	puts "<font class=also>(Scheduled: [clock format \
+	    [expr [$ts get schedstart] + [$ts get scheddur]] \
+	    -format "%c %Z"])</font>"
 	puts "</td>
 </tr><tr>
 	<th>Duration</th>
-	<td>[$ts duration] minute(s).</td>
+	<td>[$ts duration] minute(s).
+	    <font class=also>(Scheduled: [expr [$ts get scheddur] / 60])
+	    </font></td>
 </tr><tr>
 	<th>Size</th>
 	<td>$sz</td>

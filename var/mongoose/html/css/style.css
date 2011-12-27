@@ -82,6 +82,12 @@ table.borders, table.borders td, table.borders th
 	color: black;
 }
 
+.hover
+{
+	background: #f6ff5b;
+	color: black;
+}
+
 table td,table th
 {
 	font-size: small;
@@ -294,5 +300,13 @@ div.cut
 {
 	padding: 0;
 	font-size: 12px;
+}
+
+font.also
+{
+	font-size: 0.9em;
+	font-style: italic;
+	color: #333;
+	background: transparent;
 }
 
