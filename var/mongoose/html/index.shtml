@@ -111,6 +111,12 @@ $(document).ready(function() {
 <div class=footer>
 <ul>
 <li>
+Release Notes: 
+<a target=_blank
+    href="http://wiki.hummy.tv/wiki/Customised_Firmware_Release_Notes">
+Firmware</a> |
+<a target=_blank href="http://wiki.hummy.tv/wiki/Webif_release_notes">Webif</a>
+</li><li>
 <a href=/diag.shtml>Diagnostics</a>
 </li><li>
 <a href=/cgi-bin/channel.jim>Channel Information</a>

@@ -90,7 +90,7 @@ $(document).ready(function() {
 	}
 	$('a.schedule').click(function(e) { schedpopup(e, $(this)) });
 
-	$('table.tablesorter').hover(
+	$('table.tablesorter tbody tr').hover(
 		function() { $(this).addClass('hover'); },
 		function() { $(this).removeClass('hover'); });
 });

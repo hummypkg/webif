@@ -1,0 +1,58 @@
+
+if {![exists -proc class ]} { package require oo }
+
+class clipboard {
+	path	"/tmp/webif.cb"
+	items	{}
+}
+
+class clipboarditem {
+	action	""
+	type	""
+	path	""
+}
+
+clipboarditem method _parse {line} {
+	lassign [split $line "|"] action type path
+}
+
+proc {clipboarditem load} {line} {
+	set c [clipboarditem new]
+	$c _parse $line
+	return $c
+}
+
+clipboard method save {} {
+	set fd [open $path w]
+	foreach item $items {
+		puts $fd "[$item get action]|[$item get type]|[$item get path]"
+	}
+	$fd close
+}
+
+clipboard method load {} {
+	set items {}
+	set changed 0
+	if {[file exists $path]} {
+		set fd [open $path r]
+		foreach line [split [$fd read] "\n"] {
+			set ci [clipboarditem load $line]
+			if {[file exists [$ci get path]]} {
+				lappend $items $ci
+			} else {
+				set changed 1
+			}
+		}
+	}
+	if {$changed} { $self save }
+	return $self
+}
+
+clipboard method size {} {
+	return [llength $items]
+}
+
+clipboard method add {action type path} {
+	lappend $items [clipboarditem load "$action|$type|$path"]
+}
+

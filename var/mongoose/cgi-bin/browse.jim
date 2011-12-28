@@ -315,15 +315,17 @@ puts {
 	<div id=confirm title="Confirmation Required"></div>
 
 	<script type=text/javascript src=/cgi-bin/browse/browse.js></script>
+	<link type=text/css rel=stylesheet href=/cgi-bin/browse/style.css />
 }
 
 puts "<span style=\"display:none\" id=dir>$dir</span>"
 
-# Breadcrumb path
 puts "
-      <fieldset style=\"margin: 1em\">
+      <fieldset class=cleft style=\"margin: 0 1em 1em 1em\">
       <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
 "
+
+# Breadcrumb path
 set stub ""
 foreach part [split $dir /] {
 	if {$stub eq "/"} { set name $part } else { set name "/$part" }
@@ -405,6 +407,17 @@ foreach sl $sortlist {
 puts "</div>"
 
 puts "</fieldset>"
+
+puts {
+<fieldset class=left style="margin: 0 1em 1em 1em">
+<legend style="font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em; color: #1e5bbd;">
+File Clipboard
+</legend>
+<div id=clipboard>
+<img src=/img/loading.gif> <i>Loading...</i>
+</div>
+</fieldset>
+}
 
 puts "<div class=brow>"
 

@@ -457,6 +457,9 @@ var dmenuclick = function(action, el, pos)
 	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
 		new_folder_callback);
 
+	// Load clipboard
+	$('#clipboard').load('/cgi-bin/browse/clipboard.jim');
+
 	// Uncheck everything
 	$('input.fs:checked').attr('checked', false);
 

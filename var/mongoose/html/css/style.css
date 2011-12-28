@@ -13,6 +13,19 @@ html>body
 	font-size: small;
 }
 
+.left, .cleft
+{
+	float: left;
+}
+.cleft
+{
+	clear: left;
+}
+fieldset.left, fieldset.cleft
+{
+	display: inline;
+}
+
 div.container
 {
 	position: relative;

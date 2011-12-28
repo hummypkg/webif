@@ -1,0 +1,31 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require clipboard.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set cb [[clipboard new {path "/tmp/webif-browse.cb"}] load]
+
+set action [cgi_get act list]
+
+switch $action {
+    list {
+	if {![$cb size]} {
+		puts "<i>Clipboard is empty</i>"
+		exit
+	}
+    }
+    add {
+    }
+    del {
+    }
+    clear {
+    }
+}
+
