@@ -196,131 +196,16 @@ header
 puts { 
 	<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
 	<script type="text/javascript" src="/js/jquery.contextMenu.js"></script>
-
-	<ul id=optmenu class=contextMenu>
-		<li class=delete><a href=#delete>Delete</a></li>
-		<li><a href=#lock>Toggle Lock</a></li>
-		<li><a href=#enc>Toggle Enc</a></li>
-		<li><a href=#new>Toggle New</a></li>
-		<li><a href=#rename>Rename</a></li>
-		<li><a href=#download>Download</a></li>
-}
-if {[system model] eq "HDR"} {
-	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
-}
-if {[system pkginst ffmpeg]} {
-	puts { <li><a href=#audio>Extract Audio</a></li> }
-}
-if $nicesplice {
-	puts { <li class="cut separator"><a href=#crop>Crop</a></li> }
-}
-puts {
-	</ul>
-
-	<ul id=doptmenu class=contextMenu>
-		<li class=delete><a href=#delete>Delete</a></li>
-		<li><a href=#rename>Rename</a></li>
-}
-
-if $flatten {
-	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
-}
-
-puts {
-	</ul>
-
-	<div id=renameform title="Rename media file" style="display: none">
-		<form id=renameform_form>
-		<input type=hidden name="renameorig" id="renameorig" value="">
-		<input type=hidden name="titleorig" id="titleorig" value="">
-		<table border=0>
-		<tr>
-		<th>
-			<label for="rename">
-				<b>New Filename</b>
-			</label>
-		</th>
-		<td>
-			<input type=text name="rename" id="rename"
-			    value="" size=70 maxlength=255
-			    class="text ui-widget-content ui-corner-all">
-		</td>
-		</tr>
-		<tr style="display: none" class=tstype>
-		<th>
-			<label for="renametitle" style="padding-top: 0.5em">
-				<b>New Medialist Title</b>
-			</label>
-		</th>
-		<td>
-			<input type=text name="renametitle" id="renametitle"
-			    value="" size=70 maxlength=48
-			    class="text ui-widget-content ui-corner-all">
-		</td>
-		</tr>
-		<tr style="display: none" class=tstype>
-		<td colspan=2 id=synopsis style="font-style: italic"></td>
-		</tr>
-		</table>
-		</form>
-	</div>
-
-	<div id=drenameform title="Rename directory" style="display: none">
-		<form id=drenameform_form>
-		<input type=hidden name="renameorig" id="drenameorig" value="">
-		<table border=0>
-		<tr>
-		<th>
-			<label for="drename">
-				<b>New Directory Name</b>
-			</label>
-		</th>
-		<td>
-			<input type=text name="rename" id="drename"
-			    value="" size=70 maxlength=255
-			    class="text ui-widget-content ui-corner-all">
-		</td>
-		</tr>
-		</table>
-		</form>
-	</div>
-
-	<div id=savestreamform title="Save streamed content"
-	    style="display: none">
-		<div class=pre id=savestream_detail></div>
-		<form id=savestream_form>
-}
-puts "<input type=hidden name=dir value=\"$dir\">"
-puts {
-		<table border=0>
-		<tr>
-		<th>
-			<label for="savestream_name">
-				<b>Filename</b>
-			</label>
-		</th>
-		<td>
-			<input type=text name="savestream_name"
-			    id="savestream_name"
-			    value="" size=70 maxlength=255
-			    class="text ui-widget-content ui-corner-all">
-			<img id=savestream_spin src=/img/loading.gif>
-		</td>
-		</tr>
-		</table>
-		</form>
-	</div>
-
-	<div id=dialogue></div>
-	<div id=confirm title="Confirmation Required"></div>
-
+	<link href=/css/jquery.bar.css rel=stylesheet type=text/css />
+	<script type="text/javascript" src="/js/jquery.bar.js"></script>
 	<script type=text/javascript src=/cgi-bin/browse/browse.js></script>
 	<link type=text/css rel=stylesheet href=/cgi-bin/browse/style.css />
 }
 
-puts "<span style=\"display:none\" id=dir>$dir</span>"
+source /mod/var/mongoose/cgi-bin/browse/assets.jim
 
 puts "
+	<span style=\"display:none\" id=dir>$dir</span>
       <fieldset class=cleft style=\"margin: 0 1em 1em 1em\">
       <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
 "

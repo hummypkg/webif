@@ -24,6 +24,33 @@ function disableall()
 	$('button,a,input').disable();
 }
 
+function reloadclipboard()
+{
+	$('#clipboard')
+	    .empty()
+	    .html('<img src=/img/loading.gif> <i>Loading...</i>')
+	    .load('/cgi-bin/browse/clipboard.jim', function() {
+
+// Start Clipboard post-load actions
+
+$('#clipclear').button().click(function() {
+	$.get('/cgi-bin/browse/clipboard.jim?act=clear', function() {
+		reloadclipboard();
+	});
+});
+
+$('a.clipdel').click(function() {
+	$.get('/cgi-bin/browse/clipboard.jim?act=remove&path=' +
+	    $(this).attr('path'), function() {
+		reloadclipboard();
+	});
+});
+
+// End Clipboard post-load actions
+
+	});
+}
+
 function epginfo_callback(data, status, xhr)
 {
 	var width = 85;
@@ -245,6 +272,14 @@ var menuclick = function(action, el, pos)
 		    type, id);
 		break;
 
+	    case 'cut':
+	    case 'copy':
+		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
+		    '&path=' + file, function() {
+			reloadclipboard();
+		    });
+		break;
+
 	    case 'lock':
 		confirm_action('change the lock on', lock_callback,
 		    file, type, id);
@@ -332,6 +367,14 @@ var dmenuclick = function(action, el, pos)
 				});
 			});
 		}
+		break;
+
+	    case 'cut':
+	    case 'copy':
+		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
+		    '&path=' + file, function() {
+			reloadclipboard();
+		    });
 		break;
 
 	    case 'rename':
@@ -458,7 +501,7 @@ var dmenuclick = function(action, el, pos)
 		new_folder_callback);
 
 	// Load clipboard
-	$('#clipboard').load('/cgi-bin/browse/clipboard.jim');
+	reloadclipboard();
 
 	// Uncheck everything
 	$('input.fs:checked').attr('checked', false);

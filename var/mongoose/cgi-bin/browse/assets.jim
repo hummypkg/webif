@@ -1,0 +1,131 @@
+#!/mod/bin/jimsh
+
+puts {
+
+<div id=jbar></div>
+
+<ul id=optmenu class=contextMenu>
+	<li class=delete><a href=#delete>Delete</a></li>
+	<li class=cut><a href=#cut>Cut to clipboard</a></li>
+	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
+
+	<li class=separator><a href=#rename>Rename</a></li>
+	<li><a href=#download>Download</a></li>
+
+}
+if {[system model] eq "HDR"} {
+	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
+}
+if {[system pkginst ffmpeg]} {
+	puts { <li><a href=#audio>Extract Audio</a></li> }
+}
+if $nicesplice {
+	puts { <li class="cut"><a href=#crop>Crop</a></li> }
+}
+puts {
+	<li class=separator><a href=#lock>Toggle Lock</a></li>
+	<li><a href=#enc>Toggle Enc</a></li>
+	<li><a href=#new>Toggle New</a></li>
+</ul>
+
+<ul id=doptmenu class=contextMenu>
+	<li class=delete><a href=#delete>Delete</a></li>
+	<li class=cut><a href=#cut>Cut to clipboard</a></li>
+	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
+	<li class=separator><a href=#rename>Rename</a></li>
+}
+
+if $flatten {
+	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
+}
+
+puts {
+</ul>
+
+<div id=renameform title="Rename media file" style="display: none">
+	<form id=renameform_form>
+	<input type=hidden name="renameorig" id="renameorig" value="">
+	<input type=hidden name="titleorig" id="titleorig" value="">
+	<table border=0>
+	<tr>
+	<th>
+		<label for="rename">
+			<b>New Filename</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="rename" id="rename"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	<tr style="display: none" class=tstype>
+	<th>
+		<label for="renametitle" style="padding-top: 0.5em">
+			<b>New Medialist Title</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="renametitle" id="renametitle"
+		    value="" size=70 maxlength=48
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	<tr style="display: none" class=tstype>
+	<td colspan=2 id=synopsis style="font-style: italic"></td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+<div id=drenameform title="Rename directory" style="display: none">
+	<form id=drenameform_form>
+	<input type=hidden name="renameorig" id="drenameorig" value="">
+	<table border=0>
+	<tr>
+	<th>
+		<label for="drename">
+			<b>New Directory Name</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="rename" id="drename"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+<div id=savestreamform title="Save streamed content"
+    style="display: none">
+	<div class=pre id=savestream_detail></div>
+	<form id=savestream_form>
+}
+puts "<input type=hidden name=dir value=\"$dir\">"
+puts {
+	<table border=0>
+	<tr>
+	<th>
+		<label for="savestream_name">
+			<b>Filename</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="savestream_name"
+		    id="savestream_name"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+		<img id=savestream_spin src=/img/loading.gif>
+	</td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+<div id=dialogue></div>
+<div id=confirm title="Confirmation Required"></div>
+
+}
+

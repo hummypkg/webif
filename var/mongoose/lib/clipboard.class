@@ -8,12 +8,11 @@ class clipboard {
 
 class clipboarditem {
 	action	""
-	type	""
 	path	""
 }
 
 clipboarditem method _parse {line} {
-	lassign [split $line "|"] action type path
+	lassign [split $line "|"] action path
 }
 
 proc {clipboarditem load} {line} {
@@ -25,7 +24,7 @@ proc {clipboarditem load} {line} {
 clipboard method save {} {
 	set fd [open $path w]
 	foreach item $items {
-		puts $fd "[$item get action]|[$item get type]|[$item get path]"
+		puts $fd "[$item get action]|[$item get path]"
 	}
 	$fd close
 }
@@ -38,7 +37,7 @@ clipboard method load {} {
 		foreach line [split [$fd read] "\n"] {
 			set ci [clipboarditem load $line]
 			if {[file exists [$ci get path]]} {
-				lappend $items $ci
+				lappend items $ci
 			} else {
 				set changed 1
 			}
@@ -48,11 +47,41 @@ clipboard method load {} {
 	return $self
 }
 
+clipboard method present {xfile} {
+	foreach item $items {
+		if {[$item get path] eq $xfile} {
+			return 1
+		}
+	}
+	return 0
+}
+
+clipboard method index {xfile} {
+	set index -1
+	foreach item $items {
+		incr index
+		if {[$item get path] eq $xfile} {
+			return $index
+		}
+	}
+	return -1
+}
+
+clipboard method clear {} {
+	set items {}
+}
+
 clipboard method size {} {
 	return [llength $items]
 }
 
-clipboard method add {action type path} {
-	lappend $items [clipboarditem load "$action|$type|$path"]
+clipboard method add {xaction xpath} {
+	lappend items [clipboarditem load "$xaction|$xpath"]
+}
+
+clipboard method remove {xpath} {
+	set index [$self index $xpath]
+	if {$index < 0} { return }
+	set items [lreplace $items $index $index]
 }
 

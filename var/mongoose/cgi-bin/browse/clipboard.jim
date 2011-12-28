@@ -2,12 +2,13 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
+require classdump
 require clipboard.class
 
 puts "Content-Type: text/html"
 puts ""
 
-cgi_input
+cgi_input 1
 #cgi_dump
 
 set cb [[clipboard new {path "/tmp/webif-browse.cb"}] load]
@@ -20,12 +21,55 @@ switch $action {
 		puts "<i>Clipboard is empty</i>"
 		exit
 	}
+	puts "<div class=cliplist>"
+	foreach file [$cb get items] {
+		set img "page_white_copy"
+		if {[$file get action] eq "cut"} {
+			set img "cut"
+		}
+		set path [$file get path]
+		set xpath [cgi_quote_html $path]
+		puts "<span title=\"$xpath\" alt=\"$xpath\">"
+		puts "<img src=/img/context/$img.png>"
+		set dfile [file tail $path]
+		if {[string length $dfile] > 25} {
+			set dfile "[string range $dfile 0 22]..."
+		}
+		if {[file isdirectory $path]} {
+			puts "<img height=16
+			    src=/images/711_1_09_Media_Folder.png>"
+		}
+		puts [cgi_quote_html $dfile]
+		puts "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
+		    path=\"[cgi_quote_url $path]\">
+		    <img src=/img/close.png height=16></a>"
+		puts "</span>"
+	}
+	puts "</div>"
+	puts "<button id=clipclear>Empty clipboard</button>"
     }
     add {
+	if {[set path [cgi_get path]] eq "0"} {
+		puts "No path."
+		exit
+	}
+	set mode [cgi_get mode copy]
+	foreach p [split $path ","] {
+		set p [cgi_unquote_input $p]
+		if {![$cb present $p]} {
+			$cb add $mode $p
+			puts "Added $p for $mode<br>"
+		}
+	}
+	$cb save
     }
-    del {
+    remove {
+	$cb remove [cgi_unquote_input [cgi_get path]]
+	$cb save
     }
     clear {
+	$cb clear
+	$cb save
     }
 }
 

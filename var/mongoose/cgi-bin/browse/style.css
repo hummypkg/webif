@@ -5,3 +5,8 @@ div.brow
 	clear: left;
 }
 
+div.cliplist span
+{
+	display: block;
+}
+
