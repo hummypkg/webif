@@ -2,11 +2,9 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require classdump
-require clipboard.class
+require clipboard.class ts.class chunked
 
-puts "Content-Type: text/html"
-puts ""
+start_chunked
 
 cgi_input 1
 #cgi_dump
@@ -18,10 +16,10 @@ set action [cgi_get act list]
 switch $action {
     list {
 	if {![$cb size]} {
-		puts "<i>Clipboard is empty</i>"
-		exit
+		chunk "<i>Clipboard is empty</i>"
+		break
 	}
-	puts "<div class=cliplist>"
+	chunk "<div class=cliplist>"
 	foreach file [$cb get items] {
 		set img "page_white_copy"
 		if {[$file get action] eq "cut"} {
@@ -29,24 +27,24 @@ switch $action {
 		}
 		set path [$file get path]
 		set xpath [cgi_quote_html $path]
-		puts "<span title=\"$xpath\" alt=\"$xpath\">"
-		puts "<img src=/img/context/$img.png>"
+		chunk "<span title=\"$xpath\" alt=\"$xpath\">"
+		chunk "<img src=/img/context/$img.png>"
 		set dfile [file tail $path]
 		if {[string length $dfile] > 25} {
 			set dfile "[string range $dfile 0 22]..."
 		}
 		if {[file isdirectory $path]} {
-			puts "<img height=16
+			chunk "<img height=16
 			    src=/images/711_1_09_Media_Folder.png>"
 		}
-		puts [cgi_quote_html $dfile]
-		puts "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
+		chunk [cgi_quote_html $dfile]
+		chunk "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
 		    path=\"[cgi_quote_url $path]\">
 		    <img src=/img/close.png height=16></a>"
-		puts "</span>"
+		chunk "</span>"
 	}
-	puts "</div>"
-	puts "<button id=clipclear>Empty clipboard</button>"
+	chunk "</div>"
+	chunk "<button id=clipclear>Empty clipboard</button>"
     }
     add {
 	if {[set path [cgi_get path]] eq "0"} {
@@ -58,7 +56,7 @@ switch $action {
 		set p [cgi_unquote_input $p]
 		if {![$cb present $p]} {
 			$cb add $mode $p
-			puts "Added $p for $mode<br>"
+			chunk "Added $p for $mode<br>"
 		}
 	}
 	$cb save
@@ -71,5 +69,43 @@ switch $action {
 	$cb clear
 	$cb save
     }
+    paste {
+	set dir [cgi_unquote_input [cgi_get dir]]
+	foreach item [$cb get items] {
+		set path [$item get path]
+		set file [file tail $path]
+		set mode [$item get action]
+
+		chunk "Pasting $file"
+		chunk_pad
+
+		if {[file isdirectory $path]} {
+			# Directory
+			if {$mode eq "cut"} {
+				file rename $path "$dir/$file"
+			} else {
+				chunk [exec /mod/bin/busybox/cp -r \
+				    $path $dir]
+			}
+		} else {
+			set root [file rootname $path]
+			# Protect special characters in root.
+			# In particular [] characters which are used a lot
+			# for torrent names.
+			regsub -all {([\\["$])} $root {\\\1} root
+			foreach f [glob -nocomplain "${root}.*"] {
+				if {$mode eq "cut"} {
+					file rename $f "$dir/[file tail $f]" 
+				} else {
+					file copy $f "$dir/[file tail $f]" 
+				}
+			}
+		}
+	}
+	$cb clear
+	$cb save
+    }
 }
+
+end_chunked
 

@@ -307,7 +307,11 @@ File Clipboard
 puts "<div class=brow>"
 
 puts {
+<button id=copy>Copy</button>
+<button id=cut>Cut</button>
+<button id=paste>Paste</button>
 <button id=delete>Delete</button>
+<button id=newdir>New Folder</button>
 <div id=deletewait class=blood style="display: none">
 <img src=/img/loading.gif>Deleting may take some time, please be patient...
 </div>

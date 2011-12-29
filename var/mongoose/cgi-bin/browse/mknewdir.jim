@@ -1,0 +1,15 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get dir -]
+set name [cgi_get newdirname "New Folder"]
+
+file mkdir "$dir/$name"
+

@@ -33,6 +33,11 @@ function reloadclipboard()
 
 // Start Clipboard post-load actions
 
+if ($('#clipclear').length)
+	$('#paste').enable();
+else
+	$('#paste').disable();
+
 $('#clipclear').button().click(function() {
 	$.get('/cgi-bin/browse/clipboard.jim?act=clear', function() {
 		reloadclipboard();
@@ -147,6 +152,13 @@ function drename_submit()
 {
 	var s = $('#drenameform_form').serialize();
 	$.get('/cgi-bin/browse/rename.jim?' + s,
+	    function() { window.location.reload(true); });
+}
+
+function newdir_submit()
+{
+	var s = $('#newdirform_form').serialize();
+	$.get('/cgi-bin/browse/mknewdir.jim?' + s,
 	    function() { window.location.reload(true); });
 }
 
@@ -272,8 +284,11 @@ var menuclick = function(action, el, pos)
 		    type, id);
 		break;
 
-	    case 'cut':
 	    case 'copy':
+		if (!confirm('Are you sure? Copying recordings takes a long time!'))
+			break;
+		// Fallthrough
+	    case 'cut':
 		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
 		    '&path=' + file, function() {
 			reloadclipboard();
@@ -369,8 +384,11 @@ var dmenuclick = function(action, el, pos)
 		}
 		break;
 
-	    case 'cut':
 	    case 'copy':
+		if (!confirm('Are you sure? Copying directories can take a very long time!'))
+			break;
+		// Fallthrough
+	    case 'cut':
 		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
 		    '&path=' + file, function() {
 			reloadclipboard();
@@ -556,19 +574,88 @@ var dmenuclick = function(action, el, pos)
 		{
 			disableall();
 			$('#deletewait').slideDown('slow');
-			window.location.href =
+
+			$('#pwdialogue').dialog({
+				title: "Deleting",
+				modal: true, autoOpen: true,
+				height: 'auto', width: 'auto',
+				show: 'scale', hide: 'fade',
+				draggable: false, resizable: false,
+				closeOnEscape: false,
+				open: function() {
+				    $('.ui-dialog-titlebar-close').hide();
+				}
+			});
+			$('#pwfeedback').load(
 			    '/cgi-bin/browse/mdelete.jim?dir=' +
 			    encodeURIComponent(dir) + '&files=' +
-		    	    files.join();
+		    	    files.join(), function() {
+				$('#pwdialogue').dialog('close');
+				window.location.reload(true);
+			});
 		}
 	    });
+
+	$('#copy,#cut').button().disable()
+	    .click(function() {
+		var files = new Array();
+		var els = $('input.fs:checked + a').each(function() {
+			files.push($(this).attr('file'));
+		});
+		//console.log("%o", files);
+		var action = $(this).attr('id');
+		if (action == 'copy' && !confirm('Are you sure? Copying recordings can take a very long time!'))
+			return;
+		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
+		    '&path=' + files.join(), function() {
+			reloadclipboard();
+			$('input.fs:checked').attr('checked', false);
+		    });
+	    });
+
+	$('#paste').button().disable()
+	    .click(function() {
+		disableall();
+		$('#pwdialogue').dialog({
+			title: "Pasting from clipboard",
+			modal: true, autoOpen: true,
+			height: 'auto', width: 'auto',
+			show: 'scale', hide: 'fade',
+			draggable: false, resizable: false,
+			closeOnEscape: false,
+			open: function() {
+			    $('.ui-dialog-titlebar-close').hide();
+			}
+		});
+		$('#pwfeedback').load(
+		    '/cgi-bin/browse/clipboard.jim?act=paste&dir='
+		    + encodeURIComponent(dir), function() {
+			$('#pwdialogue').dialog('close');
+			window.location.reload(true);
+		});
+	});
+
+	$('#newdir').button().click(function() {
+		$('#newdirform').dialog({
+			autoOpen: true,
+			height: 'auto', width: 'auto',
+			modal: true,
+			buttons: {
+				"Create": newdir_submit,
+				"Cancel": function() {
+					$(this).dialog('close');
+				}
+			},
+			close: function() { $('#newdirname').val(''); }
+		});
+	});
 
 	$('input.fs').change(function() {
 		var num = $('input.fs:checked').size();
 		if (num > 0)
-			$('#delete').enable();
+			$('#delete,#cut,#copy').enable();
 		else
-			$('#delete').disable();
+			$('#delete,#cut,#copy').disable();
 	
 		var num = $('input.fsts:checked').size();
 		if (num > 1)

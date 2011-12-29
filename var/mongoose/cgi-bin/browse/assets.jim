@@ -124,8 +124,37 @@ puts {
 	</form>
 </div>
 
+<div id=newdirform title="New Folder" style="display: none">
+	<form id=newdirform_form>
+}
+puts "<input type=hidden name=dir value=\"$dir\">"
+puts {
+	<table border=0>
+	<tr>
+	<th>
+		<label for="newdirname">
+			<b>New Folder Name</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="newdirname" id="newdirname"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+	</form>
+</div>
+
 <div id=dialogue></div>
 <div id=confirm title="Confirmation Required"></div>
+<div id=pwdialogue style="display: none">
+<center>
+<img src=/img/loading.gif>
+<br><br>
+Please wait...
+<div id=pwfeedback></div>
+</div>
 
 }
 

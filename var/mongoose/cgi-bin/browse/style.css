@@ -10,3 +10,8 @@ div.cliplist span
 	display: block;
 }
 
+#clipclear
+{
+	margin-top: 1em;
+}
+
