@@ -4,7 +4,7 @@ package require cgi
 source /mod/var/mongoose/lib/setup
 require clipboard.class ts.class chunked
 
-start_chunked
+start_chunked "text/html; no-cache\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nPragma: nocache"
 
 cgi_input 1
 #cgi_dump
@@ -40,7 +40,7 @@ switch $action {
 		chunk [cgi_quote_html $dfile]
 		chunk "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
 		    path=\"[cgi_quote_url $path]\">
-		    <img src=/img/close.png height=16></a>"
+		    <img border=0 src=/img/close.png height=16></a>"
 		chunk "</span>"
 	}
 	chunk "</div>"

@@ -4,7 +4,7 @@ puts {
 
 <div id=jbar></div>
 
-<ul id=optmenu class=contextMenu>
+<ul id=optmenu class=contextMenu style="width: 160px">
 	<li class=delete><a href=#delete>Delete</a></li>
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
@@ -28,7 +28,7 @@ puts {
 	<li><a href=#new>Toggle New</a></li>
 </ul>
 
-<ul id=doptmenu class=contextMenu>
+<ul id=doptmenu class=contextMenu style="width: 160px">
 	<li class=delete><a href=#delete>Delete</a></li>
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
@@ -154,6 +154,7 @@ puts {
 <br><br>
 Please wait...
 <div id=pwfeedback></div>
+</center>
 </div>
 
 }
