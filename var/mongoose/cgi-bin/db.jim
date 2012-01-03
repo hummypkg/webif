@@ -8,17 +8,8 @@ require altrow
 puts "Content-Type: text/html"
 puts ""
 
-set databases {
-	/var/lib/humaxtv/rsvp.db
-	/var/lib/humaxtv/rsv.db
-	/var/lib/humaxtv/setup.db
-	/var/lib/humaxtv/channel.db
-	/var/lib/humaxtv/default_channel.db
-	/var/lib/humaxtv/default_setup.db
-	/var/lib/humaxtv/rsv_fail.db
-	/var/lib/humaxtv/tempsetup.db
-	/mnt/hd2/dms_cds.db
-}
+set databases [glob /var/lib/humaxtv/*.db]
+lappend databases "/mnt/hd2/dms_cds.db"
 
 header
 
