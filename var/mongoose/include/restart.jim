@@ -25,16 +25,22 @@ if {[system busy]} {
 }
 
 puts {
+	<small><button id=restart_cancel>Hide</button></small>
 	</font>
 	</div>
 	<div style="width: 60%; height: 0.7em; margin-bottom: 2em;
 	    background: url(/img/stripes.gif) repeat-x;"></div>
 	</center>
 	<script type=text/javascript>
-	$('#restart_humaxtv').button();
-	$('#restart_humaxtv').click(function() {
+	$('#restart_humaxtv').button()
+	    .click(function() {
 		if (confirm('Are you sure you wish to perform a restart now?'))
 			window.location = '/cgi-bin/restart.jim';
+	});
+	$('#restart_cancel').button()
+	    .click(function() {
+		$.get('/cgi-bin/restart.jim?act=cancel');
+		$('#restart_block').slideUp('slow');
 	});
 	</script>
 }

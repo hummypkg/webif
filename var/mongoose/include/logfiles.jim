@@ -4,7 +4,7 @@ source /mod/var/mongoose/lib/setup
 require pretty_size
 
 foreach file [concat \
-    [glob -nocomplain /tmp/*.log] \
+    [glob -nocomplain /var/log/*.log] \
     [glob -nocomplain /mod/tmp/*.log] \
 ] {
 	puts "<a href=# class=log file=\"$file\">

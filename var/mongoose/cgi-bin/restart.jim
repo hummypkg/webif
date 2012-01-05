@@ -8,6 +8,12 @@ puts "Content-Type: text/html"
 puts ""
 
 cgi_input
+
+if {[cgi_get act] eq "cancel"} {
+	file delete /tmp/.restartpending
+	exit
+}
+
 if {[cgi_get now] eq "yes"} {
 	# - Busybox reboot does sync the disk but may still not be clean enough.
 	puts "Restarting."
