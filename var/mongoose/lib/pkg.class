@@ -12,9 +12,10 @@ set ::pkgmeta {}
 
 pkg method _load {nm} {
 	set name $nm
-	set info [join [split [exec /bin/opkg list $nm] "\n"] " "]
-	#rs - 0.4.0 rs - 0.4.2 - Remote scheduling support.
-	regexp {^[^ ]+ - [^ ]+ [^ ]+ - ([^ ]+) - (.*)$} $info full latest descr
+	foreach line [split [exec /bin/opkg list $nm] "\n"] {
+		# betaftpd - 0.0.8pre17-1 - Description...
+		regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x latest descr
+	}
 	set info [exec /bin/opkg list-installed $nm]
 	regexp {^([^ ]+) - ([^ ]+)$} $info full xname installed
 
