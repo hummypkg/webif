@@ -79,7 +79,8 @@ if {[llength $pkgs] > 0} {
 	"
 
 	foreach pkg $pkgs {
-		if {$filter && ![dict exists $::pkgmeta $pkg]} { continue }
+		if {$type ne "upgr" && $filter && \
+		    ![dict exists $::pkgmeta $pkg]} { continue }
 		pkgrow [pkg load $pkg]
 	}
 	puts "</table>"

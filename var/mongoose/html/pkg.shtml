@@ -146,12 +146,12 @@ $(document).ready(function() {
 <div id=pkgtabs>
 <ul>
 	<li>
-		<a href=/cgi-bin/pkg.jim?type=inst>
-		<span>Installed</span>
-		</a>
-	</li><li>
 		<a href=/cgi-bin/pkg.jim?type=upgr>
 		<span>Upgrades</span>
+		</a>
+	</li><li>
+		<a href=/cgi-bin/pkg.jim?type=inst>
+		<span>Installed</span>
 		</a>
 	</li><li>
 		<a href=/cgi-bin/pkg.jim?type=avail>
