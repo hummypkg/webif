@@ -91,7 +91,7 @@ if {[llength $pkgs] > 0} {
 	puts "<i>No packages "
 	switch $type {
 		inst { puts "are installed." }
-		upgr { puts "are available for upgrade." }
+		upgr { puts "are available for upgrade; try updating the package list from the Internet using the button above." }
 		avail { puts "are available for installation." }
 	}
 	puts "</i>"
