@@ -198,7 +198,7 @@ function preparemenu(el, menu)
 	{
 		if (el.attr('def') == 'HD')
 		{
-			$('#optmenu').enableContextMenuItems('#enc');
+			$(menu).enableContextMenuItems('#enc');
 			if (el.attr('encd') == 1)
 				$(menu).changeContextMenuItem('#enc',
 				    'Remove Enc');
@@ -208,51 +208,52 @@ function preparemenu(el, menu)
 		}
 
 		if (el.attr('bx') > 0)
-			$('#optmenu').enableContextMenuItems('#crop');
+			$(menu).enableContextMenuItems('#crop');
 		else
-			$('#optmenu').disableContextMenuItems('#crop');
+			$(menu).disableContextMenuItems('#crop');
 
-		$('#optmenu').enableContextMenuItems('#new');
+		$(menu).enableContextMenuItems('#new');
 		if (el.attr('new') == 1)
 			$(menu).changeContextMenuItem('#new', 'Mark watched');
 		else
 			$(menu).changeContextMenuItem('#new', 'Mark new');
 
 
-		$('#optmenu').enableContextMenuItems('#lock');
+		$(menu).enableContextMenuItems('#lock');
 		if (el.attr('locked') == 1)
 		{
 			$(menu).changeContextMenuItem('#lock', 'Unlock');
-			$('#optmenu').disableContextMenuItems('#delete');
+			$(menu).disableContextMenuItems('#delete');
 		}
 		else
 		{
 			$(menu).changeContextMenuItem('#lock', 'Lock');
-			$('#optmenu').enableContextMenuItems('#delete');
+			$(menu).enableContextMenuItems('#delete');
 		}
 
 		if (el.attr('odencd') == 1)
 		{
-			$('#optmenu').enableContextMenuItems('#decrypt');
-			$('#optmenu').disableContextMenuItems('#audio');
+			$(menu).enableContextMenuItems('#decrypt');
+			$(menu).disableContextMenuItems('#audio');
 		}
 		else
 		{
-			$('#optmenu').disableContextMenuItems('#decrypt');
-			$('#optmenu').enableContextMenuItems('#audio');
+			$(menu).disableContextMenuItems('#decrypt');
+			$(menu).enableContextMenuItems('#audio');
 		}
 	
 	}
 	else
 	{
-		$('#optmenu').enableContextMenuItems('#delete');
-		$('#optmenu').disableContextMenuItems('#lock');
-		$('#optmenu').disableContextMenuItems('#enc');
-		$('#optmenu').disableContextMenuItems('#new');
-		$('#optmenu').disableContextMenuItems('#decrypt');
-		$('#optmenu').disableContextMenuItems('#audio');
-		$('#optmenu').disableContextMenuItems('#crop');
+		$(menu).enableContextMenuItems('#delete');
+		$(menu).disableContextMenuItems('#lock');
+		$(menu).disableContextMenuItems('#enc');
+		$(menu).disableContextMenuItems('#new');
+		$(menu).disableContextMenuItems('#decrypt');
+		$(menu).disableContextMenuItems('#audio');
+		$(menu).disableContextMenuItems('#crop');
 	}
+$(menu).disableContextMenuItems('#delete');
 
 }
 
@@ -266,6 +267,7 @@ function preparedmenu(el, menu)
 			$(menu).changeContextMenuItem('#flat',
 			    'Prevent Flatten');
 	}
+$(menu).disableContextMenuItems('#delete');
 }
 
 $(document).ready(function() {
@@ -656,6 +658,8 @@ var dmenuclick = function(action, el, pos)
 			$('#delete,#cut,#copy').enable();
 		else
 			$('#delete,#cut,#copy').disable();
+
+		$('#delete').disable();
 	
 		var num = $('input.fsts:checked').size();
 		if (num > 1)
