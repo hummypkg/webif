@@ -611,6 +611,7 @@ var dmenuclick = function(action, el, pos)
 
 		$.post('/cgi-bin/browse/clipboard.jim', {
 		    'act': 'add',
+		    'dir': dir,
 		    'mode': action,
 		    'path': files
 		    }, function() {

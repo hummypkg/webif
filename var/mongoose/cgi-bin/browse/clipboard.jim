@@ -48,12 +48,17 @@ switch $action {
     }
     add {
 	if {[set path [cgi_get path]] eq "0"} {
-		puts "No path."
+		chunk "No path."
 		exit
 	}
+	set dir [cgi_unquote_input [cgi_get dir]]
 	set mode [cgi_get mode copy]
 	foreach p $path {
 		set p [cgi_unquote_input $p]
+		if {$dir ne "0" && ![string match "$dir/*" $p]} {
+			chunk "$p not in directory<br>"
+			continue
+		}
 		if {![$cb present $p]} {
 			$cb add $mode $p
 			chunk "Added $p for $mode<br>"
