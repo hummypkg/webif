@@ -10,8 +10,8 @@ puts ""
 set nicesplice [system pkginst nicesplice]
 set flatten [system pkginst flatten]
 
-set ignore {.nts .thm .hmt .hmi}
-set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov}
+set ignore {.nts .thm .hmi}
+set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt}
 
 cgi_input
 #cgi_dump
@@ -93,6 +93,12 @@ proc entry {file} {{i 0}} {
 		set type ts
 		set ts [ts fetch $file 1]
 		set img Video_TS
+	} elseif {$ext eq ".hmt"} {
+		if {[file exists "${base}.ts"]} { continue }
+		# Sole hmt file indicates failure to track.
+		set type bad
+		set ts 0
+		set img Video_Failed
 	} else {
 		set type gen
 		set ts 0
@@ -102,8 +108,8 @@ proc entry {file} {{i 0}} {
 	set new 0
 	if {$type eq "ts"} {
 		if {[$ts flag "New"] > 0} { set new 1 }
-	} else {
-		if {![file exists "[file rootname $file].hmi"]} { set new 1 }
+	} elseif {$type eq "gen"} {
+		if {![file exists "${base}.hmi"]} { set new 1 }
 	}
 
 	if {$new} { append img _New }

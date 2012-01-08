@@ -8,13 +8,20 @@ puts "Content-Type: text/html\r\n\r\n"
 
 cgi_input 1
 #cgi_dump
+
 set dir [cgi_unquote_input [cgi_get dir]]
+
+#puts "DIR: ($dir)"
 
 puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
 puts "<ul style=\"list-style-type: square\">"
-foreach file [split [cgi_get files] ","] {
+foreach file [cgi_get files] {
 	set file [cgi_unquote_input $file]
 	puts -nonewline "<li>\"$file\"..."
+	if {![string match "$dir/*" $file]} {
+		puts "Error - outside directory."
+		continue
+	}
 
 	if {[file isdirectory $file]} {
 		puts -nonewline "Directory..."
@@ -38,15 +45,4 @@ foreach file [split [cgi_get files] ","] {
 	puts "</li>"
 }
 puts "</ul>"
-puts "<button id=back dir=\"$dir\">Back to media list</button>";
-
-puts {
-<script type=text/javascript>
-$('#deleting').slideUp('slow');
-$('#back').button().click(function() {
-	window.location.href = '/cgi-bin/browse.jim?dir=' +
-	    encodeURIComponent($('#back').attr('dir'));
-});
-</script>
-}
 

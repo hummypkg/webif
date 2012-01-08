@@ -253,7 +253,6 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#audio');
 		$(menu).disableContextMenuItems('#crop');
 	}
-$(menu).disableContextMenuItems('#delete');
 
 }
 
@@ -267,7 +266,6 @@ function preparedmenu(el, menu)
 			$(menu).changeContextMenuItem('#flat',
 			    'Prevent Flatten');
 	}
-$(menu).disableContextMenuItems('#delete');
 }
 
 $(document).ready(function() {
@@ -554,7 +552,7 @@ var dmenuclick = function(action, el, pos)
 	    .click(function() {
 		var files = new Array();
 		var els = $('input.fsts:checked + a').each(function() {
-			files.push(encodeURIComponent($(this).attr('file')));
+			files.push($(this).attr('file'));
 		});
 		//console.log("%o", files);
 		window.location.href = '/cgi-bin/browse/join.jim?files=' +
@@ -565,7 +563,7 @@ var dmenuclick = function(action, el, pos)
 	    .click(function() {
 		var files = new Array();
 		var els = $('input.fs:checked + a').each(function() {
-			files.push($(this).attr('file'));
+			files.push(decodeURIComponent($(this).attr('file')));
 		});
 		//console.log("%o", files);
 		var str = 'Are you sure you want to delete ' + files.length +
@@ -589,9 +587,10 @@ var dmenuclick = function(action, el, pos)
 				}
 			});
 			$('#pwfeedback').load(
-			    '/cgi-bin/browse/mdelete.jim?dir=' +
-			    encodeURIComponent(dir) + '&files=' +
-		    	    files.join(), function() {
+			    '/cgi-bin/browse/mdelete.jim', {
+				'dir': dir,
+				'files': files
+				}, function() {
 				$('#pwdialogue').dialog('close');
 				window.location.reload(true);
 			});
@@ -602,14 +601,19 @@ var dmenuclick = function(action, el, pos)
 	    .click(function() {
 		var files = new Array();
 		var els = $('input.fs:checked + a').each(function() {
-			files.push($(this).attr('file'));
+			files.push(decodeURIComponent($(this).attr('file')));
 		});
 		//console.log("%o", files);
 		var action = $(this).attr('id');
-		if (action == 'copy' && !confirm('Are you sure? Copying recordings can take a very long time!'))
+		if (action == 'copy' && !confirm('Are you sure? ' +
+		    'Copying recordings can take a very long time!'))
 			return;
-		$.get('/cgi-bin/browse/clipboard.jim?act=add&mode=' + action +
-		    '&path=' + files.join(), function() {
+
+		$.post('/cgi-bin/browse/clipboard.jim', {
+		    'act': 'add',
+		    'mode': action,
+		    'path': files
+		    }, function() {
 			reloadclipboard();
 			$('input.fs:checked').attr('checked', false);
 		    });
@@ -659,8 +663,6 @@ var dmenuclick = function(action, el, pos)
 		else
 			$('#delete,#cut,#copy').disable();
 
-		$('#delete').disable();
-	
 		var num = $('input.fsts:checked').size();
 		if (num > 1)
 			$('#join').enable();

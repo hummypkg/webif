@@ -52,7 +52,7 @@ switch $action {
 		exit
 	}
 	set mode [cgi_get mode copy]
-	foreach p [split $path ","] {
+	foreach p $path {
 		set p [cgi_unquote_input $p]
 		if {![$cb present $p]} {
 			$cb add $mode $p
