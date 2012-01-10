@@ -106,7 +106,7 @@ foreach line $data {
 
 	puts "    $chan"
 
-	if {!$hsvc} {
+	if {$hsvc eq ""} {
 		puts "        Cannot map channel name to service."
 		continue
 	}

@@ -118,10 +118,32 @@ proc {ts fetch} {file {checked 0}} {
 }
 
 ts method delete {} {
-	# Extract file basename
-	foreach f [glob -nocomplain "[file rootname $file].*"] {
+	set root [file rootname $file]
+	# Protect special characters in root.
+	# In particular [] characters which are used a lot
+	# for torrent names.
+	regsub -all {([\\["$])} $root {\\\1} root
+	foreach f [glob -nocomplain "${root}.*"] {
 		puts "Removed $f<br>"
 		file delete $f
+	}
+	return 1
+}
+
+ts method move {dst} {
+	set root [file rootname $file]
+	regsub -all {([\\["$])} $root {\\\1} root
+	foreach f [glob -nocomplain "${root}.*"] {
+		file rename $f "$dst/[file tail $f]"
+	}
+	return 1
+}
+
+ts method copy {dst} {
+	set root [file rootname $file]
+	regsub -all {([\\["$])} $root {\\\1} root
+	foreach f [glob -nocomplain "${root}.*"] {
+		file copy $f "$dst/[file tail $f]"
 	}
 	return 1
 }

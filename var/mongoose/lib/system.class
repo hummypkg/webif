@@ -50,6 +50,14 @@ proc {system mediaroot} {} {
 	return ""
 }
 
+proc {system dustbin} {} {
+	switch [system model] {
+		HDR { return "/media/My Video/_dustbin" }
+		HD { return "/media/drive1/Video/_dustbin" }
+	}
+	return ""
+}
+
 proc {system diskspace} {} {
 	switch [system model] {
 		HDR { set part /mnt/hd2 }
@@ -114,5 +122,9 @@ proc {system padding} {} {
 	}
 	$db close
 	return [list $start $stop]
+}
+
+proc {system mkdir_p} {dir} {
+	exec /mod/bin/busybox/mkdir -p $dir
 }
 

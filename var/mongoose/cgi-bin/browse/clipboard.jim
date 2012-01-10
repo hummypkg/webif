@@ -2,9 +2,12 @@
 
 package require cgi
 source /mod/var/mongoose/lib/setup
-require clipboard.class ts.class chunked
+require clipboard.class ts.class
 
-start_chunked "text/html; no-cache\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nPragma: nocache"
+puts "Content-Type: text/html; no-cache"
+puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
+puts "Pragma: nocache"
+puts ""
 
 cgi_input 1
 #cgi_dump
@@ -16,10 +19,10 @@ set action [cgi_get act list]
 switch $action {
     list {
 	if {![$cb size]} {
-		chunk "<i>Clipboard is empty</i>"
+		puts "<i>Clipboard is empty</i>"
 		break
 	}
-	chunk "<div class=cliplist>"
+	puts "<div class=cliplist>"
 	foreach file [$cb get items] {
 		set img "page_white_copy"
 		if {[$file get action] eq "cut"} {
@@ -27,28 +30,28 @@ switch $action {
 		}
 		set path [$file get path]
 		set xpath [cgi_quote_html $path]
-		chunk "<span title=\"$xpath\" alt=\"$xpath\">"
-		chunk "<img src=/img/context/$img.png>"
+		puts "<span title=\"$xpath\" alt=\"$xpath\">"
+		puts "<img src=/img/context/$img.png>"
 		set dfile [file tail $path]
 		if {[string length $dfile] > 25} {
 			set dfile "[string range $dfile 0 22]..."
 		}
 		if {[file isdirectory $path]} {
-			chunk "<img height=16
+			puts "<img height=16
 			    src=/images/711_1_09_Media_Folder.png>"
 		}
-		chunk [cgi_quote_html $dfile]
-		chunk "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
+		puts [cgi_quote_html $dfile]
+		puts "<a class=clipdel href=# alt=\"Remove\" title=\"Remove\"
 		    path=\"[cgi_quote_url $path]\">
 		    <img border=0 src=/img/close.png height=16></a>"
-		chunk "</span>"
+		puts "</span>"
 	}
-	chunk "</div>"
-	chunk "<button id=clipclear>Empty clipboard</button>"
+	puts "</div>"
+	puts "<button id=clipclear>Empty clipboard</button>"
     }
     add {
 	if {[set path [cgi_get path]] eq "0"} {
-		chunk "No path."
+		puts "No path."
 		exit
 	}
 	set dir [cgi_unquote_input [cgi_get dir]]
@@ -56,12 +59,12 @@ switch $action {
 	foreach p $path {
 		set p [cgi_unquote_input $p]
 		if {$dir ne "0" && ![string match "$dir/*" $p]} {
-			chunk "$p not in directory<br>"
+			puts "$p not in directory<br>"
 			continue
 		}
 		if {![$cb present $p]} {
 			$cb add $mode $p
-			chunk "Added $p for $mode<br>"
+			puts "Added $p for $mode<br>"
 		}
 	}
 	$cb save
@@ -81,16 +84,15 @@ switch $action {
 		set file [file tail $path]
 		set mode [$item get action]
 
-		chunk "Pasting $file"
-		chunk_pad
+		puts "Pasting $file"
 
 		if {[file isdirectory $path]} {
 			# Directory
 			if {$mode eq "cut"} {
-				file rename $path "$dir/$file"
+				catch {file rename $path "$dir/$file"}
 			} else {
-				chunk [exec /mod/bin/busybox/cp -r \
-				    $path $dir]
+				catch {puts [exec /mod/bin/busybox/cp -r \
+				    $path $dir]}
 			}
 		} else {
 			set root [file rootname $path]
@@ -100,9 +102,9 @@ switch $action {
 			regsub -all {([\\["$])} $root {\\\1} root
 			foreach f [glob -nocomplain "${root}.*"] {
 				if {$mode eq "cut"} {
-					file rename $f "$dir/[file tail $f]" 
+					catch {file rename $f "$dir/[file tail $f]"}
 				} else {
-					file copy $f "$dir/[file tail $f]" 
+					catch {file copy $f "$dir/[file tail $f]"}
 				}
 			}
 		}
@@ -111,6 +113,4 @@ switch $action {
 	$cb save
     }
 }
-
-end_chunked
 

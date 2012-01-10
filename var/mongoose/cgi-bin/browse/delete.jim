@@ -1,7 +1,8 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/ts.class
+source /mod/var/mongoose/lib/setup
+require ts.class system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -12,21 +13,50 @@ cgi_input
 set file [dict get $_cgi file]
 set type [dict get $_cgi type]
 
+if {[system pkginst undelete]} {
+	set dustbin [system dustbin]
+} else {
+	set dustbin ""
+}
+
+proc bindir {file} {
+	global dustbin
+	set dir [file dirname $file]
+	regsub "^[system mediaroot]" $dir $dustbin dir
+	system mkdir_p $dir
+	return $dir
+}
+
 if {$type eq "ts"} {
 	set ts [ts fetch $file]
-	if {[$ts delete]} {
-		puts "Successfully deleted $file."
+	if {$dustbin ne ""} {
+		$ts move [bindir $file]
 	} else {
-		puts "Problem deleting $file, [$ts get error]"
+		if {[$ts delete]} {
+			puts "Successfully deleted $file."
+		} else {
+			puts "Problem deleting $file, [$ts get error]"
+		}
 	}
 	exit
 } elseif {$type eq "dir"} {
 	puts -nonewline "Directory..."
-	puts [exec /mod/bin/busybox/rm -rf $file]
+	if {$dustbin ne ""} {
+		set ndir "[bindir $file]/[file tail $file]"
+		while {[file isdirectory $ndir]} { append ndir "_" }
+		file rename $file $ndir
+	} else {
+		puts [exec /mod/bin/busybox/rm -rf $file]
+	}
 	puts -nonewline "Done..."
 } else {
-	file delete $file
-	file delete "[file rootname $file].hmi"
+	if {$dustbin ne ""} {
+		file rename $file "[bindir $file]/[file tail $file]"
+	} else {
+		file delete $file
+	}
+	catch {file delete "[file rootname $file].hmi"}
+
 	puts "Successfully deleted $file."
 }
 
