@@ -35,8 +35,9 @@ proc directory {file bfile} {
 
 	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
-	puts "<img border=0 class=va id=\"img$tbfile\"
-	    src=/images/711_1_09_Media_Folder.png>"
+	set img "/images/711_1_09_Media_Folder.png"
+	if {$bfile eq "_dustbin"} { set img "/img/Dustbin_Folder.png" }
+	puts "<img border=0 class=va id=\"img$tbfile\" src=$img>"
 	puts "<input class=\"fs fsdir\" type=checkbox>"
 	puts "<a class=dbf
 	    href=\"$::env(REQUEST_URI)?dir=[cgi_quote_url $file]\"
