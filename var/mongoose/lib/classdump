@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc classdump]]} {
+if {![exists -proc classdump]} {
 	proc classdump {o} {
 		foreach var [$o vars] {
 			puts [format {%20s %s} $var [$o get $var]]

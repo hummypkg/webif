@@ -59,7 +59,7 @@ foreach tw [$db query {
 		order by usLcn
 		} $tsIdx]
 
-	set mux "???"
+	set mux "Local"
 	set ehs 0
 	foreach chan $channels {
 		lassign $chan x lcn x name
@@ -72,6 +72,7 @@ foreach tw [$db query {
 			"ITV3" { set mux "COM4/SDN" }
 			"Dave" { set mux "COM5/ARQ A" }
 			"Film4" { set mux "COM6/ARQ B" }
+			"Movies4Men" { set mux "Local" }
 		}
 	}
 	puts "<td>$mux</td>"

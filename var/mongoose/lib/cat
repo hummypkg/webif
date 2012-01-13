@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc cat ]]} {
+if {![exists -proc cat]} {
 	proc cat {file} {
 		if {[catch {set fp [open $file r}]} { return }
 		puts [read $fp]

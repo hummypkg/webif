@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc pretty_size ]]} {
+if {![exists -proc pretty_size]} {
 	proc pretty_size {size} {
 		set units {bytes KiB MiB GiB TiB}
 

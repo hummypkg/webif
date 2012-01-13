@@ -1,5 +1,5 @@
 
-if {![exists -proc class ]} { package require oo }
+if {![exists -proc class]} { package require oo }
 
 class clipboard {
 	path	"/tmp/webif.cb"

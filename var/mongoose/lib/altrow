@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc altrow ]]} {
+if {![exists -proc altrow]} {
 	proc altrow {} {{i 0}} {
 		if { $i == 0 } {
 			puts "<tr class=odd>"

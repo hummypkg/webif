@@ -1,7 +1,7 @@
 source /mod/var/mongoose/lib/setup
 
-if {![exists -proc class ]} { package require oo }
-if {![exists -proc sqlite3.open ]} { package require sqlite3 }
+if {![exists -proc class]} { package require oo }
+if {![exists -proc sqlite3.open]} { package require sqlite3 }
 
 require settings.class progressbar rsv.class
 

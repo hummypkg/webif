@@ -1,0 +1,19 @@
+
+if {![exists -proc tdelete]} {
+	proc tdelete {path} {
+		if {[file isdirectory $path]} {
+			regsub -all {([\\["$])} $path {\\\1} path
+			foreach file [glob -nocomplain "${path}/*"] {
+				if {[file isdirectory $file]} {
+					system tdelete $file
+				} else {
+					exec /mod/bin/trm $file
+				}
+			}
+			exec /mod/bin/busybox/rm -rf $path
+		} else {
+			exec /mod/bin/trm $path
+		}
+	}
+}
+

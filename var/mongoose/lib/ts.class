@@ -1,5 +1,7 @@
 
-if {![exists -proc class ]} { package require oo }
+if {![exists -proc class]} { package require oo }
+source /mod/var/mongoose/lib/setup
+require tdelete
 
 set dmsfile /mnt/hd2/dms_cds.db
 
@@ -124,8 +126,8 @@ ts method delete {} {
 	# for torrent names.
 	regsub -all {([\\["$])} $root {\\\1} root
 	foreach f [glob -nocomplain "${root}.*"] {
+		tdelete $f
 		puts "Removed $f<br>"
-		file delete $f
 	}
 	return 1
 }

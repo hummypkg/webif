@@ -1,5 +1,5 @@
 
-if {[expr ! [exists -proc escape]]} {
+if {![exists -proc escape]} {
 	proc escape {str} {
 		regsub -all -- {"} "$str" "\\\"" str
 		return $str
