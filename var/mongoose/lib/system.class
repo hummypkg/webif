@@ -51,11 +51,12 @@ proc {system mediaroot} {} {
 }
 
 proc {system dustbin} {} {
-	switch [system model] {
-		HDR { return "/media/My Video/_dustbin" }
-		HD { return "/media/drive1/Video/_dustbin" }
+	set dustbin "_dustbin"
+	if {![catch {set fd [open "/mod/boot/dustbin.name" r]}]} {
+		set dustbin [lindex [split [read $fd] "\n"] 0]
+		$fd close
 	}
-	return ""
+	return "[system mediaroot]/$dustbin"
 }
 
 proc {system diskspace} {} {
