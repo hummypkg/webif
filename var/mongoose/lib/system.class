@@ -51,7 +51,7 @@ proc {system mediaroot} {} {
 }
 
 proc {system dustbin} {{short 0}} {
-	set dustbin "_dustbin"
+	set dustbin "\[Deleted Items\]"
 	if {![catch {set fd [open "/mod/boot/dustbin.name" r]}]} {
 		set dustbin [lindex [split [read $fd] "\n"] 0]
 		$fd close
