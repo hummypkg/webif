@@ -27,6 +27,9 @@ proc bindir {file} {
 	return $dir
 }
 
+# Handle deletions from the bin.
+if {[string first $dustbin $file] > -1} { set dustbin "" }
+
 if {$type eq "ts"} {
 	set ts [ts fetch $file]
 	if {$dustbin ne ""} {

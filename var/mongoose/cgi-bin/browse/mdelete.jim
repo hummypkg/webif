@@ -37,9 +37,15 @@ foreach file [cgi_get files] {
 		continue
 	}
 
+	if {[string first $dustbin $file] > -1} {
+		set ldustbin ""
+	} else {
+		set ldustbin $dustbin
+	}
+
 	if {[file isdirectory $file]} {
 		puts -nonewline "Directory..."
-		if {$dustbin ne ""} {
+		if {$ldustbin ne ""} {
 			set ndir "[bindir $file]/[file tail $file]"
 			while {[file isdirectory $ndir]} { append ndir "_" }
 			file rename $file $ndir
@@ -49,7 +55,7 @@ foreach file [cgi_get files] {
 		puts -nonewline "Done..."
 	} elseif {[string match {*.ts} $file]} {
 		set ts [ts fetch $file]
-		if {$dustbin ne ""} {
+		if {$ldustbin ne ""} {
 			$ts move [bindir $file]
 		} else {
 			if {[$ts delete]} {
@@ -59,7 +65,7 @@ foreach file [cgi_get files] {
 			}
 		}
 	} else {
-		if {$dustbin ne ""} {
+		if {$ldustbin ne ""} {
 			file rename $file "[bindir $file]/[file tail $file]"
 		} else {
 			tdelete $file

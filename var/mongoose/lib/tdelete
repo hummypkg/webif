@@ -2,10 +2,10 @@
 if {![exists -proc tdelete]} {
 	proc tdelete {path} {
 		if {[file isdirectory $path]} {
-			regsub -all {([\\["$])} $path {\\\1} path
-			foreach file [glob -nocomplain "${path}/*"] {
+			regsub -all {([\\["$])} $path {\\\1} cpath
+			foreach file [glob -nocomplain "${cpath}/*"] {
 				if {[file isdirectory $file]} {
-					system tdelete $file
+					tdelete $file
 				} else {
 					exec /mod/bin/trm $file
 				}
