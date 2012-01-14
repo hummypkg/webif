@@ -30,13 +30,15 @@ if {$order eq "-"} {
 	[settings new] sortorder $order
 }
 
+set dustbin [system dustbin 1]
+
 proc directory {file bfile} {
 	global flatten
 
 	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
 	set img "/images/711_1_09_Media_Folder.png"
-	if {$bfile eq "_dustbin"} { set img "/img/Dustbin_Folder.png" }
+	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
 	puts "<img border=0 class=va id=\"img$tbfile\" src=$img>"
 	puts "<input class=\"fs fsdir\" type=checkbox>"
 	puts "<a class=dbf

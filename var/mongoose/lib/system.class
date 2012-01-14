@@ -50,12 +50,13 @@ proc {system mediaroot} {} {
 	return ""
 }
 
-proc {system dustbin} {} {
+proc {system dustbin} {{short 0}} {
 	set dustbin "_dustbin"
 	if {![catch {set fd [open "/mod/boot/dustbin.name" r]}]} {
 		set dustbin [lindex [split [read $fd] "\n"] 0]
 		$fd close
 	}
+	if {$short} { return $dustbin }
 	return "[system mediaroot]/$dustbin"
 }
 
