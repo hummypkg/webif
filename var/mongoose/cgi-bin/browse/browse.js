@@ -107,16 +107,17 @@ function new_folder_callback(data, status, xhr)
 	$.each(data, set_folder_new);
 }
 
-function delete_callback(file, type, id)
+function delete_callback(file, dir, id)
 {
 	var el = 'div.bf#' + id;
 	var results = el + ' .results';
-	var url = '/cgi-bin/browse/delete.jim?file=' + file +
-	    '&type=' + type;
 	$(results)
 	    .html('<img src=/img/loading.gif>Deleting, please wait...')
 	    .slideDown('slow')
-	    .load(url, function() {
+	    .load('/cgi-bin/browse/delete.jim', {
+		'dir': dir,
+		'files': [decodeURIComponent(file)]
+		}, function() {
 		$(el).delay(3000).slideUp(300, function() {
 			$(el).remove();
 		});
@@ -270,6 +271,8 @@ function preparedmenu(el, menu)
 
 $(document).ready(function() {
 
+var dir = $('#dir').text();
+
 var menuclick = function(action, el, pos)
 {
 	var file = $(el).parent().prevAll('a.bf').last().attr('file');
@@ -281,7 +284,7 @@ var menuclick = function(action, el, pos)
 	{
 	    case 'delete':
 		confirm_action('delete', delete_callback, file,
-		    type, id);
+		    dir, id);
 		break;
 
 	    case 'copy':
@@ -365,8 +368,6 @@ var dmenuclick = function(action, el, pos)
 	switch (action)
 	{
 	    case 'delete':
-		var url = '/cgi-bin/browse/delete.jim?file=' + file +
-		    '&type=dir';
 
 		if (confirm('Are you sure you wish to delete "' +
 		    decodeURIComponent(file) +
@@ -376,7 +377,10 @@ var dmenuclick = function(action, el, pos)
 			    .html('<img src=/img/loading.gif>' +
 			    'Deleting, please wait...')
 			    .slideDown('slow')
-			    .load(url, function() {
+			    .load('/cgi-bin/browse/delete.jim', {
+				'dir': dir,
+				'files': [decodeURIComponent(file)]
+				}, function() {
 				$(direl).delay(3000).slideUp(300, function() {
 					$(direl).remove();
 				});
@@ -507,8 +511,6 @@ var dmenuclick = function(action, el, pos)
 		show: 'fade', hide: 'fade',
 		draggable: false, resizable: false
 	});
-	
-	var dir = $('#dir').text();
 
 	// Load folder sizes
 	$.getJSON('/cgi-bin/browse/sizes.jim?dir=' + encodeURIComponent(dir),
@@ -587,7 +589,7 @@ var dmenuclick = function(action, el, pos)
 				}
 			});
 			$('#pwfeedback').load(
-			    '/cgi-bin/browse/mdelete.jim', {
+			    '/cgi-bin/browse/delete.jim', {
 				'dir': dir,
 				'files': files
 				}, function() {

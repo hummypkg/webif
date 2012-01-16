@@ -132,11 +132,15 @@ ts method delete {} {
 	return 1
 }
 
-ts method move {dst} {
+ts method move {dst {touch 0}} {
 	set root [file rootname $file]
 	regsub -all {([\\["$])} $root {\\\1} root
 	foreach f [glob -nocomplain "${root}.*"] {
-		file rename $f "$dst/[file tail $f]"
+		set nf "$dst/[file tail $f]"
+		file rename $f $nf
+		if {$touch} {
+			exec /mod/bin/busybox/touch $nf
+		}
 	}
 	return 1
 }
