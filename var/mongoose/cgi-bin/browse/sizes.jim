@@ -16,11 +16,9 @@ set dir [dict get $_cgi dir]
 #9.4G	/media/My Video/Archive
 #1.4G	/media/My Video/CSI_ Crime Scene Investigation
 puts "{"
-foreach line [split [exec /mod/bin/busybox/du -h "$dir/"] "\n"] {
-	set fields [split $line "\t"]
-	set size [lindex $fields 0]
-	set node [file tail [lindex $fields 1]]
-#	set node [lindex [split [lindex $fields 1] /] end]
+foreach line [split [exec /mod/bin/busybox/du -h -d 1 "$dir/"] "\n"] {
+	lassign [split $line "\t"] size node
+	regsub -- "^$dir/" $node "" node
 	puts "\"$node\" : \"$size\","
 }
 

@@ -35,6 +35,7 @@ puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
 puts "<ul style=\"list-style-type: square\">"
 foreach file [cgi_get files] {
 	puts -nonewline "<li>\"$file\"..."
+	regsub -all {([\\["$])} $dir {\\\1} dir
 	if {![string match "$dir/*" $file]} {
 		puts "Error - outside directory."
 		continue

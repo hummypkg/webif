@@ -118,15 +118,18 @@ proc entry {file} {{i 0}} {
 	if {$new} { append img _New }
 
 	set fscl "fs"
+	set synopsis ""
 	if {$type eq "ts"} {
 		set fscl "fs fsts"
+		set synopsis [cgi_quote_html [$ts get synopsis]]
 	}
 
 	puts "
 	    <div class=\"va bf\" id=[incr i]>
 		<img class=va border=0 src=/img/$img.png>
 		<input class=\"$fscl\" type=checkbox>
-		<a class=bf file=\"[cgi_quote_url $file]\" type=$type href=#>
+		<a class=bf title=\"$synopsis\"
+		    file=\"[cgi_quote_url $file]\" type=$type href=#>
 		    $bfile
 	        </a>
 	"
