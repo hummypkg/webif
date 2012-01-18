@@ -32,17 +32,19 @@ puts "
 		<th>Frequency</th>
 		<th>Signal Strength</th>
 		<th>Signal Quality</th>
+		<th>Network</th>
 		<th>Mux</th>
 		<th>Channels</th>
 		<th>&gt;799</th>
 	</tr>
 "
 foreach tw [$db query {
-		select tsIdx, usTsID, ulFrequency, ucLevel, ucQuality
-		from TBL_TS
+		select tsIdx, szNetName, usTsID, ulFrequency, ucLevel, ucQuality
+		from TBL_TS join TBL_NET using (netIdx)
 		order by ulFrequency
 	}] {
-	lassign $tw x tsIdx x usTsID x ulFrequency x ucLevel x ucQuality
+	lassign $tw \
+	    x tsIdx x netName x usTsID x ulFrequency x ucLevel x ucQuality
 
 	altrow
 	puts "
@@ -51,6 +53,7 @@ foreach tw [$db query {
 	"
 	puts "<td>[progressbar $ucLevel]</td>"
 	puts "<td>[progressbar $ucQuality]</td>"
+	puts "<td>[string range $netName 3 end]</td>"
 
 	set channels [$db query {
 		select usLcn, szSvcName, szPrvName, aucDefaultAuthority
