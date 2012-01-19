@@ -11,6 +11,17 @@ puts ""
 cgi_input
 #cgi_dump
 
+if {[cgi_get act] eq "https"} {
+	if {[cgi_get val off] eq "off"} {
+		file delete /mod/etc/mongoose.cert
+		puts "HTTPS Server will be disabled after next reboot."
+	} else {
+		exec /mod/sbin/mongoose_mkcert
+		puts "HTTPS Server will be enabled after next reboot."
+	}
+	exit
+}
+
 set settings [settings new]
 
 set hostname [$settings hostname]
@@ -89,31 +100,12 @@ if {$aclact ne "-" && $acluser ne "-"} {
 header
 
 puts {
+<script type="text/javascript" src="/cgi-bin/settings.js"></script>
 <script type="text/javascript" src="/js/jquery.form.js"></script>
 <script type="text/javascript" src="/js/jconfirmaction.jquery.js"></script>
 <link href=/css/jconfirmaction.jquery.css rel=stylesheet type=text/css />
 <script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
 <link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
-}
-
-puts {
-	<script type=text/javascript>
-	$(document).ready(function () {
-		$(":submit").button();
-		$('form.auto').each(function(i, el) {
-			var id = $(this).attr('id');
-			var output = '#' + id + '_output'
-			$(this).ajaxForm({
-				target: output,
-				success: function() {
-				    $(output).css('font-style', 'italic');
-				    $(output).show('slow');
-				    $(output).delay(2000).fadeOut('slow');
-				}
-			});
-		});
-	});
-	</script>
 }
 
 puts "
@@ -137,6 +129,17 @@ puts "
 		    <div id=hostname_output></div>
 		</td>
 	</form>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+		<th class=key>HTTPS web server?</th>
+		<td><input id=https_toggle name=https type=checkbox value=yes"
+if {[file exists /mod/etc/mongoose.cert]} { puts -nonewline " checked" }
+puts ">
+		    <div id=https_output></div>
+		</td>
 	</tr>
 "
 
