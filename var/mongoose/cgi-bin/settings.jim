@@ -64,9 +64,6 @@ handle_str_update hostname $hostname Hostname
 _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 handle_str_update epg_style $epg_style "EPG Type"
-if {[dict exists $_cgi pkgdevoff] && ![dict exists $_cgi pkgdev]} {
-	set _cgi(pkgdev) 0
-}
 handle_int_update pkgdev $pkgdev "Development Package Display"
 
 set acluser [cgi_get acluser "-"]
@@ -318,34 +315,21 @@ $('button.pwchange').click(function(el) {
 </script>
 }
 
-puts "
+puts -nonewline "
 	<br><br>
 	<fieldset style=\"display: inline\">
 	<legend> Advanced Settings </legend>
 	<table>
-"
-
-puts "
 	<tr>
-	<form class=auto id=pkgdev method=get action=$env(REQUEST_URI)>
 		<th class=key>Show development and advanced packages?</th>
-		<td><input name=pkgdevoff value=0 type=hidden>
-		    <input name=pkgdev id=pkgdev value=1 type=checkbox
+		<td><input name=pkgdev id=pkgdev value=1 type=checkbox
 "
-if {$pkgdev} { puts " checked" }
-puts {
-		>
-		    <small>
-		    <input id=pkgdev_submit value="save" type=submit>
-		    </small>
-		    <div id=pkgdev_output></div>
+if {$pkgdev} { puts -nonewline " checked" }
+puts ">
 		</td>
-	</form>
 	</tr>
-}
-
-puts "
 	</table>
+	<div id=pkgdev_output></div>
 	</fieldset>
 "
 

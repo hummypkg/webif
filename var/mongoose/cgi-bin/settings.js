@@ -35,6 +35,25 @@ $(document).ready(function () {
 		});
 	});
 
+	$('#pkgdev').change(function() {
+		var arg = '0';
+		if ($(this).attr('checked'))
+			arg = '1';
+
+		$(this).disable();
+
+		$('#pkgdev_output')
+		    .empty()
+		    .show('slow')
+		    .load('/cgi-bin/settings.jim?pkgdev=' + arg,
+		        function() {
+				$('#pkgdev').enable();
+				$('#pkgdev_output')
+				    .css('font-style', 'italic')
+				    .delay(2000).fadeOut('slow');
+		    });
+	});
+
 	$('#https_toggle').change(function() {
 		var arg = 'off';
 		if ($(this).attr('checked'))

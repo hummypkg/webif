@@ -1,5 +1,8 @@
 #!/mod/bin/jimsh
 
+source /mod/var/mongoose/lib/setup
+require system.class
+
 if { [catch {set fd [open "/mod/mediatomb/config/mediatomb.html" r]} fid] } {
 	exit 0
 }
@@ -7,6 +10,10 @@ set data [read $fd]
 close $fd
 regexp {URL=([^"]*)} $data match
 set url [string range $match 4 [string length $match]]
+
+set port [string range [lindex [split $url ":"] 2] 0 end-1]
+
+if {![system is_listening $port]} { exit 0 }
 
 puts "
 <div style=\"float: left; padding-top: 5em\">

@@ -130,3 +130,23 @@ proc {system mkdir_p} {dir} {
 	exec /mod/bin/busybox/mkdir -p $dir
 }
 
+proc {system listening} {{mport 0}} {
+	set ret {}
+	foreach line [split [exec /mod/bin/busybox/netstat -lntpw] "\n"] {
+		# Remove repeated spaces
+		regsub -all -- {[[:space:]]+} $line " " line
+# tcp 0 0 0.0.0.0:9955 0.0.0.0:* LISTEN 169/humaxtv
+		lassign [split $line " "] x x x port x type app
+		if {$type ne "LISTEN"} { continue }
+		lassign [split $port ":"] x port
+
+		if {$mport && $mport != $port} { continue }
+		lappend ret [list $port [split $app "/"]]
+	}
+	return $ret
+}
+
+proc {system is_listening} {mport} {
+	return [llength [system listening $mport]]
+}
+

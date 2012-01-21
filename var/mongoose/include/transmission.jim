@@ -1,6 +1,10 @@
 #!/mod/bin/jimsh
 
+source /mod/var/mongoose/lib/setup
+require system.class
+
 if {![file exists /mod/sbin/transmission-daemon]} { exit 0 }
+if {![system is_listening 9091]} { exit 0 }
 
 set url "/cgi-bin/transmission.jim"
 
