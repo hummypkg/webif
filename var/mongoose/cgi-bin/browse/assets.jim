@@ -13,7 +13,7 @@ puts {
 	<li><a href=#download>Download</a></li>
 
 }
-if {[system model] eq "HDR"} {
+if {$model eq "HDR"} {
 	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
 }
 if {[system pkginst ffmpeg]} {

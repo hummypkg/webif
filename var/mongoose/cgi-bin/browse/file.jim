@@ -85,9 +85,8 @@ if {$type eq "ts"} {
 	<th>Size</th>
 	<td>$sz</td>
 "
-set dlna [$ts dlnaloc]
-lassign $dlna url
-if {[llength $dlna]} {
+lassign [$ts dlnaloc] url
+if {$url ne ""} {
 	puts "</tr><tr><th>DLNA&nbsp;URL</th>
 	   <td><a href=\"$url\">$url</a></td>"
 }

@@ -16,5 +16,10 @@ if {![exists -proc require]} {
 	proc footer {} {
 		uplevel source /mod/var/mongoose/html/lib/footer.jim
 	}
+
+	# Replace the built-in jim {file copy} command with one that is
+	# largefile safe.
+
+	require filecopy
 }
 

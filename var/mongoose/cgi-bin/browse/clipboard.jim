@@ -102,9 +102,11 @@ switch $action {
 			regsub -all {([\\["$])} $root {\\\1} root
 			foreach f [glob -nocomplain "${root}.*"] {
 				if {$mode eq "cut"} {
-					catch {file rename $f "$dir/[file tail $f]"}
+					catch {file rename $f \
+					    "$dir/[file tail $f]"}
 				} else {
-					catch {file copy $f "$dir/[file tail $f]"}
+					catch {file copy $f \
+					    "$dir/[file tail $f]"}
 				}
 			}
 		}

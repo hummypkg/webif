@@ -30,6 +30,7 @@ if {$order eq "-"} {
 	[settings new] sortorder $order
 }
 
+set model [system model]
 set dustbin [system dustbin 1]
 
 proc directory {file bfile} {
@@ -144,6 +145,7 @@ proc entry {file} {{i 0}} {
 	set odencd 1
 	set def unknown
 	set bx 0
+	set dlna 0
 	if {$type eq "ts"} {
 		# HD / SD
 		if {[$ts get definition] eq "HD"} {
@@ -181,6 +183,14 @@ proc entry {file} {{i 0}} {
 			    height=21>"
 		}
 
+		# Indexed
+		if {$::model eq "HDR" && [llength [$ts dlnaloc]]} {
+			puts "<img class=va src=/img/dlna.png
+			    title=\"Indexed by DLNA Server\"
+			    alt=\"Indexed by DLNA Server\" height=21>"
+			set dlna 1
+		}
+
 		set bx [$ts get bookmarks]
 	}
 
@@ -190,7 +200,7 @@ proc entry {file} {{i 0}} {
 	      <a href=#>
 		<img class=\"opt va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
-		    odencd=$odencd
+		    odencd=$odencd dlna=$dlna
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>

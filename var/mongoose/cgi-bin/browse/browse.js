@@ -232,17 +232,15 @@ function preparemenu(el, menu)
 			$(menu).enableContextMenuItems('#delete');
 		}
 
-		if (el.attr('odencd') == 1)
-		{
+		if (el.attr('odencd') == 1 && el.attr('dlna') == 1)
 			$(menu).enableContextMenuItems('#decrypt');
-			$(menu).disableContextMenuItems('#audio');
-		}
 		else
-		{
 			$(menu).disableContextMenuItems('#decrypt');
+
+		if (el.attr('odencd') == 1)
+			$(menu).disableContextMenuItems('#audio');
+		else
 			$(menu).enableContextMenuItems('#audio');
-		}
-	
 	}
 	else
 	{
