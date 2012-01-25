@@ -436,6 +436,13 @@ var dmenuclick = function(action, el, pos)
 	// Disable items which are not yet implemented.
 	$('#optmenu').disableContextMenuItems('#title');
 
+	var $buttons = {
+	    "Close" : function() {$(this).dialog('close');}
+	};
+	var $buttonsp = $.extend(
+	    {"Play" : function() { doplay(); }},
+	    $buttons);
+
 	// Create reusable dialogue.
 	var $dialog = $('#dialogue').dialog({
 		title: "Media Details",
@@ -443,23 +450,43 @@ var dmenuclick = function(action, el, pos)
 		height: 600, width: 700,
 		show: 'scale', hide: 'fade',
 		draggable: true, resizable: true,
-		buttons: {
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
+		buttons: $buttons,
 		close: function(e,u) { $('#dialogue').empty().html(
 		    '<img src="/img/loading.gif" alt="loading">'); }
 	});
 
+	function doplay()
+	{
+		var file = $dialog.attr('file');
+		var type = $dialog.attr('type');
+
+		disableall();
+
+		window.location = '/cgi-bin/browse/play.jim?' +
+		    'dir=' + encodeURIComponent(dir) +
+		    '&file=' + file;
+	}
+
 	// Bind dialogue open to filenames.
 	$('a.bf').click(function(e) {
 		e.preventDefault();
+
 		var file = $(this).attr('file');
 		var type = $(this).attr('type');
+		var opt = $(this).nextAll('a').find('img.opt');
+
 		var url = '/cgi-bin/browse/file.jim?file=' + file
 		    + '&type=' + type;
-		$('#dialogue').load(url);
+		$dialog.load(url);
+
+		$dialog.attr('file', file);
+		$dialog.attr('type', type);
+
+		if (type == 'ts' &&
+		    (opt.attr('odencd') == 0 || opt.attr('dlna') == 1))
+			$dialog.dialog("option", "buttons", $buttonsp);
+		else
+			$dialog.dialog("option", "buttons", $buttons);
 		$dialog.dialog('open');
 	});
 

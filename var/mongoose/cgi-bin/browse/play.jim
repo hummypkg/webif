@@ -18,15 +18,34 @@ if {[catch {$ts get file}]} {
 	exit
 }
 
+if {![$ts flag "ODEncrypted"]} {
+	set url $rfile
+} else {
+	lassign [$ts dlnaloc] url
+	if {$url eq ""} {
+		alert("Media is encrypted and not indexed by the DLNA Server.");
+	}
+}
+
+puts "
+<span id=url style=\"display: none\">$url</span>
+"
+
 puts {
-<script type="text/javascript" src="play.js"></script>
+<script language="javascript" src="/js/jquery-vlc.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/vlc.css" />
+<script type=text/javascript src=play.js></script>
+
 <fieldset class=cleft style="margin: 0 1em 1em 1em">
 <legend>VLC Player</legend>
-<div>
 }
-puts "Now playing: $rfile, [$ts duration] minutes."
+puts "<span class=also>Now playing: $rfile, [$ts duration] minutes.</span>"
 puts {
+<div id=vlc></div>
+
+<div class=also id=info style="float: right">
 </div>
+
 </fieldset>
 }
 

@@ -10,6 +10,7 @@ cgi_input
 #cgi_dump
 
 set dir [cgi_get dir]
+regsub -all {([\\["$])} $dir {\\\1} dir
 
 #puts "DIR: ($dir)"
 
@@ -33,15 +34,17 @@ proc touch {file} {
 
 puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
 puts "<ul style=\"list-style-type: square\">"
+
 foreach file [cgi_get files] {
+
 	puts -nonewline "<li>\"$file\"..."
-	regsub -all {([\\["$])} $dir {\\\1} dir
+
 	if {![string match "$dir/*" $file]} {
 		puts "Error - outside directory."
 		continue
 	}
 
-	if {[string first $dustbin $file] > -1} {
+	if {$dustbin ne "" && [string first $dustbin $file] > -1} {
 		set ldustbin ""
 	} else {
 		set ldustbin $dustbin

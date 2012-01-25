@@ -33,6 +33,14 @@ if {$order eq "-"} {
 set model [system model]
 set dustbin [system dustbin 1]
 
+proc icon {img {hover ""} {extra ""}} {
+	puts -nonewline "<img src=$img class=va height=21 $extra"
+	if {$hover ne ""} {
+		puts -nonewline " alt=\"$hover\" title=\"$hover\""
+	}
+	puts ">"
+}
+
 proc directory {file bfile} {
 	global flatten
 
@@ -51,14 +59,8 @@ proc directory {file bfile} {
 	set noflat 0
 	if $flatten {
 		if {[string match {\[*\]} [file tail $file]]} { set noflat 1 }
-		if {[file exists "$file/.noflatten"]} {
-			set noflat 1
-		}
-
-		if $noflat {
-			puts "<img alt=\"No-flatten\" title=\"No-flatten\"
-			    class=va src=/img/flat-tyre.png height=21>"
-		}
+		if {[file exists "$file/.noflatten"]} { set noflat 1 }
+		if $noflat { icon "/img/flat-tyre.png" "No-flatten" }
 	}
 
 	puts -nonewline "
@@ -155,39 +157,32 @@ proc entry {file} {{i 0}} {
 			set def SD
 			set img "172_1_26_SD"
 		}
-		puts "<img class=va src=/images/$img.png height=21>"
+		icon "/images/$img.png"
 
 		# Locked
 		if {[$ts flag "Locked"] > 0} {
 			set locked 1
-			puts "<img class=va src=/images/178_1_00_Icon_Lock.png
-			    height=21>"
+			icon "/images/178_1_00_Icon_Lock.png" "Locked"
 		}
 
 		# Encrypted
 		if {[$ts flag "Encrypted"] > 0} {
 			set encd 1
-			puts "<img class=va
-			    src=/images/749_1_26_Video_Encryption.png
-			    height=21>"
+			icon "/images/749_1_26_Video_Encryption.png" ""
 		}
 		if {![$ts flag "ODEncrypted"]} {
-			puts "<img class=va src=/img/Decrypted.png height=21>"
 			set odencd 0
+			icon "/img/Decrypted.png" "Decrypted"
 		}
 
 		# Guidance
 		if {[$ts flag "Guidance"] > 0} {
-			puts "<img class=va
-			    src=/images/174_1_26_GuidancePolicy.png
-			    height=21>"
+			icon "/images/174_1_26_GuidancePolicy.png"
 		}
 
 		# Indexed
 		if {$::model eq "HDR" && [llength [$ts dlnaloc]]} {
-			puts "<img class=va src=/img/dlna.png
-			    title=\"Indexed by DLNA Server\"
-			    alt=\"Indexed by DLNA Server\" height=21>"
+			icon "/img/dlna.png" "Indexed by DLNA Server"
 			set dlna 1
 		}
 
