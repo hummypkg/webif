@@ -23,9 +23,10 @@ if {[system pkginst undelete]} {
 proc bindir {file} {
 	global dustbin
 	set dir [file dirname $file]
-	regsub "^[system mediaroot]" $dir $dustbin dir
-	system mkdir_p $dir
-	return $dir
+	regsub "^[system mediaroot]" $dir $dustbin ndir
+	if {$dir eq $ndir} { set ndir $dustbin }
+	system mkdir_p $ndir
+	return $ndir
 }
 
 proc touch {file} {
