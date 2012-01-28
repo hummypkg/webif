@@ -1,9 +1,9 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 0.9.0
+Version: 0.9.0-2
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
-Depends: mongoose(>=3.0-7),jim(>=0.73),jim-sqlite3(>=0.73),jim-cgi(>=0.5),service-control,busybox(>=1.19.3-1),lsof,epg(>=1.0.8),hmt(>=1.1.4),ssmtp,anacron,trm,openssl-command,nicesplice,id3v2
+Depends: mongoose(>=3.0-7),jim(>=0.73-1),jim-oo,jim-sqlite3(>=0.73),jim-cgi(>=0.5),service-control,busybox(>=1.19.3-1),lsof,epg(>=1.0.8),hmt(>=1.1.4),ssmtp,anacron,trm,openssl-command,nicesplice,id3v2
 Suggests: ffmpeg,webif-iphone
 Description: An evolving web interface for the Humax.
