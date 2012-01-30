@@ -96,6 +96,20 @@ proc {system busy} {} {
 	return 0
 }
 
+proc {system inuse} {file} {
+	# Is humaxtv using the file?
+	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {
+		return 0
+	}
+	regsub -all {([\\["$])} [file rootname [file tail $file]] {\\\1} file
+	set c 0
+	foreach line [split [exec /mod/bin/lsof -p $pid] "\n"] {
+		if {[string match "*$file*" $line]} { incr c }
+	}
+	if {$c > 0} { return 1 }
+	return 0
+}
+
 proc {system reboot} {} {
 	exec /etc/init.d/S90settop shut
 	exec /sbin/reboot
