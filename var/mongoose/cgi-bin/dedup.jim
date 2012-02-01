@@ -13,8 +13,6 @@ cgi_input
 set dir [cgi_get dir "/media/My Video"]
 set doit [cgi_get doit 0]
 
-# Strip double slashes
-
 header
 
 puts "<fieldset style=\"display: inline\">
@@ -28,11 +26,10 @@ puts "<fieldset style=\"display: inline\">
 </tr>
 "
 
-regsub -all -- {\/+} "$dir/*" "/" sdir
-
 set seen {}
 
-foreach file [lsort [glob -nocomplain "$sdir"]] {
+foreach file [readdir $dir] {
+	set file "$dir/$file"
 	if {[file extension $file] ne ".hmt"} { continue }
 	altrow
 	set ts [ts fetch $file 1]

@@ -19,6 +19,8 @@
 	};
 })(jQuery);
 
+var dir;
+
 function disableall()
 {
 	$('button,a,input').disable();
@@ -50,6 +52,29 @@ $('a.clipdel').click(function() {
 		reloadclipboard();
 	});
 });
+
+$('#paste').button()
+    .click(function() {
+	disableall();
+	$('#pwdialogue').dialog({
+		title: "Pasting from clipboard",
+		modal: true, autoOpen: true,
+		height: 'auto', width: 'auto',
+		show: 'scale', hide: 'fade',
+		draggable: false, resizable: false,
+		closeOnEscape: false,
+		open: function() {
+		    $('.ui-dialog-titlebar-close').hide();
+		}
+	});
+	$('#pwfeedback').load(
+	    '/cgi-bin/browse/clipboard.jim?act=paste&dir='
+	    + encodeURIComponent(dir), function() {
+		$('#pwdialogue').dialog('close');
+		window.location.reload(true);
+	});
+});
+
 
 // End Clipboard post-load actions
 
@@ -269,7 +294,7 @@ function preparedmenu(el, menu)
 
 $(document).ready(function() {
 
-var dir = $('#dir').text();
+dir = $('#dir').text();
 
 var menuclick = function(action, el, pos)
 {
@@ -646,28 +671,6 @@ var dmenuclick = function(action, el, pos)
 			$('input.fs:checked').attr('checked', false);
 		    });
 	    });
-
-	$('#paste').button().disable()
-	    .click(function() {
-		disableall();
-		$('#pwdialogue').dialog({
-			title: "Pasting from clipboard",
-			modal: true, autoOpen: true,
-			height: 'auto', width: 'auto',
-			show: 'scale', hide: 'fade',
-			draggable: false, resizable: false,
-			closeOnEscape: false,
-			open: function() {
-			    $('.ui-dialog-titlebar-close').hide();
-			}
-		});
-		$('#pwfeedback').load(
-		    '/cgi-bin/browse/clipboard.jim?act=paste&dir='
-		    + encodeURIComponent(dir), function() {
-			$('#pwdialogue').dialog('close');
-			window.location.reload(true);
-		});
-	});
 
 	$('#newdir').button().click(function() {
 		$('#newdirform').dialog({

@@ -249,12 +249,6 @@ if {$parent ne ""} {
 	"
 }
 
-# Strip double slashes
-regsub -all -- {\/+} "$dir/*" "/" dir
-
-# Escape square brackets (for glob)
-regsub -all {([\\[])} $dir {\\\1} dir
-
 proc s_time {a b} {
 	set ad [file isdirectory $a]
 	set bd [file isdirectory $b]
@@ -277,13 +271,13 @@ proc s_time {a b} {
 	return 0
 }
 
-set files [glob -nocomplain $dir]
+set files [readdir -nocomplain $dir]
 switch $order {
 	1 {		set files [lsort -command s_time $files] }
 	default {	set files [lsort $files] }
 }
 
-foreach file $files { entry $file }
+foreach file $files { entry "$dir/$file" }
 
 puts "<a href=# id=selectall>Select all</a> | <a href=# id=deselectall>none</a>"
 
@@ -326,7 +320,6 @@ puts "<div class=brow>"
 puts {
 <button id=copy>Copy</button>
 <button id=cut>Cut</button>
-<button id=paste>Paste</button>
 <button id=delete>Delete</button>
 <button id=newdir>New Folder</button>
 <div id=deletewait class=blood style="display: none">

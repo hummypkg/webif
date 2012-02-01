@@ -47,6 +47,7 @@ switch $action {
 		puts "</span>"
 	}
 	puts "</div>"
+	puts "<button id=paste>Paste to current folder</button>"
 	puts "<button id=clipclear>Empty clipboard</button>"
     }
     add {
