@@ -166,10 +166,12 @@ ts method dlnaloc {} {
 	if {[catch {set db [sqlite3.open $::dmsfile]}]} { return {} }
 	set url ""
 	set rfile [file normalize $file]
-	set muri [$db query "
-		select tblresource.mimetype, contenturi
-		from tblresource join tblmedia using (mediaid)
-		where localurl = '%s'" $rfile]
+	if {[catch {set muri [$db query "
+	    select tblresource.mimetype, contenturi
+	    from tblresource join tblmedia using (mediaid)
+	    where localurl = '%s'" $rfile]}]} {
+		set muri ""
+	}
 	if {$muri ne ""} {
 		set rec [lindex $muri 0]
 		set xuri [lindex $rec 3]
