@@ -205,6 +205,7 @@ proc {ts renamegroup} {from to} {
 	set ndir [file normalize $dir]
 
 	if {![catch {set db [sqlite3.open $::dmsfile]}]} {
+	    catch {
 		set x [lindex [$db query {select mediaid from tblMedia
 		    where localUrl = '%s'} [file normalize $from]] 0]
 		lassign $x key mediaid
@@ -214,6 +215,7 @@ proc {ts renamegroup} {from to} {
 			$db query {update tblMedia set title = '%s'
 			    where mediaid = %s} "{$to}.ts" $mediaid
 		}
+	    }
 	$db close
 	}
 }

@@ -250,6 +250,11 @@ if {$parent ne ""} {
 }
 
 proc s_time {a b} {
+	global dir
+
+	set a "$dir/$a"
+	set b "$dir/$b"
+
 	set ad [file isdirectory $a]
 	set bd [file isdirectory $b]
 
