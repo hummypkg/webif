@@ -20,7 +20,10 @@ if {[system pkginst ffmpeg]} {
 	puts { <li><a href=#audio>Extract Audio</a></li> }
 }
 if $nicesplice {
-	puts { <li class="cut"><a href=#crop>Crop</a></li> }
+	puts {
+		<li class="cut"><a href=#crop>Crop</a></li>
+		<li class="cut"><a href=#chunk>Split (45m parts)</a></li>
+	}
 }
 puts {
 	<li class=separator><a href=#lock>Toggle Lock</a></li>

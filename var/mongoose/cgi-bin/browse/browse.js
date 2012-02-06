@@ -238,6 +238,11 @@ function preparemenu(el, menu)
 		else
 			$(menu).disableContextMenuItems('#crop');
 
+		if (el.attr('rsize') > 4294967296)
+			$(menu).enableContextMenuItems('#chunk');
+		else
+			$(menu).disableContextMenuItems('#chunk');
+
 		$(menu).enableContextMenuItems('#new');
 		if (el.attr('new') == 1)
 			$(menu).changeContextMenuItem('#new', 'Mark watched');
@@ -276,6 +281,7 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#decrypt');
 		$(menu).disableContextMenuItems('#audio');
 		$(menu).disableContextMenuItems('#crop');
+		$(menu).disableContextMenuItems('#chunk');
 	}
 
 }
@@ -361,6 +367,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'crop':
 		window.location.href = '/cgi-bin/browse/crop.jim?file=' +
+		    file;
+		break;
+
+	    case 'chunk':
+		window.location.href = '/cgi-bin/browse/chunk/chunk.jim?file=' +
 		    file;
 		break;
 

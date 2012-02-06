@@ -1,0 +1,34 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set part [cgi_get part -]
+
+if {$part eq "-"} exit
+
+set start $(($part - 1) * 45 * 600 - 600)
+set end $($part * 45 * 600 + 600)
+
+puts "START: $start"
+puts "END: $end"
+
+set ts [ts fetch $rfile]
+
+set base [file rootname $rfile]
+
+set cmd [list /mod/bin/nicesplice -in $base -out "$base.part$part"]
+if {$start > 0} { lappend cmd -cut 0 $start }
+lappend cmd -cut $end 9999999
+
+puts "CMD: ($cmd)"
+
+puts [exec {*}$cmd]
+

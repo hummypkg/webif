@@ -1,0 +1,72 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+# 45 minute chunks
+set max $(45 * 60)
+
+set len [$ts duration 1]
+
+set esttime $(int($len * 0.025))
+if {[$ts get definition] eq "HD"} { set esttime $($esttime * 4) }
+
+header
+
+puts "
+<script type=text/javascript src=/js/jquery.progressbar.js></script>
+<script type=text/javascript src=chunk.js></script>
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<link href=chunk.css rel=stylesheet type=text/css />
+
+<fieldset class=cleft>
+<legend>Split recording into 45 minute segments</legend>
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
+<tr><th>Time:</th>
+<td>Splitting will take around [clock format $esttime -format "%T"]</td></tr>
+"
+
+set bytesperminute $([$ts size] / ($len / 60))
+
+while {$len > 0} {
+	incr part
+	incr len -$max
+	puts "<tr class=\"part hidden\">
+		<th>Part $part</th><td>
+		    <div id=progresspart$part class=progressbar></div>
+		    <div id=progressstat$part class=also>waiting...</div>
+		</td></tr>"
+}
+
+puts "
+</table>
+<span class=hidden id=params parts=$part bpm=$bytesperminute
+    file=\"[cgi_quote_url $rfile]\">
+</span>
+
+<div id=chunkdiv style=\"padding: 1em\">
+<button id=chunkit>Split recording into $part parts</button>
+</div>
+
+<div id=findiv style=\"padding: 1em\" class=hidden>
+<button id=back dir=\"[cgi_quote_url [file dirname $rfile]]\">
+Back to Media Browser
+</button>
+</div>
+
+</fieldset>
+"
+

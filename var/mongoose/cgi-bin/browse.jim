@@ -91,7 +91,8 @@ proc entry {file} {{i 0}} {
 	if {$ext in $::ignore || $ext ni $::include} { continue }
 
 	file stat $file st
-	set sz [pretty_size $st(size)]
+	set rsz $st(size)
+	set sz [pretty_size $rsz]
 
 	set base [file rootname $file]
 
@@ -195,6 +196,7 @@ proc entry {file} {{i 0}} {
 	      <a href=#>
 		<img class=\"opt va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
+		    rsize=$rsz
 		    odencd=$odencd dlna=$dlna
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
