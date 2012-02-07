@@ -1,0 +1,52 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class system.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+set len [$ts duration 1]
+
+header
+
+puts "
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<script type=text/javascript src=/js/jquery.progressbar.js></script>
+<script type=text/javascript src=audio.js></script>
+
+<fieldset class=cleft>
+<legend>Audio Extraction</legend>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
+</table>
+
+<span class=hidden id=params
+    dir=\"[cgi_quote_url $dir]\"
+    rfile=\"[cgi_quote_url $rfile]\"
+></span>
+
+<div id=audiodiv style=\"padding: 1em\">
+<button id=audioit>Perform audio extraction</button>
+</div>
+
+<div id=progressdiv class=hidden>
+Extracting audio: <div id=progressbar></div>
+</div>
+
+<button id=back class=hidden>Back to media list</button>
+
+<div id=output class=pre style=\"margin-top: 10px\"></div>
+</fieldset>
+
+"
+

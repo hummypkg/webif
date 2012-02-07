@@ -1,0 +1,64 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+set len [$ts duration 1]
+lassign [$ts dlnaloc] url
+
+header
+
+puts "
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<script type=text/javascript src=/js/jquery.progressbar.js></script>
+<script type=text/javascript src=decrypt.js></script>
+
+<fieldset class=cleft>
+<legend>Decrypt in-place</legend>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
+<tr><th>DLNA URL</th><td>$url</td></tr>
+</table>
+"
+
+if {$url eq ""} {
+	puts "This file has not been indexed by the media server.
+	    Cannot decrypt."
+	puts "Have you enabled <i>Content Sharing</i> in the Humax menus?"
+	exit
+}
+
+puts "
+
+<span class=hidden id=params
+    dir=\"[cgi_quote_url $dir]\"
+    file=\"[cgi_quote_url $rfile]\"
+></span>
+
+<div id=decryptdiv style=\"padding: 1em\">
+<button id=decryptit>Perform decryption</button>
+</div>
+
+<div id=progressdiv class=hidden>
+Decrypting: <div id=progressbar></div>
+</div>
+
+<button id=back class=hidden>Back to media list</button>
+
+<div id=output class=pre style=\"margin-top: 10px\"></div>
+</fieldset>
+
+"
+

@@ -1,0 +1,6 @@
+#filelist { list-style-type: none; margin: 0; padding: 0; }
+#filelist li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;
+	height: 35px; }
+#filelist li span { position: absolute; margin-left: -1.3em; }
+span.pl { padding-left: 2em; }
+

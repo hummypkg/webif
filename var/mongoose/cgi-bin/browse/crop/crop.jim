@@ -1,0 +1,117 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+set len [$ts duration 1]
+
+header
+
+puts "
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<script type=text/javascript src=/js/jquery.progressbar.js></script>
+<script type=text/javascript src=crop.js></script>
+
+<fieldset class=cleft>
+<legend>Crop recording</legend>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format \"%T\"]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
+<tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
+
+set flag 0
+foreach b [$ts bookmarks] {
+	if $flag { puts -nonewline ", " }
+	incr flag
+	puts -nonewline [clock format $b -format "%T"]
+}
+
+puts "</td></tr><tr><th>File</th><td>"
+
+puts "<div style=\"position: relative; top: -10px\">"
+
+proc div {type left right} {
+	set width $($right - $left)
+	puts "<div class=$type style=\"left: ${left}px; width: ${width}px\">
+	    $type</div>"
+}
+
+set keeping 0
+set last 0
+set start -1
+foreach b [$ts bookmarks] {
+	if {$start < 0} {
+		set start $b
+		continue
+	}
+	set end $b
+
+	incr keeping $($end - $start)
+
+	set left $($start * 500 / $len)
+	set right $($end * 500 / $len)
+
+	div cut $last $($left - 1)
+	div keep $left $($right - 1)
+
+	set last $right
+
+	set start -1
+}
+
+if {$start > 0} {
+	incr keeping $($len - $start)
+	set left $($start * 500 / $len)
+	div cut $last $($left - 1)
+	div keep $left 500
+} else {
+	div cut $last 500
+}
+
+set keepperc $($keeping * 100.0 / $len)
+set esttime $(int($keeping * 0.025))
+if {[$ts get definition] eq "HD"} { set esttime $($esttime * 4) }
+
+puts "
+</div>
+</td></tr>
+<tr><th>Keeping:</th><td>
+[clock format $keeping -format "%T"] ([format "%.2f" $keepperc]%)
+</td></tr>
+<tr><th>Time:</th>
+<td>Cropping will take around [clock format $esttime -format "%T"]</td></tr>
+</table>
+
+<span class=hidden id=params
+    file=\"[cgi_quote_url $rfile]\"
+    perc=\"$keepperc\"
+    dir=\"[cgi_quote_url $dir]\"
+></span>
+
+<div id=cropdiv style=\"padding: 1em\">
+<button id=cropit>Perform crop operation</button>
+</div>
+
+<div id=progressdiv class=hidden>
+Cropping: <div id=progressbar></div>
+</div>
+
+<button id=back class=hidden>Back to media list</button>
+
+<div id=output class=pre style=\"margin-top: 10px\"></div>
+</fieldset>
+
+"
+

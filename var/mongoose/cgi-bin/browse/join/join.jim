@@ -1,0 +1,65 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+header
+
+cgi_input 1
+#cgi_dump
+
+puts "
+<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
+<link href=join.css rel=stylesheet type=text/css />
+<script type=text/javascript src=/js/jquery.progressbar.js></script>
+<script type=text/javascript src=/js/touchbridge.js></script>
+<script type/text/javascript src=join.js></script>
+
+<p><b>
+Drag the files below into order, enter a name for the resulting file and then
+click the <i>Join</i> button.</b>
+"
+
+puts "<ul id=filelist>"
+set esize 0
+foreach file [split [cgi_get files] ","] {
+	set file [cgi_unquote_input $file]
+	set dir [file dirname $file]
+	set ts [ts fetch $file]
+	puts "<li class=\"va ui-state-default\" id=\"$file\"><span
+	    class=\"va ui-icon ui-icon-arrowthick-2-n-s\"></span>
+	    <img class=va src=/img/Video_TS.png>
+	    <span class=pl>
+	    $file ([clock format [$ts duration 1] -format "%T"])
+	    \[[pretty_size [$ts size]]\]
+	    <br><i style=\"font-size: 0.8em\">[$ts get title]</i>
+	    </span>
+	</li>"
+	incr esize [$ts size]
+}
+puts "</ul>"
+
+puts "
+<br><br>
+
+<div id=joindiv>
+Name for joined file:
+    <input id=dest name=dfile class=\"text ui-widget-content ui-corner-all\"
+    length=20 maxlength=50>
+<button id=dojoin>Join</button>
+</div>
+
+<div id=progressdiv style=\"display: none\">
+Joining: <div id=progressbar></div>
+<button id=back
+    dir=\"[cgi_quote_url $dir]\"
+    esize=\"$esize\"
+    style=\"display: none\">Back to media list</button>
+<div id=output class=pre style=\"margin-top: 10px\"></div>
+</div>
+"
+
+footer
+

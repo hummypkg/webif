@@ -1,0 +1,55 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+set len [$ts duration 1]
+lassign [$ts dlnaloc] url
+
+set xstart [clock milliseconds]
+
+set base [file rootname $rfile]
+set origdir "$dir/_original"
+if {![file exists $origdir]} { file mkdir $origdir }
+
+set shname [file tail $base]
+puts "Processing $shname"
+
+exec wget -O "$rfile.decrypting" $url
+
+puts "Moving recording to $origdir"
+
+foreach f [glob -nocomplain "${base}.*"] {
+	if {[file extension $f] eq ".decrypting"} { continue }
+	set tail [file tail $f]
+	puts "  $tail"
+	file rename $f "${origdir}/$tail"
+}
+
+file rename "$rfile.decrypting" $rfile
+
+foreach ext {nts hmt thm} {
+	set sidecar "$shname.$ext"
+	if {[file exists "$origdir/$sidecar"]} {
+		puts "Copying back sidecar $ext"
+		file copy "$origdir/$sidecar" "$dir/$sidecar"
+	}
+}
+
+if {[file exists "$dir/$shname.hmt"]} {
+	exec /mod/bin/hmt -encrypted "$dir/$shname.hmt"
+}
+
+set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]
+puts "Time taken: $xtime"
+

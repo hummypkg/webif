@@ -1,0 +1,39 @@
+#!/mod/bin/jimsh
+
+package require sqlite3
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class system.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+set len [$ts duration 1]
+
+set xstart [clock milliseconds]
+
+set base [file rootname $rfile]
+set shname [file tail $base]
+puts "Processing $shname"
+
+puts [exec /mod/bin/ffmpeg -y -benchmark -v 0 \
+    -i $rfile -f mp3 \
+    -vn -acodec copy "${base}.mp3"]
+
+if {[system pkginst id3v2]} {
+	puts [exec /mod/bin/id3v2 \
+	    --song "[$ts get title]" \
+	    --comment "[$ts get synopsis]" \
+	    --album "[$ts get channel_name]" \
+	    --year "[clock format [$ts get start] -format {%Y}]" \
+	    "${base}.mp3"]
+}
+
+set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]
+puts "Time taken: $xtime"
+

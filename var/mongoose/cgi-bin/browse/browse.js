@@ -366,7 +366,7 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'crop':
-		window.location.href = '/cgi-bin/browse/crop.jim?file=' +
+		window.location.href = '/cgi-bin/browse/crop/crop.jim?file=' +
 		    file;
 		break;
 
@@ -376,12 +376,12 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'decrypt':
-		window.location.href = '/cgi-bin/browse/decrypt.jim?file=' +
-		    file;
+		window.location.href =
+		    '/cgi-bin/browse/decrypt/decrypt.jim?file=' + file;
 		break;
 
 	    case 'audio':
-		window.location.href = '/cgi-bin/browse/audio.jim?file=' +
+		window.location.href = '/cgi-bin/browse/audio/audio.jim?file=' +
 		    file;
 		break;
 
@@ -618,7 +618,7 @@ var dmenuclick = function(action, el, pos)
 			files.push($(this).attr('file'));
 		});
 		//console.log("%o", files);
-		window.location.href = '/cgi-bin/browse/join.jim?files=' +
+		window.location.href = '/cgi-bin/browse/join/join.jim?files=' +
 		    files.join();
 	    });
 
