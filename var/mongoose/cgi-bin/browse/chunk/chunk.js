@@ -31,7 +31,9 @@ function xpart(part)
 		$('#progressstat' + part)
 		    .text('extracting...')
 		    .addClass('blood');
-		$.get('extract.jim?part=' + part + '&file=' + file,
+		$.get('extract.jim?parts=' + parts +
+		    '&part=' + part +
+		    '&file=' + file,
 		    function(data) {
 			$('#progressstat' + part)
 			    .text('done...')

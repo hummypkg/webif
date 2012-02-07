@@ -11,6 +11,7 @@ cgi_input
 
 set rfile [cgi_get file]
 set part [cgi_get part -]
+set parts [cgi_get parts "?"]
 
 if {$part eq "-"} exit
 
@@ -31,4 +32,7 @@ lappend cmd -cut $end 9999999
 puts "CMD: ($cmd)"
 
 puts [exec {*}$cmd]
+
+set ts [ts fetch "$base.part$part.ts"]
+$ts settitle "$part/$parts. [string range [ts get $title] 0 40]"
 
