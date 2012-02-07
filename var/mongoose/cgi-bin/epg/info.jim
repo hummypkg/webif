@@ -79,7 +79,7 @@ if {[$record get event_crid] != ""} {
 	puts "
 	<tr>
 		<th>CRID</th><td>
-		<a href=/cgi-bin/epg_search.jim?crid=[$record get event_crid]>
+		<a href=/cgi-bin/epg/search.jim?crid=[$record get event_crid]>
 			<img border=0 height=14
 			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			[$record get channel_crid][$record get event_crid]
@@ -93,7 +93,7 @@ if {[$record get series_crid] != ""} {
 	puts "
 	<tr>
 		<th nowrap>Series CRID</th><td>
-		<a href=/cgi-bin/epg_search.jim?scrid=[$record get series_crid]>
+		<a href=/cgi-bin/epg/search.jim?scrid=[$record get series_crid]>
 			<img border=0 height=14
 			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			[$record get channel_crid][$record get series_crid]
@@ -107,7 +107,7 @@ if {[$record get rec_crid] != ""} {
 	set rec [$record recommended]
 	if {$rec != ""} {
 		puts "<tr><th>Recommends</th><td>
-			<a href=/cgi-bin/epg_search.jim?crid=[$rec get event_crid]>
+			<a href=/cgi-bin/epg/search.jim?crid=[$rec get event_crid]>
 			<img border=0 height=14
 			    src=/images/421_1_00_CH_Title_2R_Arrow.png>
 			[$rec get name]
@@ -126,7 +126,7 @@ puts "
 	</tr>
 	</table>
 
-	<a class=footnote href=/cgi-bin/epg_dump.jim?service=[$record get service_id]&event=[$record get event_id]&raw=1>
+	<a class=footnote href=/cgi-bin/epg/dump.jim?service=[$record get service_id]&event=[$record get event_id]&raw=1>
 		<img border=0 src=/images/532_1_00_Find_Path_Arrow.png>
 		Show raw EPG info
 	</a>

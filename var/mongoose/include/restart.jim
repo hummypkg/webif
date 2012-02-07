@@ -25,7 +25,7 @@ if {[system busy]} {
 }
 
 puts {
-	<small><button id=restart_cancel>Hide</button></small>
+	<small><button id=restart_cancel>Dismiss</button></small>
 	</font>
 	</div>
 	<div style="width: 60%; height: 0.7em; margin-bottom: 2em;

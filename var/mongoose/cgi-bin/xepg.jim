@@ -98,7 +98,7 @@ foreach e $records {
 
 		puts "[$e channel_icon 30]&nbsp;"
 		puts "$chnum
-	    <a href=/cgi-bin/epg_service.jim?service=[$e get service_id]
+	    <a href=/cgi-bin/epg/service.jim?service=[$e get service_id]
 		title=\"[$e get channel_name]\">
 	    [$e get channel_name]
 	    </a></div>"

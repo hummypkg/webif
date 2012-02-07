@@ -1,5 +1,6 @@
 var handle;
 var currentpart = 0;
+var stime = 0;
 
 function xprogress()
 {
@@ -25,18 +26,18 @@ function xpart(part)
 
 	if (part++ < parts)
 	{
-		if (window.console)
-			console.log('Extracting part: ' + part);
 		currentpart = part;
 		$('#progressstat' + part)
 		    .text('extracting...')
 		    .addClass('blood');
+		stime = new Date().getTime();
 		$.get('extract.jim?parts=' + parts +
 		    '&part=' + part +
 		    '&file=' + file,
 		    function(data) {
+			var taken = (new Date().getTime() - stime) / 1000;
 			$('#progressstat' + part)
-			    .text('done...')
+			    .text('done... (' + taken + ' seconds)')
 			    .removeClass('blood');
 			currentpart = 0;
 			$('#progresspart' + part)

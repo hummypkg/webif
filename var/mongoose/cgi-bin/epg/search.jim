@@ -108,7 +108,7 @@ foreach record [lsort -command rsort $records] {
 	puts "<td>[$record get channel_num]</td>"
 	puts "<td>[$record channel_icon 50]</td>"
 	puts "<td nowrap>
-	    <a href=/cgi-bin/epg_service.jim?service=[$record get service_id]>
+	    <a href=/cgi-bin/epg/service.jim?service=[$record get service_id]>
 	    [$record get channel_name]
 	    </a></td>"
 	puts [$record cell]

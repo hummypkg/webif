@@ -4,7 +4,7 @@ puts {
 $(document).ready(function() {
 	function doschedule(type)
 	{
-		$('#epginfo_extra').load('/cgi-bin/epg_schedule.jim?' +
+		$('#epginfo_extra').load('/cgi-bin/epg/schedule.jim?' +
 		    'service=' +
 		    encodeURIComponent($('#dialogue').attr('xs')) +
 		    '&event=' +
@@ -52,7 +52,7 @@ $(document).ready(function() {
 			$dialog.dialog("option", "buttons", $buttons2);
 		else
 			$dialog.dialog("option", "buttons", $buttons1);
-		var url = '/cgi-bin/epg_info.jim?service=' +
+		var url = '/cgi-bin/epg/info.jim?service=' +
 		    o.attr('xs') + '&event=' +
 		    o.attr('xe') + '&bare=1';
 		$('#dialogue').load(url, function() {

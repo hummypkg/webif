@@ -13,7 +13,7 @@ set searchfull 0
 catch { if {[dict exists $_cgi full]} { set searchfull 1 } }
 
 puts "
-<form method=get action=/cgi-bin/epg_search.jim>
+<form method=get action=/cgi-bin/epg/search.jim>
 <fieldset>
 <legend>EPG Search</legend>
 <label for=term>Query</label>
@@ -31,7 +31,7 @@ puts ">
 "
 
 proc cts {type img text} {
-	puts "<a href=/cgi-bin/epg_search.jim?ct=$type>
+	puts "<a href=/cgi-bin/epg/search.jim?ct=$type>
 		<img height=18 border=0 src=/images/173_3_00_G3_$img.png>
 		&nbsp;$text</a>";
 }
@@ -96,7 +96,7 @@ if {[llength $res] > 0} {
 		set kw [string range [lindex $keyword 1] 1 end]
 		# Clean the keyword string.
 		regexp -nocase {^(\w+)} $kw kw
-		puts "<td><a href=/cgi-bin/epg_search.jim?term=[cgi_quote_url $kw]>$kw
+		puts "<td><a href=/cgi-bin/epg/search.jim?term=[cgi_quote_url $kw]>$kw
 		    </a></td>"
 	}
 	puts "

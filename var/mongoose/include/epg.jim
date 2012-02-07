@@ -55,7 +55,7 @@ foreach record $records {
 		puts "<td>$chnum</td>"
 		puts "<td>[$record channel_icon 50]</td>
 		    <td>
-	    <a href=/cgi-bin/epg_service.jim?service=[$record get service_id]>
+	    <a href=/cgi-bin/epg/service.jim?service=[$record get service_id]>
 		    [$record get channel_name]
 		    </a></td>"
 		set lcn $chnum

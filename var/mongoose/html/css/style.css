@@ -127,7 +127,7 @@ table.keyval td
 	color: black;
 }
 
-pre, .pre
+pre, .pre, .prelike
 {
         font-family: Consolas, 'Courier New', Courier, monospace;
         color: black;
@@ -145,7 +145,10 @@ pre, .pre
         -webkit-border-top-right-radius: 4px;
         -moz-border-radius-topright: 4px;
         -khtml-border-top-right-radius: 4px;
+}
 
+pre, .pre
+{
 	white-space: pre-wrap;
 	white-space: -moz-pre-wrap !important;
 	white-space: -pre-wrap;

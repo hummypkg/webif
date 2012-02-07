@@ -101,7 +101,7 @@ if {$crid != ""} {
 	puts "<tr><th>"
 	if $series { puts "Series" } else { puts "Event" }
 	puts " CRID</th><td>"
-	puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
+	puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
 	if $series { puts -nonewline "s" }
 	puts "crid=/$crid>
 	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
@@ -117,7 +117,7 @@ foreach ev [split [$event get szEventToRecord] "|"] {
 	if {$flag} { puts "<br>" }
 	incr flag
 	set crid [join [lrange [split $ev /] 1 end]]
-	puts -nonewline "<a href=/cgi-bin/epg_search.jim?"
+	puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
 	puts "crid=/$crid>
 	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
 	    height=14> 

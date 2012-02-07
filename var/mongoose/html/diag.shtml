@@ -15,7 +15,7 @@ Diagnostic:
 </fieldset>
 
 <div style="margin-top: 2em; display: none; float: left; clear: left"
-class=pre id=results></div>
+    id=results></div>
 
 <script type=text/javascript>
 $('#rundiag').button().click(function() {
@@ -30,7 +30,9 @@ $('a.log').click(function() {
 	    .slideDown()
 	    .text('\n\nLoading log, please wait...\n\n')
 	    .load('/cgi-bin/cat.jim?file=' +
-	    encodeURIComponent($(this).attr('file')));
+	        encodeURIComponent($(this).attr('file')), function() {
+	    		$('#results').wrapInner('<pre>');
+		});
 });
 </script>
 
