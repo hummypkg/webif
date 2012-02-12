@@ -268,9 +268,15 @@ function preparemenu(el, menu)
 			$(menu).disableContextMenuItems('#decrypt');
 
 		if (el.attr('odencd') == 1)
+		{
 			$(menu).disableContextMenuItems('#audio');
+			$(menu).disableContextMenuItems('#mpg');
+		}
 		else
+		{
 			$(menu).enableContextMenuItems('#audio');
+			$(menu).enableContextMenuItems('#mpg');
+		}
 	}
 	else
 	{
@@ -280,6 +286,7 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#new');
 		$(menu).disableContextMenuItems('#decrypt');
 		$(menu).disableContextMenuItems('#audio');
+		$(menu).disableContextMenuItems('#mpg');
 		$(menu).disableContextMenuItems('#crop');
 		$(menu).disableContextMenuItems('#chunk');
 	}
@@ -382,6 +389,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'audio':
 		window.location.href = '/cgi-bin/browse/audio/audio.jim?file=' +
+		    file;
+		break;
+
+	    case 'mpg':
+		window.location.href = '/cgi-bin/browse/mpg/mpg.jim?file=' +
 		    file;
 		break;
 

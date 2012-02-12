@@ -23,7 +23,9 @@ $('#rundiag').button().click(function() {
 	    .slideDown()
 	    .text('\n\nRunning diagnostic, please wait...\n\n')
 	    .load('/cgi-bin/diag.jim?diag=' +
-	    encodeURIComponent($('#seq').val()));
+	    encodeURIComponent($('#seq').val()), function() {
+		$('#results').wrapInner('<pre>');
+	    });
 });
 $('a.log').click(function() {
 	$('#results')

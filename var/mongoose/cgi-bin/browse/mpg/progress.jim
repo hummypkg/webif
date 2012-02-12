@@ -1,0 +1,26 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set tsfile [cgi_get file]
+set rfile [file normalize $tsfile]
+set bfile [file rootname $rfile]
+
+if {![file exists "${bfile}.mpg"]} {
+	puts "0"
+} else {
+	set sz [file size $rfile]
+	set nsz [expr [file size "${bfile}.mpg"] / 0.3]
+
+	set perc [expr $nsz * 100 / $sz]
+	if {$perc > 100} { set perc 100 }
+	puts $perc
+}
+

@@ -17,7 +17,10 @@ if {$model eq "HDR"} {
 	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
 }
 if {[system pkginst ffmpeg]} {
-	puts { <li><a href=#audio>Extract Audio</a></li> }
+	puts {
+		<li><a href=#audio>Extract Audio</a></li>
+		<li><a href=#mpg>Extract to MPG</a></li>
+	}
 }
 if $nicesplice {
 	puts {
