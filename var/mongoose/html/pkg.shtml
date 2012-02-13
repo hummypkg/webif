@@ -41,7 +41,14 @@ Upgrade all packages
 
 <div id=dialogue style="display: none; align: center">
 	<pre id=dresults></pre>
-	<div id=dspinner><img border=0 src=/img/loading.gif>Processing request...</div>
+	<div id=dspinner>
+		<img border=0 src=/img/loading.gif>
+		Processing request...
+	</div>
+	<div class=hidden id=complete>
+		<img border=0 src=/images/167_2_00_Check_W2_SUB.png>
+		Operation complete.
+	</div>
 </div>
 
 <script type=text/javascript src=/js/iajax.js></script>
@@ -94,6 +101,8 @@ $(document).ready(function() {
 			$('#dspinner').hide('slow');
 			if (!$('#dresults').text())
 				$('#dresults').append('Nothing to do.');
+			else
+				$('#complete').show('slow');
 		}
 	}
 
@@ -103,6 +112,7 @@ $(document).ready(function() {
 		    .attr('disabled', true)
 		    .addClass('ui-state-disabled');
 		$('#dspinner').show();
+		$('#complete').hide();
 		$('#dresults').empty();
 		$dialog.dialog('open');
 
