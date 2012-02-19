@@ -335,24 +335,24 @@ puts ">
 
 eval_plugins settings
 
-puts {
-<br><br>
-<fieldset style="display: inline">
-<legend> Reset Custom Firmware </legend>
-<button id=cfwreset>
-Click to remove all packages and settings installed by the custom firmware.
-</button>
-</fieldset>
-<script type=text/javascript>
-$('#cfwreset').jConfirmAction({
-	yesAnswer: "Delete"
-}, function(el) {
-	$('html').html('Restart the Humax using the remote control.');
-	$.get('/cgi-bin/cfwreset');
-});
-</script>
-
-}
+#puts {
+#<br><br>
+#<fieldset style="display: inline">
+#<legend> Reset Custom Firmware </legend>
+#<button id=cfwreset>
+#Click to remove all packages and settings installed by the custom firmware.
+#</button>
+#</fieldset>
+#<script type=text/javascript>
+#$('#cfwreset').jConfirmAction({
+#	yesAnswer: "Delete"
+#}, function(el) {
+#	$('html').html('Restart the Humax using the remote control.');
+#	$.get('/cgi-bin/cfwreset');
+#});
+#</script>
+#
+#}
 
 footer
 
