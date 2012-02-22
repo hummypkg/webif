@@ -1,0 +1,53 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+puts "Content-Type: text/html"
+puts ""
+
+header
+
+cgi_input
+#cgi_dump
+set file [cgi_get file "/tmp/hosts"]
+
+puts {
+<script type=text/javascript src=/js/enadis.js></script>
+<script type=text/javascript src=/js/tabsupport.js></script>
+<script type=text/javascript src=/js/jqueryFileTree.js></script>
+<link rel=stylesheet type=text/css href=/css/jqueryFileTree.css />
+<script type=text/javascript src=script.js></script>
+<link rel=stylesheet href=style.css type=text/css />
+
+<fieldset class=cleft>
+<legend>File Editor</legend>
+
+<div id=msg class=blood style="padding-bottom: 0.7em">
+Use the <i>Open</i> button below to begin.
+</div>
+
+<textarea cols=80 rows=20 id=editor></textarea>
+
+<br>
+<button class=xeditactive id=open>Open</button>
+<button class=editactive id=save>Save</button>
+<button class=editactive id=revert>Revert</button>
+
+<div id=result class="blood hidden" />
+
+</fieldset>
+
+<div class=cleft>
+	<button id=back>Back to diagnostics</button>
+</div>
+
+<div id=chooserd>
+	<i>Humax Filesystem</i>
+	<div id=chooser></div>
+</div>
+
+}
+
+footer
+

@@ -40,6 +40,14 @@ if {$url eq ""} {
 	exit
 }
 
+if {![system is_listening 9000]} {
+	puts "The Humax media server is not running, cannot decrypt."
+	puts "Have you enabled <i>Content Sharing</i> in the Humax menus?"
+	puts "It can sometimes turn itself off so it's worth double checking."
+	puts "If it is on then try turning sharing off and on again."
+	exit
+}
+
 puts "
 
 <span class=hidden id=params

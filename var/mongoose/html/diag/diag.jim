@@ -1,0 +1,80 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require pretty_size
+
+puts "Content-Type: text/html"
+puts ""
+
+header
+
+puts {
+<script type=text/javascript src=/js/enadis.js></script>
+<script type=text/javascript src=script.js></script>
+
+<fieldset class=cleft>
+<legend>Utilities</legend>
+<table>
+
+<tr>
+<td>Run Diagnostic:</td>
+<td><input name=seq id=seq autocorrect=off autocapitalize=off
+    value=general size=30 maxlength=50
+    class="text ui-widget-content ui-corner-all">
+<button id=rundiag>Run Diagnostic</button>
+</td>
+</tr>
+
+<tr>
+<td>Package:</td>
+<td><input name=fopkg id=fopkg autocorrect=off autocapitalize=off
+    value='' size=30 maxlength=50
+    class="text ui-widget-content ui-corner-all">
+<button id=runfopkg>Force re-install</button>
+</td>
+</tr>
+
+<tr>
+<td colspan=2>
+<button id=runedit style="width: 100%">File Editor</button>
+</td>
+</tr>
+
+<tr>
+<td colspan=2>
+<button id=runreset style="width: 100%">
+Remove all custom firmware packages and settings 
+</button>
+<div class=footnote style="text-align: center">
+(This option will return with firmware 1.18)
+</div>
+</td>
+</tr>
+
+</table>
+</fieldset>
+
+<fieldset class=left>
+<legend>View Log Files</legend>
+}
+
+foreach file [lsort [concat \
+    [glob -nocomplain /var/log/*.log] \
+    [glob -nocomplain /mod/tmp/*.log] \
+]] {
+	puts "<a href=# class=log file=\"$file\">
+	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
+	    [file tail $file]</a> ([pretty_size [file size $file]]) <br>"
+}
+
+puts {
+</fieldset>
+
+<div style="margin-top: 2em; display: none; float: left; clear: left"
+    id=results></div>
+
+}
+
+footer
+

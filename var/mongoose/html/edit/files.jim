@@ -1,0 +1,43 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+
+cgi_input
+#cgi_dump
+
+puts "Content-Type: text/html"
+puts ""
+
+set root [cgi_get dir]
+
+set files [lsort [readdir -nocomplain $root]]
+
+puts "<ul class=jqueryFileTree class=hidden>"
+
+foreach dir $files {
+	set path "$root/$dir"
+	regsub -all -- {\/+} $path "/" path
+	if {![file isdirectory $path]} continue
+	puts -nonewline "<li class=\"directory collapsed\"><a href=# rel=\""
+	puts -nonewline [cgi_quote_url $path]
+	puts "\">[cgi_quote_html $dir]</a></li>"
+}
+
+foreach file $files {
+	set path "$root/$file"
+	regsub -all -- {\/+} $path "/" path
+	if {[file isdirectory $path]} continue
+	set ext [file extension $file]
+	puts -nonewline "<li class=\"file"
+	if {[string length $ext]} {
+		puts -nonewline " ext_[string range $ext 1 end]"
+	}
+	puts -nonewline "\">"
+	puts -nonewline "<a href=# rel=\"[cgi_quote_url $path]\">"
+	puts -nonewline [cgi_quote_html $file]
+	puts "</a></li>"
+}
+
+puts "</ul>"
+

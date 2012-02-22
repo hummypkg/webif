@@ -5,6 +5,7 @@
 		return this.each(function() {
 			$(this)
 			    .removeClass('ui-state-disabled')
+			    .removeClass('ui-button-disabled')
 			    .removeProp('disabled');
 		});
 	};
