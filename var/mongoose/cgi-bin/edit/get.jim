@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require chunked
+
+cgi_input
+#cgi_dump
+
+set file [cgi_get file "/tmp/hosts"]
+if {$file eq "-"} { exit }
+
+start_chunked
+
+if {![file exists $file]} {
+	chunk ">>> File $file does not exist.\r\n"
+} else {
+	set fp [open $file r]
+	chunk [read $fp]
+	close $fp
+}
+
+end_chunked
+

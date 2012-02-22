@@ -1,6 +1,8 @@
 <!--#include virtual="/lib/header.shtml" -->
 
-<fieldset style="display: inline; float: left; clear: left">
+<script type=text/javascript src=/js/enadis.js></script>
+
+<fieldset class=cleft>
 <legend>Diagnostics</legend>
 Diagnostic:
 <input name=seq id=seq autocorrect=off autocapitalize=off
@@ -9,7 +11,16 @@ Diagnostic:
 <button id=rundiag>Run Diagnostic</button>
 </fieldset>
 
-<fieldset style="display: inline; float: left; clear: left">
+<fieldset class=cleft>
+<legend>File Editor</legend>
+File:
+<input name=editfile id=editfile autocorrect=off autocapitalize=off
+    value='' size=30 maxlength=50
+    class="text ui-widget-content ui-corner-all">
+<button id=runedit>Edit File</button>
+</fieldset>
+
+<fieldset class=cleft>
 <legend>Log Files</legend>
 <!--#exec cmd="/mod/var/mongoose/include/logfiles.jim" -->
 </fieldset>
@@ -27,6 +38,14 @@ $('#rundiag').button().click(function() {
 		$('#results').wrapInner('<pre>');
 	    });
 });
+
+$('#runedit').button().click(function() {
+	if ($('#editfile').val().length)
+		window.location = '/cgi-bin/edit/edit.jim?file=' +
+		    encodeURIComponent($('#editfile').val());
+});
+
+
 $('a.log').click(function() {
 	$('#results')
 	    .slideDown()

@@ -1,0 +1,18 @@
+textarea
+{
+	background: white;
+	font-color: black;
+}
+
+#filename
+{
+	font-style: italic;
+}
+
+.loading
+{
+	font-style: italic;
+	color: #aaa;
+	background: white;
+}
+
