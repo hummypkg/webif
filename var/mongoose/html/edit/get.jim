@@ -10,7 +10,7 @@ cgi_input
 set file [cgi_get file "/tmp/hosts"]
 if {$file eq "-"} { exit }
 
-start_chunked
+start_chunked "text/plain"
 
 if {![file exists $file]} {
 	chunk ">>> File $file does not exist.\r\n"

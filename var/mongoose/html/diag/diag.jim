@@ -47,7 +47,7 @@ puts {
 Remove all custom firmware packages and settings 
 </button>
 <div class=footnote style="text-align: center">
-(This option will return with firmware 1.18)
+(This option will return with firmware 2.00)
 </div>
 </td>
 </tr>

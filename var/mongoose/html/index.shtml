@@ -21,7 +21,7 @@ $(document).ready(function() {
 
 <div style="clear: both">
 
-<div style="float: left">
+<div class=left>
 	<center>
 	<a href=/cgi-bin/browse.jim>
 	<img src=/images/323_1_10_Menu_Video.png border=0 width=217 height=228>
@@ -32,9 +32,9 @@ $(document).ready(function() {
 	</a>
 	<br>
 	</center>
-	
 </div>
-<div style="float: left">
+
+<div class=left>
 	<center>
 	<a href=/sched.shtml>
 	<img src=/images/321_1_00_Menu_CHList.png border=0 width=217 height=228>
@@ -46,7 +46,8 @@ $(document).ready(function() {
 	<br>
 	</center>
 </div>
-<div style="float: left">
+
+<div class=left>
 	<center>
 	<a href=<!--#exec cmd="/mod/var/mongoose/include/epgloc.jim" -->>
 	<img src=/images/328_1_26_Menu_TV_Guide.png border=0 width=217 height=228>
@@ -58,11 +59,12 @@ $(document).ready(function() {
 	<br>
 	</center>
 </div>
+
 </div>
 
 <div style="clear: both; padding-top: 1em">
 
-<div style="float: left">
+<div class=left>
 	<center>
 	<a href=/services.shtml>
 	<img src=/img/spanner.png border=0 width=217 height=228>
@@ -75,7 +77,7 @@ $(document).ready(function() {
 	</center>
 </div>
 
-<div style="float: left">
+<div class=left>
 	<center>
 	<a href=/pkg.shtml>
 	<img src=/img/packages.png border=0 width=217 height=228>
@@ -88,7 +90,7 @@ $(document).ready(function() {
 	</center>
 </div>
 
-<div style="float: left">
+<div class=left>
 	<center>
 	<a href=/cgi-bin/settings.jim>
 	<img src=/images/326_1_00_Menu_Settings.png border=0
@@ -97,6 +99,19 @@ $(document).ready(function() {
 	<br>
 	<a href=/cgi-bin/settings.jim>
 	<b>Settings</b>
+	</a>
+	<br>
+	</center>
+</div>
+
+<div class=left>
+	<center>
+	<a href=/diag/diag.jim>
+	<img src=/img/diagnostics.png border=0 width=217 height=228>
+	</a>
+	<br>
+	<a href=/diag/diag.jim>
+	<b>Diagnostics</b>
 	</a>
 	<br>
 	</center>

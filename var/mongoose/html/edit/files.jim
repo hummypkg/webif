@@ -20,7 +20,7 @@ foreach dir $files {
 	regsub -all -- {\/+} $path "/" path
 	if {![file isdirectory $path]} continue
 	puts -nonewline "<li class=\"directory collapsed\"><a href=# rel=\""
-	puts -nonewline [cgi_quote_url $path]
+	puts -nonewline [cgi_quote_html $path]
 	puts "\">[cgi_quote_html $dir]</a></li>"
 }
 
@@ -34,7 +34,7 @@ foreach file $files {
 		puts -nonewline " ext_[string range $ext 1 end]"
 	}
 	puts -nonewline "\">"
-	puts -nonewline "<a href=# rel=\"[cgi_quote_url $path]\">"
+	puts -nonewline "<a href=# rel=\"[cgi_quote_html $path]\">"
 	puts -nonewline [cgi_quote_html $file]
 	puts "</a></li>"
 }
