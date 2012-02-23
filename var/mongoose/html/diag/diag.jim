@@ -43,12 +43,34 @@ puts {
 
 <tr>
 <td colspan=2>
-<button id=runreset style="width: 100%">
+<button id=runreset style="width: 100%"
+}
+
+if {[system modversion 1] < 200} {
+	puts -nonewline " disabled class=ui-state-disabled"
+}
+
+puts {
+>
 Remove all custom firmware packages and settings 
 </button>
+}
+
+if {[system modversion 1] < 200} {
+	puts {
 <div class=footnote style="text-align: center">
-(This option will return with firmware 2.00)
+(Install custom firmware v2.00 to enable this option)
 </div>
+	}
+}
+
+puts {
+
+<div id=resetdone class="hidden blood">
+Restart your Humax with the remote control.<br>
+Allow it to turn off completely before restarting.<br>
+</div>
+
 </td>
 </tr>
 

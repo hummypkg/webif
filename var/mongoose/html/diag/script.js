@@ -39,7 +39,20 @@ $('#runedit').click(function(e) {
 	window.location = '/edit/edit.jim';
 });
 
-$('#runreset').disable();
+$('#runreset').click(function(e) {
+	e.preventDefault();
+	if (!confirm('Are you sure? This will completely remove all packages and settings.'))
+		return;
+	if (!confirm('Are you really sure?'))
+		return;
+	if (!confirm('One last time, are you sure?'))
+		return;
+	$.get('/cgi-bin/cfwreset.cgi', function() {
+		$('button').disable();
+		$('#resetdone').slideDown();
+	});
+});
 
 });
+
 
