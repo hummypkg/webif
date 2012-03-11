@@ -2,6 +2,7 @@
 <html>
 <head>
 <title><!--#exec cmd="/mod/var/mongoose/include/model.jim" --></title>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
 <meta http-equiv="expires" value="Thu, 01 Jan 1970 00:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
 <link rel="shortcut icon" href=/img/favicon.ico />

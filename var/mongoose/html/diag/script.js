@@ -39,6 +39,16 @@ $('#runedit').click(function(e) {
 	window.location = '/edit/edit.jim';
 });
 
+$('#reboot').click(function(e) {
+	e.preventDefault();
+	if (confirm('Are you sure you wish to perform a reboot now?'))
+	    if (confirm('Really sure?\n\nThere is a small chance the ' +
+		' Humax may not restart\n' +
+		'without physical intervention.\n\n' +
+		'i.e. pressing the standby button or using the remote control'))
+			window.location = '/cgi-bin/restart.jim';
+});
+
 $('#runreset').click(function(e) {
 	e.preventDefault();
 	if (!confirm('Are you sure? This will completely remove all packages and settings.'))

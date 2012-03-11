@@ -43,6 +43,12 @@ puts {
 
 <tr>
 <td colspan=2>
+<button id=reboot style="width: 100%">Reboot System</button>
+</td>
+</tr>
+
+<tr>
+<td colspan=2>
 <button id=runreset style="width: 100%"
 }
 

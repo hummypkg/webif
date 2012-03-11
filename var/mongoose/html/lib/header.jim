@@ -7,6 +7,7 @@ puts {
 source /mod/var/mongoose/include/model.jim
 puts {
 </title>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
 <link rel="shortcut icon" href=/img/favicon.ico />
 <link type="text/css" href="/css/jquery-ui.css" rel="Stylesheet" />     
 <link href=/css/style.css rel=stylesheet type=text/css />

@@ -49,7 +49,7 @@ puts {
 
 	$(document).ready(function() {
 		$('#progressbar').reportprogress(0);
-		handle = setInterval("update()", 300);
+		handle = setInterval("update()", 350);
 		$.get('/cgi-bin/restart.jim?now=yes');
 	});
 </script>

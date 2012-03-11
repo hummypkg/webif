@@ -16,6 +16,12 @@ set dir [file dirname $rfile]
 set len [$ts duration 1]
 lassign [$ts dlnaloc] url
 
+if {$url eq ""} {
+	puts "This file has not been indexed by the media server.
+	    Cannot decrypt."
+	exit
+}
+
 set xstart [clock milliseconds]
 
 set base [file rootname $rfile]
@@ -24,6 +30,11 @@ if {![file exists $origdir]} { file mkdir $origdir }
 
 set shname [file tail $base]
 puts "Processing $shname"
+
+if {[file exists "$origdir/$shname.ts"]} {
+	puts "The file already exists in _original, cannot decrypt."
+	exit
+}
 
 exec wget -O "$rfile.decrypting" $url
 

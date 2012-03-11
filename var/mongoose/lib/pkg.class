@@ -87,7 +87,7 @@ proc {pkg loadmeta} {} {
 
 proc {pkg fetchmeta} {} {
 	set f [socket stream hummypkg.org.uk:80]
-	$f puts -nonewline "GET /pkg.meta HTTP/1.1\r\n"
+	$f puts -nonewline "GET /hdrfoxt2/pkg.meta HTTP/1.1\r\n"
 	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
 	$f puts -nonewline "\r\n"
 
