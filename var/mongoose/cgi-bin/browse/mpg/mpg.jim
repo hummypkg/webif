@@ -23,7 +23,7 @@ puts "
 <script type=text/javascript src=mpg.js></script>
 
 <fieldset class=cleft>
-<legend>Audio Extraction</legend>
+<legend>Extract to MPG</legend>
 
 <table class=keyval cellpadding=5>
 <tr><th>File:</th><td>$rfile</td></tr>
