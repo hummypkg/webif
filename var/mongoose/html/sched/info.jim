@@ -63,7 +63,12 @@ puts "
 		</td>
 	</tr><tr>
 		<th>Event Name</th>
-		<td>[$event name]</td>
+		<td>[$event name]"
+if {[$event get ucRecKind] == 4 && [$event name] ne [$event folder]} {
+	puts "<span class=also>(Folder: [$event folder])</span>"
+}
+
+puts "</td>
 	</tr><tr>
 		<th>Start</th>
 "

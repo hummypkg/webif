@@ -1,6 +1,0 @@
-<!--#include virtual="/lib/header.shtml" -->
-<script type="text/javascript" src="/js/jquery.tablesorter.js"></script>
-<link type=text/css href=/css/tsort.css rel=Stylesheet />
-<!--#exec cmd="/mod/var/mongoose/include/sched.jim" -->
-<!--#include virtual="/lib/footer.shtml" -->
-

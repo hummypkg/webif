@@ -1,100 +1,23 @@
 #!/mod/bin/jimsh
 
+package require cgi
 source /mod/var/mongoose/lib/setup
-require altrow rsv.class progressbar epg.class
+require altrow rsv.class progressbar epg.class system.class
+
+puts "Content-Type: text/html"
+puts ""
+
+header
 
 puts {
+<script type=text/javascript src=/js/jquery.tablesorter.js></script>
+<link type=text/css href=/css/tsort.css rel=Stylesheet />
+<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
+<script type=text/javascript src=/js/jquery.contextMenu.js></script>
+<script type=text/javascript src=/js/jquery.form.js></script>
+<script type=text/javascript src=script.js></script>
+
 <div id=dialogue></div>
-<script type=text/javascript>
-
-$.tablesorter.addParser({
-	id: 'programme',
-	is: function () { return false; },
-	format: function(s) {
-		return s.toLowerCase().replace(/---/, 'zzz');
-	},
-	type: 'text'
-});
-
-$.tablesorter.addParser({
-	id: 'date',
-	is: function () { return false; },
-	format: function(s) {
-		var d = new Date(s.substring(0, s.length - 4));
-		return d.getTime();
-	},
-	type: 'numeric'
-});
-
-$(document).ready(function() {
-	$('table.tablesorter').tablesorter({
-	    headers: {
-		1: { sorter: false },
-		3: { sorter: 'programme' },
-		4: { sorter: 'date' },
-		5: { sorter: 'date' },
-		5: { sorter: false },
-		6: { sorter: false },
-		7: { sorter: false }
-	    }
-	});
-	$('table.tablesorter thead th').filter('[class!=header]')
-	    .addClass('headerplain');
-});
-
-$(document).ready(function() {
-	function docancel()
-	{
-		var table = $('#dialogue').attr('table');
-		var slot = $('#dialogue').attr('slot');
-
-		if (confirm('Really remove scheduled event?'))
-		{
-			$.get('/cgi-bin/sched_cancel.jim?slot=' + slot +
-			    '&table=' + table, function() {
-				window.location.reload(true);
-			});
-			$('#dialogue').dialog('close');
-		}
-	}
-
-	var $buttons1 = {
-	    "Close" : function() {$(this).dialog('close');}
-	};
-	var $buttons2 = $.extend(
-	    {"Cancel Event": function() { docancel() }},
-	    $buttons1);
-
-	var $dialog = $('#dialogue').dialog({
-		title: "Schedule Details",
-		modal: false, autoOpen: false,
-		height: 500, width: 700,
-		show: 'scale', hide: 'fade',
-		draggable: true, resizable: true,
-		buttons: $buttons2,
-		close: function(e,u) { $('#dialogue').empty().html(
-		    '<img src="/img/loading.gif" alt="loading">'); }
-	});
-
-	function schedpopup(e, o)
-	{
-		e.preventDefault();
-		var slot = o.attr('slot');
-		var table = o.attr('table');
-		$('#dialogue').attr('slot', slot).attr('table', table);
-
-		var url = '/cgi-bin/sched_info.jim?slot=' + slot +
-		    '&table=' + table;
-		$('#dialogue').load(url);
-		$dialog.dialog('open');
-	}
-	$('a.schedule').click(function(e) { schedpopup(e, $(this)) });
-
-	$('table.tablesorter tbody tr').hover(
-		function() { $(this).addClass('hover'); },
-		function() { $(this).removeClass('hover'); });
-});
-</script>
 }
 
 proc eventheader {{table TBL_RESERVATION} note} {
@@ -128,7 +51,10 @@ proc eventheader {{table TBL_RESERVATION} note} {
 proc eventrow {event {table TBL_RESERVATION}} {
 	set name [$event name]
 
-	altrow
+	set attrs "table=$table sid=[$event get ulslot] \
+	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
+	    ar=[expr ! [$event padded]]"
+	altrow $attrs
 
 	set rsvicon [$event icon]
 	set RKIcon [$event RKIcon]
@@ -162,6 +88,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		    1 { set icon "close" }
 		    2 { set icon "ar" }
 		    3 { set icon "pad" }
+		    4 { set icon "folder" }
 		}
 		puts "<td align=center>
 		    <img class=va width=30 src=/img/$icon.png></td>"
@@ -183,8 +110,11 @@ proc eventrow {event {table TBL_RESERVATION}} {
 
 	puts "<td nowrap>
 		<a slot=[$event get ulslot] table=$table
-		href=# class=schedule>$name</a>
-		</td>"
+		href=# class=schedule>$name</a>"
+	if {[$event get ucRecKind] == 4 && $name ne [$event folder]} {
+		puts "<br><span class=also>&nbsp;(Folder: [$event folder])</span>"
+	}
+	puts "</td>"
 
 	set s [$event get nsttime]
 	set d [$event get nduration]
@@ -214,13 +144,10 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		puts "[clock format [$event get nduration] -format %T]</td>"
 	}
 
-	puts "<td nowrap>$rsvicon $RKIcon</td><td>"
-	if {[$event get aulEventToRecordInfo] != ""} {
-		puts "<img src=/img/lightning.png
-		    alt=\"Accepted by Humax\"
-		    title=\"Accepted by Humax\">"
-	}
-	puts "</td>";
+	puts "<td nowrap>$rsvicon $RKIcon</td>"
+
+	puts "<td><a href=# class=smenu sid=[$event get ulslot]>
+	    <img border=0 src=/img/more_btn.gif></a></td>"
 	puts "</tr>"
 }
 
@@ -260,4 +187,8 @@ puts {
 		$('button').button();
 	</script>
 }
+
+source assets.jim
+
+footer
 

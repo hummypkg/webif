@@ -69,11 +69,22 @@ rsv method clear_ulslot {} {
 	set ulslot -1
 }
 
-rsv method name {} {
-	set name [string range $szevtname 1 end]
-	if {[string first "i7" $name] == 0} {
-		set name [string range $name 2 end]
+rsv method _strip {str} {
+	if {[string range $str 1 2] eq "i7"} {
+		set str [string range $str 3 end]
 	}
+	if {[string first "\025" $str] == 0} {
+		set str [string range $str 1 end]
+	}
+	return $str
+}
+
+rsv method folder {} {
+	return [$self _strip $szFPBRecPath]
+}
+
+rsv method name {} {
+	set name [$self _strip $szevtname]
 	if {$name == ""} {
 		switch $ersvtype {
 		    1 { set name "--- Unnamed reminder ---" }
@@ -138,6 +149,11 @@ rsv method set_delete {} {
 
 rsv method set_unpad {} {
 	set action 2
+}
+
+rsv method set_folder {name} {
+	set action 4
+	set szFPBRecPath $name
 }
 
 rsv method set_pad {{pre 60} {post 60}} {

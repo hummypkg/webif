@@ -1,0 +1,23 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/var/mongoose/lib/setup
+require rsv.class system.class
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set slot [cgi_get slot 0]
+set table [cgi_get table TBL_RESERVATION] 
+
+set event [rsv slot $table $slot]
+
+$event clear_ulslot
+$event set_unpad
+$event insert
+
+system restartpending
+

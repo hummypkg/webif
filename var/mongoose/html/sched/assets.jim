@@ -1,0 +1,78 @@
+#!/mod/bin/jimsh
+
+lassign [system padding] pre post
+
+proc padval {num str def} {
+	puts -nonewline "<option value=$num"
+	if {$num == $def} {
+		puts -nonewline " selected"
+	}
+	puts ">$str"
+}
+
+puts {
+<ul id=optmenu class=contextMenu style="width: 200px">
+	<li class=delete><a href=#delete>Delete</a></li>
+	<li class=separator><a href=#ar>Enable AR</a></li>
+	<li class=separator><a href=#folder>Change Folder</a></li>
+</ul>
+
+<div id=padding style="display: none">
+<form id=paddingf method=post action=pad.jim>
+<input type=hidden id=paddingsid name=sid value=0>
+<table class=keyval>
+<tr>
+	<th>Start Padding</th>
+	<td><select id=prepadding name=pre
+	    class="ui-widget-content ui-corner-all">
+}
+
+padval 0 "Off" $pre
+padval 60 "1 minute"  $pre
+padval 120 "2 minutes"  $pre
+padval 300 "5 minutes"  $pre
+padval 600 "10 minutes"  $pre
+
+puts {
+	</select></td>
+</tr><tr>
+	<th>End Padding</th>
+	<td><select id=postpadding name=post
+	    class="ui-widget-content ui-corner-all">
+}
+
+padval 0 "Off" $post
+padval 60 "1 minute" $post
+padval 120 "2 minutes" $post
+padval 300 "5 minutes" $post
+padval 600 "10 minutes" $post
+
+puts {
+	</select></td>
+</tr>
+</table>
+</form>
+</div>
+
+<div id=fchange title="Change folder" style="display: none">
+	<form id=fchangeform>
+	<input type=hidden name=sid id=fchangeslot value=0>
+	<table border=0>
+	<tr>
+	<th>
+		<label for="name">
+			<b>New Folder Name</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="name" id="fchangename"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+}
+

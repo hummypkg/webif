@@ -1,11 +1,16 @@
 
 if {![exists -proc altrow]} {
-	proc altrow {} {{i 0}} {
+	proc altrow {{attrs ""}} {{i 0}} {
+		puts -nonewline "<tr class="
 		if { $i == 0 } {
-			puts "<tr class=odd>"
+			puts -nonewline "odd"
 		} else {
-			puts "<tr class=even>"
+			puts -nonewline "even"
 		}
+		if {$attrs ne ""} {
+			puts -nonewline " $attrs"
+		}
+		puts ">";
 		set i [expr ! $i]
 	}
 }

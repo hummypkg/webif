@@ -36,11 +36,11 @@ $(document).ready(function() {
 
 <div class=left>
 	<center>
-	<a href=/sched.shtml>
+	<a href=/sched/sched.jim>
 	<img src=/images/321_1_00_Menu_CHList.png border=0 width=217 height=228>
 	</a>
 	<br>
-	<a href=/sched.shtml>
+	<a href=/sched/sched.jim>
 	<b>Scheduled Events</b>
 	</a>
 	<br>
