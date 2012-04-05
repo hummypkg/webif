@@ -36,8 +36,15 @@ puts {
 </tr>
 
 <tr>
+<td colspan=2 align=center>
+<button id=runedit style="width: 48%">File Editor</button>
+<button id=dbinfo style="width: 48%">Database Browser</button>
+</td>
+</tr>
+
+<tr>
 <td colspan=2>
-<button id=runedit style="width: 100%">File Editor</button>
+<button id=channelinfo style="width: 100%">Channel Information</button>
 </td>
 </tr>
 
@@ -81,6 +88,9 @@ Allow it to turn off completely before restarting.<br>
 </tr>
 
 </table>
+<a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
+<a href=/jim/oo.html target=_blank>OO</a> |
+<a href=/jim/sqlite.html target=_blank>Sqlite</a>
 </fieldset>
 
 <fieldset class=left>

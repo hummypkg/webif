@@ -39,6 +39,16 @@ $('#runedit').click(function(e) {
 	window.location = '/edit/edit.jim';
 });
 
+$('#dbinfo').click(function(e) {
+	e.preventDefault();
+	window.location = '/cgi-bin/db.jim';
+});
+
+$('#channelinfo').click(function(e) {
+	e.preventDefault();
+	window.location = '/cgi-bin/channel.jim';
+});
+
 $('#reboot').click(function(e) {
 	e.preventDefault();
 	if (confirm('Are you sure you wish to perform a reboot now?'))

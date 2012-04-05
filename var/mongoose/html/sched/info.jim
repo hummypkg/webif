@@ -17,7 +17,7 @@ set event [rsv slot $table $slot]
 
 set rsvicon [$event icon]
 if {$rsvicon ne ""} {
-	set rsvicon "<img src='images/$rsvicon' height=20>"
+	set rsvicon "<img src='/images/$rsvicon' height=20>"
 	if {[$event get ersvtype] == 3} {
 		if {[$event padded]} {
 			set padding "<- [expr [$event get ulPreOffset] / 60], [expr [$event get ulPostOffset] / 60] ->"
@@ -33,7 +33,7 @@ if {$rsvicon ne ""} {
 
 set RKIcon [$event RKIcon]
 if {$RKIcon ne ""} {
-	set RKIcon "<img src='images/$RKIcon' height=20>"
+	set RKIcon "<img src='/images/$RKIcon' height=20>"
 }
 
 if {[$event get ucRecKind] == 4} {

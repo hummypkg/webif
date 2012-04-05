@@ -131,16 +131,6 @@ Release Notes:
     href="http://wiki.hummy.tv/wiki/Customised_Firmware_Release_Notes">
 Firmware</a> |
 <a target=_blank href="http://wiki.hummy.tv/wiki/Webif_release_notes">Webif</a>
-</li><li>
-<a href=/diag/diag.jim>Diagnostics & Utilities</a>
-</li><li>
-<a href=/cgi-bin/channel.jim>Channel Information</a>
-</li><li>
-<a href=/cgi-bin/db.jim target=_blank>SQLite3 Database Dump</a>
-</li><li>
-<a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
-<a href=/jim/oo.html target=_blank>OO</a> |
-<a href=/jim/sqlite.html target=_blank>Sqlite</a>
 </li>
 </ul>
 <!--#exec cmd="/mod/var/mongoose/include/modversion.jim" -->
