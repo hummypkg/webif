@@ -35,6 +35,8 @@ puts {
 </td>
 </tr>
 
+<tr><td colspan=2 style="height: 10px"></td></tr>
+
 <tr>
 <td colspan=2 align=center>
 <button id=runedit style="width: 48%">File Editor</button>
@@ -43,10 +45,12 @@ puts {
 </tr>
 
 <tr>
-<td colspan=2>
-<button id=channelinfo style="width: 100%">Channel Information</button>
+<td colspan=2 align=center>
+<button id=channelinfo style="width: 48%">Channel Information</button>
 </td>
 </tr>
+
+<tr><td colspan=2 style="height: 10px"></td></tr>
 
 <tr>
 <td colspan=2>
@@ -88,9 +92,12 @@ Allow it to turn off completely before restarting.<br>
 </tr>
 
 </table>
+<span class=also style="padding-left: 5px">
+View:
 <a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
 <a href=/jim/oo.html target=_blank>OO</a> |
 <a href=/jim/sqlite.html target=_blank>Sqlite</a>
+</span>
 </fieldset>
 
 <fieldset class=left>
