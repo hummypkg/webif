@@ -50,6 +50,20 @@ puts {
 </td>
 </tr>
 
+}
+
+if {[system model] eq "HDR"} {
+puts {
+<tr>
+<td colspan=2 align=center>
+<button id=dlna style="width: 48%">DLNA Server</button>
+</td>
+</tr>
+}
+}
+
+puts {
+
 <tr><td colspan=2 style="height: 10px"></td></tr>
 
 <tr>

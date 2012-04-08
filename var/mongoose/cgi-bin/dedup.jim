@@ -38,6 +38,7 @@ foreach file [readdir $dir] {
 	set syn [$ts get synopsis]
 	regsub -nocase -all -- {^new series\.* *} $syn "" syn
 	regsub -nocase -all -- {^cbeebies\. *} $syn "" syn
+	regsub -nocase -all -- {^brand new series - *} $syn "" syn
 	regsub -all -- { *[:].*$} $syn "" syn
 	if {[string length $syn] > 40} {
 		lassign [split $syn "."] v w

@@ -1,0 +1,84 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require sqlite3
+source /mod/var/mongoose/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+header
+
+#append dmsfile ".rr"
+
+set vars {
+	object.container 0
+	object.item.videoItem.movie 0
+	object.item.imageItem.photo 0
+	object.item.audioItem.musicTrack 0
+}
+
+if {[file exists $dmsfile] && ![catch {set db [sqlite3.open $dmsfile]}]} {
+	catch {
+		foreach ret [$db query "
+			select class, count(*) from tblObject group by 1
+		"] {
+			lassign $ret x class x num
+			set vars($class) $num
+		}
+	}
+	$db close
+}
+
+if {[system param DMS_START_ON]} {
+	set cfgstat "Enabled"
+} else {
+	set cfgstat "Disabled"
+}
+
+if {[system is_listening 9000]} {
+	set stat "Running."
+	set img "745_1_10_Video_2Live.png"
+} else {
+	set stat "Not running."
+	set img "745_1_11_Video_1REC.png"
+}
+
+puts "
+<script type=text/javascript src=script.js></script>
+<fieldset class=cleft>
+<legend>DLNA Server Information</legend>
+
+<table class=keyval cellpadding=5>
+<tr>
+	<th>Server Status</th>
+	<td class=va>$cfgstat - <img class=va src=/images/$img> $stat</td>
+</tr><tr>
+	<th>Folders Indexed</th>
+	<td>$vars(object.container)</td>
+</tr><tr>
+	<th>Movies Indexed</th>
+	<td>$vars(object.item.videoItem.movie)</td>
+</tr><tr>
+	<th>Photos Indexed</th>
+	<td>$vars(object.item.imageItem.photo)</td>
+</tr><tr>
+	<th>Music Tracks Indexed</th>
+	<td>$vars(object.item.audioItem.musicTrack)</td>
+</tr><tr>
+
+</table>
+</fieldset>
+<div class=cleft style=\"padding-top: 0.5em\">
+<button id=dlnareset>Reset DLNA Database</button>
+</div>
+<div id=results class=\"cleft hidden blood\"
+    style=\"border: solid 1px #ccc; margin: 1em; padding: 1em;\">
+</div>
+"
+
+footer
+

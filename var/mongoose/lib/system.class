@@ -119,25 +119,28 @@ proc {system restartpending} {} {
 	close [open /tmp/.restartpending w]
 }
 
-proc {system padding} {} {
-	set start 0
-	set stop 0
+proc {system param} {param {type Value}} {
 	if {[catch {set db [sqlite3.open /var/lib/humaxtv/setup.db]} msg]} {
-		return {0 0}
+		return 0
 	}
-	foreach l [$db query "
-		select itemName, itemValue
+	set val 0
+	set ret [$db query "
+		select item$type
 		from TBL_MENUCONFIG
-		where itemName in ('START_PADDING_TIME', 'STOP_PADDING_TIME')
-	"] {
-		lassign $l x name x val
-		switch $name {
-		    "START_PADDING_TIME" { set start $val }
-		    "STOP_PADDING_TIME" { set stop $val }
-		}
+		where itemName = '$param'
+	"]
+	if {[llength $ret] == 1} {
+		lassign [lindex $ret 0] x val
 	}
 	$db close
-	return [list $start $stop]
+	return $val
+}
+
+proc {system padding} {} {
+	return [list \
+		[system param START_PADDING_TIME] \
+		[system param STOP_PADDING_TIME] \
+	]
 }
 
 proc {system mkdir_p} {dir} {

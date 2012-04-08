@@ -1,0 +1,27 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require system.class
+
+puts "Content-Type: text/html"
+puts ""
+
+set menupath "Settings-&gt;System-&gt;Internet Setting-&gt;Content Share"
+set dbpath "/mnt/hd2/dms_cds.db"
+
+if {[system param DMS_START_ON] || [system is_listening 9000]} {
+	puts "To reset the DLNA Database, disable <i>Content Sharing</i>"
+	puts " in the Humax menus at<br>"
+	puts "<span class=also style=\"padding-left: 5em\">$menupath</span><br>"
+	puts "and click the button again."
+} elseif {![file exists $dbpath]} {
+	puts "The DLNA Database does not exist.<br>"
+	puts "(already reset?)"
+} else {
+	file delete $dbpath
+	puts "The DLNA Database has been reset.<br>"
+	puts "You can now re-enable <i>Content Sharing</i> in the Humax menus."
+	puts "<br>"
+	puts "<span class=also style=\"padding-left: 5em\">$menupath</span><br>"
+}
+
