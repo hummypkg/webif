@@ -147,7 +147,8 @@ function preparemenu(el, menu)
 	else
 		$('#optmenu').disableContextMenuItems('#ar');
 
-	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
+	if ($(el).attr('table') != 'pending' && (
+	    $(el).attr('reckind') == 4 || $(el).attr('reckind') == 1))
 		$('#optmenu').enableContextMenuItems('#folder');
 	else
 		$('#optmenu').disableContextMenuItems('#folder');

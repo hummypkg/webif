@@ -111,7 +111,10 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	puts "<td nowrap>
 		<a slot=[$event get ulslot] table=$table
 		href=# class=schedule>$name</a>"
-	if {[$event get ucRecKind] == 4 && $name ne [$event folder]} {
+	if {
+	    ([$event get ucRecKind] == 4 && $name ne [$event folder]) ||
+	    ([$event get ucRecKind] == 1 && [$event folder] ne "")
+	} {
 		puts "<br><span class=also>&nbsp;(Folder: [$event folder])</span>"
 	}
 	puts "</td>"
