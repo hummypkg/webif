@@ -1,0 +1,26 @@
+#!/mod/bin/jimsh
+
+proc dedupprocess {file} {{seen {}}} {
+	set ts [ts fetch $file 1]
+	set dir [file dirname $file]
+	set base [file tail [file rootname $file]]
+	set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
+	# Escape special characters to create the filename.
+	regsub -all -- {[\/ &]} $syn "_" fn
+
+	set stat ok
+	if {$fn in $seen} {
+		set stat dup
+	} elseif {[string length $syn] > 40} {
+		set stat error
+	} elseif {$base eq $fn} {
+		set stat nothing
+	} elseif {[file exists "$dir/$fn.ts"]} {
+		set stat preserve
+	}
+
+	lappend seen $fn
+
+	return [list $stat $ts $syn $fn]
+}
+

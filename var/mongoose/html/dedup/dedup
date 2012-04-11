@@ -1,0 +1,74 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require ts.class
+
+source /mod/var/mongoose/html/dedup/normalise.jim
+source /mod/var/mongoose/html/dedup/process.jim
+
+set dirs {}
+
+set doit 0
+foreach arg $argv {
+	if {$arg eq "-yes"} {
+		set doit 1
+	} else {
+		lappend dirs $arg
+	}
+}
+if {![llength $dirs]} { lappend dirs [exec pwd] }
+
+foreach dir $dirs {
+	if {[string index $dir end] eq "/"} {
+		set dir [string range $dir 0 end-1]
+	}
+	puts "\[$dir\]"
+
+	foreach file [readdir $dir] {
+		if {[file extension $file] ne ".hmt"} { continue }
+
+		set file "$dir/$file"
+
+		set base [file tail [file rootname $file]]
+		lassign [dedupprocess $file] stat ts syn fn
+
+		puts -nonewline "$base -> "
+
+		switch $stat {
+		    dup {
+			puts -nonewline "Duplicate"
+			if {$doit} {
+				set dupdir "$dir/_duplicates"
+				if {![file exists $dupdir]} {
+					file mkdir $dupdir
+				}
+				while {[file exists $dupdir/$fn.hmt]} {
+					append fn "~"
+				}
+				ts renamegroup $file "_duplicates/$fn"
+				puts -nonewline " - Renamed to _duplicates/$fn"
+			}
+		    }
+		    error {
+			puts -nonewline "Cannot process"
+		    }
+		    nothing {
+			puts -nonewline "Nothing to do"
+		    }
+		    preserve {
+			puts -nonewline "Preserving"
+		    }
+		    ok {
+			puts -nonewline $fn
+			if {$doit} {
+				# Dooooo, it.
+				$ts settitle $syn
+				ts renamegroup $file $fn
+				puts -nonewline "Done"
+			}
+		    }
+		}
+		puts ""
+	}
+}
+

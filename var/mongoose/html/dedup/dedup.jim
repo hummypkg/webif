@@ -4,6 +4,9 @@ package require cgi
 source /mod/var/mongoose/lib/setup
 require ts.class pretty_size altrow
 
+source normalise.jim
+source process.jim
+
 puts "Content-Type: text/html"
 puts ""
 
@@ -14,6 +17,8 @@ set dir [cgi_get dir "/media/My Video"]
 set doit [cgi_get doit 0]
 
 header
+
+puts "<script type=text/javascript src=script.js></script>"
 
 puts "<fieldset style=\"display: inline\">
 <legend>De-duplicate <span id=dir>$dir</span></legend>
@@ -31,34 +36,17 @@ set seen {}
 foreach file [readdir $dir] {
 	set file "$dir/$file"
 	if {[file extension $file] ne ".hmt"} { continue }
-	altrow
-	set ts [ts fetch $file 1]
+
 	set base [file tail [file rootname $file]]
+	lassign [dedupprocess $file] stat ts syn fn
+
+	altrow
 	puts "<td nowrap>$base</td>"
-	set syn [$ts get synopsis]
-	regsub -nocase -all -- {^new series\.* *} $syn "" syn
-	regsub -nocase -all -- {^cbeebies\. *} $syn "" syn
-	regsub -nocase -all -- {^brand new series - *} $syn "" syn
-	regsub -all -- { *[:].*$} $syn "" syn
-	if {[string length $syn] > 40} {
-		lassign [split $syn "."] v w
-		set syn $v
-		if {[string length $syn] < 6 && [string length $w] < 6} {
-			append syn "_$w"
-		}
-	}
-	if {[string length $syn] < 10} {
-		if {[string match "${syn}*" [$ts get title]]} {
-			set syn [$ts get title]
-		} else {
-			append syn " [$ts get title]"
-		}
-	}
-	regsub -all -- {[\/ &]} $syn "_" fn
 	puts "<td>$fn</td>"
 	puts "<td>$syn</td>"
 	puts "<td>"
-	if {$fn in $seen} {
+	switch $stat {
+	    dup {
 		puts -nonewline "Duplicate"
 		if {$doit} {
 			set dupdir "$dir/_duplicates"
@@ -69,19 +57,25 @@ foreach file [readdir $dir] {
 			ts renamegroup $file "_duplicates/$fn"
 			puts -nonewline " - Renamed to _duplicates/$fn"
 		}
-	} elseif {[string length $syn] > 40} {
+	    }
+	    error {
 		puts -nonewline "Cannot process"
-	} elseif {$base eq $fn} {
+	    }
+	    nothing {
 		puts -nonewline "Nothing to do"
-	} elseif {[file exists "$dir/$fn.ts"]} {
+	    }
+	    preserve {
 		puts -nonewline "Preserving"
-	} elseif {$doit} {
-		# Dooooo, it.
-		$ts settitle $syn
-		ts renamegroup $file $fn
-		puts -nonewline "Done"
+	    }
+	    ok {
+		if {$doit} {
+			# Dooooo, it.
+			$ts settitle $syn
+			ts renamegroup $file $fn
+			puts -nonewline "Done"
+		}
+	    }
 	}
-	lappend seen $fn
 	
 	puts "</td>"
 	puts "</tr>"
@@ -99,25 +93,8 @@ if {!$doit} { puts "<button id=dedup>Process folder</button>" }
 
 puts {
 </small>
-
 </div>
-
-<script type=text/javascript>
-$('#browse').button().click(function() {
-	window.location = '/cgi-bin/browse.jim?dir=' +
-	    encodeURIComponent($('#dir').text());
-});
 }
-
-if {!$doit} {
-	puts {
-	$('#dedup').button().click(function() {
-		window.location = window.location + '&doit=1';
-	});
-	}
-}
-
-puts "</script>"
 
 footer
 

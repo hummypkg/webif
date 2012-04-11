@@ -1,0 +1,47 @@
+#!/mod/bin/jimsh
+
+set dedup_prefixes {
+	{^new series\.* *}
+	{^cbeebies\.* *}
+	{^brand new series *-* *}
+	{^\.+}
+}
+
+proc dedupnormalise {title {reserve ""}} {
+	global dedup_prefixes
+
+	# Strip common prefixes
+	foreach prefix $dedup_prefixes {
+		regsub -nocase -all -- $prefix $title "" title
+	}
+
+	# Strip anything following a colon.
+	regsub -all -- { *[:].*$} $title "" title
+
+	# If the resulting string is longer than 40 characters then
+	# split around . and take the left hand side if appropriate.
+	if {[string length $title] > 40} {
+		lassign [split $title "."] v w
+		set title $v
+		if {[string length $title] < 6 && [string length $w] < 6} {
+			append title "_$w"
+		}
+	}
+
+	# if still short, add the reserve string.
+	if {[string length $title] < 10} {
+		if {[string match "${title}*" $reserve]} {
+			set title $reserve
+		} else {
+			append title " $reserve"
+		}
+	}
+
+	# Shorten if too long.
+	if {[string length $title] > 40} {
+		set title [string range $title 0 39]
+	}
+
+	return $title
+}
+

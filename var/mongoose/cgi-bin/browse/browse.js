@@ -582,7 +582,7 @@ var dmenuclick = function(action, el, pos)
 	// Buttons
 
 	$('#dedup').button().click(function() {
-		window.location = '/cgi-bin/dedup.jim?dir='
+		window.location = '/dedup/dedup.jim?dir='
 		    + encodeURIComponent(dir);
 	});
 
