@@ -12,12 +12,7 @@ cgi_input
 
 set slot [cgi_get sid 0]
 set table [cgi_get table TBL_RESERVATION] 
-set folder [cgi_get name -]
-if {$folder eq "-"} {
-	puts "Error - no folder."
-	exit
-}
-
+set folder [cgi_get name ""]
 set event [rsv slot $table $slot]
 
 $event clear_ulslot

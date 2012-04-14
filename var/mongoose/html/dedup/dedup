@@ -35,6 +35,9 @@ foreach dir $dirs {
 		puts -nonewline "$base -> "
 
 		switch $stat {
+		    inuse {
+			puts -nonewline "In Use"
+		    }
 		    dup {
 			puts -nonewline "Duplicate"
 			if {$doit} {

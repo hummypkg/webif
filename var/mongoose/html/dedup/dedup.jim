@@ -46,6 +46,9 @@ foreach file [readdir $dir] {
 	puts "<td>$syn</td>"
 	puts "<td>"
 	switch $stat {
+	    inuse {
+		puts -nonewline "In Use"
+	    }
 	    dup {
 		puts -nonewline "Duplicate"
 		if {$doit} {
