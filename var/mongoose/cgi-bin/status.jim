@@ -22,8 +22,12 @@ proc get_data {} {
 		foreach line [split $data "\n"] {
 			regsub -all -- {[[:space:]]+} $line " " line
 			set name [file rootname [file tail $line]]
-			set size [lindex [split $line " "] 6]
-			set ret($name) $size
+			if {[dict exists $ret $name]} {
+				set ret($name) -1
+			} else {
+				set size [lindex [split $line " "] 6]
+				set ret($name) $size
+			}
 		}
 	}
 	return $ret
@@ -40,7 +44,12 @@ if {[llength $data]} {
 	foreach name [array names ndata] {
 		if {![dict exists $seen $name]} { set seen($name) 0 }
 		if {![dict exists $data $name]} { set data($name) 0 }
-		if {$ndata($name) > $data($name) && $seen($name) < 1} {
+		if {$ndata($name) == -1} {
+			incr rec
+			incr play
+			set mode "Chase Playing"
+			set icon "745_1_11_Video_3REC_Live.png"
+		} elseif {$ndata($name) > $data($name) && $seen($name) < 1} {
 			incr rec
 			set mode "Recording"
 			set icon "745_1_11_Video_1REC.png"
@@ -53,7 +62,7 @@ if {[llength $data]} {
 		incr seen($name)
 
 		lappend output "<img class=va src=/images/$icon><span class=va>
-		    $mode&nbsp;$name</span>"
+		    $mode&nbsp;<i>$name</i></span>"
 	}
 }
 
@@ -85,8 +94,14 @@ if {![system instandby] && $play < 1} {
 			
 		lappend output "[epg channelicon $name 30 \
 		    {vertical-align: middle; padding: 0 4px 0 2px}]
-		    <span class=va> Watching $lcn: $name $prog</span>"
+		    <span class=va> Watching <i>$lcn: $name $prog</i></span>"
 	}
+}
+
+if {[system instandby]} {
+	lappend output "<img class=va width=28 style=\"padding: 0 4px\"
+	    src=/img/standby.png>
+	    <span class=va>System is in standby.</span>"
 }
 
 if {[llength $output]} {
