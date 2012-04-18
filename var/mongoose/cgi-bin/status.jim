@@ -1,49 +1,95 @@
 #!/mod/bin/jimsh
 
+source /mod/var/mongoose/lib/setup
+require system.class findhsvc epg.class
+
 puts "Content-Type: text/html"
 puts ""
 
-if {[catch {set pid [exec pgrep humaxtv]}]} { exit }
-
-if {[catch {set data [exec lsof -p $pid | grep Video | fgrep .ts]} ]} {
-        exit
+if {[catch {set pid [exec pgrep humaxtv]}]} {
+	puts "Cannot find humaxtv process."
+	exit
 }
 
-set lines [split $data "\n"]
-foreach line $lines {
-	regsub -all -- {[[:space:]]+} $line " " line
-	set fields [split $line " "]
-	set name [lindex [split $line "/"] end]
-	set size($name) [lindex $fields 6]
-	set seen($name) 0
-}
+proc get_data {} {
+	global pid
 
-sleep 2
-
-set data [exec lsof -p $pid | grep Video | fgrep .ts]
-regsub -all -- {[[:space:]]+} $line " " line
-set lines [split $data "\n"]
-foreach line $lines {
-	regsub -all -- {[[:space:]]+} $line " " line
-	set fields [split $line " "]
-	set name [lindex [split $line "/"] end]
-	set size2 [lindex $fields 6]
-
-	if { $size2 > $size($name) && $seen($name) < 1 } {
-		set mode "Recording"
-		set icon "745_1_11_Video_1REC.png"
+	set ret {}
+	if {[catch {set data \
+	    [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts]} ]} {
+		set ret {}
 	} else {
-		set mode "Watching"
-		set icon "745_1_10_Video_2Live.png"
+		foreach line [split $data "\n"] {
+			regsub -all -- {[[:space:]]+} $line " " line
+			set name [file rootname [file tail $line]]
+			set size [lindex [split $line " "] 6]
+			set ret($name) $size
+		}
 	}
+	return $ret
+}
 
-	incr seen($name)
+set play 0
+set rec 0
+set seen {}
 
-	lappend output "<img class=va src=/images/$icon><span class=va>
-	    $mode&nbsp;$name</span><br>"
+set data [get_data]
+if {[llength $data]} {
+	sleep 2
+	set ndata [get_data]
+	foreach name [array names ndata] {
+		if {![dict exists $seen $name]} { set seen($name) 0 }
+		if {![dict exists $data $name]} { set data($name) 0 }
+		if {$ndata($name) > $data($name) && $seen($name) < 1} {
+			incr rec
+			set mode "Recording"
+			set icon "745_1_11_Video_1REC.png"
+		} else {
+			incr play
+			set mode "Playing"
+			set icon "745_1_10_Video_2Live.png"
+		}
+
+		incr seen($name)
+
+		lappend output "<img class=va src=/images/$icon><span class=va>
+		    $mode&nbsp;$name</span>"
+	}
+}
+
+if {![system instandby] && $play < 1} {
+	set hsvc [system param CUR_SVC Value USERCONFIG]
+
+	set ff [$rsvdb query "
+		select usSvcid as svcid, usLcn as lcn,
+		substr(szSvcName, 2) as name
+		from channel.TBL_SVC
+		where hSvc = $hsvc
+		limit 1
+	"]
+
+	if {[llength $ff] == 1} {
+		lassign [lindex $ff 0] x svcid x lcn x name
+		set epgs [epg dbfetch get \
+		    -service $svcid \
+		    -time [clock seconds]\
+		]
+		set prog ""
+		if {[llength $epgs] == 1} {
+			lassign $epgs epg
+			set prog "- [$epg get name] ("
+			append prog "[clock format [$epg get start] -format %H:%M] - "
+			append prog "[clock format $([$epg get start] + [$epg get duration]) -format %H:%M]"
+			append prog ") \[[$epg percent]%\]"
+		}
+			
+		lappend output "[epg channelicon $name 30 \
+		    {vertical-align: middle; padding: 0 4px 0 2px}]
+		    <span class=va> Watching $lcn: $name $prog</span>"
+	}
 }
 
 if {[llength $output]} {
-	puts [join $output " "]
+	puts [join $output "<br>"]
 }
 

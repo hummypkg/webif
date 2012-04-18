@@ -119,14 +119,14 @@ proc {system restartpending} {} {
 	close [open /tmp/.restartpending w]
 }
 
-proc {system param} {param {type Value}} {
+proc {system param} {param {type Value} {tbl MENUCONFIG}} {
 	if {[catch {set db [sqlite3.open /var/lib/humaxtv/setup.db]} msg]} {
 		return 0
 	}
 	set val 0
 	set ret [$db query "
 		select item$type
-		from TBL_MENUCONFIG
+		from TBL_$tbl
 		where itemName = '$param'
 	"]
 	if {[llength $ret] == 1} {
@@ -141,6 +141,10 @@ proc {system padding} {} {
 		[system param START_PADDING_TIME] \
 		[system param STOP_PADDING_TIME] \
 	]
+}
+
+proc {system instandby} {} {
+	return [system param LAST_STANDBY Value USERCONFIG]
 }
 
 proc {system mkdir_p} {dir} {

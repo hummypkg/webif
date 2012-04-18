@@ -74,7 +74,7 @@ settings method smtp_server {{server ""}} {
 }
 
 settings method _nval_setting {name {val -1}} {
-	global settingsdb;
+	global settingsdb
 
 	if {$val == -1} {
 		# Get
