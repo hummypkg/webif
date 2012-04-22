@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require plugin
+
+proc menuitem {title icon link {width 217}} {
+	puts "
+<div class=left>
+	<center>
+	<a href=$link>
+		<img src=$icon border=0 width=$width>
+	</a>
+	<br>
+	<a href=$link>
+	<b>$title</b>
+	</a>
+	<br>
+	</center>
+</div>
+"
+}
+
+eval_plugins menu
+

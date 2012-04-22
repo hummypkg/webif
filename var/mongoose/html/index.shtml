@@ -119,6 +119,10 @@ $(document).ready(function() {
 
 </div>
 
+<div style="clear: both; padding-top: 1em">
+<!--#exec cmd="/mod/var/mongoose/include/menuplugins.jim" -->
+</div>
+
 <div style="clear: both">
 <!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
 <!--#exec cmd="/mod/var/mongoose/include/transmission.jim" -->
