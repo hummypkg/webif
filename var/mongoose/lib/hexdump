@@ -1,0 +1,30 @@
+package require binary
+
+proc hexdump {str} {
+        set s ""
+	set addr 0
+	
+	append s "[format "%07x" $addr]: "
+	set t ""
+        for {set i 0} {$i < [string length $str]} {incr i} {
+		if {$i > 0 && [expr $i % 16] == 0} {
+			append s "  $t\n"
+			append s "[format "%07x" $addr]: "
+			incr addr 16 
+			set t ""
+		} elseif {$i > 0 && [expr $i % 2] == 0} {
+			append s " "
+		}
+
+		set char [string index $str $i]
+                binary scan $char H2 cc
+                append s $cc
+		if {[string is print $char]} {
+			append t $char
+		} else {
+			append t "."
+		}
+        }
+	puts $s
+}
+

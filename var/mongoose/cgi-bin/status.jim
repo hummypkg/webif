@@ -36,6 +36,7 @@ proc get_data {} {
 set play 0
 set rec 0
 set seen {}
+set output {}
 
 set data [get_data]
 if {[llength $data]} {

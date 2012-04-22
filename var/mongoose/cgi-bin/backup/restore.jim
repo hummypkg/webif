@@ -53,6 +53,9 @@ foreach line $data {
 		lappend vars $f [lindex $vals $i]
 	}
 
+	# Don't restore DSO events.
+	if {$vars(ersvtype) == 11} { continue }
+
 	set rsv [rsv new $vars]
 
 	# Need to fix up channel and CRID mappings in case something has

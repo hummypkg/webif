@@ -39,6 +39,7 @@ puts {
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
 	<li class=separator><a href=#rename>Rename</a></li>
+	<li class=separator><a href=#resetnew>Reset new flag</a></li>
 }
 
 if $flatten {

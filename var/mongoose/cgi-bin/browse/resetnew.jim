@@ -1,0 +1,49 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require pack
+source /mod/var/mongoose/lib/setup
+require ts.class hexdump
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get dir]
+if {![file isdirectory $dir]} { exit }
+if {![file exists "$dir/.series"]} { exit }
+
+set tot 0
+set watched 0
+foreach file [readdir -nocomplain $dir] {
+	if {![string match {*.ts} $file]} { continue }
+	#puts "FILE: $file"
+	incr tot
+	if {[set ts [ts fetch "$dir/$file"]] != 0} {
+		if {![$ts flag "New"]} { incr watched }
+	}
+}
+
+set fd [open "$dir/.series"]
+set bytes [read $fd]
+close $fd
+set recs [unpack $bytes -uintle 0 32]
+set played [unpack $bytes -uintle 32 32]
+
+puts "Current: $played/$recs"
+
+#hexdump $bytes
+
+puts "Calculated: $watched/$tot"
+
+pack bytes $tot -intle 32 0 
+pack bytes $watched -intle 32 32
+
+#hexdump $bytes
+
+set fd [open "$dir/.series" "w"]
+puts -nonewline $fd $bytes
+close $fd
+

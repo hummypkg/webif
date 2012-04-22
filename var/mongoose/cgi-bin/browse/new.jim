@@ -1,7 +1,8 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/ts.class
+source /mod/var/mongoose/lib/setup
+require ts.class
 
 puts "Content-Type: text/html"
 puts ""

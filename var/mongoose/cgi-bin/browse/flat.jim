@@ -9,7 +9,7 @@ puts ""
 cgi_input
 #cgi_dump
 
-set dir [cgi_get file]
+set dir [cgi_get dir]
 if {![file isdirectory $dir]} { exit }
 set noflat 0
 if {[string match {\[*\]} [file tail $dir]]} { 

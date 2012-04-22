@@ -432,7 +432,12 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'flat':
-		var url = '/cgi-bin/browse/flat.jim?file=' + file;
+		var url = '/cgi-bin/browse/flat.jim?dir=' + file;
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
+	    case 'resetnew':
+		var url = '/cgi-bin/browse/resetnew.jim?dir=' + file;
 		$.get(url, function() { window.location.reload(true); });
 		break;
 
