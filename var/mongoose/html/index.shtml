@@ -19,114 +19,12 @@ $(document).ready(function() {
 });
 </script>
 
-<div style="clear: both">
-
-<div class=left>
-	<center>
-	<a href=/cgi-bin/browse.jim>
-	<img src=/images/323_1_10_Menu_Video.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=/cgi-bin/browse.jim>
-	<b>Browse Media Files</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-<div class=left>
-	<center>
-	<a href=/sched/sched.jim>
-	<img src=/images/321_1_00_Menu_CHList.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=/sched/sched.jim>
-	<b>Scheduled Events</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-<div class=left>
-	<center>
-	<a href=<!--#exec cmd="/mod/var/mongoose/include/epgloc.jim" -->>
-	<img src=/images/328_1_26_Menu_TV_Guide.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=<!--#exec cmd="/mod/var/mongoose/include/epgloc.jim" -->>
-	<b>EPG</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-</div>
-
-<div style="clear: both; padding-top: 1em">
-
-<div class=left>
-	<center>
-	<a href=/services.shtml>
-	<img src=/img/spanner.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=/services.shtml>
-	<b>Service Management</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-<div class=left>
-	<center>
-	<a href=/pkg.shtml>
-	<img src=/img/packages.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=/pkg.shtml>
-	<b>Package Management</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-<div class=left>
-	<center>
-	<a href=/cgi-bin/settings.jim>
-	<img src=/images/326_1_00_Menu_Settings.png border=0
-	    width=217 height=228>
-	</a>
-	<br>
-	<a href=/cgi-bin/settings.jim>
-	<b>Settings</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-<div class=left>
-	<center>
-	<a href=/diag/diag.jim>
-	<img src=/img/diagnostics.png border=0 width=217 height=228>
-	</a>
-	<br>
-	<a href=/diag/diag.jim>
-	<b>Diagnostics</b>
-	</a>
-	<br>
-	</center>
-</div>
-
-</div>
+<!--#exec cmd="/mod/var/mongoose/include/menuicons.jim" -->
 
 <div style="clear: both; padding-top: 1em">
 <!--#exec cmd="/mod/var/mongoose/include/menuplugins.jim" -->
 </div>
 
-<div style="clear: both">
-<!--#exec cmd="/mod/var/mongoose/include/mediatomb.jim" -->
-<!--#exec cmd="/mod/var/mongoose/include/transmission.jim" -->
-</div>
 <div class=footer>
 <ul>
 <li>

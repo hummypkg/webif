@@ -1,0 +1,52 @@
+#!/mod/bin/jimsh
+
+source /mod/var/mongoose/lib/setup
+require settings.class
+
+proc menuitem {title icon link {width 217} {height 0}} {
+	puts -nonewline "
+<div class=left>
+	<center>
+	<a href=$link>
+		<img src=$icon border=0 width=$width"
+	if {$height} { puts -nonewline " height=$height" }
+	puts -nonewline ">
+	</a>
+	<br>
+	<a href=$link>
+	<b>$title</b>
+	</a>
+	<br>
+	</center>
+</div>
+"
+}
+
+if {[[settings] epg_style] eq "grid"} {
+	set epglink "/cgi-bin/xepg.jim"
+} else {
+	set epglink "/epg.shtml"
+}
+
+puts {<div style="clear: both">}
+
+menuitem "Browse Media Files" "/images/323_1_10_Menu_Video.png" \
+	/cgi-bin/browse.jim 217 228
+menuitem "Scheduled Events" "/images/321_1_00_Menu_CHList.png" \
+	/sched/sched.jim 217 228
+menuitem "EPG" "/images/328_1_26_Menu_TV_Guide.png" \
+	$epglink 217 228
+
+puts {</div><div style="clear: both; padding-top: 1em">}
+
+menuitem "Service Management" "/img/spanner.png" \
+	/services.shtml 217 228
+menuitem "Package Management" "/img/packages.png" \
+	/pkg.shtml 217 228
+menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
+	/cgi-bin/settings.jim 217 228
+menuitem "Diagnostics" "/img/diagnostics.png" \
+	/diag/diag.jim 217 228
+
+puts {</div>}
+
