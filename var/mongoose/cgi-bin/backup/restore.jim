@@ -92,6 +92,14 @@ puts "Restoring favourite channels..."
 $rsvdb query {begin transaction;}
 $rsvdb query {delete from channel.TBL_FAV}
 
+$rsvdb query {drop table if exists pending.fav}
+$rsvdb query {create table pending.fav (
+		favIdx integer primary key autoincrement unique,
+		hSvc integer(4),
+		eFavGroup integer(4),
+		[eSvcType] integer(4)
+	)}
+
 set grp 0
 foreach line $data {
 	set vals [split $line "\t"]
@@ -115,7 +123,7 @@ foreach line $data {
 	}
 
 	set query "
-		insert into channel.TBL_FAV(hSvc, eFavGroup, eSvcType)
+		insert into pending.fav(hSvc, eFavGroup, eSvcType)
 		values($hsvc, $group, $type);
 	"
 
