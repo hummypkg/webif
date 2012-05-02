@@ -30,7 +30,6 @@ if $nicesplice {
 }
 puts {
 	<li class=separator><a href=#lock>Toggle Lock</a></li>
-	<li><a href=#enc>Toggle Enc</a></li>
 	<li><a href=#new>Toggle New</a></li>
 </ul>
 

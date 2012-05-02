@@ -56,7 +56,11 @@ foreach file [cgi_get files] {
 		puts -nonewline "Directory..."
 		if {$ldustbin ne ""} {
 			set ndir "[bindir $file]/[file tail $file]"
-			while {[file isdirectory $ndir]} { append ndir "_" }
+			if {$force} {
+				while {[file isdirectory $ndir]} {
+					append ndir "_"
+				}
+			}
 			file rename $file $ndir
 			touch $ndir
 		} else {
@@ -70,7 +74,7 @@ foreach file [cgi_get files] {
 		# Check TS validity
 		if {![catch {$ts get file}]} {
 			if {$ldustbin ne ""} {
-				$ts move [bindir $file] 1
+				$ts move [bindir $file] 1 1
 			} else {
 				if {[$ts delete]} {
 					puts "Successfully deleted $file."

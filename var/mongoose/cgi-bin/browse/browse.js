@@ -202,16 +202,16 @@ function preparemenu(el, menu)
 {
 	if (el.attr('type') == 'ts')
 	{
-		if (el.attr('def') == 'HD')
-		{
-			$(menu).enableContextMenuItems('#enc');
-			if (el.attr('encd') == 1)
-				$(menu).changeContextMenuItem('#enc',
-				    'Remove Enc');
-			else
-				$(menu).changeContextMenuItem('#enc',
-				    'Set Enc');
-		}
+//		if (el.attr('def') == 'HD')
+//		{
+//			$(menu).enableContextMenuItems('#enc');
+//			if (el.attr('encd') == 1)
+//				$(menu).changeContextMenuItem('#enc',
+//				    'Remove Enc');
+//			else
+//				$(menu).changeContextMenuItem('#enc',
+//				    'Set Enc');
+//		}
 
 		if (el.attr('bx') > 0)
 			$(menu).enableContextMenuItems('#crop');
@@ -262,7 +262,7 @@ function preparemenu(el, menu)
 	{
 		$(menu).enableContextMenuItems('#delete');
 		$(menu).disableContextMenuItems('#lock');
-		$(menu).disableContextMenuItems('#enc');
+		//$(menu).disableContextMenuItems('#enc');
 		$(menu).disableContextMenuItems('#new');
 		$(menu).disableContextMenuItems('#decrypt');
 		$(menu).disableContextMenuItems('#audio');
@@ -319,10 +319,10 @@ var menuclick = function(action, el, pos)
 		    file, type, id);
 		break;
 
-	    case 'enc':
-		confirm_action('change the ENC flag on', enc_callback,
-		    file, type, id);
-		break;
+//	    case 'enc':
+//		confirm_action('change the ENC flag on', enc_callback,
+//		    file, type, id);
+//		break;
 
 	    case 'new':
 		confirm_action('change the New flag on', new_callback,
