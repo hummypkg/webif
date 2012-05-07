@@ -3,12 +3,13 @@
 source /mod/var/mongoose/lib/setup
 require plugin system.class
 
-proc menuitem {title icon link {width 217} {height 0}} {
+proc menuitem {title icon link {width 217} {height 0} {extra ""}} {
+	if {$extra ne ""} { append extra " " }
 	puts -nonewline "
 <div class=left>
 	<center>
 	<a href=$link>
-		<img src=$icon border=0 width=$width"
+		<img src=$icon ${extra}border=0 width=$width"
 	if {$height} { puts -nonewline " height=$height" }
 	puts -nonewline ">
 	</a>
