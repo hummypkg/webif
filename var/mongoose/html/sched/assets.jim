@@ -19,7 +19,7 @@ puts {
 
 <div id=padding style="display: none">
 <form id=paddingf method=post action=pad.jim>
-<input type=hidden id=paddingsid name=sid value=0>
+<input type=hidden id=paddingsid name=slot value=0>
 <table class=keyval>
 <tr>
 	<th>Start Padding</th>
