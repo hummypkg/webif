@@ -25,7 +25,7 @@ puts {
  <div id=toolbar>
 }
 
-tb "/images/323_1_10_Menu_Video.png" "Browse" "/cgi-bin-browse.jim"
+tb "/images/323_1_10_Menu_Video.png" "Browse" "/cgi-bin/browse.jim"
 tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/sched.jim"
 tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" $epglink
 tb "/img/spanner.png" "Services" "/services.shtml"
