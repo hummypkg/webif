@@ -15,7 +15,7 @@ foreach service $services {
 	if ($auto) { puts -nonewline " checked" }
 	puts "></td>"
 
-	puts -nonewline "<td><input type=checkbox class=toggle name=\"$name\"""
+	puts -nonewline "<td><input type=checkbox class=toggle name=\"$name\""
 	if ($running) { puts -nonewline " checked" }
 	puts "></td>"
 

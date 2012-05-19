@@ -19,6 +19,9 @@ puts {
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>
 </div>
+}
+source /mod/var/mongoose/include/toolbar.jim
+puts {
 <script type=text/javascript>
 $('#topbar').hover(
     function() { $(this).css('cursor', 'pointer'); },

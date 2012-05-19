@@ -326,3 +326,35 @@ div.cut
 	background: transparent;
 }
 
+#toolbarouter
+{
+	position: relative;
+}
+
+#toolbar
+{
+	position: absolute;
+	top: -20px;
+	left: 30px;
+	z-index: 29;
+	display: none;
+	width: 80%;
+	border: 1px solid #899caa;
+	box-shadow: 2px 2px 11px #666;
+	-moz-box-shadow: 2px 2px 11px #666;
+	-webkit-box-shadow: 2px 2px 11px #666;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin-top: -1px;
+	background: #d2e0ea;
+	padding: 6px;
+}
+
+span.toolbarcell
+{
+	float: left;
+	border-right: 1px solid #ccc;
+	text-align: center;
+	padding: 0 1em;
+}
+
