@@ -1,12 +1,11 @@
 <!--#include virtual="/lib/header.shtml" -->
 
-<div id=status class=shadowbox
-    style="width: 60%; display: none; margin: 1 0 1em 0">
-<div>
-<span id=status_txt>
-Status...
-</span>
-</div>
+<div class=toolbarouter>
+  <div id=status class=toolbar>
+    <span id=status_txt>
+      Status...
+    </span>
+  </div>
 </div>
 
 <script type=text/javascript>
@@ -14,7 +13,7 @@ $(document).ready(function() {
 	$('#status_txt').load('/cgi-bin/status.jim',
 		function(rt,tt,xml) {
 			if (rt.length)
-				$('#status').show('slow');
+				$('#status').slideDown();
 		});
 });
 </script>

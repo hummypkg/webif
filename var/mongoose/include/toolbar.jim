@@ -9,10 +9,15 @@ if {[[settings] epg_style] eq "grid"} {
 	set epglink "/epg.shtml"
 }
 
-proc tb {icon txt link {size 50}} {
+proc tb {icon txt link {height 50} {width 0}} {
+	if {$width > 0} {
+		set width " width=$width"
+	} else {
+		set width ""
+	}
 	puts -nonewline "<span class=toolbarcell>
 	    <a href=\"$link\">
-		<img src=\"$icon\" height=$size border=0>
+		<img src=\"$icon\" height=${height}${width} border=0>
 		<br>
 		$txt
 	    </a>
@@ -21,8 +26,8 @@ proc tb {icon txt link {size 50}} {
 }
 
 puts {
-<div id=toolbarouter>
- <div id=toolbar>
+<div class=toolbarouter>
+ <div id=toolbar class=toolbar>
 }
 
 tb "/images/323_1_10_Menu_Video.png" "Browse" "/cgi-bin/browse.jim"
@@ -39,13 +44,15 @@ puts {
 </div>
 
 <script type=text/javascript>
-$('#topbar, #toolbar').hover(
-    function() {
+if (window.location.pathname != '/' &&
+    window.location.pathname != '/index.shtml')
+	  $('#topbar, #toolbar').hover(
+	    function() {
 		$('#toolbar').stop(true, true).delay(200).slideDown();
-    }, function() {
+	    }, function() {
 		$('#toolbar').stop(true, true).delay(200).slideUp();
-    }
-);
+	    }
+	  );
 </script>
 }
 

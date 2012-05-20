@@ -56,10 +56,8 @@ foreach file [cgi_get files] {
 		puts -nonewline "Directory..."
 		if {$ldustbin ne ""} {
 			set ndir "[bindir $file]/[file tail $file]"
-			if {$force} {
-				while {[file isdirectory $ndir]} {
-					append ndir "_"
-				}
+			while {[file isdirectory $ndir]} {
+				append ndir "_"
 			}
 			file rename $file $ndir
 			touch $ndir

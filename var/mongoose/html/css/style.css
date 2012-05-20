@@ -326,12 +326,12 @@ div.cut
 	background: transparent;
 }
 
-#toolbarouter
+div.toolbarouter
 {
 	position: relative;
 }
 
-#toolbar
+div.toolbar
 {
 	position: absolute;
 	top: -20px;
