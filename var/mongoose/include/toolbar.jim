@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 source /mod/var/mongoose/lib/setup
-require plugin settings.class
+require plugin settings.class system.class
 
 if {[[settings] epg_style] eq "grid"} {
 	set epglink "/cgi-bin/xepg.jim"
@@ -40,19 +40,40 @@ tb "/img/diagnostics.png" "Diag" "/diag/diag.jim"
 eval_plugins toolbar
 
 puts {
+ <span class=cleft id=tbstatus></span>
  </div>
 </div>
 
 <script type=text/javascript>
+var lastupd = 0;
 if (window.location.pathname != '/' &&
     window.location.pathname != '/index.shtml')
 	  $('#topbar, #toolbar').hover(
 	    function() {
-		$('#toolbar').stop(true, true).delay(200).slideDown();
+		$('#toolbar').stop(true, true).delay(200).slideDown(400,
+		    function() {
+			if (+new Date() - lastupd > 5000)
+			{
+				lastupd = +new Date();
+				$('#tbstatus')
+				    .empty()
+				    .html('<img src=/img/loading.gif> ' +
+					'Updating...')
+				    .load('/cgi-bin/status.jim');
+			}
+		});
 	    }, function() {
 		$('#toolbar').stop(true, true).delay(200).slideUp();
 	    }
 	  );
+
+$('span.toolbarcell').hover(
+    function() {
+	$(this).addClass('tbhover');
+    }, function() {
+	$(this).removeClass('tbhover');
+    });
+
 </script>
 }
 

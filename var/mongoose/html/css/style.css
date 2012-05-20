@@ -358,3 +358,18 @@ span.toolbarcell
 	padding: 0 1em;
 }
 
+.tbhover
+{
+	background: #dfe8ef;
+	border-top: solid 1px #ccc;
+	border-left: solid 1px #ccc;
+}
+
+#tbstatus
+{
+	width: 100%;
+	border-top: 1px solid #ccc;
+	margin: 1em 0;
+	padding-top: 1em;
+}
+
