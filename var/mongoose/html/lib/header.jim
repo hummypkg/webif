@@ -1,10 +1,12 @@
+#!/mod/bin/jimsh
+
 puts {
 <!doctype html>
 <html>
 <head>
 <title>
 }
-source /mod/var/mongoose/include/model.jim
+source /mod/webif/include/model.jim
 puts {
 </title>
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
@@ -17,9 +19,9 @@ puts {
 <body>
 }
 
-source /mod/var/mongoose/html/lib/topbar.jim
+source /mod/webif/html/lib/topbar.jim
 puts "<div id=restart_block>"
-source /mod/var/mongoose/include/restart.jim
+source /mod/webif/include/restart.jim
 puts "</div>"
 
 puts {

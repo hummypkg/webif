@@ -1,4 +1,4 @@
 <!--#include virtual="/lib/header.shtml" -->
-<!--#exec cmd="/mod/var/mongoose/include/backup.jim" -->
+<!--#exec cmd="/mod/webif/include/backup.jim" -->
 <!--#include virtual="/lib/footer.shtml" -->
 

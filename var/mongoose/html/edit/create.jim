@@ -1,0 +1,18 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+cgi_input
+#cgi_dump
+
+set file [cgi_get file "/tmp/hosts"]
+if {$file eq "-"} { exit }
+
+puts "Content-Type: text/plain\n"
+
+if {[file exists $file]} {
+	puts ">>> File already exists."
+	exit
+}
+

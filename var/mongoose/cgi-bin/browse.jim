@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require ts.class pretty_size system.class settings.class escape
 
 puts "Content-Type: text/html"
@@ -222,7 +222,7 @@ puts {
 	<link type=text/css rel=stylesheet href=/cgi-bin/browse/style.css />
 }
 
-source /mod/var/mongoose/cgi-bin/browse/assets.jim
+source browse/assets.jim
 
 puts "
 	<span style=\"display:none\" id=dir>$dir</span>

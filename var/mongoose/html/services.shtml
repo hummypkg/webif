@@ -40,6 +40,6 @@ Results...
 <th>Auto Startup</th>
 <th>Status</th>
 </tr>
-<!--#exec cmd="/mod/var/mongoose/include/services.jim" -->
+<!--#exec cmd="/mod/webif/include/services.jim" -->
 </table>
 <!--#include virtual="/lib/footer.shtml" -->

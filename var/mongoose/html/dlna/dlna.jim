@@ -2,7 +2,7 @@
 
 package require cgi
 package require sqlite3
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require ts.class pretty_size
 
 puts "Content-Type: text/html\r\n\r\n"

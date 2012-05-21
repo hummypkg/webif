@@ -1,9 +1,9 @@
 #!/mod/bin/jimsh
 
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require system.class
 
-lassign [system diskspace] size used perc
+lassign [system diskspace] size used perc free fperc
 set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
 
 # The HD model only has the USB images which are blue. I prefer the green
@@ -25,7 +25,8 @@ puts "
 	<span style=\"float: right\">
 		<br>
 		Total space: $size<br>
-		Used: $used ($perc%)
+		Used: $used ($perc%)<br>
+		Free: $free ($fperc%)
 	</span>
 "
 

@@ -2,7 +2,7 @@
 
 package require cgi
 package require pack
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require ts.class hexdump
 
 puts "Content-Type: text/html"

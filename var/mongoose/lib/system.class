@@ -68,6 +68,7 @@ proc {system diskspace} {} {
 
 	set size 0
 	set used 0
+	set free 0
 	set perc 0
 	foreach line [split [exec /mod/bin/busybox/df -h $part 2>>/dev/null] "\n\r"] {
 		if {[string match "/*" $line]} {
@@ -75,12 +76,14 @@ proc {system diskspace} {} {
 			set fields [split $line]
 			set size [lindex $fields 1]
 			set used [lindex $fields 2]
+			set free [lindex $fields 3]
 			set perc [string trimright [lindex $fields 4] "%"]
+			set fperc $(100 - $perc)
 			break
 		}
 	}
 
-	return [list $size $used $perc]
+	return [list $size $used $perc $free $fperc]
 }
 
 proc {system busy} {} {

@@ -3,5 +3,5 @@
 puts "Content-Type: text/html"
 puts ""
 
-source /mod/var/mongoose/include/restart.jim
+source /mod/webif/include/restart.jim
 

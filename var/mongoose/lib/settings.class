@@ -22,6 +22,7 @@ class settings {
 	epg_style	"standard"
 	smtp_server	""
 	pkgdev		0
+	notoolbar	0
 }
 
 settings method hostname {{name ""}} {
@@ -114,6 +115,10 @@ settings method epg_style {{style -1}} {
 
 settings method pkgdev {{val -1}} {
 	return [$self _nval_setting pkgdev $val]
+}
+
+settings method notoolbar {{val -1}} {
+	return [$self _nval_setting notoolbar $val]
 }
 
 settings method sortorder {{val -1}} {

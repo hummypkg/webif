@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/ts.class
+source /mod/webif/lib/ts.class
 
 puts "Content-Type: application/json"
 puts ""

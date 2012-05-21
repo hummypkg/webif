@@ -3,18 +3,18 @@ if {![exists -proc require]} {
 	proc require {args} {{done {}}} {
 		foreach file $args {
 			if {$file ni $done} {
-				uplevel source "/mod/var/mongoose/lib/$file"
+				uplevel source "/mod/webif/lib/$file"
 				lappend $done $file
 			}
 		}
 	}
 
 	proc header {} {
-		uplevel source /mod/var/mongoose/html/lib/header.jim
+		uplevel source /mod/webif/html/lib/header.jim
 	}
 
 	proc footer {} {
-		uplevel source /mod/var/mongoose/html/lib/footer.jim
+		uplevel source /mod/webif/html/lib/footer.jim
 	}
 
 	# Replace the built-in jim {file copy} command with one that is

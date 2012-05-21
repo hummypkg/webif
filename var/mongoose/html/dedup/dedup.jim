@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require ts.class pretty_size altrow
 
 source normalise.jim
@@ -31,8 +31,7 @@ puts "<fieldset style=\"display: inline\">
 </tr>
 "
 
-set seen {}
-
+loadseries $dir
 foreach file [readdir $dir] {
 	set file "$dir/$file"
 	if {[file extension $file] ne ".hmt"} { continue }

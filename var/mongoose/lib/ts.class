@@ -1,6 +1,6 @@
 
 if {![exists -proc class]} { package require oo }
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require tdelete
 
 set dmsfile /mnt/hd2/dms_cds.db

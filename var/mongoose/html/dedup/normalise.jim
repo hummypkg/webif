@@ -8,8 +8,32 @@ set dedup_prefixes {
 	{^\.+}
 }
 
+proc loadseries {dir} {
+	global seriesmap
+	set seriesmap [dict create]
+
+	if {![file exists "$dir/series.info"]} { return }
+
+	if {[catch {set fd [open "$dir/series.info" "r"]} msg]} {
+		puts "Error opening series.info: $msg"
+		return
+	}
+
+	foreach line [split [read $fd] "\n\r"] {
+		set i [string first " ==> " $line]
+		if {$i == -1} { continue }
+		set name [string range $line 0 $($i - 1)]
+		set prefix [string range $line $($i + 5) end]
+		if {$prefix eq ""} { continue }
+		dict set seriesmap $name $prefix
+		regsub -all -- {[[:space:]]+} [string tolower $name] "" name
+		dict set seriesmap $name $prefix
+	}
+	$fd close
+}
+
 proc dedupnormalise {title {reserve ""}} {
-	global dedup_prefixes
+	global dedup_prefixes seriesmap
 
 	# Strip common prefixes
 	foreach prefix $dedup_prefixes {
@@ -35,6 +59,16 @@ proc dedupnormalise {title {reserve ""}} {
 			set title $reserve
 		} else {
 			append title " $reserve"
+		}
+	}
+
+	if {[dict exists $seriesmap $title]} {
+		set ntitle "$seriesmap($title): $title"
+		set title $ntitle
+	} else {
+		regsub -all -- {[[:space:]]+} [string tolower $title] "" ntitle
+		if {[dict exists $seriesmap $ntitle]} {
+			set title "$seriesmap($ntitle): $title"
 		}
 	}
 

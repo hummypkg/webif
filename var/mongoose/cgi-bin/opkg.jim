@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require pkg.class chunked
 
 cgi_input
@@ -11,7 +11,7 @@ set cmd [cgi_get cmd update]
 
 proc opkg {cmd} {
 	chunk ">>> opkg $cmd\r\n"
-	set bcmd "|/mod/var/mongoose/lib/opkg $cmd"
+	set bcmd "|/mod/webif/lib/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
 		chunk "$line\r\n"

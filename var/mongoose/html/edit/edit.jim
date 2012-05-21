@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 
 puts "Content-Type: text/html"
 puts ""
@@ -33,6 +33,7 @@ Use the <i>Open</i> button below to begin.
 <button class=xeditactive id=open>Open</button>
 <button class=editactive id=save>Save</button>
 <button class=editactive id=revert>Revert</button>
+<button class=xeditactive id=create>Create File</button>
 
 <div id=result class="blood hidden" />
 
@@ -45,6 +46,26 @@ Use the <i>Open</i> button below to begin.
 <div id=chooserd>
 	<i>Humax Filesystem</i>
 	<div id=chooser></div>
+</div>
+
+<div id=createf title="Create new file" style="display: none">
+	<form id=createf_form>
+	<table border=0>
+	<tr>
+	<th>
+		<label for="createf_name">
+			<b>Filename</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="createf_name"
+		    id="createf_name"
+		    value="/mod/" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+	</form>
 </div>
 
 }

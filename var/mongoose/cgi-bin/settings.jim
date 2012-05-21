@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 package require cgi
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 require settings.class
 require plugin
 
@@ -29,6 +29,7 @@ set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
 set epg_style [$settings epg_style]
 set pkgdev [$settings pkgdev]
+set notoolbar [$settings notoolbar]
 
 # Handle updates
 
@@ -65,6 +66,7 @@ _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 handle_str_update epg_style $epg_style "EPG Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
+handle_int_update notoolbar $notoolbar "Disable toolbar"
 
 set acluser [cgi_get acluser "-"]
 set aclpass [cgi_get aclpass "-"]
@@ -136,6 +138,17 @@ puts -nonewline "
 if {[file exists /mod/etc/mongoose.cert]} { puts -nonewline " checked" }
 puts ">
 		    <div id=https_output></div>
+		</td>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+		<th class=key>Slide-down toolbar?</th>
+		<td><input id=toolbar_toggle name=toolbar type=checkbox value=yes"
+if {$notoolbar == 0} { puts -nonewline " checked" }
+puts ">
+		    <div id=toolbar_output></div>
 		</td>
 	</tr>
 "

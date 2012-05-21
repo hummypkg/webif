@@ -1,7 +1,10 @@
 #!/mod/bin/jimsh
 
-source /mod/var/mongoose/lib/setup
-require plugin settings.class system.class
+source /mod/webif/lib/setup
+require settings.class
+if {[[settings] notoolbar] eq "0"} {
+
+require plugin system.class
 
 if {[[settings] epg_style] eq "grid"} {
 	set epglink "/cgi-bin/xepg.jim"
@@ -26,6 +29,8 @@ proc tb {icon txt link {height 50} {width 0}} {
 }
 
 puts {
+<!-- start of toolbar -->
+
 <div class=toolbarouter>
  <div id=toolbar class=toolbar>
 }
@@ -48,8 +53,8 @@ puts {
 var lastupd = 0;
 if (window.location.pathname != '/' &&
     window.location.pathname != '/index.shtml')
-	  $('#topbar, #toolbar').hover(
-	    function() {
+{
+	var down = function() {
 		$('#toolbar').stop(true, true).delay(200).slideDown(400,
 		    function() {
 			if (+new Date() - lastupd > 5000)
@@ -62,10 +67,12 @@ if (window.location.pathname != '/' &&
 				    .load('/cgi-bin/status.jim');
 			}
 		});
-	    }, function() {
+	};
+	var up = function() {
 		$('#toolbar').stop(true, true).delay(200).slideUp();
-	    }
-	  );
+	};
+	$('#topbar, #toolbar').hover(down, up);
+}
 
 $('span.toolbarcell').hover(
     function() {
@@ -75,5 +82,9 @@ $('span.toolbarcell').hover(
     });
 
 </script>
+
+<!-- end of toolbar -->
+
 }
 
+}

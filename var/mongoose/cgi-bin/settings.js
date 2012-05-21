@@ -73,5 +73,24 @@ $(document).ready(function () {
 				    .delay(2000).fadeOut('slow');
 		    });
 	});
+
+	$('#toolbar_toggle').change(function() {
+		var arg = '1';
+		if ($(this).attr('checked'))
+			arg = '0';
+
+		$(this).disable();
+
+		$('#toolbar_output')
+		    .empty()
+		    .show('slow')
+		    .load('/cgi-bin/settings.jim?notoolbar=' + arg,
+		        function() {
+				$('#toolbar_toggle').enable();
+				$('#toolbar_output')
+				    .css('font-style', 'italic')
+				    .delay(2000).fadeOut('slow');
+		    });
+	});
 });
 

@@ -1,4 +1,4 @@
-source /mod/var/mongoose/lib/setup
+source /mod/webif/lib/setup
 
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }

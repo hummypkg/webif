@@ -18,10 +18,10 @@ $(document).ready(function() {
 });
 </script>
 
-<!--#exec cmd="/mod/var/mongoose/include/menuicons.jim" -->
+<!--#exec cmd="/mod/webif/include/menuicons.jim" -->
 
 <div style="clear: both; padding-top: 1em">
-<!--#exec cmd="/mod/var/mongoose/include/menuplugins.jim" -->
+<!--#exec cmd="/mod/webif/include/menuplugins.jim" -->
 </div>
 
 <div class=footer>
@@ -34,7 +34,7 @@ Firmware</a> |
 <a target=_blank href="http://wiki.hummy.tv/wiki/Webif_release_notes">Webif</a>
 </li>
 </ul>
-<!--#exec cmd="/mod/var/mongoose/include/modversion.jim" -->
+<!--#exec cmd="/mod/webif/include/modversion.jim" -->
 </div>
 
 <!--#include virtual="/lib/footer.shtml" -->

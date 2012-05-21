@@ -103,5 +103,45 @@ $('#back').click(function() {
 		window.location = '/diag/diag.jim';
 	});
 
+function createf_submit()
+{
+	var f = $('#createf_name').val();
+	console.log('Creating: ' + f);
+
+	$('#createf').dialog('close');
+	$.get('create.jim?file=' + encodeURIComponent(f), function(data) {
+		if (data.match('^>>>'))
+		{
+			$('#msg').text(data);
+			file = null;
+			changed = false;
+		}
+		else
+		{
+			$('#editor').val('').enable();
+			$('button.editactive').enable();
+			$('#msg').html('Editing new file <i>' + f + '</i>');
+			file = f;
+			changed = false;
+		}
+	});
+}
+
+$('#createf').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Create File": createf_submit,
+		"Cancel": function() {
+			$(this).dialog('close');
+		}
+	}
 });
 
+$('#create').click(function() {
+	console.log('opening dialog');
+	$('#createf').dialog('open');
+});
+
+});
