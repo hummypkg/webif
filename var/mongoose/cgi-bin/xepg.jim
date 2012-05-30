@@ -29,7 +29,7 @@ if {$stt <= [clock seconds]} {
 	set current 0
 }
 
-set favlist [epg favlist]
+set favgroup [[settings] channel_group]
 
 set hours 4.0
 set seconds $($hours * 3600)
@@ -51,7 +51,13 @@ set secpx $($minpx / 60.0)
 
 set start [clock milliseconds]
 if {$::qepg} {
-	set records [epg dbfetch dump -trange "$stt:$ett"]
+	if {$favgroup} {
+		set records [epg dbfetch dump \
+		    -trange "$stt:$ett" -fav $favgroup]
+	} else {
+		set records [epg dbfetch dump -trange "$stt:$ett"]
+	}
+
 } else {
 	require channelsort
 	set records [channelsort [epg fetch dump -trange "$stt:$ett"]]
@@ -87,9 +93,6 @@ set lcn 0
 set bg "odd"
 
 foreach e $records {
-	if {$favlist != "" && [$e get service_id] ni $favlist} {
-		continue
-	}
 	set chnum [$e get channel_num]
 	if {$chnum == 0} { continue }
 
@@ -218,12 +221,12 @@ puts "
 	</a><br>
 "
 
+epg cleanup
+
 set end [clock milliseconds]
 puts "<font class=footnote>
     Retrieved in: [expr [expr $got - $start] / 1000.0] seconds.
     </font>"
-
-epg cleanup
 
 footer
 

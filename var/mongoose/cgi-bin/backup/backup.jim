@@ -68,16 +68,17 @@ set grp 0
 foreach res [$rsvdb query {
 	select	eFavGroup,
 		TBL_FAV.eSvcType,
-		substr(szSvcName, 2) as szSvcName
+		substr(szSvcName, 2) as szSvcName,
+		favIdx
 	from TBL_FAV join TBL_SVC using (hSvc)
-	order by eFavGroup
+	order by eFavGroup, favIdx
     }] {
 	if {$res(eFavGroup) != $grp} {
 		set grp $res(eFavGroup)
 		puts "  Group $grp"
 	}
 	puts "    $res(szSvcName)"
-	puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)"
+	puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)\t$res(favIdx)"
 }
 puts "Done."
 

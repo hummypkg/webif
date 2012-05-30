@@ -108,6 +108,8 @@ foreach line $data {
 	set group [lindex $vals 1]
 	set type [lindex $vals 2]
 	set chan [lindex $vals 3]
+	set idx [lindex $vals 4]
+	if {$idx eq ""} { set idx 0 }
 	set hsvc [get_channel_attr $chan]
 
 	if {$grp != $group} {
@@ -123,8 +125,8 @@ foreach line $data {
 	}
 
 	set query "
-		insert into pending.fav(hSvc, eFavGroup, eSvcType)
-		values($hsvc, $group, $type);
+		insert into pending.fav(favIdx, hSvc, eFavGroup, eSvcType)
+		values($idx, $hsvc, $group, $type);
 	"
 
 	$rsvdb query $query

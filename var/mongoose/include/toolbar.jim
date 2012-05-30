@@ -32,7 +32,7 @@ puts {
 <!-- start of toolbar -->
 
 <div class=toolbarouter>
- <div id=toolbar class=toolbar>
+ <div id=toolbar class=toolbar style="display: none">
 }
 
 tb "/images/323_1_10_Menu_Video.png" "Browse" "/cgi-bin/browse.jim"

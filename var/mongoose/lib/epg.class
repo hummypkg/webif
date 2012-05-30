@@ -334,13 +334,24 @@ proc {epg exec} {mode args} {
 proc {epg dbfetch} {mode args} {
 	set records {}
 	set extra ""
-	set q "select distinct *,
+
+	set select "
+	    select distinct *,
 	    usLcn as channel_num,
 	    substr(szSvcName, 2) as channel_name,
 	    aucDefaultAuthority as channel_crid,
 	    hSvc as channel_hsvc
+	"
+
+	set from "
 	    from epg.epg e join TBL_SVC c
-	    on e.service_id = c.usSvcId where 1 "
+	    on e.service_id = c.usSvcId
+	"
+
+	set q "where 1 "
+
+	set sort "order by channel_num, start"
+
 	foreach arg $args {
 		if {[string first "-" $arg] == 0} {
 			set v $args($arg)
@@ -365,17 +376,23 @@ proc {epg dbfetch} {mode args} {
 					(e.start < $stt and e.end > $stt)
 					) "
 				}
-
+				-fav {
+					append from \
+					    "join TBL_FAV f using(hSvc) "
+					append q "and f.eFavGroup = $v "
+					set sort "order by f.favIdx, start"
+				}
 				default { error "Invalid option, $arg" }
 			}
 		}
 	}
-	append q "order by channel_num, start"
 
-	#puts "QUERY -$q-"
+	set query "$select $from $q $sort"
+
+	#puts "QUERY -$query-"
 
 	set records {}
-	foreach rec [$::channeldb query $q] {
+	foreach rec [$::channeldb query $query] {
 		lappend records [epg new $rec]
 	}
 	return $records
@@ -401,6 +418,7 @@ proc {epg favlist} {} {
 		from TBL_SVC join TBL_FAV
 		using(hSvc)
 		where TBL_FAV.eFavGroup == $num
+		order by TBL_FAV.favIdx
 	"] { lindex $i end }]
 }
 
