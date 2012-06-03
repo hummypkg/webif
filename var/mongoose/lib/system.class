@@ -33,6 +33,18 @@ proc {system modversion} {{short 0}} {
 	return [format "%d.%d%d" $a $b $c]
 }
 
+proc {system fhtcpversion} {} {
+	set file "/etc/fhtcpversion"
+	if {![file exists $file]} { set file "/root/fhtcpversion" }
+	if {[catch {set fp [open $file r]}]} {
+		set ver "?.??.??"
+	} else {
+		set ver [string trim [read $fp]]
+		close $fp
+	}
+	return $ver
+}
+
 proc {system pkgver} {{pkg webif}} {
 	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
 }
