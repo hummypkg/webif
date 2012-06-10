@@ -100,16 +100,19 @@ proc entry {file} {{i 0}} {
 		set type ts
 		set ts [ts fetch $file 1]
 		set img Video_TS
+		set omenu opt
 	} elseif {$ext eq ".hmt"} {
 		if {[file exists "${base}.ts"]} { continue }
 		# Sole hmt file indicates failure to track.
 		set type bad
 		set ts 0
 		set img Video_Failed
+		set omenu oopt
 	} else {
 		set type gen
 		set ts 0
 		set img Video_Other
+		set omenu oopt
 	}
 
 	set new 0
@@ -194,7 +197,7 @@ proc entry {file} {{i 0}} {
 
 	puts "
 	      <a href=#>
-		<img class=\"opt va\" border=0 width=45 type=$type did=$i
+		<img class=\"$omenu va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
 		    rsize=$rsz
 		    odencd=$odencd dlna=$dlna

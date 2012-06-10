@@ -218,6 +218,11 @@ function preparemenu(el, menu)
 		else
 			$(menu).disableContextMenuItems('#crop');
 
+		if (el.attr('def') == 'HD')
+			$(menu).disableContextMenuItems('#strip');
+		else
+			$(menu).enableContextMenuItems('#strip');
+
 		if (el.attr('rsize') > 4294967296)
 			$(menu).enableContextMenuItems('#chunk');
 		else
@@ -268,6 +273,7 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#audio');
 		$(menu).disableContextMenuItems('#mpg');
 		$(menu).disableContextMenuItems('#crop');
+		$(menu).disableContextMenuItems('#strip');
 		$(menu).disableContextMenuItems('#chunk');
 	}
 
@@ -354,6 +360,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'crop':
 		window.location.href = '/cgi-bin/browse/crop/crop.jim?file=' +
+		    file;
+		break;
+
+	    case 'strip':
+		window.location.href = '/cgi-bin/browse/strip/strip.jim?file=' +
 		    file;
 		break;
 
@@ -451,6 +462,16 @@ var dmenuclick = function(action, el, pos)
 	$('img.opt').contextMenu(
 		{
 			menu: 'optmenu',
+			leftButton: true,
+			beforeShow: preparemenu
+		},
+		menuclick
+	);
+
+	// Bind context menu to opt+ image
+	$('img.oopt').contextMenu(
+		{
+			menu: 'ooptmenu',
 			leftButton: true,
 			beforeShow: preparemenu
 		},

@@ -1,0 +1,52 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class pretty_size
+
+puts "Content-Type: text/html\r\n\r\n"
+
+cgi_input
+#cgi_dump
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+set len [$ts duration 1]
+
+set stripstart [clock milliseconds]
+
+set base [file rootname $rfile]
+set origdir "$dir/_original"
+if {![file exists $origdir]} { file mkdir $origdir }
+
+set shname [file tail $base]
+puts "Processing $shname"
+
+if {[file exists "$origdir/$shname.ts"]} {
+	puts "This recording already exists within _original"
+	puts "Cannot continue."
+	exit
+}
+
+puts "Moving recording to $origdir"
+foreach f [glob -nocomplain "${base}.*"] {
+	set tail [file tail $f]
+	puts "  $tail"
+	file rename $f "$origdir/$tail"
+}
+
+puts [exec /mod/bin/stripts \
+    "$origdir/$shname" \
+    "$dir/$shname" \
+    ]
+
+set newname "$shname-[clock seconds]"
+puts "Renaming file group to $newname"
+ts renamegroup "$dir/$shname.ts" $newname
+exec /mod/bin/hmt "+setfilename=$newname" "$dir/$newname.hmt"
+
+set striptime [expr [expr [clock milliseconds] - $stripstart] / 1000.0]
+puts "Time taken: $striptime"
+
