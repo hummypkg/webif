@@ -39,6 +39,10 @@ Your original recording files will be retained in a folder called _original.
 <tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
 <tr><th>Time:</th>
 <td>Stripping will take around [clock format $esttime -format "%T"]</td></tr>
+<tr><th>Estimated Saving:</th>
+<td class=va><span id=analysis class=va>
+	<img class=va src=/img/loading.gif> Analysing file, please wait...
+</span></td></tr>
 </table>
 
 <span class=hidden id=params
@@ -46,7 +50,7 @@ Your original recording files will be retained in a folder called _original.
     dir=\"[cgi_quote_url $dir]\"
 ></span>
 
-<div id=stripdiv style=\"padding: 1em\">
+<div id=stripdiv class=hidden style=\"padding: 1em\">
 <button id=stripit>Perform strip operation</button>
 </div>
 

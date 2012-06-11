@@ -13,6 +13,17 @@ function update()
 
 $(document).ready(function() {
 
+$('#analysis').load('analyse.jim?file=' + $('#params').attr('file'),
+	function(t) {
+		if ($.trim(t) == '0%')
+		{
+			$('#output').text('Recording is already stripped.');
+			$('#back').slideDown();
+		}
+		else
+			$('#stripdiv').slideDown();
+	});
+
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
