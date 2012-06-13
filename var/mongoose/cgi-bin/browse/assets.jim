@@ -15,9 +15,9 @@ puts {
 }
 if {$model eq "HDR"} {
 	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
-	puts { <li class="cut"><a href=#strip>Strip</a></li> }
+	puts { <li class="compress"><a href=#strip>Squeeze</a></li> }
 } else {
-	puts { <li class="cut separator"><a href=#strip>Strip</a></li> }
+	puts { <li class="compress separator"><a href=#strip>Squeeze</a></li> }
 }
 if {[system pkginst ffmpeg]} {
 	puts {
