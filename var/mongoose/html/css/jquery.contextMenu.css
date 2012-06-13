@@ -65,5 +65,7 @@
 .contextMenu LI.cut A { background-image: url(/img/context/cut.png); }
 .contextMenu LI.quit A { background-image: url(/img/context/door.png); }
 .contextMenu LI.compress A { background-image: url(/img/context/compress.png); }
+.contextMenu LI.dedup A { background-image: url(/img/context/dedup.png); }
+.contextMenu LI.decrypt A { background-image: url(/img/context/decrypt.png); }
 
 

@@ -218,9 +218,11 @@ function preparemenu(el, menu)
 		else
 			$(menu).disableContextMenuItems('#crop');
 
+/*
 		if (el.attr('def') == 'HD')
 			$(menu).disableContextMenuItems('#strip');
 		else
+*/
 			$(menu).enableContextMenuItems('#strip');
 
 		if (el.attr('rsize') > 4294967296)
@@ -269,12 +271,6 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#lock');
 		//$(menu).disableContextMenuItems('#enc');
 		$(menu).disableContextMenuItems('#new');
-		$(menu).disableContextMenuItems('#decrypt');
-		$(menu).disableContextMenuItems('#audio');
-		$(menu).disableContextMenuItems('#mpg');
-		$(menu).disableContextMenuItems('#crop');
-		$(menu).disableContextMenuItems('#strip');
-		$(menu).disableContextMenuItems('#chunk');
 	}
 
 }
@@ -288,6 +284,33 @@ function preparedmenu(el, menu)
 		else
 			$(menu).changeContextMenuItem('#flat',
 			    'Prevent Flatten');
+	}
+	if (el.attr('autosqueeze') != undefined)
+	{
+		if (el.attr('autosqueeze') > 0)
+			$(menu).changeContextMenuItem('#squeeze',
+			    'Disable Auto-squeeze');
+		else
+			$(menu).changeContextMenuItem('#squeeze',
+			    'Enable Auto-squeeze');
+	}
+	if (el.attr('autodedup') != undefined)
+	{
+		if (el.attr('autodedup') > 0)
+			$(menu).changeContextMenuItem('#dedup',
+			    'Disable Auto-dedup');
+		else
+			$(menu).changeContextMenuItem('#dedup',
+			    'Enable Auto-dedup');
+	}
+	if (el.attr('autodecrypt') != undefined)
+	{
+		if (el.attr('autodecrypt') > 0)
+			$(menu).changeContextMenuItem('#decrypt',
+			    'Disable Auto-decrypt');
+		else
+			$(menu).changeContextMenuItem('#decrypt',
+			    'Enable Auto-decrypt');
 	}
 }
 
@@ -443,7 +466,26 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'flat':
-		var url = '/cgi-bin/browse/flat.jim?dir=' + file;
+		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=noflatten';
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
+	    case 'dedup':
+		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=autodedup';
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
+	    case 'squeeze':
+		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=autosqueeze';
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
+	    case 'decrypt':
+		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=autodecrypt';
 		$.get(url, function() { window.location.reload(true); });
 		break;
 

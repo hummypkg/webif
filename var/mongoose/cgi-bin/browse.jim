@@ -63,9 +63,30 @@ proc directory {file bfile} {
 		if $noflat { icon "/img/flat-tyre.png" "No-flatten" }
 	}
 
+	set autosqueeze 0
+	if {[file exists "$file/.autosqueeze"]} {
+		set autosqueeze 1
+		icon "/img/compress.png" "Auto-squeeze"
+	}
+
+	set autodedup 0
+	if {[file exists "$file/.autodedup"]} {
+		set autodedup 1
+		icon "/img/dedup.png" "Auto-dedup"
+	}
+
+	set autodecrypt 0
+	if {[file exists "$file/.autodecrypt"]} {
+		set autodecrypt 1
+		icon "/img/decrypt.png" "Auto-decrypt"
+	}
+
 	puts -nonewline "
 	      <a href=#>
 		<img class=\"dopt va\" border=0 width=45 "
+	puts -nonewline "autosqueeze=$autosqueeze "
+	puts -nonewline "autodedup=$autodedup "
+	puts -nonewline "autodecrypt=$autodecrypt "
 	if $flatten { puts -nonewline "noflat=$noflat " }
 	puts "
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
