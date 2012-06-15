@@ -2,6 +2,13 @@
 
 export tmpf=/tmp/cronf.$$
 
+cronf=$PKG_ROOT/var/spool/cron/crontabs/root
+if [ -f $cronf ]; then
+	grep -v webif/lib/bin/auto $cronf > $tmpf
+	cp $tmpf $cronf
+	[ -s $cronf ] || rm -f $cronf
+fi
+
 ana=/mod/etc/anacrontab
 grep -v 'backup/backup.jim' $ana > $tmpf
 cp $tmpf $ana

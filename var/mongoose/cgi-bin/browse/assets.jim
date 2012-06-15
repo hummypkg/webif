@@ -14,10 +14,10 @@ puts {
 
 }
 if {$model eq "HDR"} {
-	puts { <li class="separator"><a href=#decrypt>Decrypt</a></li> }
-	puts { <li class="compress"><a href=#strip>Squeeze</a></li> }
+	puts { <li class="separator decrypt"><a href=#decrypt>Decrypt</a></li> }
+	puts { <li class="compress"><a href=#strip>Shrink</a></li> }
 } else {
-	puts { <li class="compress separator"><a href=#strip>Squeeze</a></li> }
+	puts { <li class="compress separator"><a href=#strip>Shrink</a></li> }
 }
 if {[system pkginst ffmpeg]} {
 	puts {
@@ -51,11 +51,12 @@ puts {
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
 	<li class=separator><a href=#rename>Rename</a></li>
 	<li class=separator><a href=#resetnew>Reset new flag</a></li>
-	<li class="separator compress"><a href=#squeeze>Auto-Squeeze</a></li>
+	<li class="separator compress"><a href=#shrink>Auto-Shrink</a></li>
 	<li class=dedup><a href=#dedup>Auto-Dedup</a></li>
-	<li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li>
 }
-
+if {$model eq "HDR"} {
+	puts { <li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li> }
+}
 if $flatten {
 	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
 }

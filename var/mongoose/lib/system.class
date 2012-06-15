@@ -21,6 +21,16 @@ proc {system hostname} {} {
 	return $hostname
 }
 
+proc {system ip} {} {
+	if {[catch {set fp [open /etc/hosts r]}]} {
+		set ip "127.0.0.1"
+	} else {
+		set ipl [lindex [split [$fp read] "\n"] 1]
+		regsub -- {[[:space:]].*} $ipl "" ip
+	}
+	return $ip
+}
+
 proc {system modversion} {{short 0}} {
 	if {[catch {set fp [open /etc/modversion r]}]} {
 		set modver "102"
@@ -112,13 +122,13 @@ proc {system busy} {} {
 }
 
 proc {system inuse} {file} {
-	# Is humaxtv using the file?
-	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {
-		return 0
-	}
+	# Is anything using the file (used to only check the Humax binary)?
+#	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {
+#		return 0
+#	}
 	regsub -all {([\\["$])} [file rootname [file tail $file]] {\\\1} file
 	set c 0
-	foreach line [split [exec /mod/bin/lsof -p $pid] "\n"] {
+	foreach line [split [exec /mod/bin/lsof] "\n"] {
 		if {[string match "*$file*" $line]} { incr c }
 	}
 	if {$c > 0} { return 1 }

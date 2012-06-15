@@ -11,7 +11,7 @@ set cmd [cgi_get cmd update]
 
 proc opkg {cmd} {
 	chunk ">>> opkg $cmd\r\n"
-	set bcmd "|/mod/webif/lib/opkg $cmd"
+	set bcmd "|/mod/webif/lib/bin/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
 		chunk "$line\r\n"

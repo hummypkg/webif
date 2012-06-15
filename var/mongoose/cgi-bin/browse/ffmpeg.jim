@@ -10,7 +10,7 @@ cgi_input
 
 if [file exists /mod/bin/ffmpeg] {
 	set file [dict get $_cgi file]
-	puts [exec /mod/webif/lib/ffmpeg -i $file]
+	puts [exec /mod/webif/lib/bin/ffmpeg -i $file]
 } else {
 	puts "Install ffmpeg package for more information..."
 }

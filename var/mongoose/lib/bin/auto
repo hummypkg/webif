@@ -1,0 +1,212 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require lock system.class ts.class tdelete
+
+if {![acquire_lock webif_auto]} {
+	puts "Cannot acquire exclusive lock, terminating."
+	exit
+}
+puts "Got lock."
+
+set tmp "/mod/tmp/webif_auto"
+if {![file exists $tmp]} {
+	if {[catch {file mkdir $tmp} msg]} {
+		puts "Cannot create temporary directory - $tmp ($msg)"
+		exit
+	}
+} elseif {![file isdirectory $tmp]} {
+	puts "Cannot create temporary directory - $tmp (file exists)"
+	exit
+}
+
+# Clean-up the temporary directory
+foreach file [readdir -nocomplain $tmp] { file delete -force "$tmp/$file" }
+
+if {[system pkginst undelete]} {
+	set dustbin "[system dustbin]"
+} else {
+	set dustbin ""
+}
+
+proc bindir {file binroot} {
+	set dir [file dirname $file]
+	regsub "^[system mediaroot]" $dir $binroot ndir
+	if {$dir eq $ndir} { set ndir $binroot }
+	system mkdir_p $ndir
+	return $ndir
+}
+
+proc escape {str} {
+	regsub -all {([\\["$])} $str {\\\1} str
+	return $str
+}
+
+proc dedup {dir} {
+	puts "DEDUP: \[$dir]"
+	puts [exec /mod/webif/html/dedup/dedup -yes [escape $dir]]
+	exec /mod/webif/html/dedup/dedup -yes [escape $dir]
+}
+
+proc do_shrink {ts} {
+	global tmp dustbin
+
+	set file [file rootname [$ts get file]]
+	puts "  SHRINK: $file"
+	if {[catch {
+		set perc [exec /mod/bin/stripts -aq [escape $file]]
+	    } msg]} {
+		puts "          Error: $msg"
+		return
+	}
+	if {[string match {*%} $perc]} {
+		set perc [string range $perc 0 end-1]
+	} else {
+		set perc 0
+	}
+
+	if {$perc == 0} {
+		puts "          Already shrunk."
+		return
+	}
+	puts "          Estimate $perc% saving."
+	puts "          Shrinking..."
+	if {[catch {
+		puts [exec /mod/bin/stripts -q [escape $file] $tmp/shrunk]
+	    } msg]} {
+		puts "Error during shrink: $msg"
+		return
+	}
+
+	# The following steps are structured to minimise the risk of
+	# things being left in an inconsistent state if the system goes
+	# into standby. Renames within the same filesystem are very
+	# quick so the risk is small, but even so...
+
+	# Move the shrunken version back to the local directory.
+	foreach f [glob "$tmp/shrunk.*"] {
+		set ext [file extension $f]
+		file rename $f "${file}_shrunk${ext}"
+	}
+
+	# Move the old recording to the bin if undelete is installed.
+	if {$dustbin ne ""} {
+		$ts move [bindir $file "$dustbin/webif_autoshrink"] 1 1
+	} else {
+		# Delete otherwise.
+		if {[$ts delete]} {
+			puts "Successfully deleted $file."
+		} else {
+			puts "Problem deleting $file, [$ts get error]"
+			return
+		}
+	}
+
+	# Finally, rename the shrunken recording again.
+	foreach f [glob "${file}_shrunk.*"] {
+		file rename $f "${file}[file extension $f]"
+	}
+}
+
+proc do_decrypt {ts} {
+	global tmp dustbin
+
+	set file [$ts get file]
+	set rfile [file rootname $file]
+	set bfile [file tail $file]
+	puts "  DECRYPT: $rfile"
+
+	if {![$ts flag "ODEncrypted"]} {
+		puts "          Already decrypted."
+		return
+	}
+
+	lassign [$ts dlnaloc] url
+	if {$url eq ""} {
+		puts "          Not yet indexed."
+		return
+	}
+
+	puts "  DLNA: $url"
+	exec wget -O "$tmp/$bfile" $url
+
+	# Move the encrypted file out of the way.
+	file rename $file "$rfile.encrypted"
+	# Move the decrypted copy into place.
+	file rename "$tmp/$bfile" $file
+	# Patch the HMT - quickest way to get back to a playable file.
+	exec /mod/bin/hmt -encrypted [escape "$rfile.hmt"]
+
+	puts "  Removing/binning old copy."
+	# Move the old recording to the bin if undelete is installed.
+	set bin [bindir $file "$dustbin/webif_autodecrypt"]
+	if {$dustbin ne ""} {
+		set tail [file tail $rfile]
+		file rename "$rfile.encrypted" "$bin/$tail.ts"
+		foreach ext {nts hmt thm} {
+			if {[file exists "$rfile.$ext"]} {
+				file copy $rfile.$ext "$bin/$tail.$ext"
+				if {$ext eq "hmt"} {
+					# Patch the binned HMT back
+					exec /mod/bin/hmt +encrypted \
+					    [escape "$bin/$tail.hmt"]
+				}
+			}
+		}
+	} else {
+		file delete "$rfile.encrypted"
+	}
+	puts "  Done."
+}
+
+proc entries {dir callback} {
+	foreach entry [readdir -nocomplain $dir] {
+		if {![string match {*.ts} $entry} continue
+		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
+		if {$ts == 0} continue
+		if {[system inuse [file rootname "$dir/$entry"]]} {
+			puts "$entry - in use\n"
+			continue
+		}
+		$callback $ts
+	}
+}
+
+proc shrink {dir} {
+	puts "SHRINK: \[$dir]"
+	entries $dir do_shrink
+}
+
+proc decrypt {dir} {
+	puts "DECRYPT: \[$dir]"
+	entries $dir do_decrypt
+}
+
+proc scan {dir attr} {{indent 0}} {
+	incr indent 2
+
+	#puts "[string repeat " " $indent]\[$dir]"
+
+	if {[file exists "$dir/.auto$attr"]} { $attr $dir }
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			scan "$dir/$entry" $attr
+		}
+	}
+
+	incr indent -2
+}
+
+set root [system mediaroot]
+
+if {[llength $argv] > 0} {
+	foreach arg $argv { scan $root $arg }
+} else {
+	foreach arg {dedup decrypt shrink} {
+		scan $root $arg
+	}
+}
+
+release_lock webif_auto
+

@@ -1,0 +1,33 @@
+#!/mod/bin/jimsh
+
+package require cgi
+
+#puts "Content-Type: text/plain"
+puts "Content-Type: application/json"
+puts ""
+
+cgi_input
+#cgi_dump
+
+set dir [cgi_get dir "/media/My Video/Children"]
+
+puts "{"
+regsub -all {([\\["$])} $dir {\\\1} xdir
+foreach file [readdir -nocomplain $dir] {
+	if {![string match {*.ts} $file]} { continue }
+
+	regsub -all {([\\["$])} [file rootname $file] {\\\1} xfile
+	if {[catch {set perc [exec /mod/bin/stripts -Aq "$xdir/$xfile"]}]} {
+		continue
+	}
+	if {[string match {*%} $perc]} {
+		set perc [string range $perc 0 end-1]
+	} else {
+		set perc 0
+	}
+
+	puts " \"$file\": $perc,"
+}
+puts " \"dummy\": 0"
+puts "}"
+

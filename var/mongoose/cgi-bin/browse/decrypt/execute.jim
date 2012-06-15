@@ -3,7 +3,7 @@
 package require sqlite3
 package require cgi
 source /mod/webif/lib/setup
-require ts.class
+require ts.class system.class
 
 puts "Content-Type: text/html\r\n\r\n"
 
@@ -19,6 +19,11 @@ lassign [$ts dlnaloc] url
 if {$url eq ""} {
 	puts "This file has not been indexed by the media server.
 	    Cannot decrypt."
+	exit
+}
+
+if {[system inuse $rfile]} {
+	puts "This file is in use. Cannot decrypt at the moment."
 	exit
 }
 

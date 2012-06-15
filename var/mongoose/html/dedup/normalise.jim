@@ -66,6 +66,7 @@ proc dedupnormalise {title {reserve ""}} {
 		set ntitle "$seriesmap($title): $title"
 		set title $ntitle
 	} else {
+		# Try lower case without spaces
 		regsub -all -- {[[:space:]]+} [string tolower $title] "" ntitle
 		if {[dict exists $seriesmap $ntitle]} {
 			set title "$seriesmap($ntitle): $title"

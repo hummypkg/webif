@@ -33,18 +33,17 @@ if {$order eq "-"} {
 set model [system model]
 set dustbin [system dustbin 1]
 
-proc icon {img {hover ""} {extra ""}} {
-	puts -nonewline "<img src=$img class=va height=21 $extra"
+proc icon {img {hover ""} {extra ""} {class "va"}} {
+	puts -nonewline "<img src=$img class=\"$class\" height=21 $extra"
 	if {$hover ne ""} {
 		puts -nonewline " alt=\"$hover\" title=\"$hover\""
 	}
 	puts ">"
 }
 
-proc directory {file bfile} {
+proc directory {file bfile tbfile} {
 	global flatten
 
-	regsub -all " +" $bfile "" tbfile
 	puts "<div class=va>"
 	set img "/images/711_1_09_Media_Folder.png"
 	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
@@ -63,10 +62,10 @@ proc directory {file bfile} {
 		if $noflat { icon "/img/flat-tyre.png" "No-flatten" }
 	}
 
-	set autosqueeze 0
-	if {[file exists "$file/.autosqueeze"]} {
-		set autosqueeze 1
-		icon "/img/compress.png" "Auto-squeeze"
+	set autoshrink 0
+	if {[file exists "$file/.autoshrink"]} {
+		set autoshrink 1
+		icon "/img/compress.png" "Auto-shrink"
 	}
 
 	set autodedup 0
@@ -84,7 +83,7 @@ proc directory {file bfile} {
 	puts -nonewline "
 	      <a href=#>
 		<img class=\"dopt va\" border=0 width=45 "
-	puts -nonewline "autosqueeze=$autosqueeze "
+	puts -nonewline "autoshrink=$autoshrink "
 	puts -nonewline "autodedup=$autodedup "
 	puts -nonewline "autodecrypt=$autodecrypt "
 	if $flatten { puts -nonewline "noflat=$noflat " }
@@ -101,11 +100,12 @@ proc directory {file bfile} {
 
 proc entry {file} {{i 0}} {
 	set bfile [file tail $file]
+	regsub -all " +" $bfile "" tbfile
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
 	}
 	if [file isdirectory "$file"] {
-		directory $file $bfile
+		directory $file $bfile $tbfile
 		continue
 	}
 	set ext [file extension $file]
@@ -210,6 +210,10 @@ proc entry {file} {{i 0}} {
 			icon "/img/dlna.png" "Indexed by DLNA Server"
 			set dlna 1
 		}
+
+		# Shrunk (shown when necessary via Ajax)
+		icon "/img/compress.png" "Shrunk" \
+		    "id=\"sp_$tbfile\"" "va hidden"
 
 		set bx [$ts get bookmarks]
 	}

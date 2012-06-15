@@ -1,0 +1,40 @@
+#!/mod/bin/jimsh
+
+proc _lock_to_port {id} {
+	set len [string length $id]
+	set hash $len
+
+	for {set i 0} {$i < $len} {incr i} {
+		scan [string index $id $i] "%c" asc
+		set hash [expr (($hash<<5)^($hash>>27))^$asc];
+	}
+
+	return [expr (65535 - ($hash % 101))]
+}
+
+proc _lock_dummy {newsock addr port} { }
+
+proc acquire_lock {id} {
+	global _locks
+
+	set port [_lock_to_port $id]
+
+	if {[catch {set socket [socket stream.server "127.0.0.1:$port"]} msg]} {
+		return 0
+	}
+
+	set _locks($id) $socket
+	return 1
+}
+
+proc release_lock {id} {
+	global _locks
+
+	if {[catch {close $_locks($id)} msg]} {
+		puts "Error releasing lock: $msg"
+		return 0
+	}
+	unset _locks($id)
+	return 1
+}
+

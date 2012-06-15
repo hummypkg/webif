@@ -112,6 +112,24 @@ function new_folder_callback(data, status, xhr)
 	$.each(data, set_folder_new);
 }
 
+function insert_shrunk(file, perc)
+{
+	if (perc == 0)
+	{
+		file = file.replace(/[ ]/g, '');
+		file = file.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+		//console.log("File: (%s) = (%s)", file, perc);
+		$('#sp_' + file).show();
+	}
+}
+
+function shrunk_callback(data, status, xhr)
+{
+	//console.log("Status: %s", status);
+	//console.dir(data);
+	$.each(data, insert_shrunk);
+}
+
 function delete_callback(file, dir, id)
 {
 	var el = 'div.bf#' + id;
@@ -285,14 +303,14 @@ function preparedmenu(el, menu)
 			$(menu).changeContextMenuItem('#flat',
 			    'Prevent Flatten');
 	}
-	if (el.attr('autosqueeze') != undefined)
+	if (el.attr('autoshrink') != undefined)
 	{
-		if (el.attr('autosqueeze') > 0)
-			$(menu).changeContextMenuItem('#squeeze',
-			    'Disable Auto-squeeze');
+		if (el.attr('autoshrink') > 0)
+			$(menu).changeContextMenuItem('#shrink',
+			    'Disable Auto-shrink');
 		else
-			$(menu).changeContextMenuItem('#squeeze',
-			    'Enable Auto-squeeze');
+			$(menu).changeContextMenuItem('#shrink',
+			    'Enable Auto-shrink');
 	}
 	if (el.attr('autodedup') != undefined)
 	{
@@ -477,9 +495,9 @@ var dmenuclick = function(action, el, pos)
 		$.get(url, function() { window.location.reload(true); });
 		break;
 
-	    case 'squeeze':
+	    case 'shrink':
 		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=autosqueeze';
+		    '&flag=autoshrink';
 		$.get(url, function() { window.location.reload(true); });
 		break;
 
@@ -636,6 +654,10 @@ var dmenuclick = function(action, el, pos)
 	// Load folder sizes
 	$.getJSON('/cgi-bin/browse/sizes.jim?dir=' + encodeURIComponent(dir),
 		folder_size_callback);
+
+	// Flag shrunk recordings
+	$.getJSON('/cgi-bin/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
+		shrunk_callback);
 
 	// Flag folders with unwatched items
 	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
