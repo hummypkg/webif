@@ -187,6 +187,8 @@ proc scan {dir attr} {{indent 0}} {
 
 	#puts "[string repeat " " $indent]\[$dir]"
 
+	if {[string match {\[*} $dir]} continue
+
 	if {[file exists "$dir/.auto$attr"]} { $attr $dir }
 
 	foreach entry [readdir -nocomplain $dir] {
