@@ -7,7 +7,6 @@ if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
 	exit
 }
-puts "Got lock."
 
 set tmp "/mod/tmp/webif_auto"
 if {![file exists $tmp]} {
@@ -43,7 +42,7 @@ proc escape {str} {
 }
 
 proc dedup {dir} {
-	puts "DEDUP: \[$dir]"
+	#puts "DEDUP: \[$dir]"
 	puts [exec /mod/webif/html/dedup/dedup -yes [escape $dir]]
 	exec /mod/webif/html/dedup/dedup -yes [escape $dir]
 }
@@ -52,7 +51,6 @@ proc do_shrink {ts} {
 	global tmp dustbin
 
 	set file [file rootname [$ts get file]]
-	puts "  SHRINK: $file"
 	if {[catch {
 		set perc [exec /mod/bin/stripts -aq [escape $file]]
 	    } msg]} {
@@ -66,9 +64,10 @@ proc do_shrink {ts} {
 	}
 
 	if {$perc == 0} {
-		puts "          Already shrunk."
+		#puts "          Already shrunk."
 		return
 	}
+	puts "  SHRINK: $file"
 	puts "          Estimate $perc% saving."
 	puts "          Shrinking..."
 	if {[catch {
@@ -114,19 +113,19 @@ proc do_decrypt {ts} {
 	set file [$ts get file]
 	set rfile [file rootname $file]
 	set bfile [file tail $file]
-	puts "  DECRYPT: $rfile"
 
 	if {![$ts flag "ODEncrypted"]} {
-		puts "          Already decrypted."
+		#puts "          Already decrypted."
 		return
 	}
 
 	lassign [$ts dlnaloc] url
 	if {$url eq ""} {
-		puts "          Not yet indexed."
+		#puts "          Not yet indexed."
 		return
 	}
 
+	puts "  DECRYPT: $rfile"
 	puts "  DLNA: $url"
 	exec wget -O "$tmp/$bfile" $url
 

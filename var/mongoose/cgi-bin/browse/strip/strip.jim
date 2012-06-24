@@ -38,7 +38,7 @@ Your original recording files will be retained in a folder called _original.
 <tr><th>Length:</th><td>[clock format $len -format %T]</td></tr>
 <tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
 <tr><th>Time:</th>
-<td>Squeezing will take around [clock format $esttime -format "%T"]</td></tr>
+<td>Shrinking will take around [clock format $esttime -format "%T"]</td></tr>
 <tr><th>Estimated Saving:</th>
 <td class=va><span id=analysis class=va>
 	<img class=va src=/img/loading.gif> Analysing file, please wait...
@@ -51,11 +51,11 @@ Your original recording files will be retained in a folder called _original.
 ></span>
 
 <div id=stripdiv class=hidden style=\"padding: 1em\">
-<button id=stripit>Perform squeeze operation</button>
+<button id=stripit>Shrink recording</button>
 </div>
 
 <div id=progressdiv class=hidden>
-Squeezing: <div id=progressbar></div>
+Shrinking: <div id=progressbar></div>
 </div>
 
 <button id=back class=hidden>Back to media list</button>

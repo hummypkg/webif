@@ -214,6 +214,9 @@ proc entry {file} {{i 0}} {
 		# Shrunk (shown when necessary via Ajax)
 		icon "/img/compress.png" "Shrunk" \
 		    "id=\"sp_$tbfile\"" "va hidden"
+		# Timeshifted (shown when necessary via Ajax)
+		icon "/img/clock.png" "Time-shifted Recording" \
+		    "id=\"tsr_$tbfile\"" "va hidden"
 
 		set bx [$ts get bookmarks]
 	}
