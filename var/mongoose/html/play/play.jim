@@ -29,11 +29,12 @@ if {![$ts flag "ODEncrypted"]} {
 
 puts "
 <span id=url style=\"display: none\">$url</span>
+<span id=duration style=\"display: none\">[$ts duration 1]</span>
 "
 
 puts {
-<script language="javascript" src="/js/jquery-vlc.js"></script>
-<link rel="stylesheet" type="text/css" href="/css/vlc.css" />
+<script language=javascript src=vlc.js></script>
+<link rel=stylesheet type=text/css href=vlc.css />
 <script type=text/javascript src=play.js></script>
 
 <fieldset class=cleft style="margin: 0 1em 1em 1em">

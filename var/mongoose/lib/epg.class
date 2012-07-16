@@ -392,8 +392,10 @@ proc {epg dbfetch} {mode args} {
 	#puts "QUERY -$query-"
 
 	set records {}
-	foreach rec [$::channeldb query $query] {
-		lappend records [epg new $rec]
+	catch {
+		foreach rec [$::channeldb query $query] {
+			lappend records [epg new $rec]
+		}
 	}
 	return $records
 }

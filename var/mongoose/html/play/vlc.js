@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                      VLC_PLUGIN:"VLC Multimedia Plug-in"
                     ,VLC_AX:"VideoLAN.VLCPlugin.2"
                     ,VLC_MIME_TYPE:"application/x-vlc-plugin"
-                    ,TOOLBAR_HEIGHT:10
+                    ,TOOLBAR_HEIGHT:15
                     ,INSTANCES:{}           // holds multiples instances
                     ,UNICODES:{
                         PLAY:'\u25ba'
@@ -254,25 +254,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                             var tgt = $('#' + playerId + '_toolbar');
                             tgt.html('');
                             this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-play', function(event) {
-                                //alert('play '+  event.data.instance.playerId);
-                                event.data.instance.togglePlay();
-                            });
+				event.data.instance.togglePlay();
+                            }, 25);
                             this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-stop', function(event) {
                                 //alert('stop '+  event.data.instance.playerId);
                                 event.data.instance.stop();
                             });
-                            instance.createSlider();
+                            this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-rew', function(event) {
+				event.data.instance.slower();
+                            });
+                            this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-ff', function(event) {
+				event.data.instance.faster();
+                            });
+                            this.createSpeed(playerId);
+                            //instance.createSlider();
                             this.getInstance(playerId).statusChanged();
-                            this.createTimer(playerId);
+                            //this.createTimer(playerId);
                             this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-fullscreen', function(event) {
                                 //alert('stop '+  event.data.instance.playerId);
                                 event.data.instance.toggleFullscreen();
                             });
-                             this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-plus', function(event) {
+                            this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-sub', function(event) {
                                 //alert('stop '+  event.data.instance.playerId);
-                               // event.data.instance.stop();
-                               $('#' + instance.playerId + '_about').slideToggle(0);
+                                event.data.instance.toggleSubtitles();
                             });
+                            this.createStatus(playerId);
+//                             this.createButton(playerId, '&nbsp;&nbsp;', 'x-vlc-btn-plus', function(event) {
+//                                //alert('stop '+  event.data.instance.playerId);
+//                               // event.data.instance.stop();
+//                               $('#' + instance.playerId + '_about').slideToggle(0);
+//                            });
                             aboutTxt = "";
                             if (instance.version()) {
                                 aboutTxt = 'Installed version: ' + instance.version();
@@ -290,10 +301,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                             if(!playerId) playerId=this.INSTANCES[0];
                             delete this.INSTANCES[playerId] ;
                        }
-                       ,createButton:function(playerId, html, cls, handler) {
+                       ,createButton:function(playerId, html, cls, handler, width) {
+			    if (!width) width = 16;
                             var tgt =   $('#' + playerId + '_toolbar');
                             var id = playerId + '_toolbar_btn' + tgt[0].childNodes.length;
-                            var btn = "<div id='" + id + "' style='float:left;width:16px;text-align:center;cursor:pointer' class='x-vlc-btn "+cls+"' >" + html + "</div>";
+                            var btn = "<div id='" + id + "' style='float:left;width:" + width + "px;text-align:center;cursor:pointer' class='x-vlc-btn "+cls+"' >" + html + "</div>";
                             tgt.append(btn);
                             var instance = this.getInstance(playerId);
                             if (handler) {
@@ -303,6 +315,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               
                       
                        
+                       ,createSpeed:function(playerId) {
+                            var tgt =   $('#' + playerId + '_toolbar' );
+                            var speed = "<div id='" + playerId + "_speed' style='float:left;text-align:center;width:100px' class='x-vlc-timer'>&nbsp;x1&nbsp;</div>"
+                            tgt.append(speed);
+                       }
+                       ,createStatus:function(playerId) {
+                            var tgt =   $('#' + playerId + '_toolbar' );
+                            var status = "<div id='" + playerId + "_status' style='float:left;text-align:center;width:200px' class='x-vlc-status'>&nbsp;&nbsp;</div>"
+                            tgt.append(status);
+                       }
                        ,createTimer:function(playerId) {
                             var tgt =   $('#' + playerId + '_toolbar' );
                             var timer = "<div id='" + playerId + "_timer' style='float:left;text-align:center;width:100px' class='x-vlc-timer'>&nbsp;00:00/00:00&nbsp;</div>"
@@ -325,6 +347,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     ,btn_play:playerId + '_toolbar_btn0'
                     ,plugin:playerId + '_plugin'
                     ,timer:playerId + '_timer'
+                    ,speed:playerId + '_speed'
+                    ,stat:playerId + '_status'
                     ,status:null
                     
                     ,__getPlugin:function() {
@@ -351,13 +375,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                        // plugin.playlist.playItem(id);
                          
                     }
-                    ,play:function(uri) {
+                    ,play:function(uri, duration) {
                         var plugin = this.__getPlugin();
                         if (!plugin) {
                             setTimeout("VLCobject.getInstance('" + this.playerId + "').play('" + uri + "');", 500);
                             return;
                         }
                         var options = this.options.get();
+
                         this.statusCheckStart();
                         if (uri) {
                             var id = plugin.playlist.add(uri, uri, options);
@@ -379,16 +404,66 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         plugin.video.toggleFullscreen();
                         //plugin.video.fullscreen();
                     }
+                    ,toggleSubtitles:function() {
+                        var plugin = this.__getPlugin();
+			var tgt = $('.x-vlc-btn-sub');
+			if (plugin.subtitle.track)
+			{
+				tgt.removeClass('x-vlc-btn-sub-clicked');
+				plugin.subtitle.track = 0;
+				this.setStatus('Subtitles disabled.');
+			}
+			else
+			{
+				tgt.addClass('x-vlc-btn-sub-clicked');
+				plugin.subtitle.track = 1;
+				this.setStatus('Subtitles enabled.');
+			}
+                    }
+		    ,setStatus:function(txt) {
+			$('#' + this.stat)
+			    .html(txt)
+			    .show('slow')
+			    .delay(5000)
+			    .hide('slow');
+		    }
+		    ,setSpeed:function() {
+                        var plugin = this.__getPlugin();
+			if (plugin.input.rate == 1)
+				this.setPlaying(true);
+			else
+				this.setPlaying(false);
+			 $('#' + this.speed).html(
+			   '&nbsp;x' + plugin.input.rate + '&nbsp');
+			this.setStatus('Set speed to x' + plugin.input.rate);
+		    }
+                    ,faster:function() {
+                        var plugin = this.__getPlugin();
+			if (plugin.input.rate < 8)
+				plugin.input.rate *= 2;
+			this.setSpeed();
+		    }
+                    ,slower:function() {
+                        var plugin = this.__getPlugin();
+			if (plugin.input.rate > 1)
+				plugin.input.rate /= 2;
+			this.setSpeed();
+		    }
                     ,togglePlay:function() {
                         var plugin = this.__getPlugin();
                         if (plugin.playlist.isPlaying) {
-                             plugin.playlist.togglePause();
+			     if (plugin.input.rate != 1)
+			     {
+				     plugin.input.rate = 1;
+				     this.setSpeed();
+			     }
+			     else
+				     plugin.playlist.togglePause();
                         }
                         else {
                              plugin.playlist.play();
                         }
                         this.statusCheckStart();
-                        //plugin.playlist.togglePause();
                         
                     }
                     ,stop:function() {
@@ -499,6 +574,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                                  this.statusChanged();
                             }
                         if (plugin.playlist.isPlaying) {
+
+
                              
                             this.updatePosition(plugin.input.time / 1000, plugin.input.length / 1000)
                 
@@ -542,6 +619,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         return l;
                     }
                     ,updateSlider:function(percentage) {
+return;
                         var td1 = $('#' + this.slider +' :first-child  :first-child :first-child');
                         var td3 = $('#' + this.slider +' :first-child  :first-child :last-child');
                        
@@ -557,6 +635,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         tb.html(txt); 
                     }
                     ,updatePosition:function(position, length) {
+return;
                         // update timer
                          $('#' + this.timer).html(this.secsToTime(position) + '/' + this.secsToTime(length));
                         var tb =   $('#' +this.playerId + '_toolbar_slider' );
@@ -592,7 +671,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                             var table_id=  this.playerId + '_toolbar_slider_tb'; 
                             
                             var progress = "<table id='" + table_id + "' border=0 style='margin-top:5px;height:10px;cursor:pointer;display:inline' cellpadding=0 cellspacing=0 ><tr ><td width='0' class='x-vlc-slider'></td><td class='x-vlc-slider-thumb'></td><td width='" + (offset) + "' class='x-vlc-slider'></td></tr></table>";
-                            
+
                             if ($('#' + slider_id).length == 0) {
                                 // div not preset exists
                                 var tgt =   $('#' + this.playerId + '_toolbar' );

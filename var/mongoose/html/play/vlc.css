@@ -1,0 +1,82 @@
+.x-vlc-slider  {
+    background:#C7F2FF;
+    text-align:center;
+ 
+ }
+ .x-vlc-slider-thumb {
+    background:#4EAECC;
+    width:3px;
+}
+.x-vlc-main {
+ 
+}
+.x-vlc-toolbar {
+
+    color:black;
+
+}
+ .x-vlc-toolbar * {
+      vertical-align:top;
+
+      }
+.x-vlc-btn {
+	padding-right:10px;
+	height: 35px;
+}
+.x-vlc-btn-fullscreen {
+    background:url(img/vlcfullscreenbutton.png) no-repeat;
+}
+.x-vlc-btn-fullscreen:hover {
+    background:url(img/vlcfullscreenbuttonclick.png) no-repeat;
+}
+
+ .x-vlc-btn-ff {
+    background:url(img/seekarrownovideoright.png) no-repeat;
+}
+
+ .x-vlc-btn-rew {
+    background:url(img/seekarrownovideoleft.png) no-repeat;
+}
+
+.x-vlc-btn-sub {
+    background:url(img/playlist.png) no-repeat;
+}
+ .x-vlc-btn-sub:hover, .x-vlc-btn-sub-clicked {
+    background:url(img/playlistclick.png) no-repeat;
+}
+
+.x-vlc-btn:hover {
+    color:red;
+    
+}
+.x-vlc-btn-play {
+    background:url(img/vlcplaybutton.png) no-repeat;
+}
+.x-vlc-btn-play:hover {
+    background:url(img/vlcplaybuttonclick.png) no-repeat;
+}
+
+.x-vlc-btn-stop {
+    background:url(img/vlcstopbutton.png) no-repeat;
+}
+.x-vlc-btn-stop:hover {
+    background:url(img/vlcstopbuttonclick.png) no-repeat;
+}
+
+.x-vlc-btn-pause {
+    background:url(img/vlcpausebutton.png) no-repeat;
+}
+.x-vlc-btn-pause:hover {
+    background:url(img/vlcpausebuttonclick.png) no-repeat;
+}
+
+.x-vlc-timer {
+    width:100px;
+    font-size:12px;
+    vertical-align:top;
+    text-align:center
+}
+.x-vlc-about {
+    font-size:10px;
+}
+

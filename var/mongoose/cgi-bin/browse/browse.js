@@ -577,7 +577,7 @@ var dmenuclick = function(action, el, pos)
 
 		disableall();
 
-		window.location = '/cgi-bin/browse/play.jim?' +
+		window.location = '/play/play.jim?' +
 		    'dir=' + encodeURIComponent(dir) +
 		    '&file=' + file;
 	}

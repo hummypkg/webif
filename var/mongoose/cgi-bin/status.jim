@@ -42,7 +42,7 @@ set output {}
 
 set data [get_data]
 if {[llength $data]} {
-	sleep 2
+	sleep 3
 	set ndata [get_data]
 	foreach name [array names ndata] {
 		if {![dict exists $seen $name]} { set seen($name) 0 }
