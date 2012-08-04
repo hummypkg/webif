@@ -3,6 +3,16 @@
 source /mod/webif/lib/setup
 require lock system.class ts.class tdelete
 
+proc dsc {} {
+	lassign [system diskspace] x x perc
+	if {$perc > 90} {
+		puts "Insufficient disk space, terminating."
+		exit
+	}
+}
+
+dsc
+
 if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
 	exit
@@ -20,7 +30,7 @@ if {![file exists $tmp]} {
 }
 
 # Clean-up the temporary directory
-foreach file [readdir -nocomplain $tmp] { file delete -force "$tmp/$file" }
+foreach file [readdir -nocomplain $tmp] { tdelete "$tmp/$file" }
 
 if {[system pkginst undelete]} {
 	set dustbin "[system dustbin]"
@@ -43,8 +53,8 @@ proc escape {str} {
 
 proc dedup {dir} {
 	#puts "DEDUP: \[$dir]"
-	puts [exec /mod/webif/html/dedup/dedup -yes [escape $dir]]
-	exec /mod/webif/html/dedup/dedup -yes [escape $dir]
+	puts [exec /mod/webif/html/dedup/dedup -yes $dir]
+	exec /mod/webif/html/dedup/dedup -yes $dir
 }
 
 proc do_shrink {ts} {
@@ -134,7 +144,7 @@ proc do_decrypt {ts} {
 	# Move the decrypted copy into place.
 	file rename "$tmp/$bfile" $file
 	# Patch the HMT - quickest way to get back to a playable file.
-	exec /mod/bin/hmt -encrypted [escape "$rfile.hmt"]
+	exec /mod/bin/hmt -encrypted "$rfile.hmt"
 
 	puts "  Removing/binning old copy."
 	# Move the old recording to the bin if undelete is installed.
@@ -148,18 +158,19 @@ proc do_decrypt {ts} {
 				if {$ext eq "hmt"} {
 					# Patch the binned HMT back
 					exec /mod/bin/hmt +encrypted \
-					    [escape "$bin/$tail.hmt"]
+					    "$bin/$tail.hmt"
 				}
 			}
 		}
 	} else {
-		file delete "$rfile.encrypted"
+		tdelete "$rfile.encrypted"
 	}
 	puts "  Done."
 }
 
 proc entries {dir callback} {
 	foreach entry [readdir -nocomplain $dir] {
+		dsc
 		if {![string match {*.ts} $entry} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
@@ -188,6 +199,7 @@ proc scan {dir attr} {{indent 0}} {
 
 	if {[string match {\[*} $dir]} continue
 
+	dsc
 	if {[file exists "$dir/.auto$attr"]} { $attr $dir }
 
 	foreach entry [readdir -nocomplain $dir] {
