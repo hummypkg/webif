@@ -17,10 +17,15 @@ if {![dict exists $_cgi type]} { set _cgi(type) avail }
 
 proc pkgrow {pkg} {
 	set name [$pkg get name]
-	altrow
-	puts "
-		<td nowrap>$name</td>
-	"
+	altrow "pkg=\"$name\""
+	puts "<td nowrap>$name"
+	if {$::type eq "inst"} {
+		puts "<br><a href=# class=depends>&nbsp;&nbsp;
+		    <img class=va border=0
+		    src=/images/421_1_00_CH_Title_2R_Arrow.png height=14>
+		    <span class=\"va footnote\">Info</span></a>"
+	}
+	puts "</td>"
 
 	if {$::type eq "avail"} {
 		puts "<td nowrap>[$pkg get latest]</td>"
@@ -46,7 +51,7 @@ proc pkgrow {pkg} {
 		set type Remove
 	}
 
-	puts "<td align=center><small><button id=\"[$pkg get name]\"
+	puts "<td align=center><small><button id=\"$name\"
 	    action=[string tolower $type]
 	    class=\"va [string tolower $type]\">$type</button></small></td>"
 

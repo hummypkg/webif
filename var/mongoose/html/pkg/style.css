@@ -1,0 +1,16 @@
+button.install
+{
+	display: none;
+	background-image: none;
+	background: #ccff99;
+}
+button.remove
+{
+	display: none;
+	background-image: none;
+	background: #ff6666;
+}
+button.upgrade
+{
+	display: none;
+}

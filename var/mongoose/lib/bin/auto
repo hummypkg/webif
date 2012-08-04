@@ -52,7 +52,7 @@ proc do_shrink {ts} {
 
 	set file [file rootname [$ts get file]]
 	if {[catch {
-		set perc [exec /mod/bin/stripts -aq [escape $file]]
+		set perc [exec /mod/bin/stripts -aq $file]
 	    } msg]} {
 		puts "          Error: $msg"
 		return
@@ -71,7 +71,7 @@ proc do_shrink {ts} {
 	puts "          Estimate $perc% saving."
 	puts "          Shrinking..."
 	if {[catch {
-		puts [exec /mod/bin/stripts -q [escape $file] $tmp/shrunk]
+		puts [exec /mod/bin/stripts -q $file $tmp/shrunk]
 	    } msg]} {
 		puts "Error during shrink: $msg"
 		return

@@ -1,0 +1,60 @@
+<!--#include virtual="/lib/header.shtml" -->
+
+<link href=style.css rel=stylesheet type=text/css />
+
+<div class=va style="padding: 0 0 1em 0">
+	<h1 style="display: inline" class=va>
+		Package Management
+	</h1>
+
+	<button class="hidden va" id=opkgupdate>
+		Update package list from Internet
+	</button>
+
+	<button class="hidden va" id=opkgupgradeall>
+		Upgrade all packages
+	</button>
+</div>
+
+<div id=refreshing class="hidden shadowbox" style="margin: 1 0 1em 0">
+	<div>
+		<img border=0 src=/img/loading.gif>
+		Refreshing...
+	</div>
+</div>
+
+<div id=dialogue class=hidden style="align: center">
+	<pre id=dresults></pre>
+	<div id=dspinner>
+		<img border=0 src=/img/loading.gif>
+		Processing request...
+	</div>
+	<div class=hidden id=complete>
+		<img border=0 src=/images/167_2_00_Check_W2_SUB.png>
+		Operation complete.
+	</div>
+</div>
+
+<script type=text/javascript src=/js/enadis.js></script>
+<script type=text/javascript src=/js/iajax.js></script>
+<script type=text/javascript src=script.js></script>
+
+<div id=pkgtabs>
+<ul>
+	<li>
+		<a class=tablink href=pkg.jim?type=upgr>
+		<span>Upgrades</span>
+		</a>
+	</li><li>
+		<a class=tablink href=pkg.jim?type=inst>
+		<span>Installed</span>
+		</a>
+	</li><li>
+		<a class=tablink href=pkg.jim?type=avail>
+		<span>Available</span>
+		</a>
+	</li>
+</ul>
+</div>
+
+<!--#include virtual="/lib/footer.shtml" -->

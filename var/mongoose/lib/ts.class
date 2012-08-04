@@ -157,6 +157,12 @@ ts method copy {dst} {
 	return 1
 }
 
+ts method fileset {} {
+	set root [file rootname $file]
+	regsub -all {([\\["$])} $root {\\\1} root
+	return [glob -nocomplain "${root}.*"]
+}
+
 ts method settitle {newtitle} {
 	if {[string length newtitle] > 48} { return }
 

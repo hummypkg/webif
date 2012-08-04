@@ -1,62 +1,8 @@
-<!--#include virtual="/lib/header.shtml" -->
-
-<style type=text/css>
-button.install
-{
-	display: none;
-	background-image: none;
-	background: #ccff99;
-}
-button.remove
-{
-	display: none;
-	background-image: none;
-	background: #ff6666;
-}
-button.upgrade
-{
-	display: none;
-}
-</style>
-
-<div class=va style="padding: 0 0 1em 0">
-<h1 style="display: inline" class=va>Package Management</h1>
-<small>
-<button class=va id=opkgupdate style="display: none">
-Update package list from Internet
-</button>
-<button class=va id=opkgupgradeall style="display: none">
-Upgrade all packages
-</button>
-</small>
-</div>
-
-<div id=refreshing class=shadowbox
-    style="display: none; margin: 1 0 1em 0">
-<div>
-	<img border=0 src=/img/loading.gif>
-	Refreshing...
-</div>
-</div>
-
-<div id=dialogue style="display: none; align: center">
-	<pre id=dresults></pre>
-	<div id=dspinner>
-		<img border=0 src=/img/loading.gif>
-		Processing request...
-	</div>
-	<div class=hidden id=complete>
-		<img border=0 src=/images/167_2_00_Check_W2_SUB.png>
-		Operation complete.
-	</div>
-</div>
-
-<script type=text/javascript src=/js/iajax.js></script>
-<script type=text/javascript>
-
 var opkg = '/cgi-bin/opkg.jim?cmd=';
 
 $(document).ready(function() {
+
+	var busy = false;
 
 	$('#opkgupdate')
 	    .button()
@@ -69,7 +15,22 @@ $(document).ready(function() {
 	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
-		load: setup_buttons,
+		select: function() {
+			if (busy)
+			{
+				alert('Please wait until the current ' +
+				    'operation completes.');
+				return false;
+			}
+			busy = true;
+			$('#pkgtabs')
+			    .tabs('option', 'disabled', [0,1,2]);
+		},
+		load: function() {
+			busy = false;
+			setup_buttons();
+			$('#pkgtabs').tabs('option', 'disabled', []);
+		},
 		spinner: '<img border=0 src=/img/loading.gif> ' +
 		    '<em>Loading...</em>'
 	});
@@ -83,9 +44,14 @@ $(document).ready(function() {
 		buttons: { "Close":
 		    function() {$(this).dialog('close');}},
 		close: function(e,u) {
-			$('#refreshing').show('slow');
-			$('#pkgtabs').hide('fast');
-			window.location.reload(true);
+			//$('#refreshing').show('slow');
+			//$('#pkgtabs').hide('fast');
+			//window.location.reload(true);
+			var pkg = $('#dialogue').attr('pkg');
+			$('tr[pkg="' + pkg + '"]')
+			    .disable()
+			    .find('button').removeClass('va');
+			$('button.va').enable();
 		}
 	});
 
@@ -106,14 +72,20 @@ $(document).ready(function() {
 		}
 	}
 
-	function execopkg(arg)
+	function execopkg(arg, pkg)
 	{
-		$('button.va')
-		    .attr('disabled', true)
-		    .addClass('ui-state-disabled');
+		if (busy)
+		{
+			alert('Please wait until the current ' +
+			    'operation completes.');
+			return;
+		}
+		busy = true;
+		$('button.va').disable();
 		$('#dspinner').show();
 		$('#complete').hide();
 		$('#dresults').empty();
+		$('#dialogue').attr('pkg', pkg);
 		$dialog.dialog('open');
 
 //		$('#dresults').load(opkg + arg, function() {
@@ -133,6 +105,7 @@ $(document).ready(function() {
 				alert(e);
 			}
 		});
+		busy = false;
 	}
 
 	function setup_buttons()
@@ -144,31 +117,19 @@ $(document).ready(function() {
 			    !confirm('Please confirm removal of the ' +
 			    $(this).attr('id') + ' package.'))
 				return;
+
 			execopkg(encodeURIComponent($(this).attr('action') +
-			    ' ' + $(this).attr('id')));
+			    ' ' + $(this).attr('id')),
+			    $(this).closest('tr').attr('pkg'));
 		}).fadeIn('slow');
+
+		$('a.depends').click(function(e) {
+			e.preventDefault();
+			var pkg = $(this).closest('tr').attr('pkg');
+			execopkg(encodeURIComponent('whatdepends ' + pkg),
+			    false);
+		});
 	}
+
 });
 
-
-</script>
-
-<div id=pkgtabs>
-<ul>
-	<li>
-		<a href=/cgi-bin/pkg.jim?type=upgr>
-		<span>Upgrades</span>
-		</a>
-	</li><li>
-		<a href=/cgi-bin/pkg.jim?type=inst>
-		<span>Installed</span>
-		</a>
-	</li><li>
-		<a href=/cgi-bin/pkg.jim?type=avail>
-		<span>Available</span>
-		</a>
-	</li>
-</ul>
-</div>
-
-<!--#include virtual="/lib/footer.shtml" -->

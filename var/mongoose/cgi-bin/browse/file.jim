@@ -92,6 +92,23 @@ if {$url ne ""} {
 }
 puts "
 </tr><tr>
+	<th>Files</th>
+	<td>
+"
+
+set fileset [$ts fileset]
+puts -nonewline "<img id=xfileset class=va src=/img/tree/plusonly.png>"
+puts -nonewline "[llength $fileset] file"
+if {[llength $fileset] != 1} { puts -nonewline "s" }
+puts -nonewline " in set."
+puts "<div id=fileset class=hidden><ul>"
+foreach f $fileset {
+	puts "<li>[file tail $f] ([pretty_size [file size $f]])</li>" 
+}
+puts "</ul></div>"
+
+puts "</td>
+</tr><tr>
 	<th>Flags</th>
 	<td>[$ts get flags]
 "
@@ -101,6 +118,18 @@ if {[$ts get bookmarks]} {
 
 	puts "</tr>"
 	puts "</table>"
+	puts {
+<script type=text/javascript>
+$('#xfileset').click(function() {
+	$('#fileset').slideToggle('slow', function() {
+		if ($('#fileset').is(':visible'))
+			$('#xfileset').attr('src', '/img/tree/minustop.png');
+		else
+			$('#xfileset').attr('src', '/img/tree/plusonly.png');
+	});
+});
+</script>
+	}
 	exit
 }
 
