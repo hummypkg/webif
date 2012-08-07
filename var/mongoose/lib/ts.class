@@ -5,6 +5,8 @@ require tdelete system.class
 
 set dmsfile /mnt/hd2/dms_cds.db
 
+set tsgroup {ts nts hmt thm}
+
 class ts {
 	file		""
 	base		""
@@ -108,6 +110,19 @@ proc {ts exec} {file} {
 	return [exec {*}$cmd]
 }
 
+ts method fileset {} {
+	global tsgroup
+
+	set root [file rootname $file]
+	set fset {}
+	foreach ext $tsgroup {
+		if {[file exists "$root.$ext"]} {
+			lappend fset "$root.$ext"
+		}
+	}
+	return $fset
+}
+
 proc {ts fetch} {file {checked 0}} {
 	# Check that this is a .ts file which has at least one sidecar
 	# file (.nts)
@@ -120,12 +135,7 @@ proc {ts fetch} {file {checked 0}} {
 }
 
 ts method delete {} {
-	set root [file rootname $file]
-	# Protect special characters in root.
-	# In particular [] characters which are used a lot
-	# for torrent names.
-	regsub -all {([\\["$])} $root {\\\1} root
-	foreach f [glob -nocomplain "${root}.*"] {
+	foreach f [$self fileset] {
 		tdelete $f
 		puts "Removed $f<br>"
 	}
@@ -133,9 +143,7 @@ ts method delete {} {
 }
 
 ts method move {dst {touch 0} {force 0}} {
-	set root [file rootname $file]
-	regsub -all {([\\["$])} $root {\\\1} root
-	foreach f [glob -nocomplain "${root}.*"] {
+	foreach f [$self fileset] {
 		set nf "$dst/[file tail $f]"
 		while {[file exists $nf]} {
 			set nf "$dst/_[file tail $nf]"
@@ -149,18 +157,10 @@ ts method move {dst {touch 0} {force 0}} {
 }
 
 ts method copy {dst} {
-	set root [file rootname $file]
-	regsub -all {([\\["$])} $root {\\\1} root
-	foreach f [glob -nocomplain "${root}.*"] {
+	foreach f [$self fileset] {
 		file copy $f "$dst/[file tail $f]"
 	}
 	return 1
-}
-
-ts method fileset {} {
-	set root [file rootname $file]
-	regsub -all {([\\["$])} $root {\\\1} root
-	return [glob -nocomplain "${root}.*"]
 }
 
 ts method settitle {newtitle} {
@@ -193,19 +193,17 @@ ts method dlnaloc {} {
 }
 
 proc {ts renamegroup} {from to} {
+	global tsgroup
+
 	set dir [file dirname $from]
 	set root [file rootname $from]
 
 	# Catch from string without a . character in it
 	if {$root eq $from} { return }
 
-	# Protect special characters in root. In particular [] characters
-	# which are used a lot for torrent names.
-        regsub -all {([\\["$])} $root {\\\1} root
-
-	foreach f [glob -nocomplain "${root}.*"] {
-		set ext [file extension $f]
-		#puts "rename $f \"${dir}/${to}${ext}\""
+	foreach ext $tsgroup {
+		set f "$root.$ext"
+		if {![file exists $f]} continue
 		file rename $f "${dir}/${to}${ext}"
 	}
 

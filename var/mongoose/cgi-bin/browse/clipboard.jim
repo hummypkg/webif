@@ -59,7 +59,7 @@ switch $action {
 	set mode [cgi_get mode copy]
 	foreach p $path {
 		set p [cgi_unquote_input $p]
-		if {$dir ne "0" && ![string match "$dir/*" $p]} {
+		if {$dir ne "0" && [string first "$dir/" $p] != 0} {
 			puts "$p not in directory<br>"
 			continue
 		}
@@ -95,20 +95,24 @@ switch $action {
 				catch {puts [exec /mod/bin/busybox/cp -r \
 				    $path $dir]}
 			}
-		} else {
-			set root [file rootname $path]
-			# Protect special characters in root.
-			# In particular [] characters which are used a lot
-			# for torrent names.
-			regsub -all {([\\["$])} $root {\\\1} root
-			foreach f [glob -nocomplain "${root}.*"] {
-				if {$mode eq "cut"} {
-					catch {file rename $f \
-					    "$dir/[file tail $f]"}
-				} else {
-					catch {file copy $f \
-					    "$dir/[file tail $f]"}
+		} elseif {[string match {*.ts} $path]} {
+			set ts [ts fetch $path]
+			if {![catch {$ts get file}]} {
+				foreach f [$ts fileset] {
+					if {$mode eq "cut"} {
+						catch {file rename $f \
+						    "$dir/[file tail $f]"}
+					} else {
+						catch {file copy $f \
+						    "$dir/[file tail $f]"}
+					}
 				}
+			}
+		} else {
+			if {$mode eq "cut"} {
+				catch {file rename $path "$dir/[file tail $f]"}
+			} else {
+				catch {file copy $path "$dir/[file tail $f]"}
 			}
 		}
 	}

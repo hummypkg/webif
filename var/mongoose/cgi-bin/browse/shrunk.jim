@@ -12,12 +12,11 @@ cgi_input
 set dir [cgi_get dir "/media/My Video/Children"]
 
 puts "{"
-regsub -all {([\\["$])} $dir {\\\1} xdir
 foreach file [readdir -nocomplain $dir] {
 	if {![string match {*.ts} $file]} { continue }
 
-	regsub -all {([\\["$])} [file rootname $file] {\\\1} xfile
-	if {[catch {set eit [exec /mod/bin/stripts -cq "$xdir/$xfile"]}]} {
+	set xfile [file rootname $file]
+	if {[catch {set eit [exec /mod/bin/stripts -cq "$dir/$xfile"]}]} {
 		continue
 	}
 

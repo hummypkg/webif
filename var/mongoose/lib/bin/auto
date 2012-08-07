@@ -58,7 +58,7 @@ proc dedup {dir} {
 }
 
 proc do_shrink {ts} {
-	global tmp dustbin
+	global tmp dustbin tsgroup
 
 	set file [file rootname [$ts get file]]
 	if {[catch {
@@ -112,8 +112,11 @@ proc do_shrink {ts} {
 	}
 
 	# Finally, rename the shrunken recording again.
-	foreach f [glob "${file}_shrunk.*"] {
-		file rename $f "${file}[file extension $f]"
+	foreach ext $tsgroup {
+		set f "${file}_shrunk.$ext"
+		if {[file exists $f]} {
+			file rename $f "${file}.$ext"
+		}
 	}
 }
 

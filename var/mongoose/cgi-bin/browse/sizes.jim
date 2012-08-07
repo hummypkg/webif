@@ -12,19 +12,20 @@ cgi_input
 #set _cgi(dir) "/media/My Video"
 
 set dir [dict get $_cgi dir]
+set dlen [string length "$dir/"]
 
 #9.4G	/media/My Video/Archive
 #1.4G	/media/My Video/CSI_ Crime Scene Investigation
 puts "{"
-regsub -all {([\\["$])} $dir {\\\1} xdir
 foreach line [split [exec /mod/bin/busybox/du -h -d 1 "$dir/"] "\n"] {
 	lassign [split $line "\t"] size node
-	regsub -- "^$xdir/" $node "" node
+	set node [string range $node $dlen end]
 	puts "\"$node\" : \"$size\","
 }
 
 # Handle symbolic links.
-foreach file [glob -nocomplain "$dir/*"] {
+foreach file [readdir $dir] {
+	set file "$dir/$file"
 	if {[catch {set lk [file readlink $file]}]} continue
 
 	if {![string match "/*" $lk]} { set lk "$dir/$lk" }

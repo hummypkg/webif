@@ -10,7 +10,6 @@ cgi_input
 #cgi_dump
 
 set dir [cgi_get dir]
-regsub -all {([\\["$])} $dir {\\\1} dir
 
 #puts "DIR: ($dir)"
 
@@ -40,7 +39,7 @@ foreach file [cgi_get files] {
 
 	puts -nonewline "<li>\"$file\"..."
 
-	if {![string match "$dir/*" $file]} {
+	if {[string first "$dir/" $file] != 0} {
 		puts "Error - outside directory."
 		continue
 	}
