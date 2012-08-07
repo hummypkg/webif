@@ -300,9 +300,9 @@ proc s_time {a b} {
 		return 0
 	}
 
-	file stat $a l
+	if {[catch {file stat $a l}]} { return 0}
 	set at $l(ctime)
-	file stat $b l
+	if {[catch {file stat $b l}]} { return 0}
 	set bt $l(ctime)
 
 	if {$at < $bt} { return -1 }
