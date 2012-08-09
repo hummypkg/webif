@@ -46,11 +46,6 @@ proc bindir {file binroot} {
 	return $ndir
 }
 
-proc escape {str} {
-	regsub -all {([\\["$])} $str {\\\1} str
-	return $str
-}
-
 proc dedup {dir} {
 	#puts "DEDUP: \[$dir]"
 	puts [exec /mod/webif/html/dedup/dedup -yes $dir]

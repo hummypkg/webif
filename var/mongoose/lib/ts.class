@@ -204,7 +204,7 @@ proc {ts renamegroup} {from to} {
 	foreach ext $tsgroup {
 		set f "$root.$ext"
 		if {![file exists $f]} continue
-		file rename $f "${dir}/${to}${ext}"
+		file rename $f "${dir}/${to}.${ext}"
 	}
 
 	exec /mod/bin/hmt "+setfilename=$to" "${dir}/${to}.hmt"

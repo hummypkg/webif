@@ -6,6 +6,21 @@ function disableall()
 	$('button,a,input').disable();
 }
 
+function pastedialogue()
+{
+	$('#pwdialogue').dialog({
+		title: "Pasting from clipboard",
+		modal: true, autoOpen: true,
+		height: 'auto', width: 'auto',
+		show: 'scale', hide: 'fade',
+		draggable: false, resizable: false,
+		closeOnEscape: false,
+		open: function() {
+		    $('.ui-dialog-titlebar-close').hide();
+		}
+	});
+}
+
 function reloadclipboard()
 {
 	$('#clipboard')
@@ -16,9 +31,15 @@ function reloadclipboard()
 // Start Clipboard post-load actions
 
 if ($('#clipclear').length)
+{
 	$('#paste').enable();
+	$('#doptmenu').enableContextMenuItems('#paste');
+}
 else
+{
 	$('#paste').disable();
+	$('#doptmenu').disableContextMenuItems('#paste');
+}
 
 $('#clipclear').button().click(function() {
 	$.get('/cgi-bin/browse/clipboard.jim?act=clear', function() {
@@ -36,17 +57,7 @@ $('a.clipdel').click(function() {
 $('#paste').button()
     .click(function() {
 	disableall();
-	$('#pwdialogue').dialog({
-		title: "Pasting from clipboard",
-		modal: true, autoOpen: true,
-		height: 'auto', width: 'auto',
-		show: 'scale', hide: 'fade',
-		draggable: false, resizable: false,
-		closeOnEscape: false,
-		open: function() {
-		    $('.ui-dialog-titlebar-close').hide();
-		}
-	});
+	pastedialogue();
 	$('#pwfeedback').load(
 	    '/cgi-bin/browse/clipboard.jim?act=paste&dir='
 	    + encodeURIComponent(dir), function() {
@@ -446,6 +457,16 @@ var dmenuclick = function(action, el, pos)
 
 	switch (action)
 	{
+	    case 'paste':
+		pastedialogue();
+		$('#pwfeedback').load(
+		    '/cgi-bin/browse/clipboard.jim?act=paste&dir=' +
+		    file, function() {
+			$('#pwdialogue').dialog('close');
+			reloadclipboard();
+		});
+		break;
+
 	    case 'delete':
 
 		if (confirm('Are you sure you wish to delete "' +
