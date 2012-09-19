@@ -137,6 +137,11 @@ proc do_decrypt {ts} {
 	puts "  DLNA: $url"
 	exec wget -O "$tmp/$bfile" $url
 
+	if {[file size $file] != [file size "$tmp/$bfile"]} {
+		puts "        File size mismatch."
+		return
+	}
+
 	# Move the encrypted file out of the way.
 	file rename $file "$rfile.encrypted"
 	# Move the decrypted copy into place.
