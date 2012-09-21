@@ -3,15 +3,16 @@ var opkg = '/cgi-bin/opkg.jim?cmd=';
 $(document).ready(function() {
 
 	var busy = false;
+	var reload = false;
 
 	$('#opkgupdate')
 	    .button()
-	    .click(function() { execopkg('update'); })
+	    .click(function() { reload = true; execopkg('update'); })
 	    .fadeIn('slow');
 
 	$('#opkgupgradeall')
 	    .button()
-	    .click(function() { execopkg('upgrade'); })
+	    .click(function() { reload = true; execopkg('upgrade'); })
 	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
@@ -44,14 +45,20 @@ $(document).ready(function() {
 		buttons: { "Close":
 		    function() {$(this).dialog('close');}},
 		close: function(e,u) {
-			//$('#refreshing').show('slow');
-			//$('#pkgtabs').hide('fast');
-			//window.location.reload(true);
-			var pkg = $('#dialogue').attr('pkg');
-			$('tr[pkg="' + pkg + '"]')
-			    .disable()
-			    .find('button').removeClass('va');
-			$('button.va').enable();
+			if (reload)
+			{
+				$('#refreshing').show('slow');
+				$('#pkgtabs').hide('fast');
+				window.location.reload(true);
+			}
+			else
+			{
+				var pkg = $('#dialogue').attr('pkg');
+				$('tr[pkg="' + pkg + '"]')
+				    .disable()
+				    .find('button').removeClass('va');
+				$('button.va').enable();
+			}
 		}
 	});
 

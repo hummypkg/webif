@@ -1,0 +1,60 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+require rsv.class findhsvc
+
+set dir /mod/var/backup
+
+puts "Content-Type: text/html"
+puts ""
+
+cgi_input
+#cgi_dump
+
+#set _cgi(restore_file) "backup-2011-Jul-09-20:37"
+
+if {![dict exists $_cgi restore_file]} {
+	puts "No filename supplied."
+	exit
+}
+
+set file [file tail [dict get $_cgi restore_file]]
+set ffile "/$dir/$file.rbk"
+
+if {![file exists $ffile]} {
+	puts "Backup file <i>$file</i> does not exist."
+	exit
+}
+
+if {[catch { set fd [open $ffile r] } msg]} {
+	puts "Error opening <i>$file</i> - $msg"
+	exit
+}
+
+puts "Listing scheduled events from <i>$file</i>..."
+
+set fields [lsort [[rsv] vars]]
+
+set data [split [read $fd] "\n"]
+
+foreach line $data {
+	set vals [split $line "\t"]
+	if {[lindex $vals 0] ne "event"} { continue }
+	set vars {}
+	set i 0
+	foreach f $fields {
+		if {$f eq "aulEventToRecordInfo"} { continue }
+		incr i
+		lappend vars $f [lindex $vals $i]
+	}
+
+	set rsv [rsv new $vars]
+
+	puts "  [$rsv name] ([$rsv channel_name])"
+}
+
+close $fd
+rsv cleanup
+

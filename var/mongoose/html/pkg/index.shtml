@@ -42,16 +42,16 @@
 <div id=pkgtabs>
 <ul>
 	<li>
-		<a class=tablink href=pkg.jim?type=upgr>
-		<span>Upgrades</span>
-		</a>
-	</li><li>
 		<a class=tablink href=pkg.jim?type=inst>
 		<span>Installed</span>
 		</a>
 	</li><li>
 		<a class=tablink href=pkg.jim?type=avail>
 		<span>Available</span>
+		</a>
+	</li><li>
+		<a class=tablink href=pkg.jim?type=upgr>
+		<span>Upgrades</span>
 		</a>
 	</li>
 </ul>

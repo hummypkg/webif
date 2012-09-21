@@ -7,6 +7,8 @@ function refresh_files()
 			    .button('option', 'disabled', false);
 			$('#delete_button').removeAttr('disabled')
 			    .button('option', 'disabled', false);
+			$('#view_button').removeAttr('disabled')
+			    .button('option', 'disabled', false);
 		});
 	});
 }
@@ -37,6 +39,15 @@ $(document).ready(function() {
 				});
 			});
 		}
+	});
+	$('#view_button').click(function() {
+		var backup = $('input.restore:checked').val();
+		$('#results').load('/cgi-bin/backup/view.jim?' +
+		    $('input.restore').serialize(), function() {
+			$('#results').slideDown(function() {
+				refresh_files();
+			});
+		});
 	});
 	$('#restore_button').click(function() {
 		var backup = $('input.restore:checked').val();
