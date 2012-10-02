@@ -424,14 +424,16 @@ proc {epg favlist} {} {
 	"] { lindex $i end }]
 }
 
-proc {epg channellist} {} {
+proc {epg channellist} {{field usLcn}} {
 	global channeldb
 
 	set channels {}
 	lmap i [$channeldb query "
-		select usSvcid, szSvcName
+		select $field, szSvcName
 		from TBL_SVC
-	"] { set channels([string range [lindex $i 3] 1 end]) [lindex $i 1] }
+		order by 1
+	"] { lappend channels [list \
+	    [string range [lindex $i 3] 1 end] [lindex $i 1] ] }
 
 	return $channels
 }

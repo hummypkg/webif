@@ -36,7 +36,7 @@ puts {
 }
 
 if {[file exists "/mod/bin/ir"]} {
-	tb "/img/remote.png" "Remote" "/remote/remote.jim"
+	tb "/img/remote.png" "Remote" "/plugin/ir/remote.jim"
 }
 tb "/images/323_1_10_Menu_Video.png" "Browse" "/cgi-bin/browse.jim"
 tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/sched.jim"
