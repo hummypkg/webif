@@ -11,10 +11,11 @@ puts {
 </title>
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
 <link rel="shortcut icon" href=/img/favicon.ico />
-<link type="text/css" href="/css/jquery-ui.css" rel="Stylesheet" />     
-<link href=/css/style.css rel=stylesheet type=text/css />
+<link type="text/css" href="/lib/jquery.ui/css/custom-theme/jquery-ui.css"
+    rel="Stylesheet" />     
+<link href="/css/style.css" rel="Stylesheet" type="text/css" />
 <script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/lib/jquery.ui/js/jquery-ui.js"></script>
 </head>
 <body>
 }
