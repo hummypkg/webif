@@ -24,13 +24,15 @@ $(document).ready(function () {
 	$(":checkbox").iphoneStyle();
 	$('form.auto').each(function(i, el) {
 		var id = $(this).attr('id');
-		var output = '#' + id + '_output'
+		var output = '#' + id + '_output';
 		$(this).ajaxForm({
 			target: output,
 			success: function() {
-			    $(output).css('font-style', 'italic');
-			    $(output).show('slow');
-			    $(output).delay(2000).fadeOut('slow');
+			    $(output)
+				.css('font-style', 'italic')
+			    	.show('slow')
+			    	.delay(2000)
+				.fadeOut('slow');
 			}
 		});
 	});
