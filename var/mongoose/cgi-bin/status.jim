@@ -1,12 +1,22 @@
 #!/mod/bin/jimsh
 
+package require cgi
 source /mod/webif/lib/setup
 require system.class findhsvc epg.class
 
-puts "Content-Type: text/html"
-puts "Pragma: no-cache"
-puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-puts ""
+set runmode cli
+if {[string match {*jim} $argv0]} { set runmode cgi }
+
+cgi_input
+
+set type [cgi_get type "full"]
+
+if {$runmode eq "cgi"} {
+	puts "Content-Type: text/html"
+	puts "Pragma: no-cache"
+	puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
+	puts ""
+}
 
 if {[catch {set pid [exec pgrep humaxtv]}]} {
 	puts "Cannot find humaxtv process."
@@ -40,7 +50,12 @@ set rec 0
 set seen {}
 set output {}
 
-set data [get_data]
+if {$type eq "full"} {
+	set data [get_data]
+} else {
+	set data {}
+}
+
 if {[llength $data]} {
 	sleep 3
 	set ndata [get_data]
@@ -64,8 +79,12 @@ if {[llength $data]} {
 
 		incr seen($name)
 
-		lappend output "<img class=va src=/images/$icon><span class=va>
-		    $mode&nbsp;<i>$name</i></span>"
+		if {$runmode eq "cgi"} {
+			lappend output "<img class=va src=/images/$icon>
+			    <span class=va>$mode&nbsp;<i>$name</i></span>"
+		} else {
+			lappend output "$mode $name"
+		}
 	}
 }
 
@@ -94,20 +113,33 @@ if {![system instandby] && $play < 1} {
 			append prog "[clock format $([$epg get start] + [$epg get duration]) -format %H:%M]"
 			append prog ") \[[$epg percent]%\]"
 		}
-			
-		lappend output "[epg channelicon $name 30 \
-		    {vertical-align: middle; padding: 0 4px 0 2px}]
-		    <span class=va> Watching <i>$lcn: $name $prog</i></span>"
+
+		if {$runmode eq "cgi"} {
+			lappend output "[epg channelicon $name 30 \
+			    {vertical-align: middle; padding: 0 4px 0 2px}]
+			    <span class=va>
+				Watching <i>$lcn: $name $prog</i></span>"
+		} else {
+			lappend output "Watching $lcn: $name $prog"
+		}
 	}
 }
 
 if {[system instandby]} {
-	lappend output "<img class=va width=28 style=\"padding: 0 4px\"
-	    src=/img/standby.png>
-	    <span class=va>System is in standby.</span>"
+	if {$runmode eq "cgi"} {
+		lappend output "<img class=va width=28 style=\"padding: 0 4px\"
+		    src=/img/standby.png>
+		    <span class=va>System is in standby.</span>"
+	} else {
+		lappend output "System is in standby."
+	}
 }
 
 if {[llength $output]} {
-	puts [join $output "<br>"]
+	if {$runmode eq "cgi"} {
+		puts [join $output "<br>"]
+	} else {
+		puts [join $output "\n"]
+	}
 }
 

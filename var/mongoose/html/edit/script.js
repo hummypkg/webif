@@ -144,4 +144,8 @@ $('#create').click(function() {
 	$('#createf').dialog('open');
 });
 
+$('a.qfile').on('click', function() {
+	loadfile($(this).text());
+});
+
 });

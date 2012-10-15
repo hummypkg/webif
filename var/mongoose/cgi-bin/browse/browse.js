@@ -95,10 +95,14 @@ function insert_folder_size(folder, size)
 	folder = folder.replace(/ /g, '');
 	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
 	//console.log("Folder: (%s) = (%s)", folder, size);
-	if (folder == "")
-		$('#dirsize').text(' (' + size + 'iB)');
+	if (size.search(/\d$/) == -1)
+		size += 'iB';
 	else
-		$('#' + folder).text(' (' + size + 'iB)');
+		size += ' bytes';
+	if (folder == "")
+		$('#dirsize').text(' (' + size + ')');
+	else
+		$('#' + folder).text(' (' + size + ')');
 }
 
 function folder_size_callback(data, status, xhr)

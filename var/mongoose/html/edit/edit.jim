@@ -43,6 +43,16 @@ Use the <i>Open</i> button below to begin.
 	<button id=back>Back to diagnostics</button>
 </div>
 
+<div class=cleft style="margin-top: 1em">
+<fieldset>
+<legend> Commonly edited files </legend>
+<ul>
+	<li><a href=# class=qfile>/mod/etc/anacrontab</a></li>
+	<li><a href=# class=qfile>/mod/var/spool/cron/crontabs/root</a></li>
+</ul>
+</fieldset>
+</div>
+
 <div id=chooserd>
 	<i>Humax Filesystem</i>
 	<div id=chooser></div>
