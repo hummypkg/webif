@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PATH=$PATH:/mod/bin export PATH
+ 
+echo "Content-Type: text/plain"
+echo ""
+
+[ -n "$QUERY_STRING" ] && data="${QUERY_STRING##*=}" || data=epg
+
+case $data in
+	channels)
+		sqlite3 -header -batch -separator '	' \
+		    /var/lib/humaxtv/channel.db '
+			select * from TBL_SVC;
+		'
+		;;
+
+
+	*) /mod/bin/epg -p dump ;;
+esac
+
+exit 0
+

@@ -1,23 +1,80 @@
-#!/bin/sh
+#!/mod/bin/jimsh
 
-PATH=$PATH:/mod/bin export PATH
- 
-echo "Content-Type: text/plain"
-echo ""
+package require cgi
+package require sqlite3
+source /mod/webif/lib/setup
+require altrow
 
-[ -n "$QUERY_STRING" ] && data="${QUERY_STRING##*=}" || data=epg
+puts "Content-Type: text/html"
+puts ""
 
-case $data in
-	channels)
-		sqlite3 -header -batch -separator '	' \
-		    /var/lib/humaxtv/channel.db '
-			select * from TBL_SVC;
-		'
-		;;
+set databases [glob /var/lib/humaxtv/*.db]
+lappend databases "/mnt/hd2/dms_cds.db"
 
+header
 
-	*) /mod/bin/epg -p dump ;;
-esac
+cgi_input
+#cgi_dump
 
-exit 0
+set ftab [cgi_get tab]
+set fdb [cgi_get db]
+
+if {$fdb != 0} {
+	puts "<h1><a href=/cgi-bin/db.jim>Remove filters</a></h1>"
+}
+
+proc db_info {db_file} {
+	global _cgi fdb ftab
+
+	if {$fdb != 0 && [file tail $db_file] ne $fdb} { return }
+	if {![file exists $db_file]} { return }
+
+	set db [sqlite3.open $db_file]
+	set tables [$db query {
+		select name from sqlite_master
+		where type='table' order by name
+	}]
+
+	puts "<h1><a href=/cgi-bin/db.jim?db=[file tail $db_file]>
+		$db_file</a></h1>"
+	
+	foreach table $tables {
+		set table [lindex $table 1]
+		if {$ftab != 0 && $ftab ne $table} { continue }
+		set columns [$db query "pragma table_info($table)"]
+		set datas [$db query "SELECT * FROM $table order by 1"]
+		
+		puts "<h2><a href=/cgi-bin/db.jim?db=[file tail $db_file]&tab=$table>$table</a></h2>"
+		puts "<table class=borders>"
+		puts "  <tr>"
+		foreach column $columns {
+			puts "    <th>[lindex $column 3]</th>"
+		}
+		puts "  </tr>"
+		foreach data $datas {
+			altrow
+			
+			for {set i 1} {$i < [llength $data]} {incr i 2} {
+				puts "    <td>[lindex $data $i]</td>"
+			}
+			puts "  </tr>"
+		}
+		puts "</table>"
+	}
+	
+	$db close
+}
+
+if {$fdb == 0} {
+	puts "Please choose database to view:<ul>"
+	foreach db $databases {
+		puts "<li><a href=$::env(REQUEST_URI)?db=[file tail $db]>
+		    $db</a></li>"
+	}
+	puts "</ul>"
+} else {
+	foreach db $databases { db_info $db }
+}
+
+footer
 
