@@ -1,0 +1,20 @@
+#!/mod/bin/jimsh
+
+puts {
+ </div>
+
+ <div data-role=footer data-theme=c>
+}
+
+if {![catch {
+    set rendertime [expr [expr [clock milliseconds] - $renderstart] / 1000.0]
+    }]} {
+	puts "<font class=footnote>Rendered in: $rendertime seconds</font>"
+}
+
+puts {
+</div>
+</body>
+</html>
+}
+

@@ -1,0 +1,60 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class
+
+cgi_input
+
+set sid [cgi_get sid 0]
+
+mheader
+
+set records [epg dbfetch dump -service $sid -after [clock seconds]]
+set tr [lindex $records 0]
+$tr get_channel_info
+
+set day 0
+puts "
+<div class=va style=\"font-size: 1.2em; padding: 0 0 1em 0\">
+	[$tr channel_icon 40]
+	<span class=va>
+		[$tr get channel_num] - [$tr get channel_name]
+	</span>
+</div>
+<ul data-role=listview data-filter=true>
+"
+
+foreach e $records {
+	set st [$e get start]
+	set nday [clock format $st -format "%F"]
+	if {$day ne $nday} {
+		set day $nday
+		puts "<li data-role=list-divider>
+		    [clock format $st -format "%a %d %b %Y"]
+		    </li>"
+	}
+	set et $($st + [$e get duration])
+	puts "
+	<li><a href=event.jim?sid=[$e get service_id]&eid=[$e get event_id]>
+	<h4>[$e get name]</h4>
+	<p style=\"white-space: normal\">[$e get text]</p>
+	"
+	set guidance [$e get warning]
+	if {$guidance ne ""} {
+		puts "<p class=blood style=\"white-space: normal\">
+		    $guidance</p>"
+	}
+	puts "
+	<p class=ui-li-aside>
+		[clock format $st -format "%H:%M"] -
+		[clock format $et -format "%H:%M"]
+	</p>
+	</a></li>
+	"
+}
+
+puts "</ul>"
+
+mfooter
+

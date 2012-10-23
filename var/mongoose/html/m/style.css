@@ -1,0 +1,27 @@
+.va
+{
+	vertical-align: middle;
+}
+
+.hidden
+{
+	display: none;
+}
+
+div.status
+{
+	font-size: 0.7em;
+	text-align: center;
+	vertical-align: middle;
+	display: none;
+	width: 100%;
+	background: blue;
+	color: white;
+}
+
+.blood
+{
+	color: #ff4000;
+	background: transparent;
+}
+

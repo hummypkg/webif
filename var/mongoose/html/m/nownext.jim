@@ -1,0 +1,62 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class
+
+mheader
+
+set stt [clock seconds]
+set ett $($stt + 14400)
+set records [epg dbfetch dump -trange "$stt:$ett"]
+
+puts "<ul data-role=listview data-filter=true>"
+
+set lcn 0
+set skiplcn 0
+set entries 0
+foreach e $records {
+	set chnum [$e get channel_num]
+	if {$chnum == 0} continue
+	if {$chnum == $skiplcn} continue
+	if {$chnum != $lcn} {
+		if {$lcn} {
+			puts "</a></li>";
+		}
+		set lcn $chnum
+
+		puts "<li><a href=channel.jim?sid=[$e get service_id]>
+		    [$e channel_icon 80]"
+
+		set entries 0
+	}
+
+	set es [$e get start]
+	set ee [expr $es + [$e get duration]]
+
+	$e process_sched
+	set recopts 1
+	if {[$e get series_crid] ne ""} { set recopts 2 }
+
+	set perc [$e percent]
+	set showing 0
+	if {$perc > 0 && $perc < 100} { set showing 1 }
+
+	set txt "
+	    [clock format $es -format "%H:%M"] -
+	    [clock format $ee -format "%H:%M"]:
+	    [cgi_quote_html [$e get name]]
+	"
+	if {$showing} { append txt " ($perc%)" }
+
+	puts "<p>$txt</p>"
+
+	incr entries
+	if {$entries > 3} { set skiplcn $lcn }
+}
+
+puts "</a></li>"
+puts "</ul>"
+
+mfooter
+

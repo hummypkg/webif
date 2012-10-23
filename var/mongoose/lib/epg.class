@@ -368,6 +368,8 @@ proc {epg dbfetch} {mode args} {
 				    "and e.event_id = $v " }
 				-time { append q \
 				    "and e.start < $v and e.end > $v " }
+				-after { append q \
+				    "and e.end >= $v " }
 				-trange {
 					lassign [split $v :] stt ett
 					append q "and (

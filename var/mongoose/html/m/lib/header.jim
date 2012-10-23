@@ -1,0 +1,54 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+puts "Humax [system model] Fox T2 ([system hostname])"
+
+puts "
+<!DOCTYPE html> 
+<html>
+<head>
+<title>
+	Humax [system model] Fox T2 ([system hostname])
+</title>
+"
+
+puts {
+<meta charset="utf-8">
+<meta name="viewport"
+    content="width=device-width,user-scalable=no,initial-scale=1"> 
+<meta name=apple-mobile-web-app-capable content=yes>
+<meta name=apple-mobile-web-app-status-bar-style content=black>
+<link rel="stylesheet" href="/lib/jquery.mobile/jquery.mobile.css" />
+<link rel="stylesheet" href="/m/style.css" type="text/css"/>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/lib/jquery.mobile/jquery.mobile.js">
+</script>
+<script type="text/javascript" src="/m/script.js"></script>
+<xlink rel="apple-touch-icon" href="/img/mobile.png" />
+<xlink rel="apple-touch-icon" sizes="57x57" href="/img/remote_57.png" />
+<xlink rel="apple-touch-icon" sizes="72x72" href="/img/remote_72.png" />
+<xlink rel="apple-touch-icon" sizes="114x114" href="/img/remote_114.png" />
+<xlink rel="apple-touch-icon" sizes="144x144" href="/img/remote_144.png" />
+</head> 
+}
+
+puts "
+<body> 
+
+<div data-role=page data-add-back-btn=true>
+
+ <div class=\"hidden status\"></div>
+
+ <div data-role=header data-theme=b>
+	<a class=ui-btn-right data-theme=b data-icon=home data-iconpos=notext
+	    data-direction=reverse href=index.jim></a>
+	<h1>[system model] ([system hostname])</h1>
+ </div>
+
+ <div data-role=content>
+"
+
+set renderstart [clock milliseconds]
+

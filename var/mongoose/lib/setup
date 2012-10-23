@@ -17,6 +17,14 @@ if {![exists -proc require]} {
 		uplevel source /mod/webif/html/lib/footer.jim
 	}
 
+	proc mheader {} {
+		uplevel source /mod/webif/html/m/lib/header.jim
+	}
+
+	proc mfooter {} {
+		uplevel source /mod/webif/html/m/lib/footer.jim
+	}
+
 	# Replace the built-in jim {file copy} command with one that is
 	# largefile safe.
 

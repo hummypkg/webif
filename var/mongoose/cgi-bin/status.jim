@@ -80,8 +80,12 @@ if {[llength $data]} {
 		incr seen($name)
 
 		if {$runmode eq "cgi"} {
-			lappend output "<img class=va src=/images/$icon>
-			    <span class=va>$mode&nbsp;<i>$name</i></span>"
+			lappend output [concat \
+			    "<span class=\"va stitem\">\n" \
+			    "  <img class=va src=/images/$icon>\n" \
+			    "  <span>$mode&nbsp;<i>$name</i></span>\n" \
+			    "</span>\n" \
+			    ]
 		} else {
 			lappend output "$mode $name"
 		}
@@ -115,10 +119,13 @@ if {![system instandby] && $play < 1} {
 		}
 
 		if {$runmode eq "cgi"} {
-			lappend output "[epg channelicon $name 30 \
-			    {vertical-align: middle; padding: 0 4px 0 2px}]
-			    <span class=va>
-				Watching <i>$lcn: $name $prog</i></span>"
+			lappend output [concat \
+			    "<span class=\"va stitem\">\n" \
+			    "  [epg channelicon $name 30 \
+			    {vertical-align: middle; padding: 0 4px 0 2px}]\n" \
+			    "  <span>Watching <i>$lcn: $name $prog</i></span>\n" \
+			    "</span>\n" \
+			    ]
 		} else {
 			lappend output "Watching $lcn: $name $prog"
 		}
@@ -127,9 +134,13 @@ if {![system instandby] && $play < 1} {
 
 if {[system instandby]} {
 	if {$runmode eq "cgi"} {
-		lappend output "<img class=va width=28 style=\"padding: 0 4px\"
-		    src=/img/standby.png>
-		    <span class=va>System is in standby.</span>"
+		lappend output [concat \
+		    "<span class=\"va stitem\">\n"
+		    "  <img class=va width=28 style=\"padding: 0 4px\"" \
+		    "src=/img/standby.png>\n" \
+		    "  <span>System is in standby.</span>\n" \
+		    "</span>" \
+		]
 	} else {
 		lappend output "System is in standby."
 	}
@@ -137,7 +148,7 @@ if {[system instandby]} {
 
 if {[llength $output]} {
 	if {$runmode eq "cgi"} {
-		puts [join $output "<br>"]
+		puts [join $output "\n<br>\n"]
 	} else {
 		puts [join $output "\n"]
 	}
