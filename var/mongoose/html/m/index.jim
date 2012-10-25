@@ -22,9 +22,9 @@ proc tb {icon txt link {height 80} {width 0}} {
 if {[file exists "/mod/bin/ir"]} {
 	tb "/img/remote.png" "Remote" "/plugin/ir/m/index.jim\" rel=\"external"
 }
+tb "/images/328_1_26_Menu_TV_Guide.png" "Now/Next" "nownext.jim"
 tb "/images/323_1_10_Menu_Video.png" "Browse" "#"
 tb "/images/321_1_00_Menu_CHList.png" "Schedule" "#"
-tb "/images/328_1_26_Menu_TV_Guide.png" "Now/Next" "nownext.jim"
 tb "/img/spanner.png" "Services" "#"
 tb "/img/packages.png" "Packages" "#"
 tb "/images/326_1_00_Menu_Settings.png" "Settings" \

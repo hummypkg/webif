@@ -49,6 +49,11 @@ $('#channelinfo').click(function(e) {
 	window.location = '/cgi-bin/channel.jim';
 });
 
+$('#diskdiag').click(function(e) {
+	e.preventDefault();
+	window.location = 'disk.jim';
+});
+
 $('#dlna').click(function(e) {
 	e.preventDefault();
 	window.location = '/dlna/dlna.jim';

@@ -30,7 +30,7 @@ foreach e $records {
 	set nday [clock format $st -format "%F"]
 	if {$day ne $nday} {
 		set day $nday
-		puts "<li data-role=list-divider>
+		puts "<li class=stick data-role=list-divider>
 		    [clock format $st -format "%a %d %b %Y"]
 		    </li>"
 	}

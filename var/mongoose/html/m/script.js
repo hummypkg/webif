@@ -5,3 +5,7 @@ $(document).bind('pageinit', function() {
 	});
 });
 
+//$(document).delegate('#channelpage', 'pageinit', function() {
+	//console.log('pageinit for channelpage');
+//});
+

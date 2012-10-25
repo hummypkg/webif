@@ -34,10 +34,12 @@ puts {
 </head> 
 }
 
+set pageid [string range $env(SCRIPT_NAME) 3 end-4]
+
 puts "
 <body> 
 
-<div data-role=page data-add-back-btn=true>
+<div data-role=page data-add-back-btn=true id=${pageid}page>
 
  <div class=\"hidden status\"></div>
 

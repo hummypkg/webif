@@ -1,0 +1,162 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require system.class
+
+puts "Content-Type: text/html"
+puts ""
+
+header
+
+set space [system diskspace]
+set device [string range [lindex $space 5] 0 end-1]
+
+set smart Unknown
+set line ""
+# smartctl uses non-zero exit status to indicate health hence catch.
+catch { set line [exec /mod/bin/smartctl -H $device | sed -n 5p] } msg
+if {$msg ne "" && $line eq ""} { set line $msg }
+if {$line ne ""} {
+	set smart [string range [lindex [split $line :] 1] 1 end]
+}
+
+puts "
+<h3 class=va>
+	<img class=va width=100 src=/img/disc.png>
+	SMART data read from device $device
+</h3>
+<fieldset class=cleft>
+<legend>Disk Information</legend>
+<table>
+<tr><th class=key>SMART Status</th><td>$smart<td></tr>
+"
+foreach line [split [exec /mod/bin/smartctl -i $device] "\n"] {
+	if {[string match "*Not in smartctl database*" $line]} continue
+	if {[string match "*: *" $line]} {
+		regsub -all -- {[[:space:]]+} $line " " line
+		set fields [split $line ":"]
+		puts "<tr><th class=key>[lindex $fields 0]</th>"
+		puts "<td>[join [lrange $fields 1 end] :]</td></tr>"
+	}
+}
+puts {
+</table>
+</fieldset>
+
+<fieldset class=cleft>
+<legend>Attributes</legend>
+<table class=borders cellpadding=3>
+<tr>
+	<th class=odd>ID</th>
+	<th class=odd>Name</th>
+	<th class=odd>Flags</th>
+	<th class=odd>Raw Value</th>
+	<th class=odd>Value</th>
+	<th class=odd>Worst</th>
+	<th class=odd>Thresh</th>
+	<th class=odd>Type</th>
+	<th class=odd>Updated</th>
+	<th class=odd>When Failed</th>
+</tr>
+}
+
+#set flag_autokeep 	0x20
+#set flag_count		0x10
+#set flag_rate		0x08
+#set flag_speed		0x04
+#set flag_online	0x02
+#set flag_prefailure	0x01
+
+set flaglist [split "POSRCK" ""]
+set flagdescr [list \
+	"P prefailure warning" \
+	"O updated online" \
+	"S speed/performance" \
+	"R error rate" \
+	"C event count" \
+	"K auto-keep" \
+]
+
+proc flags {val} {
+	global flaglist flagdescr
+	set f ""
+	set fx ""
+	loop i 0 [llength $flaglist] {
+		if {[expr $val & (1 << $i)]} {
+			append f [lindex $flaglist $i]
+			append fx "[lindex $flagdescr $i]\n"
+		} else {
+			append f "-"
+		}
+	}
+	return "<span title=\"$fx\">$f</span>"
+}
+
+set i 0
+foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
+	regsub -all -- {[[:space:]]+} $line " " line
+	regsub -all -- {^[[:space:]]+} $line "" line
+	if {[incr i] < 8} continue
+	lassign [split $line] \
+	    id name flags val worst thresh type updated when rval
+	set class normal
+	switch $id {
+		5 { if {$rval > 0} { set class orangeshade } }
+		197 { if {$rval > 0} { set class redshade } }
+		198 { if {$rval > 0} { set class redshade } }
+	}
+	puts "<tr class=$class>"
+	puts "
+		<td>$id</td>
+		<td>$name</td>
+		<td>[flags $flags]</td>
+		<td>$rval</td>
+		<td>$val</td>
+		<td>$worst</td>
+		<td>$thresh</td>
+		<td>$type</td>
+		<td>$updated</td>
+		<td>$when</td>
+	</tr>"
+}
+
+puts {
+</table>
+</fieldset>
+
+<fieldset class=cleft>
+<legend>Self-test logs</legend>
+<table class=borders cellpadding=3>
+<tr>
+	<th class=odd>No.</th>
+	<th class=odd>Description</th>
+	<th class=odd>Status</th>
+	<th class=odd>Remaining</th>
+	<th class=odd>When</th>
+	<th class=odd>First Error LBA</th>
+</tr>
+}
+
+set i 0
+foreach line [split [exec /mod/bin/smartctl -l selftest $device] "\n"] {
+	regsub -all -- {[[:space:]][[:space:]]+} $line "|" line
+	if {[incr i] < 7} continue
+	lassign [split $line "|"] id name status remaining when lba
+	puts "<tr>
+		<td>$id</td>
+		<td>$name</td>
+		<td>$status</th>
+		<td>$remaining</th>
+		<td>$when</th>
+		<td>$lba</th>
+	</tr>"
+}
+
+puts {
+</table>
+</fieldset>
+}
+
+footer
+

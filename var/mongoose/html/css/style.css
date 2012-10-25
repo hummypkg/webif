@@ -247,6 +247,12 @@ pre, .pre
 	color: black;
 }
 
+.redshade
+{
+	background: #ff4000;
+	color: white;
+}
+
 img.progress
 {
 	background: transparent url(/img/percentback.png) top left no-repeat;
