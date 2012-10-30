@@ -2,18 +2,24 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require rsv.class progressbar epg.class
-
-puts "Content-Type: text/html"
-puts ""
+require epg.class
 
 cgi_input
-#cgi_dump
 
 set table [cgi_get table TBL_RESERVATION]
 set slot [cgi_get slot 0]
-
 set event [rsv slot $table $slot]
+
+mheader
+
+puts "
+
+<div data-role=header data-theme=b>
+	<h1>Scheduled Event</h1>
+</div>
+
+<div data-role=content>
+"
 
 puts "
 	<table class=keyval>
@@ -76,14 +82,11 @@ set crid [join [lrange [split [$event get szCRID] /] 1 end]]
 if {$crid != ""} {
 	puts "<tr><th>"
 	if {[$event isseries]} { puts "Series" } else { puts "Event" }
-	puts " CRID</th><td>"
-	puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
-	if {[$event isseries]} { puts -nonewline "s" }
-	puts "crid=/$crid>
+	puts " CRID</th><td>
 	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
 	    height=14>
-	[$event get szCRID]"
-	puts "</a></td></tr>"
+	[$event get szCRID]
+	</td></tr>"
 }
 puts "<tr><th>Events</th><td>"
 set flag 0
@@ -93,12 +96,8 @@ foreach ev [split [$event get szEventToRecord] "|"] {
 	if {$flag} { puts "<br>" }
 	incr flag
 	set crid [join [lrange [split $ev /] 1 end]]
-	puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
-	puts "crid=/$crid>
-	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
-	    height=14> 
-	$ev"
-	puts "</a>"
+	puts "<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
+	    height=14>$ev"
 }
 puts "</td></tr>"
 puts "<tr><th>Accepted</th><td>"
@@ -107,4 +106,13 @@ if {[$event get aulEventToRecordInfo] ne ""} {
 }
 puts "</td></tr>"
 puts "</table>"
+
+# Buttons
+puts "<a href=# data-theme=b id=delevent data-role=button
+    tab=$table slot=$slot>Cancel Event</a>"
+puts "<a href=# data-role=button data-theme=a id=close data-rel=back>Close</a>"
+
+epg cleanup
+
+mfooter
 

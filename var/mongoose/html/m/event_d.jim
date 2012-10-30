@@ -1,0 +1,155 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class
+
+cgi_input
+
+set sid [cgi_get sid 0]
+set eid [cgi_get eid 0]
+
+mheader
+
+set record [lindex [epg fetch dump -service $sid -event $eid] 0]
+$record get_channel_info
+set others [$record othertimes]
+
+puts "
+
+<div data-role=header data-theme=b>
+	<h1>EPG Event</h1>
+</div>
+
+<div data-role=content>
+<table class=keyval>
+<tr>
+	<th>Programme</th>
+	<td>[$record get name]</td>
+</tr><tr>
+	<th>Synopsis</th>
+	<td>[$record get text]</td>
+</tr><tr>
+	<th>Start</th>
+	<td>[clock format [$record get start] -format {%c %Z}]
+"
+
+foreach o $others {
+	if {[$o ended]} { continue }
+	$o get_channel_info
+	$o process_sched
+	if {[$o get series_crid] eq ""} { set ro 1 } else { set ro 2 }
+	puts -nonewline "<br><font class=also>&nbsp;&nbsp;&nbsp;&nbsp;"
+	puts -nonewline "Also: "
+	puts -nonewline "<a href=event_d.jim?sid=[$o get service_id]&"
+	puts -nonewline "eid=[$o get event_id] data-rel=dialog>"
+	puts -nonewline "[clock format [$o get start] -format {%c %Z}]"
+	puts -nonewline " on "
+	puts -nonewline [$o channel_icon 16]
+	puts -nonewline "[$o get channel_name] "
+	puts "</a>"
+	puts "</font>"
+}
+
+puts "
+		</td>
+	</tr><tr>
+		<th>Duration</th>
+		<td>[clock format [$record get duration] -format %T]
+"
+if {[$record showing]} {
+	puts [progressbar [$record percent]]
+}
+puts "
+	</td>
+	</tr><tr>
+		<th>Type</th>
+		<td>[$record get content_type] ([$record get content_code])</td>
+	</tr>
+"
+
+if {[$record get warning] != ""} {
+	puts "
+	<tr>
+		<th>Warning</th>
+		<td>[$record get warning]</td>
+	</tr>
+	"
+}
+
+if {[$record get event_crid] != ""} {
+	puts "
+	<tr>
+		<th>CRID</th><td>
+			[$record get channel_crid][$record get event_crid]
+		</td>
+	</tr>
+	"
+}
+
+if {[$record get series_crid] != ""} {
+	puts "
+	<tr>
+		<th nowrap>Series CRID</th><td>
+			[$record get channel_crid][$record get series_crid]
+		</td>
+	</tr>
+	"
+}
+
+if {[$record get rec_crid] != ""} {
+	set rec [$record recommended]
+	if {$rec != ""} {
+		puts "<tr><th>Recommends</th><td>
+			[$rec get name]
+			([$rec get channel_crid][$rec get event_crid])
+		</td></tr>"
+	}
+}
+
+puts "
+	<tr>
+		<td colspan=2 valign=top>
+			[$record channel_icon 50]
+			[join [$record icon_set] "&nbsp;"]
+		</td>
+	</tr>
+	</table>
+"
+
+# Buttons
+
+if {[$record get start] < [clock seconds]} {
+	set rec 0
+} elseif {[$record get series_crid] ne ""} {
+	set rec 2
+} else {
+	set rec 1
+}
+
+$record process_sched
+set sch [$record get sched_type]
+
+if {!$sch} {
+	if {$rec == 2} {
+		puts "<a href=# data-theme=b class=schedule stype=2
+		    sid=$sid eid=$eid data-role=button>
+		    Record Series</a>"
+	}
+	if {$rec > 0} {
+		puts "<a href=# data-theme=b class=schedule stype=1
+		    sid=$sid eid=$eid data-role=button>
+		    Record Programme</a>"
+		puts "<a href=# data-theme=b class=schedule stype=3
+		    sid=$sid eid=$eid data-role=button>
+		    Set Reminder</a>"
+	}
+}
+puts "<a href=# data-role=button data-theme=a id=close data-rel=back>Close</a>"
+
+puts "<div id=epginfo_extra class=footnote></div>"
+
+epg cleanup
+
+mfooter
+

@@ -1,0 +1,184 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class pretty_size system.class settings.class escape browse.class
+
+cgi_input
+
+set ignore {.nts .thm .hmi}
+set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt}
+
+set dir [cgi_get dir [system mediaroot]]
+
+set model [system model]
+set dustbin [system dustbin 1]
+
+proc icon {img {hover ""} {extra ""} {class "va"}} {
+	puts -nonewline "<img src=$img class=\"$class\" height=21 $extra"
+	if {$hover ne ""} {
+		puts -nonewline " alt=\"$hover\" title=\"$hover\""
+	}
+	puts ">"
+}
+
+proc directory {file bfile tbfile {img /images/711_1_09_Media_Folder.png}} {
+	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
+	lassign [{dir iconset} $file] icons attrs
+	puts "<li><a href=\"browse.jim?dir=[cgi_quote_url $file]\"
+	    data-transition=flip>
+		<img src=$img border=0 class=va width=80 id=\"img$tbfile\">
+		<h3>$bfile</h3>
+	"
+	if {[llength $icons]} {
+		puts "<p>[join $icons ""]</p>"
+	}
+	puts "<p class=ui-li-count>
+			<span class=filesize id=\"$tbfile\"></span>
+		</p>
+	    </a></li>
+	"
+}
+
+proc entry {file {i 0}} {
+	set bfile [file tail $file]
+	regsub -all " +" $bfile "" tbfile
+	if {[string index $bfile 0] == "\025"} {
+		set bfile [string range $bfile 1 end]
+	}
+	if [file isdirectory "$file"] {
+		directory $file $bfile $tbfile
+		return
+	}
+	set ext [file extension $file]
+	if {$ext in $::ignore || $ext ni $::include} { return }
+
+	file stat $file st
+	set rsz $st(size)
+	set sz [pretty_size $rsz]
+
+	set base [file rootname $file]
+
+	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
+		set type ts
+		set ts [ts fetch $file 1]
+		set img Video_TS
+		set omenu opt
+	} elseif {$ext eq ".hmt"} {
+		if {[file exists "${base}.ts"]} { continue }
+		# Sole hmt file indicates failure to track.
+		set type bad
+		set ts 0
+		set img Video_Failed
+		set omenu oopt
+	} else {
+		set type gen
+		set ts 0
+		set img Video_Other
+		set omenu oopt
+	}
+
+	set new 0
+	if {$type eq "ts"} {
+		if {[$ts flag "New"] > 0} { set new 1 }
+	} elseif {$type eq "gen"} {
+		if {![file exists "${base}.hmi"]} { set new 1 }
+	}
+
+	if {$new} { append img _New }
+
+	set fscl "fs"
+	set synopsis ""
+	if {$type eq "ts"} {
+		set fscl "fs fsts"
+		set synopsis [cgi_quote_html [$ts get synopsis]]
+	}
+
+	puts "<li>
+		<img class=va border=0 width=80 src=/img/$img.png>
+		<h3>$bfile</h3>
+		<p class=ui-li-count>
+			<span class=filesize> $sz </span>
+		</p>
+		<p class=icons>
+	"
+
+	# Icons
+
+	set locked 0
+	set encd 0
+	set odencd 1
+	set def unknown
+	set bx 0
+	set dlna 0
+	if {$type eq "ts"} {
+		# HD / SD
+		if {[$ts get definition] eq "HD"} {
+			set def HD
+			set img "172_1_00_HD"
+		} else {
+			set def SD
+			set img "172_1_26_SD"
+		}
+		icon "/images/$img.png"
+
+		# Locked
+		if {[$ts flag "Locked"] > 0} {
+			set locked 1
+			icon "/images/178_1_00_Icon_Lock.png" "Locked"
+		}
+
+		# Encrypted
+		if {[$ts flag "Encrypted"] > 0} {
+			set encd 1
+			icon "/images/749_1_26_Video_Encryption.png" ""
+		}
+		if {![$ts flag "ODEncrypted"]} {
+			set odencd 0
+			icon "/img/Decrypted.png" "Decrypted"
+		}
+
+		# Guidance
+		if {[$ts flag "Guidance"] > 0} {
+			icon "/images/174_1_26_GuidancePolicy.png"
+		}
+
+		# Indexed
+		if {$::model eq "HDR" && [llength [$ts dlnaloc]]} {
+			icon "/img/dlna.png" "Indexed by DLNA Server"
+			set dlna 1
+		}
+
+		# Shrunk (shown when necessary via Ajax)
+		icon "/img/compress.png" "Shrunk" \
+		    "id=\"sp_$tbfile\"" "va hidden"
+	}
+
+	puts "</p></li>"
+}
+
+mheader
+
+puts "
+	<span class=\"dir hidden\">$dir</span>
+	<ul data-role=listview data-filter=true data-count-theme=e>
+	<li data-role=list-divider>$dir
+		<p class=ui-li-count>
+		<span class=\"filesize dirsize\"></span>
+		</p>
+	</li>
+"
+
+# Parent directory
+directory [join [lrange [split $dir /] 0 end-1] /] "\[parent directory\]" \
+    _parent "/images/711_3_09_Media_Folder_UP.png"
+
+set files [readdir -nocomplain $dir]
+set files [lsort $files]
+
+foreach file $files { entry "$dir/$file" }
+
+puts "</ul>"
+
+mfooter
+

@@ -1,4 +1,32 @@
 
+html body
+{
+	line-height: 1.55em;
+	font-family: "Lucida Grande", verdana, lucida, helvetica, sans-serif;
+	background-color: #f8f8f8;
+	margin: 1em;
+	padding: 0;
+	font-size: small;
+}
+
+html>body
+{
+	font-size: small;
+}
+
+p.datetime
+{
+	font-style: italic;
+}
+
+img.progress
+{
+	background: transparent url(/img/percentback.png) top left no-repeat;
+	padding: 0;
+	margin: 0;
+	background-position: 1px 0;
+}
+
 .va
 {
 	vertical-align: middle;
@@ -35,5 +63,34 @@ li.sticky
 {
 	position: absolute;
 	top: 0;
+}
+
+table.keyval
+{
+	position: relative;
+	left: -10px;
+}
+
+table.keyval th, th.key
+{
+	background: #ccff99;
+	font-weight: bold;
+	text-align: right;
+	color: black;
+}
+
+table.keyval td
+{
+	background: #ffffcc;
+	color: black;
+}
+
+.also
+{
+	font-size: 0.8em;
+	font-style: italic;
+	color: #333;
+	background: transparent;
+	text-decoration: none;
 }
 

@@ -1,0 +1,54 @@
+
+require system.class
+
+#if {![exists -proc class]} { package require oo }
+#class browse {}
+
+set _flatten [system pkginst flatten]
+
+proc _addicon {img {hover ""} {class va}} {
+	set icon "<img src=$img class=\"$class\" height=21"
+	if {$hover ne ""} {
+		append icon " alt=\"$hover\" title=\"$hover\""
+	}
+	append icon ">"
+	return $icon
+}
+
+proc {dir iconset} {dir} {
+	set icons {}
+	set attrs {}
+
+	set noflat 0
+	if $::_flatten {
+		if {[string match {\[*\]} [file tail $dir]]} { set noflat 1 }
+		if {[file exists "$dir/.noflatten"]} { set noflat 1 }
+		if $noflat { lappend icons \
+		    [_addicon "/img/flat-tyre.png" "No-flatten" }
+		lappend attrs "noflat=$noflat"
+	}
+
+	set autoshrink 0
+	if {[file exists "$dir/.autoshrink"]} {
+		set autoshrink 1
+		lappend icons [_addicon "/img/compress.png" "Auto-shrink"]
+		lappend attrs "autoshrink=$autoshrink"
+	}
+
+	set autodedup 0
+	if {[file exists "$dir/.autodedup"]} {
+		set autodedup 1
+		lappend icons [_addicon "/img/dedup.png" "Auto-dedup"]
+		lappend attrs "autodedup=$autodedup"
+	}
+
+	set autodecrypt 0
+	if {[file exists "$dir/.autodecrypt"]} {
+		set autodecrypt 1
+		lappend icons [_addicon "/img/decrypt.png" "Auto-decrypt"]
+		lappend attrs "autodecrypt=$autodecrypt"
+	}
+
+	return [list $icons $attrs]
+}
+

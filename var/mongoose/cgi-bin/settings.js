@@ -94,5 +94,24 @@ $(document).ready(function () {
 				    .delay(2000).fadeOut('slow');
 		    });
 	});
+
+	$('#mobile_toggle').change(function() {
+		var arg = '1';
+		if ($(this).attr('checked'))
+			arg = '0';
+
+		$(this).disable();
+
+		$('#mobile_output')
+		    .empty()
+		    .show('slow')
+		    .load('/cgi-bin/settings.jim?nomobile=' + arg,
+		        function() {
+				$('#mobile_toggle').enable();
+				$('#mobile_output')
+				    .css('font-style', 'italic')
+				    .delay(2000).fadeOut('slow');
+		    });
+	});
 });
 

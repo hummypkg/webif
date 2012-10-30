@@ -56,42 +56,8 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	    ar=[expr ! [$event padded]]"
 	altrow $attrs
 
-	set rsvicon [$event icon]
-	set RKIcon [$event RKIcon]
-	if {[$event get ucRecKind] == 4} {
-		set series 1
-	} else {
-		set series 0
-	}
-
-	if {$rsvicon ne ""} {
-		set rsvicon "<img src='/images/$rsvicon' height=20>"
-		if {[$event get ersvtype] == 3} {
-			if {[$event padded]} {
-				set padding "<- [expr [$event get ulPreOffset] / 60], [expr [$event get ulPostOffset] / 60] ->"
-				append rsvicon \
-				    "<img src=/img/pad.png height=20
-				     title=\"$padding\" alt=\"$padding\">"
-			} else {
-				append rsvicon \
-				    "<img src=/img/ar.png height=20>"
-			}
-		}
-	}
-	if {$RKIcon ne ""} {
-		set RKIcon "<img src='/images/$RKIcon' height=20>"
-	}
-
 	if {$table eq "pending"} {
-		switch [$event get action] {
-		    0 { set icon "add" }
-		    1 { set icon "close" }
-		    2 { set icon "ar" }
-		    3 { set icon "pad" }
-		    4 { set icon "folder" }
-		}
-		puts "<td align=center>
-		    <img class=va width=30 src=/img/$icon.png></td>"
+		puts "<td align=center>[$event pendingicon]</td>"
 	}
 
 	puts "<td>[$event get ulslot]</td>"
@@ -127,7 +93,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	set ds "[clock format $s -format "%a %d %b %Y"]<br>
 	    [clock format $s -format "%H:%M %Z"]"
 
-	if { $n > $e && [$event get ersvtype] <= 3} {
+	if {$n > $e && [$event get ersvtype] <= 3} {
 		puts "<td nowrap class=va
 			alt=\"$ds\" title=\"$ds\">
 			--- -- --- ----<br>--:--"
@@ -147,7 +113,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		puts "[clock format [$event get nduration] -format %T]</td>"
 	}
 
-	puts "<td nowrap>$rsvicon $RKIcon</td>"
+	puts "<td nowrap>[join [$event iconset] ""]</td>"
 
 	puts "<td><a href=# class=smenu sid=[$event get ulslot]>
 	    <img border=0 src=/img/more_btn.gif></a></td>"

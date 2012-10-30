@@ -1,15 +1,17 @@
 #!/mod/bin/jimsh
 
-puts {
- </div>
+puts {</div>}
 
- <div data-role=footer data-theme=c>
-}
+if {!$_dialog} {
+	puts "<div data-role=footer data-theme=c>"
 
-if {![catch {
-    set rendertime [expr [expr [clock milliseconds] - $renderstart] / 1000.0]
-    }]} {
-	puts "<font class=footnote>Rendered in: $rendertime seconds</font>"
+	if {![catch {
+	    set rendertime $(([clock milliseconds] - $renderstart) / 1000.0)
+	}]} {
+		puts "<font class=footnote>
+			Rendered in: $rendertime seconds</font>"
+	}
+	puts "</div>"
 }
 
 puts {

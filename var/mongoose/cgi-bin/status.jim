@@ -135,7 +135,7 @@ if {![system instandby] && $play < 1} {
 if {[system instandby]} {
 	if {$runmode eq "cgi"} {
 		lappend output [concat \
-		    "<span class=\"va stitem\">\n"
+		    "<span class=\"va stitem\">\n" \
 		    "  <img class=va width=28 style=\"padding: 0 4px\"" \
 		    "src=/img/standby.png>\n" \
 		    "  <span>System is in standby.</span>\n" \

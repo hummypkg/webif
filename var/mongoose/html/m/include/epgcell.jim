@@ -1,0 +1,37 @@
+
+proc epgcell {e {aside 0}} {
+	$e get_channel_info
+	set st [$e get start]
+	set et $($st + [$e get duration])
+	puts "
+	<li><a data-rel=dialog data-transition=slidedown
+	    href=event_d.jim?sid=[$e get service_id]&eid=[$e get event_id]>
+	[$e channel_icon 80]
+	<h4>[$e get name]</h4>
+	<p class=datetime>
+	    [clock format $st -format {%a %d %b %Y %H:%M}]
+	    -
+	    [clock format $et -format {%H:%M}]
+	</p>
+	<p style=\"white-space: normal\">
+	    [join [$e icon_set 14] ""]
+	    [$e get text]</p>
+	"
+	set guidance [$e get warning]
+	if {$guidance ne ""} {
+		puts "<p class=blood style=\"white-space: normal\">
+		    $guidance</p>"
+	}
+	if {[$e showing]} {
+		puts "<p>[progressbar [$e percent]]</p>"
+	}
+	if {$aside} {
+		puts "
+		<p class=ui-li-aside>
+			[clock format $st -format "%H:%M"] -
+			[clock format $et -format "%H:%M"]
+		</p>
+		"
+	}
+}
+

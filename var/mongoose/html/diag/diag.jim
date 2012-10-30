@@ -122,6 +122,7 @@ View:
 foreach file [lsort [concat \
     [glob -nocomplain /var/log/*.log] \
     [glob -nocomplain /mod/tmp/*.log] \
+    [glob -nocomplain /mnt/hd3/*.log] \
 ]] {
 	puts "<a href=# class=log file=\"$file\">
 	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>

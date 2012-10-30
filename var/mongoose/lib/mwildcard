@@ -1,0 +1,5 @@
+
+proc mwildcard {v} {
+	return [string map {"%" "\\%" "*" "%" "_" "\\_" "?" "_"} $v]
+}
+

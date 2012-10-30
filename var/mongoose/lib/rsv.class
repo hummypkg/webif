@@ -69,6 +69,10 @@ rsv method clear_ulslot {} {
 	set ulslot -1
 }
 
+rsv method isseries {} {
+	if {$ucRecKind == 4} { return 1 } else { return 0 }
+}
+
 rsv method _strip {str} {
 	if {[string range $str 1 2] eq "i7"} {
 		set str [string range $str 3 end]
@@ -141,6 +145,41 @@ rsv method RKIcon {} {
 	    }
 	}
 	return $RKIcon
+}
+
+rsv method pendingicon {{width 30}} {
+	switch $action {
+	    0 { set icon "add" }
+	    1 { set icon "close" }
+	    2 { set icon "ar" }
+	    3 { set icon "pad" }
+	    4 { set icon "folder" }
+	}
+	return "<img class=va width=$width src=/img/$icon.png>"
+}
+
+rsv method iconset {{height 20}} {
+	set iconlist {}
+	set icon [$self icon]
+	if {$icon ne ""} {
+		lappend iconlist "<img src='/images/$icon' height=$height>"
+		if {$ersvtype == 3} {
+			if {[$self padded]} {
+				set padding "<- [expr $ulPreOffset / 60], [expr $ulPostOffset / 60] ->"
+				lappend iconlist \
+				    "<img src=/img/pad.png height=$height
+				     title=\"$padding\" alt=\"$padding\">"
+			} else {
+				lappend iconlist \
+				    "<img src=/img/ar.png height=$height>"
+			}
+		}
+	}
+	set icon [$self RKIcon]
+	if {$icon ne ""} {
+		lappend iconlist "<img src='/images/$icon' height=$height>"
+	}
+	return $iconlist
 }
 
 rsv method set_delete {} {

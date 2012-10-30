@@ -60,7 +60,7 @@ if {$ct > 0 } {
 } elseif {$scrid ne ""} {
 	set records [epg fetch dump -scrid $scrid]
 } elseif {$searchterm ne ""} { 
-	set records [epg fetch $cmd -extra $searchterm]
+	set records [epg dbfetch $cmd -term $searchterm]
 } else {
 	set records {}
 }

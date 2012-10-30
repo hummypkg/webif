@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class pretty_size system.class settings.class escape
+require ts.class pretty_size system.class settings.class escape browse.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -42,8 +42,6 @@ proc icon {img {hover ""} {extra ""} {class "va"}} {
 }
 
 proc directory {file bfile tbfile} {
-	global flatten
-
 	puts "<div class=va>"
 	set img "/images/711_1_09_Media_Folder.png"
 	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
@@ -55,38 +53,14 @@ proc directory {file bfile tbfile} {
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span>"
 
-	set noflat 0
-	if $flatten {
-		if {[string match {\[*\]} [file tail $file]]} { set noflat 1 }
-		if {[file exists "$file/.noflatten"]} { set noflat 1 }
-		if $noflat { icon "/img/flat-tyre.png" "No-flatten" }
-	}
+	lassign [{dir iconset} $file] icons attrs
 
-	set autoshrink 0
-	if {[file exists "$file/.autoshrink"]} {
-		set autoshrink 1
-		icon "/img/compress.png" "Auto-shrink"
-	}
-
-	set autodedup 0
-	if {[file exists "$file/.autodedup"]} {
-		set autodedup 1
-		icon "/img/dedup.png" "Auto-dedup"
-	}
-
-	set autodecrypt 0
-	if {[file exists "$file/.autodecrypt"]} {
-		set autodecrypt 1
-		icon "/img/decrypt.png" "Auto-decrypt"
-	}
+	puts [join $icons ""]
 
 	puts -nonewline "
 	      <a href=#>
 		<img class=\"dopt va\" border=0 width=45 "
-	puts -nonewline "autoshrink=$autoshrink "
-	puts -nonewline "autodedup=$autodedup "
-	puts -nonewline "autodecrypt=$autodecrypt "
-	if $flatten { puts -nonewline "noflat=$noflat " }
+	puts -nonewline [join $attrs " "]
 	puts "
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
@@ -106,10 +80,10 @@ proc entry {file} {{i 0}} {
 	}
 	if [file isdirectory "$file"] {
 		directory $file $bfile $tbfile
-		continue
+		return
 	}
 	set ext [file extension $file]
-	if {$ext in $::ignore || $ext ni $::include} { continue }
+	if {$ext in $::ignore || $ext ni $::include} { return }
 
 	file stat $file st
 	set rsz $st(size)

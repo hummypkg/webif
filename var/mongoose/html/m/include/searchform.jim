@@ -1,0 +1,32 @@
+
+puts -nonewline "
+    <form action=search.jim method=get data-transition=fade>
+	<label class=ui-hidden-accessible for=epgsearchterm>
+		Search
+	</label>
+	<input size=20 maxlength=50
+	    type=search placeholder=\"Enter search term\"
+	    data-mini=true
+	    name=epgsearchterm id=epgsearchterm value=\"$term\" />
+	<div data-role=fieldcontain class=va>
+		<label for=epgsearchfull
+	         style=\"line-height: 1; width: auto; margin: 10px 0.5em 0 0;\">
+			Descriptions
+		</label>
+		<select data-mini=true
+		    name=epgsearchfull id=epgsearchfull data-role=slider>
+			<option value=0"
+if {!$full} { puts -nonewline " selected" }
+puts -nonewline ">Off</option>
+			<option value=1"
+
+if {$full} { puts -nonewline " selected" }
+
+puts ">On</option>
+		</select>
+		<button type=submit data-mini=true name=search value=search
+		    data-theme=b>Search</button>
+	</div>
+    </form>
+"
+

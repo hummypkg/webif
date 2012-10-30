@@ -1,0 +1,8 @@
+
+puts -nonewline "
+<style>
+.ui-field-contain .ui-btn.ui-submit { width: auto; }
+.ui-field-contain { margin: 0 }
+</style>
+"
+

@@ -23,6 +23,7 @@ class settings {
 	smtp_server	""
 	pkgdev		0
 	notoolbar	0
+	nomobile	0
 }
 
 settings method hostname {{name ""}} {
@@ -119,6 +120,10 @@ settings method pkgdev {{val -1}} {
 
 settings method notoolbar {{val -1}} {
 	return [$self _nval_setting notoolbar $val]
+}
+
+settings method nomobile {{val -1}} {
+	return [$self _nval_setting nomobile $val]
 }
 
 settings method sortorder {{val -1}} {

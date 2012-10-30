@@ -1,0 +1,85 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class
+
+proc eventtab {type title} {
+	set events [rsv list $type]
+	if {[set num [llength $events]] <= 0} return
+
+        puts "<li data-role=list-divider>$title ($num)</li>\n";
+
+	foreach event $events {
+		set name [$event name]
+		set rsvicon [$event icon]
+		set RKIcon [$event RKIcon]
+
+		set icons ""
+		if {$type eq "pending"} {
+			switch [$event get action] {
+			    0 { set icon "add" }
+			    1 { set icon "close" }
+			    2 { set icon "ar" }
+			    3 { set icon "pad" }
+			    4 { set icon "folder" }
+			}
+			append icons "<img src=/img/$icon.png height=30>"
+		}
+		if {$rsvicon ne ""} {
+			append icons "<img src='/images/$rsvicon' height=20>"
+		}
+		if {$RKIcon ne ""} {
+			append icons "<img src='/images/$RKIcon' height=20>"
+		}
+
+		set s [$event get nsttime]
+		set d [$event get nduration]
+		set e $($s + $d)
+		set n [clock seconds]
+
+		set recording 0
+		if {$d > 0 && $n > $s && $n < $e} {
+			set recording 1
+		}
+
+		set last "[clock format $s -format {%a %d %b %Y %H:%M %Z}]"
+		if {$n > $e && [$event get ersvtype] <= 3} {
+			set ds "--- -- --- ---- --:--"
+			set dur "--:--:--<br>
+			    <span class=blood>(Last: $last)</span>"
+		} else {
+			set ds $last
+			set dur "[clock format [$event get nduration] \
+			    -format %T]"
+		}
+                puts "
+<li><a data-rel=dialog data-transition=slidedown
+    href=schedule_d.jim?table=$type&slot=[$event get ulslot]>
+    [epg channelicon [$event channel_name] 80]
+    <h3>$icons $name</h3>
+    <p>
+        $ds $dur
+    </p>
+		";
+		if {$recording} {
+			set perc $(($n - $s) * 100 / $d)
+			puts "<p class=va>
+			    <img class=va src=/images/745_1_11_Video_1REC.png>
+			    [progressbar $perc]
+			    </p>
+			"
+		}
+		puts "</a></li>";
+        }
+}
+
+mheader
+
+puts "<ul data-role=listview data-filter=true>"
+eventtab "pending" "Pending Events"
+eventtab "TBL_RESERVATION" "Active Events"
+puts "</ul>"
+
+mfooter
+

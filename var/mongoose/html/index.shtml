@@ -1,6 +1,6 @@
 <!--#include virtual="/lib/header.shtml" -->
 
-<div class=toolbarouter>
+<div class=toolbarouter style="top: -40px">
   <div id=status class=toolbar>
     <span id=status_txt>
       Status...
@@ -19,8 +19,6 @@ $(document).ready(function() {
 </script>
 
 <!--#exec cmd="/mod/webif/include/menuicons.jim" -->
-
-<div style="clear: both; padding-top: 1em">
 <!--#exec cmd="/mod/webif/include/menuplugins.jim" -->
 </div>
 

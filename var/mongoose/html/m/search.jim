@@ -1,0 +1,36 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class
+source include/epgcell.jim
+
+cgi_input
+
+set term [cgi_get epgsearchterm ""]
+set full [cgi_get epgsearchfull 0]
+
+mheader
+
+source include/searchstyle.jim
+puts "<ul data-role=listview data-filter=false><li>"
+source include/searchform.jim
+puts "</li>"
+
+set cmd search
+if {$full} { set cmd searchall }
+if {$term ne ""} {
+	#set records [epg fetch $cmd -extra $term]
+	set records [epg dbfetch $cmd -term $term]
+} else {
+	set records {}
+}
+
+foreach e $records {
+	epgcell $e
+}
+
+puts "</ul>"
+
+mfooter
+

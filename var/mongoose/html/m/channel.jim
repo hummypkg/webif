@@ -3,6 +3,7 @@
 package require cgi
 source /mod/webif/lib/setup
 require epg.class
+source include/epgcell.jim
 
 cgi_input
 
@@ -26,6 +27,8 @@ puts "
 "
 
 foreach e $records {
+	$e copy_channel_info $tr
+
 	set st [$e get start]
 	set nday [clock format $st -format "%F"]
 	if {$day ne $nday} {
@@ -34,24 +37,8 @@ foreach e $records {
 		    [clock format $st -format "%a %d %b %Y"]
 		    </li>"
 	}
-	set et $($st + [$e get duration])
-	puts "
-	<li><a href=event.jim?sid=[$e get service_id]&eid=[$e get event_id]>
-	<h4>[$e get name]</h4>
-	<p style=\"white-space: normal\">[$e get text]</p>
-	"
-	set guidance [$e get warning]
-	if {$guidance ne ""} {
-		puts "<p class=blood style=\"white-space: normal\">
-		    $guidance</p>"
-	}
-	puts "
-	<p class=ui-li-aside>
-		[clock format $st -format "%H:%M"] -
-		[clock format $et -format "%H:%M"]
-	</p>
-	</a></li>
-	"
+
+	epgcell $e 1
 }
 
 puts "</ul>"

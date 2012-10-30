@@ -3,7 +3,13 @@
 source /mod/webif/lib/setup
 require settings.class
 
-proc menuitem {title icon link {width 217} {height 0} {extra ""}} {
+proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
+	incr num
+	if {$title eq ""} return
+	if {$num > 4} {
+		puts {</div><div style="clear: both; padding-top: 1em">}
+		set num 0
+	}
 	if {$extra ne ""} { append extra " " }
 	puts -nonewline "
 <div class=left>
@@ -42,7 +48,9 @@ if {[file exists "/mod/bin/ir"]} {
 	menuitem "Remote" "/img/remote.png" /plugin/ir/remote.jim 217 228
 }
 
-puts {</div><div style="clear: both; padding-top: 1em">}
+if {[[settings] nomobile] eq "0"} {
+	menuitem "Mobile Version" "/img/mobile.png" /m/ 217 228
+}
 
 menuitem "Service Management" "/img/spanner.png" \
 	/services.shtml 217 228
@@ -50,8 +58,7 @@ menuitem "Package Management" "/img/packages.png" \
 	/pkg/index.shtml 217 228
 menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
 	/cgi-bin/settings.jim 217 228
+
 menuitem "Diagnostics" "/img/diagnostics.png" \
 	/diag/diag.jim 217 228
-
-puts {</div>}
 

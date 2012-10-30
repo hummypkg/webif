@@ -5,6 +5,8 @@ require settings.class plugin
 
 mheader
 
+source include/searchstyle.jim
+
 puts "<ul data-role=listview data-inset=true>"
 
 proc tb {icon txt link {height 80} {width 0}} {
@@ -23,13 +25,27 @@ if {[file exists "/mod/bin/ir"]} {
 	tb "/img/remote.png" "Remote" "/plugin/ir/m/index.jim\" rel=\"external"
 }
 tb "/images/328_1_26_Menu_TV_Guide.png" "Now/Next" "nownext.jim"
-tb "/images/323_1_10_Menu_Video.png" "Browse" "#"
-tb "/images/321_1_00_Menu_CHList.png" "Schedule" "#"
+
+puts "<li><a id=epgsearch href=#>
+	<img src=/images/328_1_26_Menu_TV_Guide.png height=80 border=0>
+	<h3>Search EPG</h3>
+	</a>
+    </li>
+    <li id=xepgsearch class=ui-screen-hidden>
+"
+set term ""
+set full 0
+source include/searchform.jim
+puts "</li>"
+
+tb "/images/323_1_10_Menu_Video.png" "Browse" "browse.jim"
+tb "/images/321_1_00_Menu_CHList.png" "Schedule" "schedule.jim"
 tb "/img/spanner.png" "Services" "#"
 tb "/img/packages.png" "Packages" "#"
 tb "/images/326_1_00_Menu_Settings.png" "Settings" \
     "/cgi-bin/settings.jim\" rel=\"external"
 tb "/img/diagnostics.png" "Diag" "#"
+tb "/img/desktop.png" "Desktop Version" "/\" rel=\"external"
 #eval_plugins toolbar
 
 puts "</ul>"

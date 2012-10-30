@@ -3,7 +3,7 @@ source /mod/webif/lib/setup
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
 
-require settings.class progressbar rsv.class
+require settings.class progressbar rsv.class mwildcard
 
 
 set ::epgpath /mnt/hd1/dvbepg/epg.dat
@@ -153,6 +153,13 @@ epg method get_channel_info {} {
 			set channel_hsvc $chan(hSvc)
 		}
 	}
+}
+
+epg method copy_channel_info {s} {
+	set channel_num [$s get channel_num]
+	set channel_name [$s get channel_name]
+	set channel_crid [$s get channel_crid]
+	set channel_hsvc [$s get channel_hsvc]
 }
 
 epg method get_rsv {} {
@@ -334,6 +341,7 @@ proc {epg exec} {mode args} {
 proc {epg dbfetch} {mode args} {
 	set records {}
 	set extra ""
+	set params {}
 
 	set select "
 	    select distinct *,
@@ -384,6 +392,18 @@ proc {epg dbfetch} {mode args} {
 					append q "and f.eFavGroup = $v "
 					set sort "order by f.favIdx, start"
 				}
+				-term {
+					set v [mwildcard $v]
+					append q "and ("
+					append q "e.name like '%s' "
+					lappend params "%$v%"
+					if {$mode eq "searchall"} {
+						append q \
+						    "or e.text like '%s' "
+						lappend params "%$v%"
+					}
+					append q ") "
+                                }
 				default { error "Invalid option, $arg" }
 			}
 		}
@@ -394,10 +414,12 @@ proc {epg dbfetch} {mode args} {
 	#puts "QUERY -$query-"
 
 	set records {}
-	catch {
-		foreach rec [$::channeldb query $query] {
+	if {[catch {
+		foreach rec [$::channeldb query $query {*}$params] {
 			lappend records [epg new $rec]
 		}
+	} msg]} {
+		puts "MSG: $msg"
 	}
 	return $records
 }
