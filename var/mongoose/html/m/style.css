@@ -94,3 +94,8 @@ table.keyval td
 	text-decoration: none;
 }
 
+p.wsn
+{
+	white-space: normal;
+}
+ 

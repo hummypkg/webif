@@ -1,0 +1,127 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require settings.class pkg.class
+
+if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
+
+pkg loadmeta
+
+proc nav {active} {
+	set q "<div data-role=navbar data-id=pkg_navbar>\n <ul>\n"
+	foreach f {installed available upgrades} {
+		append q "  <li><a"
+		if {$f eq $active} {
+			append q { class="ui-btn-active ui-state-persist"}
+		}
+		append q " href=pkg[string range $f 0 0]_b.jim>"
+		append q "[string totitle $f]</a></li>\n"
+	}
+	append q " </ul>\n</div>\n"
+	return $q
+}
+
+proc pkgtop {type} {
+	puts "
+	<div data-role=page id=pkga>
+		<div data-role=header data-theme=b>
+			[_header]
+			[nav $type]
+		</div>
+		<div data-role=content>
+	"
+}
+
+proc pkgrow {type pkg} {
+	set name [$pkg get name]
+	puts "<li><h3>$name</h3>"
+
+	if {$type eq "avail"} {
+		puts "<p class=ui-li-aside>[$pkg get latest]</p>"
+	} else {
+		puts "<p class=ui-li-aside>[$pkg get installed]</p>"
+	}
+
+	if {$type eq "upgr"} {
+		puts "<p>Latest: [$pkg get latest]</p>"
+	}
+
+	if {[dict exists $::pkgmeta $name]} {
+		puts "<p class=wsn>$::pkgmeta($name)</p>"
+	} else {
+		puts "<p class=wsn>[$pkg get descr]</p>"
+	}
+
+	if {![$pkg is installed]} {
+		set btype Install
+	} elseif {$type eq "upgr" && [$pkg is upgradable]} {
+		set btype Upgrade
+	} else {
+		set btype Remove
+	}
+
+#	puts "<td align=center><small><button id=\"$name\"
+#	    action=[string tolower $type]
+#	    class=\"va [string tolower $type]\">$type</button></small></td>"
+# <div data-role=controlgroup data-type=horizontal data-mini=true>
+
+puts "
+ <p>
+    <a data-inline=true data-role=button data-mini=true data-theme=e
+     href=#
+     action=[string tolower $btype] pkg=\"$name\"
+     class=[string tolower $btype]>$btype</a>
+ </p>
+"
+	puts "</li>"
+}
+
+proc pkglist {type} {
+	set pkgs [pkg $type]
+
+	if {[llength $pkgs] <= 0} {
+		puts "<i>No packages "
+		switch $type {
+			inst { puts "are installed." }
+			upgr { puts "are available for upgrade; try updating the package list from the Internet using the button below." }
+			avail { puts "are available for installation." }
+		}
+		puts "</i>"
+		return
+	}
+
+	puts "<ul data-role=listview>"
+
+	foreach pkg $pkgs {
+		if {$type ne "upgr" && $::filter && \
+		    ![dict exists $::pkgmeta $pkg]} { continue }
+		pkgrow $type [pkg load $pkg]
+	}
+	if {$::filter} {
+		puts "<li data-role=list-divider>This is a filtered package list. To show all packages, enable the <i>Show development and advanced packages</i> in the settings screen.</li>"
+	}
+	puts "</ul>"
+}
+
+mheader
+
+switch $pageid {
+	pkgi_b {
+		set type installed
+		set qtype inst
+	}
+	pkga_b {
+		set type available
+		set qtype avail
+	}
+	default {
+		set type upgrades
+		set qtype upgr
+	}
+}
+
+pkgtop $type
+pkglist $qtype
+mfooter
+
