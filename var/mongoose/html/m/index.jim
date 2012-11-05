@@ -40,11 +40,11 @@ puts "</li>"
 
 tb "/images/323_1_10_Menu_Video.png" "Browse" "browse.jim"
 tb "/images/321_1_00_Menu_CHList.png" "Schedule" "schedule.jim"
-tb "/img/spanner.png" "Services" "#"
+tb "/img/spanner.png" "Services" "services.jim"
 tb "/img/packages.png" "Packages" "pkgi_b.jim"
 tb "/images/326_1_00_Menu_Settings.png" "Settings" \
     "/cgi-bin/settings.jim\" rel=\"external"
-tb "/img/diagnostics.png" "Diag" "#"
+#tb "/img/diagnostics.png" "Diag" "#"
 tb "/img/desktop.png" "Desktop Version" "/\" rel=\"external"
 #eval_plugins toolbar
 

@@ -151,8 +151,8 @@ proc do_decrypt {ts} {
 
 	puts "  Removing/binning old copy."
 	# Move the old recording to the bin if undelete is installed.
-	set bin [bindir $file "$dustbin/webif_autodecrypt"]
 	if {$dustbin ne ""} {
+		set bin [bindir $file "$dustbin/webif_autodecrypt"]
 		set tail [file tail $rfile]
 		file rename "$rfile.encrypted" "$bin/$tail.ts"
 		foreach ext {nts hmt thm} {

@@ -169,7 +169,7 @@ ts method settitle {newtitle} {
 	exec /mod/bin/hmt "+settitle=${newtitle}" $file
 }
 
-ts method dlnaloc {} {
+ts method dlnaloc {{urlbase 0}} {
 	set mime "video/ts"
 	if {![file exists $::dmsfile]} { return {} }
 	if {[catch {set db [sqlite3.open $::dmsfile]}]} { return {} }
@@ -185,7 +185,11 @@ ts method dlnaloc {} {
 		set rec [lindex $muri 0]
 		set xuri [lindex $rec 3]
 		set mime [lindex $rec 1]
-		set url "http://[system ip]:9000/web/$xuri"
+		if {$urlbase ne "0"} {
+			set url "http://$urlbase:9000/web/$xuri"
+		} else {
+			set url "http://[system ip]:9000/web/$xuri"
+		}
 	}
 	$db close
 

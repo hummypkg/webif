@@ -124,4 +124,66 @@ $(document).delegate('#browsepage', 'pageinit', function() {
 		shrunk_callback);
 });
 
+var opkgreload = false;
+function execopkg(arg, pkg)
+{
+	$.mobile.showPageLoadingMsg();
+	s('a').disable();
+	s('.opkg_op_complete').hide('fast');
+	s('.opkg_popup_text')
+	    .empty()
+	    .html('<img src=/img/loading.gif> Processing...');
+	s('.opkg_popup').popup('open', {transition: 'pop'})
+	s('.opkg_popup_text').load('/cgi-bin/opkg.jim?cmd=' + arg, function() {
+		s('.opkg_op_complete').slideDown('slow');
+		if (opkgreload)
+			window.location.reload(true);
+		else
+		{
+			if (pkg)
+				s('.pkg_' + pkg).slideUp();
+			$.mobile.hidePageLoadingMsg();
+			s('a').enable();
+		}
+	});
+}
+
+$(document).delegate('#pkga,#pkgi,#pkgu', 'pageinit', function() {
+
+	$('a.remove, a.install, a.upgrade')
+	    .click(function() {
+		if ($(this).attr('action') == 'remove' &&
+		    !confirm('Please confirm removal of the ' +
+		    $(this).attr('pkg') + ' package.'))
+			return;
+
+		execopkg(encodeURIComponent($(this).attr('action') +
+		    ' ' + $(this).attr('pkg')), $(this).attr('pkg'));
+	});
+
+	$('button.opkg_update').on('click', function() {
+		opkgreload = true;
+		execopkg('update');
+	});
+
+	$('button.opkg_upgrade').on('click', function() {
+		opkgreload = true;
+		execopkg('upgrade');
+	});
+});
+
+$(document).delegate('#servicespage', 'pageinit', function() {
+
+	// Don't allow turning off the web server from within the web server..
+	$('select[service=mongoose]').disable();
+
+	$('select.auto,select.toggle').on('change', function() {
+		var url = '/cgi-bin/service.jim?action=' +
+		    escape($(this).attr('act')) +
+		    '&service=' +
+		    escape($(this).attr('service'));
+		$.get(url);
+	});
+
+});
 

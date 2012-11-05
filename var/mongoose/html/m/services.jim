@@ -1,0 +1,59 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+mheader
+
+set services [split [exec /mod/bin/service mlist]]
+
+puts "<ul data-role=listview>"
+set i 0
+foreach service $services {
+        lassign [split $service ":"] name installed auto running
+
+        if (!$installed) {
+		puts "<li><h3>[string totitle $name]</h3>"
+                puts "<p><i>Not installed.</i></p>"
+		puts "</li>"
+		continue
+        }
+
+	incr i
+
+	puts "
+	    <li>
+	    <div data-role=fieldcontain data-mini=true>
+		<h3>[string totitle $name]</h3>
+		<label class=va for=toggle$i>State:</label>
+		<select class=toggle act=toggle data-role=slider service=$name>
+	"
+	if {$running} {
+		puts "<option value=off>Off</option>"
+		puts "<option value=on selected>On</option>"
+	} else {
+		puts "<option value=off selected>Off</option>"
+		puts "<option value=on>On</option>"
+	}
+	puts "
+		</select> 
+		<label class=va for=auto$i>Auto-start:</label>
+		<select class=auto act=auto data-role=slider service=$name>
+	"
+	if ($auto) {
+		puts "<option value=off>Off</option>"
+		puts "<option value=on selected>On</option>"
+	} else {
+		puts "<option value=off selected>Off</option>"
+		puts "<option value=on>On</option>"
+	}
+	puts "
+		</select> 
+	    </div>
+	"
+        puts "</li>"
+}
+puts "</ul>"
+
+mfooter
+

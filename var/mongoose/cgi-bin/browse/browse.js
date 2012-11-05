@@ -412,7 +412,8 @@ var menuclick = function(action, el, pos)
 
 	    case 'download':
 		window.location.href = '/cgi-bin/browse/download.jim?file=' +
-		    file;
+		    file + '&base=' +
+		    encodeURIComponent(document.URL.match(/:\/\/(.[^/]+)/)[1]);
 		break;
 
 	    case 'crop':

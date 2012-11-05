@@ -35,7 +35,7 @@ proc pkgtop {type} {
 
 proc pkgrow {type pkg} {
 	set name [$pkg get name]
-	puts "<li><h3>$name</h3>"
+	puts "<li class=\"pkg_$name\"><h3>$name</h3>"
 
 	if {$type eq "avail"} {
 		puts "<p class=ui-li-aside>[$pkg get latest]</p>"
@@ -61,37 +61,33 @@ proc pkgrow {type pkg} {
 		set btype Remove
 	}
 
-#	puts "<td align=center><small><button id=\"$name\"
-#	    action=[string tolower $type]
-#	    class=\"va [string tolower $type]\">$type</button></small></td>"
-# <div data-role=controlgroup data-type=horizontal data-mini=true>
-
-puts "
+	puts "
  <p>
     <a data-inline=true data-role=button data-mini=true data-theme=e
      href=#
      action=[string tolower $btype] pkg=\"$name\"
      class=[string tolower $btype]>$btype</a>
  </p>
-"
+	"
+
 	puts "</li>"
 }
 
 proc pkglist {type} {
 	set pkgs [pkg $type]
 
+	puts "<ul data-role=listview>"
+
 	if {[llength $pkgs] <= 0} {
-		puts "<i>No packages "
+		puts "<li><i>No packages "
 		switch $type {
 			inst { puts "are installed." }
-			upgr { puts "are available for upgrade; try updating the package list from the Internet using the button below." }
+			upgr { puts "are available for upgrade; try updating the package list from the Internet using the button above." }
 			avail { puts "are available for installation." }
 		}
-		puts "</i>"
+		puts "</i></li></ul>"
 		return
 	}
-
-	puts "<ul data-role=listview>"
 
 	foreach pkg $pkgs {
 		if {$type ne "upgr" && $::filter && \
@@ -122,6 +118,46 @@ switch $pageid {
 }
 
 pkgtop $type
+
+puts {
+<ul data-role=listview>
+<li>
+	<button data-theme=e class=opkg_update>
+		Update package list from Internet
+	</button>
+}
+
+if {$pageid eq "pkgu_b"} {
+	puts {
+		<button data-theme=e class=opkg_upgrade>
+			Upgrade all packages
+		</button>
+	}
+}
+
+puts {
+</li>
+</ul>
+}
+
 pkglist $qtype
+
+puts {
+<div data-role=popup class="opkg_popup ui-corner-all" data-theme=e>
+	<div data-role=header data-theme=a class=ui-corner-top>
+		<h1>Results</h1>
+	</div>
+	<div data-role=content data-theme=d class="ui-corner-bottom ui-content">
+		<p class="pre opkg_popup_text" data-theme=d></p>
+	</div>
+	<center><div class="hidden opkg_op_complete">
+		<img border=0 src=/images/167_2_00_Check_W2_SUB.png>
+		Operation complete.
+		<a href=# data-role=button data-inline=true data-rel=back
+		    data-mini=true data-theme=b>Close</a>  
+	</div></center>
+</div>
+}
+
 mfooter
 
