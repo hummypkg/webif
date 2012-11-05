@@ -1,0 +1,12 @@
+#!/mod/bin/jimsh
+
+set stream "/mnt/hd3/Streamer_down_file"
+
+puts "Content-type: text/plain\n"
+
+if {[file exists $stream]} {
+	puts -nonewline [file size $stream]
+} else {
+	puts -nonewline 0
+}
+

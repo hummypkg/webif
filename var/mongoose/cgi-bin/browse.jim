@@ -359,6 +359,7 @@ if {[file exists /mnt/hd3/Streamer_down_file]} {
 		puts {
 	<button id=save_stream file=/mnt/hd3/Streamer_down_file>
 		Save last streamed content (e.g. iPlayer/YouTube)
+		<div id=streamstatus></div>
 	</button>
 	}
 }

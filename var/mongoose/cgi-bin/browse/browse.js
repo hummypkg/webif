@@ -822,5 +822,24 @@ var dmenuclick = function(action, el, pos)
 
 	});
 
+	var streamsize = 0;
+
+	function checkstream()
+	{
+		$.get('/cgi-bin/streamsize.jim', function(size) {
+			console.log('Stream size: %o', size);
+			var mb = size / (1024 * 1024);
+			mb = mb|0;
+			if (streamsize && size > streamsize)
+				$('#streamstatus').text(mb + ' MiB (growing)');
+			else
+				$('#streamstatus').text(mb + ' MiB');
+			streamsize = size;
+		});
+	}
+
+	if ($('#streamstatus').length)
+		setInterval(checkstream, 3000);
+
 });
 

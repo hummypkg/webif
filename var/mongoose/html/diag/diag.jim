@@ -2,10 +2,12 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pretty_size
+require pretty_size system.class
 
 puts "Content-Type: text/html"
 puts ""
+
+set smv [system modversion 1]
 
 header
 
@@ -78,7 +80,7 @@ puts {
 <button id=runreset style="width: 100%"
 }
 
-if {[system modversion 1] < 200} {
+if {$smv < 200} {
 	puts -nonewline " disabled class=ui-state-disabled"
 }
 
@@ -88,7 +90,7 @@ Remove all custom firmware packages and settings
 </button>
 }
 
-if {[system modversion 1] < 200} {
+if {$smv < 200} {
 	puts {
 <div class=footnote style="text-align: center">
 (Install custom firmware v2.00 to enable this option)
@@ -102,6 +104,34 @@ puts {
 Restart your Humax with the remote control.<br>
 Allow it to turn off completely before restarting.<br>
 </div>
+
+</td>
+</tr>
+
+<tr>
+<td colspan=2>
+<button id=runrma style="width: 100%"
+}
+
+if {$smv < 213} {
+	puts -nonewline " disabled class=ui-state-disabled"
+}
+
+puts {
+>
+Set Return-to-manufacturer (RMA) Mode
+</button>
+}
+
+if {$smv < 213} {
+	puts {
+<div class=footnote style="text-align: center">
+(Install custom firmware v2.13 to enable this option)
+</div>
+	}
+}
+
+puts {
 
 </td>
 </tr>

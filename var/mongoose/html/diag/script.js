@@ -83,6 +83,20 @@ $('#runreset').click(function(e) {
 	});
 });
 
+$('#runrma').click(function(e) {
+	e.preventDefault();
+	if (!confirm('Are you sure? This will completely remove all packages and settings and return the unit to state where you can re-install official firmware ready to return a faulty box to Humax for repair.'))
+		return;
+	if (!confirm('Are you really sure?'))
+		return;
+	if (!confirm('One last time, are you sure?'))
+		return;
+	$.get('/cgi-bin/cfwreset.cgi?rma=1', function() {
+		$('button').disable();
+		$('#resetdone').slideDown();
+	});
+});
+
 });
 
 
