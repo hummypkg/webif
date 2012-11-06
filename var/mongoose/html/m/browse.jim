@@ -13,6 +13,7 @@ set dir [cgi_get dir [system mediaroot]]
 
 set model [system model]
 set dustbin [system dustbin 1]
+set order [[settings new] sortorder]
 
 proc icon {img {hover ""} {extra ""} {class "va"}} {
 	puts -nonewline "<img src=$img class=\"$class\" height=21 $extra"
@@ -173,8 +174,38 @@ puts "
 directory [join [lrange [split $dir /] 0 end-1] /] "\[parent directory\]" \
     _parent "/images/711_3_09_Media_Folder_UP.png"
 
+proc s_time {a b} {
+	global dir
+
+	set a "$dir/$a"
+	set b "$dir/$b"
+
+	set ad [file isdirectory $a]
+	set bd [file isdirectory $b]
+
+	if {$ad && !$bd} { return -1 }
+	if {$bd && !$ad} { return 1 }
+	if {$ad && $bd} {
+		if {$a < $b} { return -1 }
+		if {$a > $b} { return 1 }
+		return 0
+	}
+
+	if {[catch {file stat $a l}]} { return 0}
+	set at $l(ctime)
+	if {[catch {file stat $b l}]} { return 0}
+	set bt $l(ctime)
+
+	if {$at < $bt} { return -1 }
+	if {$at > $bt} { return 1 }
+	return 0
+}
+
 set files [readdir -nocomplain $dir]
-set files [lsort $files]
+switch $order {
+	1 {		set files [lsort -command s_time $files] }
+	default {	set files [lsort $files] }
+}
 
 foreach file $files { entry "$dir/$file" }
 

@@ -90,15 +90,15 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	set e $($s + $d)
 	set n [clock seconds]
 
-	set ds "[clock format $s -format "%a %d %b %Y"]<br>
-	    [clock format $s -format "%H:%M %Z"]"
-
 	if {$n > $e && [$event get ersvtype] <= 3} {
-		puts "<td nowrap class=va
-			alt=\"$ds\" title=\"$ds\">
-			--- -- --- ----<br>--:--"
+		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
+		puts "<td nowrap class=va>
+			--- -- --- ---- --:--<br>
+			<span class=footnote>(Last: $ds)</span>"
 		puts "</td><td>--:--:--</td>"
 	} else {
+		set ds "[clock format $s -format "%a %d %b %Y"]<br>
+		    [clock format $s -format "%H:%M %Z"]"
 		puts "<td nowrap class=\"va"
 		if {$n > $e} { puts " blood" }
 		puts "\">$ds"

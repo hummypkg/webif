@@ -11,19 +11,23 @@ require epg.class spinner.class altrow epg_search totop
 
 cgi_input
 
-puts {<link type="text/css" href="/css/xepg.css" rel="Stylesheet" />}
+puts {
+<link type="text/css" href="/css/xepg.css" rel="Stylesheet" />
+<script type=text/javascript src=/js/enadis.js></script>
+}
 
 [spinner new {
-	text "Loading Now/Next Information..."
+	text "Loading EPG Information..."
 	size "1.2em"
 	style "margin: 1em;"
 	}] start
 
 require epg_popup
 
-set stt [cgi_get stt [clock seconds]]
-if {$stt <= [clock seconds]} {
-	set stt [clock seconds]
+set now [clock seconds]
+set stt [cgi_get stt $now]
+if {$stt <= $now} {
+	set stt $now
 	set current 1
 } else {
 	set current 0
@@ -40,7 +44,7 @@ set stt [expr int($stt / 1800.0) * 1800]
 set ett $(int($stt + $seconds))
 set offset $(($ostt - $stt) / 1800.0)
 
-set chanpx 120
+set chanpx 160
 set eventpx 1000
 set totalpx $($chanpx + $eventpx)
 set contwidth $($totalpx + 50)
@@ -64,21 +68,40 @@ if {$::qepg} {
 }
 set got [clock milliseconds]
 
-puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
-if {$stt > [clock seconds]} {
-	puts "<button id=earlier>&lt;&lt;&lt; Earlier</button>"
+proc but {label time {active 1}} {
+	puts -nonewline "<button style=\"margin-right: 2em\" tt=$time"
+	if {$active} {
+		puts -nonewline " class=nav"
+	} else {
+		puts -nonewline " disabled class=\"nav ui-state-disabled\""
+	}
+	puts " active=$active>$label</button>"
 }
-puts "<button id=later>Later &gt;&gt;&gt;</button>"
+
+puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
+
+but "&lt&lt; -1 Week" $($stt - 3600 * 24 * 7) $($stt - $now >= 3600 * 24 * 7)
+but "&lt&lt; -1 Day" $($stt - 3600 * 24) $($stt - $now >= 3600 * 24)
+but "&lt;&lt; Earlier", $($stt - 3600 * 4) $($stt > $now)
+but "&lt; Now &gt;" $now $($current == 0)
+but "&gt;&gt; Later" $ett;
+but "&gt;&gt; +1 Day" $($stt + 3600 * 24) $($stt < $now + 8 * 3600 * 24)
+but "&gt;&gt; +1 Week" $($stt + 3600 * 24 * 7) $($stt < $now + 8 * 3600 * 24)
+
 puts "</div>"
 
 puts "
+<script type=text/javascript>
+\$('button.nav').button();
+</script>
 <div id=xepg style=\"min-width: ${contwidth}px; overflow: auto\">
 <div id=xepgnow></div>
 <div id=xegrid>
 "
 
 puts "<div id=epgdate style=\"width: ${eventpx}px; margin-left: ${chanpx}px;\">"
-puts [clock format $stt -format {%a %D}]
+puts [clock format $stt -format {%a %d/%m/%Y}]
+puts "<input type=hidden id=xepg_dp stt=$stt>"
 puts "</div>"
 
 puts "<div class=xechan style=\"width: ${chanpx}px;\">&nbsp;</div>"
@@ -173,6 +196,9 @@ puts "
 	Switch to standard now/next display.
 </button></small>
 </div>
+"
+
+puts "
 
 <script type=text/javascript>
 \$(document).ready(function() {
@@ -180,12 +206,37 @@ puts "
 \$('#epgswitch').button().click(function() {
 	window.location = '/epg.shtml';
 });
-\$('#earlier').button().click(function() {
-	window.location = '/cgi-bin/xepg.jim?stt=$earlier';
+
+\$('button.nav').click(function() {
+        window.location = '/cgi-bin/xepg.jim?stt=' + \$(this).attr('tt') +
+            '&pos=' + \$('#xegrid').scrollTop();
 });
-\$('#later').button().click(function() {
-	window.location = '/cgi-bin/xepg.jim?stt=$ett';
+
+\$('#xepg_dp').datepicker({
+        buttonImage: '/img/cal.gif',
+        buttonImageOnly: true,
+        showOn: 'button',
+        dateFormat: '@',
+        minDate: '[expr $now * 1000]',
+        maxDate: '[expr ($now + 7 * 86400) * 1000]',
+        onSelect: function(val, sel) {
+                var stt = \$(this).attr('stt');
+                // Extract date part
+                dval  = ~~(val / 86400000);
+                // Extract current time part
+                var tm = ~~(stt % 86400);
+
+                var ret = dval * 86400 + tm;
+
+                window.location = '/cgi-bin/xepg.jim?stt=' + ret;
+        }
 });
+
+\$('img.ui-datepicker-trigger').hover(
+    function() { \$(this).css('cursor', 'pointer'); },
+    function() { \$(this).css('cursor', 'auto'); }
+);
+
 "
 
 if {$current} {
