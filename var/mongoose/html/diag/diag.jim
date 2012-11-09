@@ -48,7 +48,11 @@ puts {
 
 <tr>
 <td colspan=2 align=center>
-<button id=diskdiag style="width: 48%">Hard Disc</button>
+}
+if {[system model] eq "HDR"} {
+	puts { <button id=diskdiag style="width: 48%">Hard Disc</button> }
+}
+puts {
 <button id=channelinfo style="width: 48%">Channel Information</button>
 </td>
 </tr>

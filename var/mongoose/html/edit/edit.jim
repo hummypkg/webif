@@ -2,6 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
+require plugin
 
 puts "Content-Type: text/html"
 puts ""
@@ -49,6 +50,15 @@ Use the <i>Open</i> button below to begin.
 <ul>
 	<li><a href=# class=qfile>/mod/etc/anacrontab</a></li>
 	<li><a href=# class=qfile>/mod/var/spool/cron/crontabs/root</a></li>
+}
+
+proc quickedit {file} {
+	puts "<li><a href=# class=qfile>$file</a></li>"
+}
+
+eval_plugins quickedit
+
+puts {
 </ul>
 </fieldset>
 </div>

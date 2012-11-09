@@ -23,7 +23,8 @@ if {![$ts flag "ODEncrypted"]} {
 } else {
 	lassign [$ts dlnaloc] url
 	if {$url eq ""} {
-		alert("Media is encrypted and not indexed by the DLNA Server.");
+		puts "Media is encrypted and not indexed by the DLNA Server."
+		exit
 	}
 }
 
