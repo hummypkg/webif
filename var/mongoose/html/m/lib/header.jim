@@ -28,11 +28,11 @@ puts {
 <script type="text/javascript" src="/js/enadis.js">
 </script>
 <script type="text/javascript" src="/m/script.js"></script>
-<xlink rel="apple-touch-icon" href="/img/mobile.png" />
-<xlink rel="apple-touch-icon" sizes="57x57" href="/img/remote_57.png" />
-<xlink rel="apple-touch-icon" sizes="72x72" href="/img/remote_72.png" />
-<xlink rel="apple-touch-icon" sizes="114x114" href="/img/remote_114.png" />
-<xlink rel="apple-touch-icon" sizes="144x144" href="/img/remote_144.png" />
+<link rel="apple-touch-icon" href="/img/mobile_57.png" />
+<link rel="apple-touch-icon" sizes="57x57" href="/img/mobile_57.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="/img/mobile_72.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="/img/mobile_114.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="/img/mobile_144.png" />
 </head> 
 }
 
