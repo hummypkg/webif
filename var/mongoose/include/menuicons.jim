@@ -8,11 +8,11 @@ proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
 	if {$title eq ""} return
 	if {$num > 4} {
 		puts {</div><div style="clear: both; padding-top: 1em">}
-		set num 0
+		set num 1
 	}
 	if {$extra ne ""} { append extra " " }
 	puts -nonewline "
-<div class=left>
+<div class=left num=$num>
 	<center>
 	<a href=$link>
 		<img src=$icon ${extra}border=0 width=$width"

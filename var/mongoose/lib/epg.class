@@ -419,7 +419,7 @@ proc {epg dbfetch} {mode args} {
 			lappend records [epg new $rec]
 		}
 	} msg]} {
-		puts "MSG: $msg"
+		puts "No cached EPG data, try again later."
 	}
 	return $records
 }

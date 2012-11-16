@@ -2,20 +2,25 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require system.class findhsvc epg.class
+require system.class findhsvc epg.class rsv.class
 
 set runmode cli
 if {[string match {*jim} $argv0]} { set runmode cgi }
 
-cgi_input
-
-set type [cgi_get type "full"]
-
-if {$runmode eq "cgi"} {
+set schedtime 900
+case $runmode {
+    cgi {
+	cgi_input
+	set type [cgi_get type "full"]
 	puts "Content-Type: text/html"
 	puts "Pragma: no-cache"
 	puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
 	puts ""
+    }
+    cli {
+	set type "full"
+	if {"-X" in $argv} { set schedtime 7200 }
+    }
 }
 
 if {[catch {set pid [exec pgrep humaxtv]}]} {
@@ -143,6 +148,29 @@ if {[system instandby]} {
 		]
 	} else {
 		lappend output "System is in standby."
+	}
+}
+
+set events [rsv list tbl_reservation \
+    " where ersvtype = 3 and nsttime - [clock seconds] < $schedtime 
+      and nsttime > [clock seconds] "]
+foreach event $events {
+	if {$runmode eq "cgi"} {
+		set icon "175_1_11_Reservation_Record.png"
+		lappend output [concat \
+		    "<span class=\"va stitem\">\n" \
+		    "  <img class=va src=/images/$icon width=20>\n" \
+		    "  <span>Will record <i>[$event name]</i>" \
+		    " on [$event channel_name] at"\
+		    " [clock format [$event get nsttime] -format {%H:%M}]" \
+		    "  </span>\n" \
+		    "</span>\n" \
+	} else {
+		lappend output [concat \
+		    "Will record '[$event name]' " \
+		    "on [$event channel_name] at " \
+		    "[clock format [$event get nsttime] -format {%H:%M}]" \
+		]
 	}
 }
 

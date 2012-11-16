@@ -400,3 +400,8 @@ button.red
 	color: #ffffff;
 }
 
+div#restart_block
+{
+	z-index: 31;
+}
+

@@ -76,6 +76,26 @@ $(document).ready(function () {
 		    });
 	});
 
+	$('#xtelnet_toggle').change(function() {
+		var arg = 'off';
+		if ($(this).attr('checked'))
+			arg = 'on';
+
+		$(this).disable();
+
+		$('#xtelnet_output')
+		    .empty()
+		    .html('<img src=/img/loading.gif>Please Wait...')
+		    .show('slow')
+		    .load('/cgi-bin/settings.jim?act=xtelnet&val=' + arg,
+		        function() {
+				$('#xtelnet_toggle').enable();
+				$('#xtelnet_output')
+				    .css('font-style', 'italic')
+				    .delay(2000).fadeOut('slow');
+		    });
+	});
+
 	$('#toolbar_toggle').change(function() {
 		var arg = '1';
 		if ($(this).attr('checked'))

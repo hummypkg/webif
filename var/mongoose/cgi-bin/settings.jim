@@ -2,8 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require settings.class
-require plugin
+require settings.class plugin system.class
 
 puts "Content-Type: text/html"
 puts ""
@@ -18,6 +17,17 @@ if {[cgi_get act] eq "https"} {
 	} else {
 		exec /mod/sbin/mongoose_mkcert
 		puts "HTTPS Server will be enabled after next reboot."
+	}
+	exit
+}
+
+if {[cgi_get act] eq "xtelnet"} {
+	if {[cgi_get val off] eq "off"} {
+		file delete /mod/boot/xtelnet
+		puts "Telnet server expert mode will be disabled after next reboot."
+	} else {
+		exec /mod/bin/busybox/touch /mod/boot/xtelnet
+		puts "Telnet server expert mode will be enabled after next reboot."
 	}
 	exit
 }
@@ -143,6 +153,21 @@ puts ">
 		</td>
 	</tr>
 "
+
+if {[system modversion 1] >= 214} {
+
+puts -nonewline "
+	<tr>
+		<th class=key>Expert mode telnet server?</th>
+		<td><input id=xtelnet_toggle name=xtelnet type=checkbox value=yes"
+if {[file exists /mod/boot/xtelnet]} { puts -nonewline " checked" }
+puts ">
+		    <div id=xtelnet_output></div>
+		</td>
+	</tr>
+"
+
+}
 
 puts -nonewline "
 	<tr>

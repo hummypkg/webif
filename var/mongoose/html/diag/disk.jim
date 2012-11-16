@@ -138,8 +138,12 @@ puts {
 </tr>
 }
 
+if {[catch {set msg [exec /mod/bin/smartctl -l selftest $device]} xmsg]} {
+	set msg $xmsg
+}
+
 set i 0
-foreach line [split [exec /mod/bin/smartctl -l selftest $device] "\n"] {
+foreach line [split $msg "\n"] {
 	regsub -all -- {[[:space:]][[:space:]]+} $line "|" line
 	if {[incr i] < 7} continue
 	lassign [split $line "|"] id name status remaining when lba

@@ -290,8 +290,8 @@ rsv method insert {{table pending} {force 0}} {
 	$rsvdb query $query
 }
 
-proc {rsv list} {{table tbl_reservation}} {
-	set res [$::rsvdb query "
+proc {rsv list} {{table tbl_reservation} {extra ""}} {
+	set qstring "
 		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn,
 		    case when ersvtype > 3 then 1 else 0 end as sort1,
@@ -300,9 +300,15 @@ proc {rsv list} {{table tbl_reservation}} {
 		from $table
 		left join channel.TBL_SVC
 		on $table.hSvc = channel.TBL_SVC.hSvc
+	"
+	if {$extra ne ""} { append qstring $extra }
+	append qstring "
 		order by sort1, sort2 desc, nsttime
-	"]
+	"
 
+	#puts "QSTRING: ($qstring)"
+
+	set res [$::rsvdb query $qstring]
 	set records {}
 	foreach rec $res {
 		lappend records [rsv new $rec]
