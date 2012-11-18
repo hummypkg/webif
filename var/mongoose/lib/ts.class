@@ -169,6 +169,18 @@ ts method settitle {newtitle} {
 	exec /mod/bin/hmt "+settitle=${newtitle}" $file
 }
 
+ts method setsynopsis {newsynopsis} {
+	if {[string length newsynopsis] > 48} { return }
+
+	exec /mod/bin/hmt "+setsynopsis=${newsynopsis}" $file
+}
+
+ts method setguidance {newguidance} {
+	if {[string length newguidance] > 48} { return }
+
+	exec /mod/bin/hmt "+setguidance=${newguidance}" $file
+}
+
 ts method dlnaloc {{urlbase 0}} {
 	set mime "video/ts"
 	if {![file exists $::dmsfile]} { return {} }

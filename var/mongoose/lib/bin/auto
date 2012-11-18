@@ -76,7 +76,7 @@ proc do_shrink {ts} {
 	puts "          Estimate $perc% saving."
 	puts "          Shrinking..."
 	if {[catch {
-		puts [exec /mod/bin/stripts -fq $file $tmp/shrunk]
+		puts [exec /mod/bin/stripts -q $file $tmp/shrunk]
 	    } msg]} {
 		puts "Error during shrink: $msg"
 		return

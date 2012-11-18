@@ -17,6 +17,7 @@ set ts [ts fetch $file]
 
 puts "{"
 puts "\"title\" : \"[$ts get title]\","
-puts "\"synopsis\" : \"[$ts get synopsis]\""
+puts "\"synopsis\" : \"[$ts get synopsis]\","
+puts "\"guidance\" : \"[$ts get guidance]\""
 puts "}"
 

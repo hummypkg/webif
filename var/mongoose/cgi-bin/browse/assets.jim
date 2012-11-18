@@ -67,8 +67,7 @@ puts {
 
 <div id=renameform title="Rename media file" style="display: none">
 	<form id=renameform_form>
-	<input type=hidden name="renameorig" id="renameorig" value="">
-	<input type=hidden name="titleorig" id="titleorig" value="">
+	<input type=hidden name="renamefile" id="renamefile" value="">
 	<table border=0>
 	<tr>
 	<th>
@@ -82,21 +81,46 @@ puts {
 		    class="text ui-widget-content ui-corner-all">
 	</td>
 	</tr>
+
 	<tr style="display: none" class=tstype>
 	<th>
-		<label for="renametitle" style="padding-top: 0.5em">
+		<label for="rename_title" style="padding-top: 0.5em">
 			<b>New Medialist Title</b>
 		</label>
 	</th>
 	<td>
-		<input type=text name="renametitle" id="renametitle"
+		<input type=text name="rename_title" id="rename_title"
 		    value="" size=70 maxlength=48
 		    class="text ui-widget-content ui-corner-all">
 	</td>
 	</tr>
+
 	<tr style="display: none" class=tstype>
-	<td colspan=2 id=synopsis style="font-style: italic"></td>
+	<th>
+		<label for="rename_synopsis" style="padding-top: 0.5em">
+			<b>New Synopsis</b>
+		</label>
+	</th>
+	<td>
+		<textarea name="rename_synopsis" id="rename_synopsis"
+		    value="" cols=70 rows=4
+		    class="text ui-widget-content ui-corner-all"></textarea>
+	</td>
 	</tr>
+
+	<tr style="display: none" class=tstype>
+	<th>
+		<label for="rename_guidance" style="padding-top: 0.5em">
+			<b>New Guidance Text</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="rename_guidance" id="rename_guidance"
+		    value="" size=70 maxlength=74
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+
 	</table>
 	</form>
 </div>

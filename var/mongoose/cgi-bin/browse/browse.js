@@ -74,19 +74,16 @@ $('#paste').button()
 
 function epginfo_callback(data, status, xhr)
 {
-	var width = 85;
+	//console.log(status);
+	//console.dir(data);
 
 	if (status != 'success')
 		return;
 
-	//console.log(status);
-	//console.dir(data);
+	$('#rename_title').val(data.title);
+	$('#rename_synopsis').val(data.synopsis);
+	$('#rename_guidance').val(data.guidance);
 
-	$('#titleorig').val(data.title);
-	$('#renametitle').val(data.title);
-	if (data.synopsis.length > width)
-		data.synopsis = data.synopsis.substring(0, width) + '...';
-	$('#synopsis').html(data.synopsis);
 	$('tr.tstype').show('slow');
 }
 
@@ -183,7 +180,7 @@ function new_callback(file, type, id)
 function rename_submit()
 {
 	var s = $('#renameform_form').serialize();
-	$.get('/cgi-bin/browse/rename.jim?' + s,
+	$.post('/cgi-bin/browse/rename.jim', s,
 	    function() { window.location.reload(true); });
 }
 
@@ -394,11 +391,11 @@ var menuclick = function(action, el, pos)
 
 	    case 'rename':
 		$('#rename').val(decodeURIComponent(bfile));
-		$('#renameorig').val(decodeURIComponent(file));
+		$('#renamefile').val(decodeURIComponent(file));
 
-		$('#titleorig').val('');
-		$('#renametitle').val('');
-		$('#synopsis').val('');
+		$('#rename_title').val('');
+		$('#rename_synopsis').val('');
+		$('#rename_guidance').val('');
 		$('tr.tstype').css('display', 'none');
 
 		if (type == 'ts')
@@ -827,7 +824,7 @@ var dmenuclick = function(action, el, pos)
 	function checkstream()
 	{
 		$.get('/cgi-bin/streamsize.jim', function(size) {
-			console.log('Stream size: %o', size);
+			//console.log('Stream size: %o', size);
 			var mb = size / (1024 * 1024);
 			mb = mb|0;
 			if (streamsize && size > streamsize)
