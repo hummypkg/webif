@@ -9,6 +9,7 @@ class pkg {
 }
 
 set ::pkgmeta {}
+set ::diagmeta {}
 
 pkg method _load {nm} {
 	set name $nm
@@ -85,6 +86,17 @@ proc {pkg loadmeta} {} {
 	}
 }
 
+proc {pkg loaddiagmeta} {} {
+	if {[llength $::diagmeta]} { return }
+	if {![file exists "/mod/var/diag.meta"]} {
+		catch {pkg fetchdiagmeta}
+	} else {
+		set meta [open "/mod/var/diag.meta" r]
+		set ::diagmeta [read $meta]
+		$meta close
+	}
+}
+
 proc {pkg fetchmeta} {} {
 	set f [socket stream hummypkg.org.uk:80]
 	$f puts -nonewline "GET /hdrfoxt2/pkg.meta HTTP/1.1\r\n"
@@ -100,6 +112,24 @@ proc {pkg fetchmeta} {} {
 
 	set ff [open "/mod/var/pkg.meta" w]
 	puts $ff $::pkgmeta
+	$ff close
+}
+
+proc {pkg fetchdiagmeta} {} {
+	set f [socket stream hummypkg.org.uk:80]
+	$f puts -nonewline "GET /diag/diag.meta HTTP/1.1\r\n"
+	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
+	$f puts -nonewline "\r\n"
+
+	set line [string trim [$f gets]]
+	while {[string length $line]} {
+		set line [string trim [$f gets]]
+	}
+	set ::diagmeta [$f read]
+	$f close
+
+	set ff [open "/mod/var/diag.meta" w]
+	puts $ff $::diagmeta
 	$ff close
 }
 

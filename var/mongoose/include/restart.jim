@@ -35,7 +35,12 @@ puts {
 	$('#restart_humaxtv').button()
 	    .click(function() {
 		if (confirm('Are you sure you wish to perform a restart now?'))
-			window.location = '/cgi-bin/restart.jim';
+		    if (confirm('Really sure?\n\nThere is a small chance the ' +
+			' Humax may not restart\n' +
+			'without physical intervention.\n\n' +
+			'i.e. pressing the standby button or using the ' +
+			'remote control'))
+				window.location = '/cgi-bin/restart.jim';
 	});
 	$('#restart_cancel').button()
 	    .click(function() {

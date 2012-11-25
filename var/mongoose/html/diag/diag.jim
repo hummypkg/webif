@@ -2,10 +2,12 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pretty_size system.class
+require pretty_size system.class pkg.class
 
 puts "Content-Type: text/html"
 puts ""
+
+pkg loaddiagmeta
 
 set smv [system modversion 1]
 
@@ -21,10 +23,24 @@ puts {
 
 <tr>
 <td>Run Diagnostic:</td>
-<td><input name=seq id=seq autocorrect=off autocapitalize=off
-    value=general size=30 maxlength=50
+<td class=va><span class=cleft>
+<select name=diagsel id=diagsel class="text ui-widget-content ui-corner-all">
+<option value=0>-- Select diag or type name in box below --
+}
+
+foreach diag [array names ::diagmeta] {
+	puts "<option value=\"$diag\">$diag\n"
+}
+
+puts {
+</select><br>
+<input name=seq id=seq autocorrect=off autocapitalize=off
+    value="general" size=30 maxlength=50
     class="text ui-widget-content ui-corner-all">
+</span>
+<span class="left va">
 <button id=rundiag>Run Diagnostic</button>
+</span>
 </td>
 </tr>
 

@@ -1,14 +1,22 @@
 <!--#include virtual="/lib/header.shtml" -->
 <link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
 <script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
+<script type="text/javascript" src="/js/enadis.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {
 	$('input:checkbox').iphoneStyle();
 	// Don't allow turning off the web server from within the web server..
-	$('input:checkbox[name=mongoose][class=toggle]').attr('disabled', true);
+	$('input:checkbox[name=mongoose][class=toggle]').disable();
 
 	$(':checkbox').change(function() {
+		if ($(this).attr('name') == 'mongoose' &&
+		    !$(this).is(':checked'))
+			alert(
+		    'Note that mongoose is the web server service that ' +
+		    'provides this web interface. If you disable auto-start ' +
+		    'then the web interface will not be available when the ' +
+		    'Humax is restarted.');
 		var url = '/cgi-bin/service.jim?action=' +
 		    escape($(this).attr('class')) +
 		    '&service=' +

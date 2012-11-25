@@ -4,11 +4,14 @@ $(function() {
 $('button').button();
 
 $('#rundiag').click(function() {
+	var val = $('#diagsel').val();
+	if (val == '0')
+		val = $('#seq').val();
 	$('#results')
 	    .slideDown()
-	    .text('\n\nRunning diagnostic, please wait...\n\n')
-	    .load('rundiag.jim?diag=' +
-	    encodeURIComponent($('#seq').val()), function() {
+	    .html('<br><br><img src=/img/loading.gif> ' +
+		'Running diagnostic, please wait...')
+	    .load('rundiag.jim?diag=' + encodeURIComponent(val), function() {
 		$('#results').wrapInner('<pre>');
 	    });
 });

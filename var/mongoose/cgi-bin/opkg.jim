@@ -30,6 +30,9 @@ if {$cmd eq "update" || $cmd eq "upgrade"} {
 	chunk "Updating package meta information\r\n"
 	pkg fetchmeta
 	chunk "Done.\r\n"
+	chunk "Updating diagnostic meta information\r\n"
+	pkg fetchdiagmeta
+	chunk "Done.\r\n"
 }
 
 end_chunked

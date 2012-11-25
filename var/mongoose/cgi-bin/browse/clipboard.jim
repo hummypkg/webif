@@ -110,9 +110,11 @@ switch $action {
 			}
 		} else {
 			if {$mode eq "cut"} {
-				catch {file rename $path "$dir/[file tail $f]"}
+				catch {file rename $path \
+				    "$dir/[file tail $path]"}
 			} else {
-				catch {file copy $path "$dir/[file tail $f]"}
+				catch {file copy $path \
+				    "$dir/[file tail $path]"}
 			}
 		}
 	}
