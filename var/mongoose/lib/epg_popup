@@ -65,7 +65,10 @@ $(document).ready(function() {
 		    .attr('xe', o.attr('xe'));
 		$dialog.dialog('open');
 	}
-	$('a.event').click(function(e) { epgpopup(e, $(this)) });
+	$('a.event').click(function(e) {
+		e.preventDefault();
+		epgpopup(e, $(this))
+	});
 });
 </script>
 }

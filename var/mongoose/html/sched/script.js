@@ -37,8 +37,8 @@ $('table.tablesorter thead th').filter('[class!=header]')
 
 function docancel()
 {
-	var table = $('#dialogue').attr('table');
-	var slot = $('#dialogue').attr('slot');
+	var table = $('#sdialogue').attr('table');
+	var slot = $('#sdialogue').attr('slot');
 
 	if (confirm('Really remove scheduled event?'))
 	{
@@ -46,7 +46,7 @@ function docancel()
 		    '&table=' + table, function() {
 			window.location.reload(true);
 		});
-		$('#dialogue').dialog('close');
+		$('#sdialogue').dialog('close');
 	}
 }
 
@@ -57,14 +57,14 @@ var $buttons2 = $.extend(
     {"Cancel Event": function() { docancel() }},
     $buttons1);
 
-var $dialog = $('#dialogue').dialog({
+var $dialog = $('#sdialogue').dialog({
 	title: "Schedule Details",
 	modal: false, autoOpen: false,
 	height: 500, width: 700,
 	show: 'scale', hide: 'fade',
 	draggable: true, resizable: true,
 	buttons: $buttons2,
-	close: function(e,u) { $('#dialogue').empty().html(
+	close: function(e,u) { $('#sdialogue').empty().html(
 	    '<img src="/img/loading.gif" alt="loading">'); }
 });
 
@@ -73,11 +73,11 @@ function schedpopup(e, o)
 	e.preventDefault();
 	var slot = o.attr('slot');
 	var table = o.attr('table');
-	$('#dialogue').attr('slot', slot).attr('table', table);
+	$('#sdialogue').attr('slot', slot).attr('table', table);
 
 	var url = 'info.jim?slot=' + slot +
 	    '&table=' + table;
-	$('#dialogue').load(url);
+	$('#sdialogue').load(url);
 	$dialog.dialog('open');
 }
 $('a.schedule').click(function(e) { schedpopup(e, $(this)) });

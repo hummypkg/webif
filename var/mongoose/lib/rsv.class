@@ -60,7 +60,7 @@ rsv method aul {} {
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
 		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
 		    iiii service start end event_id
-		lappend aul [list $service $start $end $event_id]
+		catch {lappend aul [list $service $start $end $event_id]}
 	}
 	return $aul
 }

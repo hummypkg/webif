@@ -7,7 +7,16 @@ require altrow rsv.class progressbar epg.class system.class
 puts "Content-Type: text/html"
 puts ""
 
+set svcmap {}
+lmap i \
+    [$::channeldb query {select hSvc, usSvcid from TBL_SVC}] \
+    {
+	set svcmap([lindex $i 1]) [lindex $i 3]
+    }
+
 header
+
+require epg_popup
 
 puts {
 <script type=text/javascript src=/js/jquery.tablesorter.js></script>
@@ -17,7 +26,7 @@ puts {
 <script type=text/javascript src=/js/jquery.form.js></script>
 <script type=text/javascript src=script.js></script>
 
-<div id=dialogue></div>
+<div id=sdialogue></div>
 }
 
 proc eventheader {{table TBL_RESERVATION} note} {
@@ -49,6 +58,8 @@ proc eventheader {{table TBL_RESERVATION} note} {
 }
 
 proc eventrow {event {table TBL_RESERVATION}} {
+	global svcmap
+
 	set name [$event name]
 
 	set attrs "table=$table sid=[$event get ulslot] \
@@ -83,6 +94,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	} {
 		puts "<br><span class=also>&nbsp;(Folder: [$event folder])</span>"
 	}
+
 	puts "</td>"
 
 	set s [$event get nsttime]
@@ -97,11 +109,26 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			<span class=footnote>(Last: $ds)</span>"
 		puts "</td><td>--:--:--</td>"
 	} else {
-		set ds "[clock format $s -format "%a %d %b %Y"]<br>
-		    [clock format $s -format "%H:%M %Z"]"
+		set elist [$event aul]
+
+		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
 		puts "<td nowrap class=\"va"
 		if {$n > $e} { puts " blood" }
-		puts "\">$ds"
+		puts "\">"
+
+		if {[llength $elist] > 0} {
+			lassign [lindex $elist 0] service_id start end event_id
+			if {$start == $s} {
+				puts "<a class=event href=#
+				    xs=$svcmap($service_id) xe=$event_id>
+				    $ds</a>"
+			} else {
+				puts $ds
+			}
+		} else {
+			puts $ds
+		}
+
 		if {$d > 0 && $n > $s && $n < $e} {
 			puts "<br>"
 			set perc [expr [expr $n - $s] * 100 / $d]
@@ -109,8 +136,34 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			    src=/images/745_1_11_Video_1REC.png>"
 			puts [progressbar $perc]
 		}
-		puts "</td><td>"
-		puts "[clock format [$event get nduration] -format %T]</td>"
+
+		if {[llength $elist] > 1} {
+			puts "<div class=also style=\"margin-top: 0.5em\">"
+			foreach e $elist {
+				lassign $e service_id start end event_id
+				if {$start == $s} continue
+				puts "<a class=event href=#
+				    xs=$svcmap($service_id) xe=$event_id>
+				    [clock format $start \
+				    -format {%a %d %b %Y %H:%M}]</a><br>"
+			}
+			puts "</div>";
+		}
+
+		puts "</td><td align=center>"
+		puts "[clock format [$event get nduration] -format %H:%M]"
+		if {[llength $elist] > 1} {
+			puts "<div class=also style=\"margin-top: 0.5em\">"
+			foreach e $elist {
+				lassign $e service_id start end event_id
+				if {$start == $s} continue
+				puts "[clock format $($end - $start) \
+				    -format {%H:%M}]<br>"
+			}
+			puts "</div>";
+		}
+
+		puts "</td>"
 	}
 
 	puts "<td nowrap>[join [$event iconset] ""]</td>"
