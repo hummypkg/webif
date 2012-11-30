@@ -154,21 +154,6 @@ puts ">
 	</tr>
 "
 
-if {[system modversion 1] >= 214} {
-
-puts -nonewline "
-	<tr>
-		<th class=key>Expert mode telnet server?</th>
-		<td><input id=xtelnet_toggle name=xtelnet type=checkbox value=yes"
-if {[file exists /mod/boot/xtelnet]} { puts -nonewline " checked" }
-puts ">
-		    <div id=xtelnet_output></div>
-		</td>
-	</tr>
-"
-
-}
-
 puts -nonewline "
 	<tr>
 		<th class=key>Slide-down toolbar?</th>
@@ -379,6 +364,24 @@ if {$pkgdev} { puts -nonewline " checked" }
 puts ">
 		</td>
 	</tr>
+"
+
+if {[system modversion 1] >= 214} {
+
+puts -nonewline "
+	<tr>
+		<th class=key>Expert mode telnet server?</th>
+		<td><input id=xtelnet_toggle name=xtelnet type=checkbox value=yes"
+if {[file exists /mod/boot/xtelnet]} { puts -nonewline " checked" }
+puts ">
+		    <div id=xtelnet_output></div>
+		</td>
+	</tr>
+"
+
+}
+
+puts "
 	</table>
 	<div id=pkgdev_output></div>
 	</fieldset>

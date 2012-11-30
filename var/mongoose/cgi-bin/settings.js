@@ -21,7 +21,11 @@
 
 $(document).ready(function () {
 	$(":submit").button();
-	$(":checkbox").iphoneStyle();
+	//$('[type="checkbox"] :not(.yesno)').iphoneStyle();
+	$('[type="checkbox"]').iphoneStyle({
+		checkedLabel: 'YES',
+		uncheckedLabel: 'NO'
+	});
 	$('form.auto').each(function(i, el) {
 		var id = $(this).attr('id');
 		var output = '#' + id + '_output';
