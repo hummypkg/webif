@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+puts "Content-Type: text/html"
+puts ""
+
+set logdirs {/var/log /mod/tmp /mnt/hd3}
+set logext {.log}
+
+cgi_input
+#cgi_dump
+
+set log [cgi_get file 0]
+
+set ldir [file dirname $log]
+if {[file dirname $log] in $logdirs && [file extension $log] in $logext} {
+	file copy -force "/dev/null" $log
+	puts "Cleared $log"
+	exit
+}
+puts "Cannot clear $log"
+

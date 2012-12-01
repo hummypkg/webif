@@ -176,7 +176,11 @@ foreach file [lsort [concat \
 ]] {
 	puts "<a href=# class=log file=\"$file\">
 	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
-	    [file tail $file]</a> ([pretty_size [file size $file]]) <br>"
+	    [file tail $file]</a>
+	    (<span class=lsize>[pretty_size [file size $file]]</span>)
+	    <a class=\"va footnote logclear\" href=# file=\"$file\">
+	    <img class=va border=0 src=/img/close.png width=20>Clear</a>
+	    <br>"
 }
 
 puts {
