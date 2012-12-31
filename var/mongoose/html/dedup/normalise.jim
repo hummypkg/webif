@@ -53,15 +53,6 @@ proc dedupnormalise {title {reserve ""}} {
 		}
 	}
 
-	# if still short, add the reserve string.
-	if {[string length $title] < 10} {
-		if {[string match "${title}*" $reserve]} {
-			set title $reserve
-		} else {
-			append title " $reserve"
-		}
-	}
-
 	if {[dict exists $seriesmap $title]} {
 		set ntitle "$seriesmap($title): $title"
 		set title $ntitle
@@ -70,6 +61,15 @@ proc dedupnormalise {title {reserve ""}} {
 		regsub -all -- {[[:space:]]+} [string tolower $title] "" ntitle
 		if {[dict exists $seriesmap $ntitle]} {
 			set title "$seriesmap($ntitle): $title"
+		}
+	}
+
+	# if still short, add the reserve string.
+	if {[string length $title] < 10} {
+		if {[string match "${title}*" $reserve]} {
+			set title $reserve
+		} else {
+			append title " $reserve"
 		}
 	}
 
