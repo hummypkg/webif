@@ -7,7 +7,7 @@ require system.class findhsvc epg.class rsv.class
 set runmode cli
 if {[string match {*jim} $argv0]} { set runmode cgi }
 
-set schedtime 900
+set schedtime 1200 
 case $runmode {
     cgi {
 	cgi_input

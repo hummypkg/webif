@@ -65,7 +65,7 @@ proc dedupnormalise {title {reserve ""}} {
 	}
 
 	# if still short, add the reserve string.
-	if {[string length $title] < 10} {
+	if {[string length $title] < 6} {
 		if {[string match "${title}*" $reserve]} {
 			set title $reserve
 		} else {
