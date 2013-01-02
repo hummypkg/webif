@@ -4,6 +4,7 @@ set dedup_prefixes {
 	{^new series\.* *}
 	{^cbeebies\.* *}
 	{^cbbc\.* *}
+	{^t4: *}
 	{^brand new series *-* *}
 	{^\.+}
 }
