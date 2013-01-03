@@ -3,10 +3,15 @@
 source /mod/webif/lib/setup
 require system.class
 
+set modver [system modversion]
+set modbuild [system modbuild]
+if {$modbuild > 0} {
+	append modver " (build $modbuild)"
+}
 
 puts "<font class=blood style=\"font-size: 0.9em; float: right; clear: right\">
 	Web interface version: [system pkgver webif]<br>
-	Custom firmware version: [system modversion]
+	Custom firmware version: $modver
 "
 if {![catch {set fhtcpversion [system fhtcpversion]}]} {
 	puts "<br>Humax Version: $fhtcpversion"

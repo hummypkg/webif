@@ -43,6 +43,16 @@ proc {system modversion} {{short 0}} {
 	return [format "%d.%d%d" $a $b $c]
 }
 
+proc {system modbuild} {} {
+	if {[catch {set fp [open /etc/modbuild r]}]} {
+		return 0
+	} else {
+		set modbuild [string trim [read $fp]]
+		close $fp
+	}
+	return $modbuild
+}
+
 proc {system fhtcpversion} {} {
 	set file "/etc/fhtcpversion"
 	if {![file exists $file]} { set file "/root/fhtcpversion" }
