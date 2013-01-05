@@ -41,6 +41,8 @@ set epg_style [$settings epg_style]
 set pkgdev [$settings pkgdev]
 set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
+set xepghours [$settings xepghours]
+if {$xepghours == 0} { set xepghours 4 }
 
 # Handle updates
 
@@ -75,6 +77,7 @@ proc handle_str_update {var old {text "Value"}} {
 handle_str_update hostname $hostname Hostname
 _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
+handle_int_update xepghours $xepghours "Grid EPG Hours"
 handle_str_update epg_style $epg_style "EPG Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
@@ -225,6 +228,33 @@ puts "
 		<input name=channel_group value=\"set\" type=submit>
 		</small>
 		<div id=channel_group_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form class=auto id=xepghours method=get action=$env(REQUEST_URI)>
+		<th class=key>Grid-style EPG Hours</th>
+		<td><select id=xepghours name=xepghours
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+
+foreach xehopt {2 3 4 5 6} {
+	puts -nonewline "<option value=$xehopt"
+	if {$xehopt == $xepghours} {
+		puts -nonewline " selected"
+	}
+	puts ">$xehopt hours"
+}
+
+puts "
+		</select>
+		<small>
+		<input name=xepghours value=\"set\" type=submit>
+		</small>
+		<div id=xepghours_output></div>
 		</td>
 	</form>
 	</tr>

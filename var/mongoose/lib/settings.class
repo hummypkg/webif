@@ -24,6 +24,7 @@ class settings {
 	pkgdev		0
 	notoolbar	0
 	nomobile	0
+	xepghours	4
 }
 
 settings method hostname {{name ""}} {
@@ -100,6 +101,10 @@ settings method _nval_setting {name {val -1}} {
 
 settings method channel_group {{group -1}} {
 	return [$self _nval_setting channel_group $group]
+}
+
+settings method xepghours {{hours -1}} {
+	return [$self _nval_setting xepghours $hours]
 }
 
 settings method epg_style {{style -1}} {

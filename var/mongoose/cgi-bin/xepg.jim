@@ -35,7 +35,8 @@ if {$stt <= $now} {
 
 set favgroup [[settings] channel_group]
 
-set hours 4.0
+set hours [expr 1.0 * [[settings] xepghours]]
+if {$hours == 0} { set hours 4.0 }
 set seconds $($hours * 3600)
 
 set ostt $stt
@@ -78,6 +79,7 @@ proc but {label time {active 1}} {
 	puts " active=$active>$label</button>"
 }
 
+puts "<!-- Hours $hours ($seconds) -->"
 puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
 
 but "&lt&lt; -1 Week" $($stt - 3600 * 24 * 7) \
