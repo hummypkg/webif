@@ -25,7 +25,7 @@ if {[file isdirectory $file]} {
 } elseif {[set ts [ts fetch $file]] != 0} {
 	#puts "TS file."
 
-	foreach attr {title synopsis guidance} {
+	foreach attr {title synopsis guidance genre} {
 		if {[catch {
 			set new [string trim [cgi_get "rename_$attr"]]
 			set old [$ts get $attr]

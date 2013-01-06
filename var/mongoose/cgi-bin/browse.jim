@@ -148,6 +148,21 @@ proc entry {file} {{i 0}} {
 	set bx 0
 	set dlna 0
 	if {$type eq "ts"} {
+		# Genre
+		switch [$ts get genre] {
+		    16      { set img "Movie" }
+		    32      { set img "News" }
+		    48      { set img "Special" }
+		    64      { set img "Sports" }
+		    80      { set img "Children" }
+		    96      { set img "Education" }
+		    160     { set img "Leisure" }
+		    240     { set img "Show" }
+		    default { set img "Unclassified" }
+		}
+		#icon "/images/173_1_00_G1_$img.png"
+		icon "/images/173_3_00_G3_$img.png" $img
+
 		# HD / SD
 		if {[$ts get definition] eq "HD"} {
 			set def HD

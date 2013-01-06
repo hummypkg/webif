@@ -121,6 +121,28 @@ puts {
 	</td>
 	</tr>
 
+	<tr style="display: none" class=tstype>
+	<th>
+		<label for="rename_genre" style="padding-top: 0.5em">
+			<b>New Genre</b>
+		</label>
+	</th>
+	<td>
+		<select name="rename_genre" id="rename_genre"
+		    class="text ui-widget-content ui-corner-all">
+			<option value=0>Unclassified
+			<option value=16>Film
+			<option value=32>News &amp; Factual
+			<option value=48>Entertainment
+			<option value=64>Sport
+			<option value=80>Children
+			<option value=96>Education
+			<option value=160>Lifestyle
+			<option value=240>Drama
+		</select>
+	</td>
+	</tr>
+
 	</table>
 	</form>
 </div>

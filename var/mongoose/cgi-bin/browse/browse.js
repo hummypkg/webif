@@ -83,6 +83,7 @@ function epginfo_callback(data, status, xhr)
 	$('#rename_title').val(data.title);
 	$('#rename_synopsis').val(data.synopsis);
 	$('#rename_guidance').val(data.guidance);
+	$('#rename_genre').val(data.genre);
 
 	$('tr.tstype').show('slow');
 }

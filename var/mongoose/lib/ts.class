@@ -23,6 +23,7 @@ class ts {
 	bookmarks	0
 	schedstart	0
 	scheddur	0
+	genre		0
 }
 
 ts method duration {{raw 0}} {
@@ -41,7 +42,8 @@ ts method _parse {line} {
 
 	lassign [split $line "\t"] \
 	    title synopsis definition channel_num channel_name \
-	    start end flags_list guidance bookmarks schedstart scheddur
+	    start end flags_list guidance bookmarks schedstart scheddur \
+	    genre
 
 	set flags [split [string range $flags_list 0 end-1] ,]
 }
@@ -179,6 +181,10 @@ ts method setguidance {newguidance} {
 	if {[string length newguidance] > 48} { return }
 
 	exec /mod/bin/hmt "+setguidance=${newguidance}" $file
+}
+
+ts method setgenre {newgenre} {
+	exec /mod/bin/hmt "+setgenre=-${newgenre}" $file
 }
 
 ts method dlnaloc {{urlbase 0}} {
