@@ -249,3 +249,17 @@ proc {ts renamegroup} {from to} {
 	}
 }
 
+proc {ts genrelist} {} {
+	return {
+		0	{ Unclassified		Unclassified }
+		16	{ Film 			Movie }
+		32	{ "News & Factual"	News }
+		64	{ Sport			Sports }
+		80	{ Children		Children }
+		96	{ Entertainment		Special }
+		144	{ Education		Education }
+		160	{ Lifestyle		Leisure }
+		240	{ Drama			Show }
+	}
+}
+

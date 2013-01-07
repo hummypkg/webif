@@ -129,16 +129,27 @@ puts {
 	</th>
 	<td>
 		<select name="rename_genre" id="rename_genre"
+		    style="vertical-align: middle"
 		    class="text ui-widget-content ui-corner-all">
-			<option value=0>Unclassified
-			<option value=16>Film
-			<option value=32>News &amp; Factual
-			<option value=48>Entertainment
-			<option value=64>Sport
-			<option value=80>Children
-			<option value=96>Education
-			<option value=160>Lifestyle
-			<option value=240>Drama
+}
+
+set glist [ts genrelist]
+foreach genre [array names glist] {
+	lassign $glist($genre) txt img
+	if {$img eq "Unclassified"} {
+		set img /images/173_3_26_G3_$img.png
+	} else {
+		set img /images/173_3_00_G3_$img.png
+	}
+	puts "<option value=$genre style=\"
+	    background: url($img) no-repeat left;
+	    padding: 8px 0 8px 30px;
+	    vertical-align: middle;
+	    \" onclick=\"this.parentNode.setAttribute('style',
+            this.getAttribute('style'));\">$txt"
+}
+
+puts {
 		</select>
 	</td>
 	</tr>
