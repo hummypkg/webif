@@ -254,6 +254,7 @@ proc {ts genrelist} {} {
 		0	{ Unclassified		Unclassified }
 		16	{ Film 			Movie }
 		32	{ "News & Factual"	News }
+		48	{ Entertainment		Special }
 		64	{ Sport			Sports }
 		80	{ Children		Children }
 		96	{ Entertainment		Special }

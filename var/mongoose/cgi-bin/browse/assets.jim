@@ -63,6 +63,7 @@ if $flatten {
 }
 
 puts {
+	<li class=mpg><a href=#mpg>Auto-MPG Extract</a></li>
 </ul>
 
 <div id=renameform title="Rename media file" style="display: none">

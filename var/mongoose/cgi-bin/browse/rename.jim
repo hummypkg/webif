@@ -40,6 +40,10 @@ if {[file isdirectory $file]} {
 	if {"$dir/$newfile.ts" ne "$file"} { ts renamegroup $file $newfile }
 } else {
 	#puts "Normal file."
-	if {$newfile ne ""} { ts renamegroup $file $newfile }
+	if {$newfile ne ""} {
+		set newfile "$dir/$newfile[file extension $file]"
+		puts "Rename ($file) -> ($newfile)"
+		file rename $file $newfile
+	}
 }
 

@@ -294,7 +294,10 @@ function preparemenu(el, menu)
 		else
 		{
 			$(menu).enableContextMenuItems('#audio');
-			$(menu).enableContextMenuItems('#mpg');
+			if (el.attr('def') == 'HD')
+				$(menu).disableContextMenuItems('#mpg');
+			else
+				$(menu).enableContextMenuItems('#mpg');
 		}
 	}
 	else
@@ -343,6 +346,15 @@ function preparedmenu(el, menu)
 		else
 			$(menu).changeContextMenuItem('#decrypt',
 			    'Enable Auto-decrypt');
+	}
+	if (el.attr('autompg') != undefined)
+	{
+		if (el.attr('autompg') > 0)
+			$(menu).changeContextMenuItem('#mpg',
+			    'Disable Auto-mpg');
+		else
+			$(menu).changeContextMenuItem('#mpg',
+			    'Enable Auto-mpg');
 	}
 }
 
@@ -517,6 +529,12 @@ var dmenuclick = function(action, el, pos)
 	    case 'dedup':
 		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
 		    '&flag=autodedup';
+		$.get(url, function() { window.location.reload(true); });
+		break;
+
+	    case 'mpg':
+		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=autompg';
 		$.get(url, function() { window.location.reload(true); });
 		break;
 

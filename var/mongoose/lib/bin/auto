@@ -76,7 +76,7 @@ proc do_shrink {ts} {
 	puts "          Estimate $perc% saving."
 	puts "          Shrinking..."
 	if {[catch {
-		puts [exec /mod/bin/stripts -q $file $tmp/shrunk]
+		puts [exec nice -n 19 /mod/bin/stripts -q $file $tmp/shrunk]
 	    } msg]} {
 		puts "Error during shrink: $msg"
 		return
@@ -171,6 +171,42 @@ proc do_decrypt {ts} {
 	puts "  Done."
 }
 
+proc do_mpg {ts} {
+	global tmp tsgroup
+
+	set file [file rootname [$ts get file]]
+
+	if {[file exists $file.mpg]} {
+		# Already done.
+		return
+	}
+
+	if {[$ts flag "ODEncrypted"]} {
+		#puts "          Not decrypted."
+		return
+	}
+
+	if {[$ts get definition] eq "HD"} {
+		# Cannot extract a useful MP3 from a HD recording.
+		return
+	}
+
+	puts "     MPG: $file"
+	puts "          Converting..."
+	if {[catch {
+		puts [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
+		    -i $file.ts \
+		    -map 0:0 -map 0:1 \
+		    -vcodec copy -acodec copy $tmp/mpg.mpg]
+	    } msg]} {
+		puts "Error during mpg extract: $msg"
+		return
+	}
+
+	# Move the MPG into the local directory
+	file rename $tmp/mpg.mpg $file.mpg
+}
+
 proc entries {dir callback} {
 	foreach entry [readdir -nocomplain $dir] {
 		dsc
@@ -193,6 +229,11 @@ proc shrink {dir} {
 proc decrypt {dir} {
 	puts "DECRYPT: \[$dir]"
 	entries $dir do_decrypt
+}
+
+proc mpg {dir} {
+	puts "MPG: \[$dir]"
+	entries $dir do_mpg
 }
 
 proc scan {dir attr} {{indent 0}} {
@@ -219,7 +260,7 @@ set root [system mediaroot]
 if {[llength $argv] > 0} {
 	foreach arg $argv { scan $root $arg }
 } else {
-	foreach arg {dedup decrypt shrink} {
+	foreach arg {dedup decrypt shrink mpg} {
 		scan $root $arg
 	}
 }

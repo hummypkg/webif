@@ -49,6 +49,13 @@ proc {dir iconset} {dir} {
 		lappend attrs "autodecrypt=$autodecrypt"
 	}
 
+	set autompg 0
+	if {[file exists "$dir/.autompg"]} {
+		set autompg 1
+		lappend icons [_addicon "/img/mpg.png" "Auto-MPG Extract"]
+		lappend attrs "autompg=$autompg"
+	}
+
 	return [list $icons $attrs]
 }
 
