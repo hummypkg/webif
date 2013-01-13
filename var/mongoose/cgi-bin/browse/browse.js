@@ -847,7 +847,13 @@ var dmenuclick = function(action, el, pos)
 			var mb = size / (1024 * 1024);
 			mb = mb|0;
 			if (streamsize && size > streamsize)
-				$('#streamstatus').text(mb + ' MiB (growing)');
+			{
+				rate = (size - streamsize) * 8.0 /
+				    (3 * 1048576);
+				$('#streamstatus').text(mb +
+				    ' MiB (growing @' + rate.toFixed(2) +
+				    ' Mib/s)');
+			}
 			else
 				$('#streamstatus').text(mb + ' MiB');
 			streamsize = size;
