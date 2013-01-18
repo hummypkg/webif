@@ -553,8 +553,16 @@ var dmenuclick = function(action, el, pos)
 		flagdir(file, 'autoshrink', iconset, results, el);
 		break;
 
+	    case 'shrinkr':
+		flagdir(file, 'autoshrinkr', iconset, results, el);
+		break;
+
 	    case 'decrypt':
 		flagdir(file, 'autodecrypt', iconset, results, el);
+		break;
+
+	    case 'decryptr':
+		flagdir(file, 'autodecryptr', iconset, results, el);
 		break;
 
 	    case 'resetnew':

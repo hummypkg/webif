@@ -3,6 +3,8 @@
 source /mod/webif/lib/setup
 require lock system.class ts.class tdelete
 
+set testing 0
+
 proc dsc {} {
 	lassign [system diskspace] x x perc
 	if {$perc > 90} {
@@ -47,9 +49,12 @@ proc bindir {file binroot} {
 }
 
 proc dedup {dir} {
-	#puts "DEDUP: \[$dir]"
-	puts [exec /mod/webif/html/dedup/dedup -yes $dir]
-	exec /mod/webif/html/dedup/dedup -yes $dir
+	if {$::testing} {
+		puts "DEDUP: \[$dir]"
+	} else {
+		puts [exec /mod/webif/html/dedup/dedup -yes $dir]
+		exec /mod/webif/html/dedup/dedup -yes $dir
+	}
 }
 
 proc do_shrink {ts} {
@@ -223,32 +228,39 @@ proc entries {dir callback} {
 
 proc shrink {dir} {
 	puts "SHRINK: \[$dir]"
-	entries $dir do_shrink
+	if {!$::testing} { entries $dir do_shrink }
 }
 
 proc decrypt {dir} {
 	puts "DECRYPT: \[$dir]"
-	entries $dir do_decrypt
+	if {!$::testing} { entries $dir do_decrypt }
 }
 
 proc mpg {dir} {
 	puts "MPG: \[$dir]"
-	entries $dir do_mpg
+	if {!$::testing} { entries $dir do_mpg }
 }
 
-proc scan {dir attr} {{indent 0}} {
+proc scan {dir attr {force 0}} {{indent 0}} {
 	incr indent 2
 
-	#puts "[string repeat " " $indent]\[$dir]"
+	if {$::testing} { puts "[string repeat " " $indent]\[$dir]" }
 
 	if {[string match {\[*} $dir]} continue
 
 	dsc
-	if {[file exists "$dir/.auto$attr"]} { $attr $dir }
+
+	# Recursion
+	if {[file exists "$dir/.auto${attr}r"]} {
+		if {$::testing} { puts "[string repeat " " $indent]  (R)" }
+		set force 1
+	}
+
+	if {$force || [file exists "$dir/.auto$attr"]} { $attr $dir }
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
-			scan "$dir/$entry" $attr
+			scan "$dir/$entry" $attr $force
 		}
 	}
 
