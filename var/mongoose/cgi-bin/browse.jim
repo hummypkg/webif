@@ -55,7 +55,9 @@ proc directory {file bfile tbfile} {
 
 	lassign [{dir iconset} $file] icons attrs
 
+	puts "<span class=iconset>"
 	puts [join $icons ""]
+	puts "</span>"
 
 	puts -nonewline "
 	      <a href=#>

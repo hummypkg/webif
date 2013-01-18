@@ -2,7 +2,9 @@ puts {
 <!-- start of topbar -->
 
 <div id=topbar class=container onclick="location.href='/'; return false;">
-	<div class=left><img src=/images/154_1_00_WIN_MD116_1L.png></div>
+	<div class=left>
+		<img src=/images/154_1_00_WIN_MD116_1L.png>
+	</div>
 	<div class=middle>
 <!-- Start include diskspace - above other items to work around IE feature.. -->
 }
@@ -10,6 +12,7 @@ source /mod/webif/include/diskspace.jim
 puts {
 <!-- End include diskspace -->
 		<img border=0 src=/images/516_1_26_Freeview_Logo.png>
+		<!-- <img border=0 height=47 src=/img/FreeviewHD.png> -->
 		<span style="display: inline; font-size: 150%;
 		    padding: 0 0 0 2em;">
 }

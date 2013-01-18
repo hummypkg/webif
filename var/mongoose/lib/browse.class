@@ -28,32 +28,49 @@ proc {dir iconset} {dir} {
 		lappend attrs "noflat=$noflat"
 	}
 
+	set autoshrinkr 0
+	if {[file exists "$dir/.autoshrinkr"]} {
+		set autoshrinkr 1
+		lappend icons [_addicon "/img/compressr.png" \
+		    "Recursive Auto-shrink"]
+		lappend attrs "autoshrinkr=1"
+	}
+
 	set autoshrink 0
-	if {[file exists "$dir/.autoshrink"]} {
+	if {!$autoshrinkr && [file exists "$dir/.autoshrink"]} {
 		set autoshrink 1
 		lappend icons [_addicon "/img/compress.png" "Auto-shrink"]
-		lappend attrs "autoshrink=$autoshrink"
+		lappend attrs "autoshrink=1"
 	}
+
 
 	set autodedup 0
 	if {[file exists "$dir/.autodedup"]} {
 		set autodedup 1
 		lappend icons [_addicon "/img/dedup.png" "Auto-dedup"]
-		lappend attrs "autodedup=$autodedup"
+		lappend attrs "autodedup=1"
+	}
+
+	set autodecryptr 0
+	if {[file exists "$dir/.autodecryptr"]} {
+		set autodecryptr 1
+		lappend icons [_addicon "/img/decryptr.png" \
+		    "Recursive Auto-decrypt"]
+		lappend attrs "autodecryptr=1"
 	}
 
 	set autodecrypt 0
-	if {[file exists "$dir/.autodecrypt"]} {
+	if {!$autodecryptr && [file exists "$dir/.autodecrypt"]} {
 		set autodecrypt 1
 		lappend icons [_addicon "/img/decrypt.png" "Auto-decrypt"]
-		lappend attrs "autodecrypt=$autodecrypt"
+		lappend attrs "autodecrypt=1"
 	}
 
 	set autompg 0
 	if {[file exists "$dir/.autompg"]} {
 		set autompg 1
 		lappend icons [_addicon "/img/mpg.png" "Auto-MPG Extract"]
-		lappend attrs "autompg=$autompg"
+		lappend attrs "autompg=1"
 	}
 
 	return [list $icons $attrs]

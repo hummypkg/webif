@@ -45,7 +45,7 @@ puts {
 	<li><a href=#download>Download</a></li>
 </ul>
 
-<ul id=doptmenu class=contextMenu style="width: 180px">
+<ul id=doptmenu class=contextMenu style="width: 250px">
 	<li class=delete><a href=#delete>Delete</a></li>
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
@@ -53,10 +53,15 @@ puts {
 	<li class=separator><a href=#rename>Rename</a></li>
 	<li class=separator><a href=#resetnew>Reset new flag</a></li>
 	<li class="separator compress"><a href=#shrink>Auto-Shrink</a></li>
+	<li class="compressr"><a href=#shrinkr>Recursive Auto-Shrink</a></li>
 	<li class=dedup><a href=#dedup>Auto-Dedup</a></li>
 }
 if {$model eq "HDR"} {
-	puts { <li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li> }
+	puts {
+		<li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li>
+		<li class=decryptr><a href=#decryptr>Recursive Auto-Decrypt
+		    </a></li>
+	}
 }
 if $flatten {
 	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }

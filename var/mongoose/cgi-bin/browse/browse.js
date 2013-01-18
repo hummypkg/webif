@@ -310,6 +310,36 @@ function preparemenu(el, menu)
 
 }
 
+function fixdmenu(el, menu, flag, tag, descr, recurse)
+{
+	var a = el.attr(flag);
+	var b = el.attr(flag + 'r');
+
+	if (a == undefined) a = 0;
+	if (b == undefined) b = 0;
+
+	if (a > 0)
+		$(menu).changeContextMenuItem(tag, 'Disable ' + descr);
+	else
+		$(menu).changeContextMenuItem(tag, 'Enable ' + descr);
+
+	if (recurse)
+	{
+		if (b > 0)
+		{
+			$(menu).changeContextMenuItem(tag + 'r',
+			    'Disable Recursive ' + descr);
+			$(menu).disableContextMenuItems(tag);
+		}
+		else
+		{
+			$(menu).changeContextMenuItem(tag + 'r',
+			    'Enable Recursive ' + descr);
+			$(menu).enableContextMenuItems(tag);
+		}
+	}
+}
+
 function preparedmenu(el, menu)
 {
 	if (el.attr('noflat') != undefined)
@@ -320,42 +350,11 @@ function preparedmenu(el, menu)
 			$(menu).changeContextMenuItem('#flat',
 			    'Prevent Flatten');
 	}
-	if (el.attr('autoshrink') != undefined)
-	{
-		if (el.attr('autoshrink') > 0)
-			$(menu).changeContextMenuItem('#shrink',
-			    'Disable Auto-shrink');
-		else
-			$(menu).changeContextMenuItem('#shrink',
-			    'Enable Auto-shrink');
-	}
-	if (el.attr('autodedup') != undefined)
-	{
-		if (el.attr('autodedup') > 0)
-			$(menu).changeContextMenuItem('#dedup',
-			    'Disable Auto-dedup');
-		else
-			$(menu).changeContextMenuItem('#dedup',
-			    'Enable Auto-dedup');
-	}
-	if (el.attr('autodecrypt') != undefined)
-	{
-		if (el.attr('autodecrypt') > 0)
-			$(menu).changeContextMenuItem('#decrypt',
-			    'Disable Auto-decrypt');
-		else
-			$(menu).changeContextMenuItem('#decrypt',
-			    'Enable Auto-decrypt');
-	}
-	if (el.attr('autompg') != undefined)
-	{
-		if (el.attr('autompg') > 0)
-			$(menu).changeContextMenuItem('#mpg',
-			    'Disable Auto-mpg');
-		else
-			$(menu).changeContextMenuItem('#mpg',
-			    'Enable Auto-mpg');
-	}
+
+	fixdmenu(el, menu, 'autoshrink', '#shrink', 'Auto-shrink', 1);
+	fixdmenu(el, menu, 'autodedup', '#dedup', 'Auto-dedup', 0);
+	fixdmenu(el, menu, 'autodecrypt', '#decrypt', 'Auto-decrypt', 1);
+	fixdmenu(el, menu, 'autompg', '#mpg', 'Auto-mpg', 0);
 }
 
 $(document).ready(function() {
@@ -462,10 +461,28 @@ var menuclick = function(action, el, pos)
 	}
 };
 
+function flagdir(file, flag, iconset, output, options)
+{
+	var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
+		    '&flag=' + flag;
+
+	$(output).load(url, function() {
+		$(iconset)
+		    .empty()
+		    .html('<img src=/img/loading.gif> Updating...')
+		    .load('/cgi-bin/browse/iconset.jim?file=' + file);
+		if ($(options).attr(flag) == '1')
+			$(options).attr(flag, 0);
+		else
+			$(options).attr(flag, 1);
+	}).delay(3000).slideUp();
+}
+
 var dmenuclick = function(action, el, pos)
 {
 	var direl = $(el).parent().parent();
 	var file = $(el).parent().prevAll('a.dbf').last().attr('file');
+	var iconset = $(el).parent().prevAll('span.iconset').last();
 	var bfile = file.replace(/.*\//g, '');
 	bfile = bfile.replace(/[\x00-\x1f]+/g, '');
 	var results = $(el).parent().next('div.results');
@@ -521,33 +538,23 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'flat':
-		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=noflatten';
-		$.get(url, function() { window.location.reload(true); });
+		flagdir(file, 'noflatten', iconset, results, el);
 		break;
 
 	    case 'dedup':
-		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=autodedup';
-		$.get(url, function() { window.location.reload(true); });
+		flagdir(file, 'autodedup', iconset, results, el);
 		break;
 
 	    case 'mpg':
-		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=autompg';
-		$.get(url, function() { window.location.reload(true); });
+		flagdir(file, 'autompg', iconset, results, el);
 		break;
 
 	    case 'shrink':
-		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=autoshrink';
-		$.get(url, function() { window.location.reload(true); });
+		flagdir(file, 'autoshrink', iconset, results, el);
 		break;
 
 	    case 'decrypt':
-		var url = '/cgi-bin/browse/flagdir.jim?dir=' + file +
-		    '&flag=autodecrypt';
-		$.get(url, function() { window.location.reload(true); });
+		flagdir(file, 'autodecrypt', iconset, results, el);
 		break;
 
 	    case 'resetnew':

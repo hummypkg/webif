@@ -71,6 +71,7 @@ foreach tw [$db query {
 		switch $name {
 			"BBC ONE" { set mux "PSB1/BBC A" }
 			"ITV1" { set mux "PSB2/D3&amp;4" }
+			"ITV" { set mux "PSB2/D3&amp;4" }
 			"BBC One HD" { set mux "PSB3/BBC B (HD)" }
 			"ITV3" { set mux "COM4/SDN" }
 			"Dave" { set mux "COM5/ARQ A" }
