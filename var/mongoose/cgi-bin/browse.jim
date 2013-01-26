@@ -84,7 +84,7 @@ proc entry {file} {{i 0}} {
 		directory $file $bfile $tbfile
 		return
 	}
-	set ext [file extension $file]
+	set ext [string tolower [file extension $file]]
 	if {$ext in $::ignore || $ext ni $::include} { return }
 
 	file stat $file st
