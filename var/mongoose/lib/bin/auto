@@ -249,7 +249,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 	if {$::testing} { puts "[string repeat " " $indent]\[$dir]" }
 
 	#if {[string match {\[*} $dir]} continue
-	if {$dir eq $::dustbin} {
+	if {$dir eq $dustbin} {
 		puts "Dustbin, skipping."
 		return
 	}
@@ -276,6 +276,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 set root [system mediaroot]
 
 if {[llength $argv] > 0} {
+	if {[lindex $argv 0] eq "test"} { set testing 1 }
 	foreach arg $argv { scan $root $arg }
 } else {
 	foreach arg {dedup decrypt shrink mpg} {
