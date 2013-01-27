@@ -8,7 +8,7 @@ set testing 0
 proc dsc {} {
 	lassign [system diskspace] x x perc
 	if {$perc > 90} {
-		puts "Insufficient disk space, terminating."
+		puts "Insufficient disk space ($perc%), terminating."
 		exit
 	}
 }
@@ -242,11 +242,17 @@ proc mpg {dir} {
 }
 
 proc scan {dir attr {force 0}} {{indent 0}} {
+	global dustbin
+
 	incr indent 2
 
 	if {$::testing} { puts "[string repeat " " $indent]\[$dir]" }
 
-	if {[string match {\[*} $dir]} continue
+	#if {[string match {\[*} $dir]} continue
+	if {$dir eq $::dustbin} {
+		puts "Dustbin, skipping."
+		return
+	}
 
 	dsc
 
