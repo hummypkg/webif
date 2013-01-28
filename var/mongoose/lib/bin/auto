@@ -1,33 +1,82 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require lock system.class ts.class tdelete
+require lock system.class ts.class tdelete pretty_size
 
-set testing 0
-
-proc dsc {} {
-	lassign [system diskspace] x x perc
-	if {$perc > 90} {
-		puts "Insufficient disk space ($perc%), terminating."
-		exit
-	}
-}
-
-dsc
+set debug 0
 
 if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
 	exit
 }
 
+set logfile "/mod/tmp/auto.log"
+# Rotate log file if large enough.
+if {[file exists $logfile] && [file size $logfile] > 2097152} {
+	file copy -force $logfile "/mod/tmp/auto_old.log"
+	file delete $logfile
+}
+
+set logfd [open "/mod/tmp/auto.log" "a+"]
+proc log {msg {always 0}} {
+	if {!$::debug && !$always} return
+	puts $::logfd "[\
+	    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
+	    ] - $msg"
+	flush $::logfd
+}
+
+proc elapsed {start} {
+	return $(([clock milliseconds] - $start) / 1000.0)
+}
+
+proc startclock {} {
+	set ::startclock_s [clock milliseconds]
+}
+
+proc endclock {size} {
+	set el [elapsed $::startclock_s]
+	set rate $($size / $el)
+	return "[pretty_size $size] in $el seconds - [pretty_size $rate]/s"
+}
+
+set scanstart [clock milliseconds]
+log "-------------------------------------------------------" 1
+
+# is_listening is relatively expensive so it is checked once globally at
+# the start and then if the server is not listening then no decrypt
+# operations will be attempted for this run, even if the server starts
+# up halfway through. Otherwise the server is checked for every decryption
+# and if it goes away then decryption will not be attempted for the rest
+# of the run.
+if {[system is_listening 9000]} {
+	set dlnaok 1
+	if {$::debug} { log "DLNA Server is running." }
+} else {
+	set dlnaok 0
+	if {$::debug} { log "DLNA Server is NOT running." }
+}
+
+log "Media scan starting, DLNA server status: $dlnaok" 1
+
+proc dsc {} {
+	lassign [system diskspace] size used perc
+	if {$perc > 90} {
+		log "Insufficient disk space ($perc% $size/$used), aborting." 1
+		exit
+	}
+}
+
+dsc
+
 set tmp "/mod/tmp/webif_auto"
 if {![file exists $tmp]} {
 	if {[catch {file mkdir $tmp} msg]} {
-		puts "Cannot create temporary directory - $tmp ($msg)"
+		log "Cannot create temporary directory - $tmp ($msg)" 1
 		exit
 	}
 } elseif {![file isdirectory $tmp]} {
-	puts "Cannot create temporary directory - $tmp (file exists)"
+	log "Cannot create temporary directory - $tmp (file exists)" 1
 	exit
 }
 
@@ -40,6 +89,8 @@ if {[system pkginst undelete]} {
 	set dustbin ""
 }
 
+log "Dustbin: $dustbin"
+
 proc bindir {file binroot} {
 	set dir [file dirname $file]
 	regsub "^[system mediaroot]" $dir $binroot ndir
@@ -49,11 +100,12 @@ proc bindir {file binroot} {
 }
 
 proc dedup {dir} {
-	if {$::testing} {
-		puts "DEDUP: \[$dir]"
-	} else {
-		puts [exec /mod/webif/html/dedup/dedup -yes $dir]
-		exec /mod/webif/html/dedup/dedup -yes $dir
+	log "DEDUP: \[$dir]"
+	loop i 0 2 {
+		foreach line [split \
+		    [exec /mod/webif/html/dedup/dedup -yes -auto $dir] "\n"] {
+			log $line 1
+		}
 	}
 }
 
@@ -64,7 +116,7 @@ proc do_shrink {ts} {
 	if {[catch {
 		set perc [exec /mod/bin/stripts -aq $file]
 	    } msg]} {
-		puts "          Error: $msg"
+		log "          Error: $msg" 1
 		return
 	}
 	if {[string match {*%} $perc]} {
@@ -74,16 +126,22 @@ proc do_shrink {ts} {
 	}
 
 	if {$perc == 0} {
-		#puts "          Already shrunk."
+		log "          Already shrunk."
 		return
 	}
-	puts "  SHRINK: $file"
-	puts "          Estimate $perc% saving."
-	puts "          Shrinking..."
+	set size [$ts size]
+	startclock
+	log "  SHRINK: $file" 1
+	log "          Estimate $perc% saving." 1
+	log "          Shrinking..." 1
 	if {[catch {
-		puts [exec nice -n 19 /mod/bin/stripts -q $file $tmp/shrunk]
+		foreach line [split \
+		    [exec nice -n 19 /mod/bin/stripts -q $file $tmp/shrunk] \
+		    "\n"] {
+			log $line 1
+		}
 	    } msg]} {
-		puts "Error during shrink: $msg"
+		log "Error during shrink: $msg" 1
 		return
 	}
 
@@ -104,9 +162,9 @@ proc do_shrink {ts} {
 	} else {
 		# Delete otherwise.
 		if {[$ts delete]} {
-			puts "Successfully deleted $file."
+			log "Successfully deleted $file."
 		} else {
-			puts "Problem deleting $file, [$ts get error]"
+			log "Problem deleting $file, [$ts get error]" 1
 			return
 		}
 	}
@@ -118,6 +176,7 @@ proc do_shrink {ts} {
 			file rename $f "${file}.$ext"
 		}
 	}
+	log "Done... [endclock $size]" 1
 }
 
 proc do_decrypt {ts} {
@@ -128,22 +187,30 @@ proc do_decrypt {ts} {
 	set bfile [file tail $file]
 
 	if {![$ts flag "ODEncrypted"]} {
-		#puts "          Already decrypted."
+		log "          Already decrypted."
 		return
 	}
 
 	lassign [$ts dlnaloc] url
 	if {$url eq ""} {
-		#puts "          Not yet indexed."
+		log "          Not yet indexed."
 		return
 	}
 
-	puts "  DECRYPT: $rfile"
-	puts "  DLNA: $url"
+	if {![system is_listening 9000]} {
+		log "          DLNA Server not running."
+		set ::dlnaok 0
+		return
+	}
+
+	set size [$ts size]
+	startclock
+	log "  DECRYPT: $rfile" 1
+	log "  DLNA: $url" 1
 	exec wget -O "$tmp/$bfile" $url
 
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
-		puts "        File size mismatch."
+		log "        File size mismatch." 1
 		return
 	}
 
@@ -154,7 +221,7 @@ proc do_decrypt {ts} {
 	# Patch the HMT - quickest way to get back to a playable file.
 	exec /mod/bin/hmt -encrypted "$rfile.hmt"
 
-	puts "  Removing/binning old copy."
+	log "  Removing/binning old copy."
 	# Move the old recording to the bin if undelete is installed.
 	if {$dustbin ne ""} {
 		set bin [bindir $file "$dustbin/webif_autodecrypt"]
@@ -173,7 +240,7 @@ proc do_decrypt {ts} {
 	} else {
 		tdelete "$rfile.encrypted"
 	}
-	puts "  Done."
+	log "Done... [endclock $size]" 1
 }
 
 proc do_mpg {ts} {
@@ -187,7 +254,7 @@ proc do_mpg {ts} {
 	}
 
 	if {[$ts flag "ODEncrypted"]} {
-		#puts "          Not decrypted."
+		log "          Not decrypted."
 		return
 	}
 
@@ -196,15 +263,18 @@ proc do_mpg {ts} {
 		return
 	}
 
-	puts "     MPG: $file"
-	puts "          Converting..."
+	log "     MPG: $file" 1
+	log "          Converting..." 1
 	if {[catch {
-		puts [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
+		foreach line [split \
+		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
 		    -i $file.ts \
 		    -map 0:0 -map 0:1 \
-		    -vcodec copy -acodec copy $tmp/mpg.mpg]
+		    -vcodec copy -acodec copy $tmp/mpg.mpg] "\n"] {
+			log $line 1
+		}
 	    } msg]} {
-		puts "Error during mpg extract: $msg"
+		log "Error during mpg extract: $msg" 1
 		return
 	}
 
@@ -219,7 +289,7 @@ proc entries {dir callback} {
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
 		if {[system inuse [file rootname "$dir/$entry"]]} {
-			puts "$entry - in use\n"
+			log "$entry - in use\n" 1
 			continue
 		}
 		$callback $ts
@@ -227,18 +297,18 @@ proc entries {dir callback} {
 }
 
 proc shrink {dir} {
-	puts "SHRINK: \[$dir]"
-	if {!$::testing} { entries $dir do_shrink }
+	log "SHRINK: \[$dir]"
+	entries $dir do_shrink
 }
 
 proc decrypt {dir} {
-	puts "DECRYPT: \[$dir]"
-	if {!$::testing} { entries $dir do_decrypt }
+	log "DECRYPT: \[$dir]"
+	if {$::dlnaok} { entries $dir do_decrypt }
 }
 
 proc mpg {dir} {
-	puts "MPG: \[$dir]"
-	if {!$::testing} { entries $dir do_mpg }
+	log "MPG: \[$dir]"
+	entries $dir do_mpg
 }
 
 proc scan {dir attr {force 0}} {{indent 0}} {
@@ -246,21 +316,25 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 
 	incr indent 2
 
-	if {$::testing} { puts "[string repeat " " $indent]\[$dir]" }
+	log "[string repeat " " $indent]\[$dir]"
 
-	#if {[string match {\[*} $dir]} continue
 	if {$dir eq $dustbin} {
-		puts "Dustbin, skipping."
+		log "Dustbin, skipping."
 		return
 	}
 
-	dsc
+	if {$force && [string match {\[*} [file tail $dir]]} {
+		log "Special folder, skipping."
+		return
+	}
 
 	# Recursion
-	if {[file exists "$dir/.auto${attr}r"]} {
-		if {$::testing} { puts "[string repeat " " $indent]  (R)" }
+	if {!$force && [file exists "$dir/.auto${attr}r"]} {
+		log "[string repeat " " $indent]  (R)"
 		set force 1
 	}
+
+	dsc
 
 	if {$force || [file exists "$dir/.auto$attr"]} { $attr $dir }
 
@@ -276,13 +350,17 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 set root [system mediaroot]
 
 if {[llength $argv] > 0} {
-	if {[lindex $argv 0] eq "test"} { set testing 1 }
+	if {[lindex $argv 0] eq "test"} { set debug 1 }
 	foreach arg $argv { scan $root $arg }
 } else {
 	foreach arg {dedup decrypt shrink mpg} {
+		set st [clock milliseconds]
 		scan $root $arg
+		log "$arg scan completed in [elapsed $st] seconds." 1
 	}
 }
 
 release_lock webif_auto
+
+log "Media scan completed in [elapsed $scanstart] seconds." 1
 

@@ -8,10 +8,13 @@ source /mod/webif/html/dedup/process.jim
 
 set dirs {}
 
+set auto 0
 set doit 0
 foreach arg $argv {
 	if {$arg eq "-yes"} {
 		set doit 1
+	} elseif {$arg eq "-auto"} {
+		set auto 1
 	} else {
 		lappend dirs $arg
 	}
@@ -22,7 +25,7 @@ foreach dir $dirs {
 	if {[string index $dir end] eq "/"} {
 		set dir [string range $dir 0 end-1]
 	}
-	puts "\[$dir\]"
+	if {!$auto} { puts "\[$dir\]" }
 	loadseries $dir
 
 	foreach file [readdir $dir] {
@@ -33,14 +36,14 @@ foreach dir $dirs {
 		set base [file tail [file rootname $file]]
 		lassign [dedupprocess $file] stat ts syn fn
 
-		puts -nonewline "$base -> "
-
+		set rdone 0
+		set result $stat
 		switch $stat {
 		    inuse {
-			puts -nonewline "In Use"
+			set result "In Use"
 		    }
 		    dup {
-			puts -nonewline "Duplicate"
+			set result "Duplicate"
 			if {$doit} {
 				set dupdir "$dir/_duplicates"
 				if {![file exists $dupdir]} {
@@ -50,29 +53,38 @@ foreach dir $dirs {
 					append fn "~"
 				}
 				ts renamegroup $file "_duplicates/$fn"
-				puts -nonewline " - Renamed to _duplicates/$fn"
+				puts -nonewline "$base -> $result"
+				puts " - Renamed to _duplicates/$fn"
+				incr rdone
 			}
 		    }
 		    error {
-			puts -nonewline "Cannot process"
+			set result "Cannot process"
 		    }
 		    nothing {
-			puts -nonewline "Nothing to do"
+			set result "Nothing to do"
 		    }
 		    preserve {
-			puts -nonewline "Preserving"
+			set result "Preserving"
 		    }
 		    ok {
-			puts -nonewline $fn
+			set result $fn
 			if {$doit} {
 				# Dooooo, it.
 				$ts settitle $syn
 				ts renamegroup $file $fn
-				puts -nonewline " ... Done"
 			}
 		    }
 		}
-		puts ""
+		if {!$rdone} {
+			if {$auto} {
+				if {$result ne "Nothing to do"} {
+					puts "$base -> $result"
+				}
+			} else {
+				puts "$base -> $result"
+			}
+		}
 	}
 }
 

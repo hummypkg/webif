@@ -11,7 +11,7 @@ cronf=$crond/root
 grep -v webif/lib/bin/auto $cronf > $tmpf
 (
 	cat $tmpf
-	echo '*/10 * * * * /mod/webif/lib/bin/auto >> /tmp/webif_auto.log 2>&1'
+	echo '*/10 * * * * /mod/webif/lib/bin/auto >/dev/null 2>&1'
 ) > $cronf
 
 # Add anacron jobs
