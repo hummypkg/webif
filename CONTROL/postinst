@@ -25,5 +25,7 @@ grep -v 'backup/backup.jim' $ana > $tmpf
 
 $PKG_ROOT/etc/init.d/S02anacron start < /dev/null > /dev/null 2>&1 &
 
+[ -f /tmp/webif_auto.log ] && rm -f /tmp/webif_auto.log
+
 exit 0
 

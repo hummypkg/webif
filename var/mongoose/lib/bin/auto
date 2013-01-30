@@ -325,7 +325,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 
 	if {$force && [string match {\[*} [file tail $dir]]} {
 		log "Special folder, skipping."
-		return
+		set force 0
 	}
 
 	# Recursion

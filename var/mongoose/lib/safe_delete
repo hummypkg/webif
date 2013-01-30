@@ -1,0 +1,85 @@
+
+if {![exists -proc _del_bindir]} {
+
+	source /mod/webif/lib/setup
+	require ts.class system.class tdelete
+
+	if {[system pkginst undelete]} {
+		set _del_dustbin [system dustbin]
+	} else {
+		set _del_dustbin ""
+	}
+
+	proc _del_bindir {file} {
+		global _del_dustbin
+		set dir [file dirname $file]
+		regsub "^[system mediaroot]" $dir $_del_dustbin ndir
+		if {$dir eq $ndir} { set ndir $_del_dustbin }
+		system mkdir_p $ndir
+		return $ndir
+	}
+
+	proc _del_touch {file} {
+		exec /mod/bin/busybox/touch $file
+	}
+
+	proc safe_delete {file} {
+		global _del_dustbin
+
+		# Check if the file is already in the dustbin
+
+	       if {$_del_dustbin ne "" && [\
+		    string first $_del_dustbin $file] > -1} {
+			set dustbin ""
+		} else {
+			set dustbin $_del_dustbin
+		}
+
+		# Directory
+
+		if {[file isdirectory $file]} {
+			if {$dustbin ne ""} {
+				set ndir "[_del_bindir $file]/[file tail $file]"
+				while {[file isdirectory $ndir]} {
+					append ndir "_"
+				}
+				file rename $file $ndir
+				_del_touch $ndir
+			} else {
+				tdelete $file
+			}
+			return 1
+		}
+
+		if {[string match {*.ts} $file]} {
+			set ts [ts fetch $file]
+
+			# Check TS validity
+			if {![catch {$ts get file}]} {
+				if {$dustbin ne ""} {
+					$ts move [_del_bindir $file] 1 1
+				} else {
+					if {[$ts delete]} {
+						return 1
+					} else {
+						return 0
+					}
+				}
+				return 1
+			}
+		}
+
+		# otherwise treat as normal file.
+
+		if {$dustbin ne ""} {
+			set nfile "[_del_bindir $file]/[file tail $file]"
+			file rename $file $nfile
+			_del_touch $nfile
+		} else {
+			tdelete $file
+		}
+		catch {file delete "[file rootname $file].hmi"}
+		return 1
+	}
+}
+

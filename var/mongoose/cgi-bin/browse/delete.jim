@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class pretty_size system.class tdelete
+require safe_delete
 
 puts "Content-Type: text/html\r\n"
 
@@ -13,30 +13,10 @@ set dir [cgi_get dir]
 
 #puts "DIR: ($dir)"
 
-if {[system pkginst undelete]} {
-	set dustbin [system dustbin]
-} else {
-	set dustbin ""
-}
-
-proc bindir {file} {
-	global dustbin
-	set dir [file dirname $file]
-	regsub "^[system mediaroot]" $dir $dustbin ndir
-	if {$dir eq $ndir} { set ndir $dustbin }
-	system mkdir_p $ndir
-	return $ndir
-}
-
-proc touch {file} {
-	exec /mod/bin/busybox/touch $file
-}
-
 puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
 puts "<ul style=\"list-style-type: square\">"
 
 foreach file [cgi_get files] {
-
 	puts -nonewline "<li>\"$file\"..."
 
 	if {[string first "$dir/" $file] != 0} {
@@ -44,56 +24,10 @@ foreach file [cgi_get files] {
 		continue
 	}
 
-	if {$dustbin ne "" && [string first $dustbin $file] > -1} {
-		set ldustbin ""
+	if {[safe_delete $file]} {
+		puts -nonewline "Done..."
 	} else {
-		set ldustbin $dustbin
-	}
-
-	set done 0
-	if {[file isdirectory $file]} {
-		puts -nonewline "Directory..."
-		if {$ldustbin ne ""} {
-			set ndir "[bindir $file]/[file tail $file]"
-			while {[file isdirectory $ndir]} {
-				append ndir "_"
-			}
-			file rename $file $ndir
-			touch $ndir
-		} else {
-			tdelete $file
-		}
-		puts -nonewline "Done..."
-		set done 1
-	} elseif {[string match {*.ts} $file]} {
-		set ts [ts fetch $file]
-
-		# Check TS validity
-		if {![catch {$ts get file}]} {
-			if {$ldustbin ne ""} {
-				$ts move [bindir $file] 1 1
-			} else {
-				if {[$ts delete]} {
-					puts "Successfully deleted $file."
-				} else {
-					puts "Problem deleting $file, [$ts get error]"
-				}
-			}
-			set done 1
-		}
-		# else treat as normal file.
-	}
-
-	if {!$done} {
-		if {$ldustbin ne ""} {
-			set nfile "[bindir $file]/[file tail $file]"
-			file rename $file $nfile
-			touch $nfile
-		} else {
-			tdelete $file
-		}
-		catch {file delete "[file rootname $file].hmi"}
-		puts -nonewline "Done..."
+		puts -nonewline "Error..."
 	}
 
 	puts "</li>"
