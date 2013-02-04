@@ -57,7 +57,7 @@ proc eventheader {{table TBL_RESERVATION} note} {
 	}
 }
 
-proc eventrow {event {table TBL_RESERVATION}} {
+proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 	global svcmap
 
 	set name [$event name]
@@ -65,6 +65,9 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	set attrs "table=$table sid=[$event get ulslot] \
 	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
 	    ar=[expr ! [$event padded]]"
+	if {$pending} {
+		append attrs " class=\"blueshade strike\""
+	}
 	altrow $attrs
 
 	if {$table eq "pending"} {
@@ -151,7 +154,12 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		}
 
 		puts "</td><td align=center>"
-		puts "[clock format [$event get nduration] -format %H:%M]"
+		set xndur [$event get nduration]
+		if {$xndur > 0} {
+			puts "[clock format $xndur -format %H:%M]"
+		} else {
+			puts "--:--:--"
+		}
 		if {[llength $elist] > 1} {
 			puts "<div class=also style=\"margin-top: 0.5em\">"
 			foreach e $elist {
@@ -177,10 +185,22 @@ proc eventfooter {} {
 	puts "</tbody></table></fieldset>"
 }
 
+proc ekey {event} {
+	set ret ""
+	foreach key {ersvtype nsttime nduration hsvc usevtid} {
+		append ret ".[$event get $key]"
+	}
+	return $ret
+}
+
+set pmap {}
 set events [rsv list pending]
 if {[llength $events] > 0} {
 	eventheader pending "Pending Scheduled Events"
-	foreach event $events {eventrow $event pending}
+	foreach event $events {
+		eventrow $event pending
+		lappend pmap [ekey $event]
+	}
 	eventfooter
 	puts {
 		<small>
@@ -193,7 +213,13 @@ if {[llength $events] > 0} {
 
 set events [rsv list]
 eventheader "live" "Scheduled Events"
-foreach event $events {eventrow $event}
+foreach event $events {
+	if {[ekey $event] in $pmap} {
+		eventrow $event TBL_RESERVATION 1
+	} else {
+		eventrow $event
+	}
+}
 eventfooter
 
 puts {

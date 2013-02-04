@@ -120,6 +120,26 @@ proc {system diskspace} {} {
 	return [list $size $used $perc $free $fperc $dev]
 }
 
+proc {system diskfree} {} {
+	switch [system model] {
+		HDR { set part /mnt/hd2 }
+		HD { set part /media/drive1 }
+	}
+
+	set free 0
+	foreach line [split [exec /mod/bin/busybox/df -k $part 2>>/dev/null] "\n\r"] {
+		if {[string match "/*" $line]} {
+			regsub -all -- {[[:space:]]+} $line " " line
+			set fields [split $line]
+			set free [lindex $fields 3]
+			set free $($free * 1024)
+			break
+		}
+	}
+
+	return $free
+}
+
 proc {system busy} {} {
 	# Is humaxtv doing anything important?
 	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {

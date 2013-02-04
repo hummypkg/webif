@@ -59,10 +59,14 @@ if {[system is_listening 9000]} {
 
 log "Media scan starting, DLNA server status: $dlnaok" 1
 
-proc dsc {} {
-	lassign [system diskspace] size used perc
-	if {$perc > 90} {
-		log "Insufficient disk space ($perc% $size/$used), aborting." 1
+proc dsc {{size 0}} {
+	set free [system diskfree]
+
+	# Required disk space is 10GiB + 4 times the file size.
+	set req $($size * 4 + 10 * 1073741824)
+
+	if {$free < $req} {
+		log "Insufficient disk space. Require=$req, Free=$free" 1
 		exit
 	}
 }
@@ -284,7 +288,6 @@ proc do_mpg {ts} {
 
 proc entries {dir callback} {
 	foreach entry [readdir -nocomplain $dir] {
-		dsc
 		if {![string match {*.ts} $entry} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
@@ -292,6 +295,7 @@ proc entries {dir callback} {
 			log "$entry - in use\n" 1
 			continue
 		}
+		dsc [file size "$dir/$entry"]
 		$callback $ts
 	}
 }

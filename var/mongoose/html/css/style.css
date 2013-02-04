@@ -235,6 +235,11 @@ pre, .pre
 	color: black;
 }
 
+.strike
+{
+	text-decoration: line-through;
+}
+
 .greenshade
 {
 	background: #e4faa8;
