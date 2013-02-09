@@ -1,11 +1,9 @@
 #!/mod/bin/jimsh
 
 package require cgi
+source /mod/webif/lib/setup
 
-puts "Content-Type: text/html"
-puts "Pragma: no-cache"
-puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-puts ""
+httpheader
 
 set dir "/mod/var/backup"
 

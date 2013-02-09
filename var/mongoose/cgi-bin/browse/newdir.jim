@@ -2,16 +2,11 @@
 
 package require cgi
 package require pack
+source /mod/webif/lib/setup
 
-puts "Content-Type: application/json"
-puts ""
+httpheader "application/json"
 
-cgi_input
-#cgi_dump
-
-#set _cgi(dir) "/media/My Video"
-
-set root [dict get $_cgi dir]
+set root [cgi_get dir]
 # Strip double slashes
 regsub -all -- {\/+} "$root/*" "/" root
 

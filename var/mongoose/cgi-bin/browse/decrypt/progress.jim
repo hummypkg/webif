@@ -4,10 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class
 
-puts "Content-Type: text/html\r\n\r\n"
-
-cgi_input
-#cgi_dump
+httpheader
 
 set tsfile [cgi_get file]
 set rfile [file normalize $tsfile]

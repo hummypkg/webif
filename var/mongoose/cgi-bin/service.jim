@@ -1,15 +1,12 @@
 #!/mod/bin/jimsh
 
 package require cgi
+source /mod/webif/lib/setup
 
-puts "Content-Type: text/html"
-puts ""
+httpheader
 
-cgi_input
-#cgi_dump
-
-catch { set service [dict get $_cgi service] }
-catch { set action [dict get $_cgi action] }
+set service [cgi_get service]
+set action [cgi_get action]
 
 catch { puts [exec /mod/bin/service $action $service] }
 

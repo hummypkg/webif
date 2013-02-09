@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
-puts "Content-Type: text/html"
-puts ""
+source /mod/webif/lib/setup
+httpheader
 
 source /mod/webif/include/restart.jim
 

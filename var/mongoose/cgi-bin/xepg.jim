@@ -3,13 +3,9 @@
 package require cgi
 source /mod/webif/lib/setup
 
-puts "Content-Type: text/html"
-puts ""
 header
 
 require epg.class spinner.class altrow epg_search totop
-
-cgi_input
 
 puts {
 <link type="text/css" href="/css/xepg.css" rel="Stylesheet" />

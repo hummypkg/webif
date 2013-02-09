@@ -7,20 +7,14 @@ require rsv.class findhsvc system.class
 
 set dir /mod/var/backup
 
-puts "Content-Type: text/html"
-puts ""
+httpheader
 
-cgi_input
-#cgi_dump
-
-#set _cgi(restore_file) "backup-2011-Jul-09-20:37"
-
-if {![dict exists $_cgi restore_file]} {
+set file [file tail [cgi_get restore_file]]
+if {$file == 0} {
 	puts "No filename supplied."
 	exit
 }
 
-set file [file tail [dict get $_cgi restore_file]]
 set ffile "/$dir/$file.rbk"
 
 if {![file exists $ffile]} {

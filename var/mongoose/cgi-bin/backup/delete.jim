@@ -5,20 +5,14 @@ source /mod/webif/lib/setup
 
 set dir /mod/var/backup
 
-puts "Content-Type: text/html"
-puts "Pragma: no-cache"
-puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-puts ""
+httpheader
 
-cgi_input
-#cgi_dump
-
-if {![dict exists $_cgi restore_file]} {
+set file [file tail [cgi_get restore_file]]
+if {$file == 0} {
 	puts "No filename supplied."
 	exit
 }
 
-set file [file tail [dict get $_cgi restore_file]]
 set ffile "/$dir/$file.rbk"
 
 if {![file exists $ffile]} {

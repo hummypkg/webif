@@ -172,7 +172,7 @@ ts method settitle {newtitle} {
 }
 
 ts method setsynopsis {newsynopsis} {
-	if {[string length newsynopsis] > 48} { return }
+	if {[string length newsynopsis] > 252} { return }
 
 	exec /mod/bin/hmt "+setsynopsis=${newsynopsis}" $file
 }

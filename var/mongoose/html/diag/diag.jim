@@ -4,14 +4,11 @@ package require cgi
 source /mod/webif/lib/setup
 require pretty_size system.class pkg.class
 
-puts "Content-Type: text/html"
-puts ""
+header
 
 pkg loaddiagmeta
 
 set smv [system modversion 1]
-
-header
 
 puts {
 <script type=text/javascript src=/js/enadis.js></script>

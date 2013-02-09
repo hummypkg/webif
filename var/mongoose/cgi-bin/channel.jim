@@ -5,12 +5,7 @@ package require sqlite3
 source /mod/webif/lib/setup
 require altrow progressbar epg.class
 
-puts "Content-Type: text/html"
-puts ""
-
 header
-
-cgi_input
 
 proc f2c {frequency} {
 	set ch int($((($frequency / 1000) - 303.25) / 8))

@@ -6,14 +6,7 @@ require settings.class pkg.class altrow
 
 if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
 
-puts "Content-Type: text/html"
-puts "Pragma: no-cache"
-puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-puts ""
-
-cgi_input
-#cgi_dump
-if {![dict exists $_cgi type]} { set _cgi(type) avail }
+httpheader
 
 proc pkgrow {pkg} {
 	set name [$pkg get name]
@@ -60,7 +53,7 @@ proc pkgrow {pkg} {
 
 pkg loadmeta
 
-set type $_cgi(type)
+set type [cgi_get type "avail"]
 
 set pkgs [pkg $type]
 

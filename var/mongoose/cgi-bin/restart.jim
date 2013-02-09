@@ -4,10 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require rsv.class system.class
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
+httpheader
 
 if {[cgi_get act] eq "cancel"} {
 	file delete /tmp/.restartpending

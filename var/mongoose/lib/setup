@@ -9,7 +9,23 @@ if {![exists -proc require]} {
 		}
 	}
 
-	proc header {} {
+	proc httpheader {{type "text/html"} {cache 0} {extra ""}} {{done 0}} {
+		if {$done} return
+		if {!$cache} {
+			puts -nonewline "Content-Type: $type; no-cache\r\n"
+			puts -nonewline "Expires: -1\r\n"
+			puts -nonewline "Pragma: no-cache\r\n"
+			puts -nonewline "Cache-Control: no-cache\r\n"
+		} else {
+			puts "Content-Type: $type\r\n"
+		}
+		puts -nonewline $extra
+		puts -nonewline "\r\n"
+		set done 1
+	}
+
+	proc header {{type "text/html"} {cache 0}} {
+		httpheader $type $cache
 		uplevel source /mod/webif/html/lib/header.jim
 	}
 

@@ -4,9 +4,6 @@ package require cgi
 source /mod/webif/lib/setup
 require system.class
 
-puts "Content-Type: text/html"
-puts ""
-
 header
 
 set space [system diskspace]

@@ -4,9 +4,6 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class spinner.class altrow
 
-puts "Content-Type: text/html"
-puts ""
-
 header
 
 require totop
@@ -16,9 +13,6 @@ require totop
 	size "1.2em"
 	style "margin: 1em;"
 	}] start
-
-cgi_input
-#cgi_dump
 
 require epg_popup
 

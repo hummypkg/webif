@@ -4,13 +4,9 @@ package require cgi
 source /mod/webif/lib/setup
 require clipboard.class ts.class
 
-puts "Content-Type: text/html; no-cache"
-puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-puts "Pragma: nocache"
-puts ""
+httpheader
 
 cgi_input 1
-#cgi_dump
 
 set cb [[clipboard new {path "/tmp/webif-browse.cb"}] load]
 

@@ -5,17 +5,12 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class system.class
 
-puts "Content-Type: text/html\r\n\r\n"
-
-cgi_input
-#cgi_dump
+header
 
 set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-
-header
 
 puts "
 <link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />

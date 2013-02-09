@@ -3,8 +3,7 @@
 source /mod/webif/lib/setup
 require system.class
 
-puts "Content-Type: text/html"
-puts ""
+httpheader
 
 set menupath "Settings-&gt;System-&gt;Internet Setting-&gt;Content Share"
 set dbpath "/mnt/hd2/dms_cds.db"

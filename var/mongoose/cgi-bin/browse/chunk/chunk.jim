@@ -4,10 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size
 
-puts "Content-Type: text/html\r\n\r\n"
-
-cgi_input
-#cgi_dump
+header
 
 set rfile [cgi_get file]
 set ts [ts fetch $rfile]
@@ -20,8 +17,6 @@ set len [$ts duration 1]
 
 set esttime $(int($len * 0.025))
 if {[$ts get definition] eq "HD"} { set esttime $($esttime * 4) }
-
-header
 
 puts "
 <script type=text/javascript src=/js/jquery.progressbar.js></script>

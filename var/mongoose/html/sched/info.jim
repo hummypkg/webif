@@ -4,11 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require rsv.class progressbar epg.class
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
+httpheader
 
 set table [cgi_get table TBL_RESERVATION]
 set slot [cgi_get slot 0]

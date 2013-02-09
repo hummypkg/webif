@@ -3,11 +3,7 @@
 package require cgi
 source /mod/webif/lib/setup
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
+httpheader
 
 set dir [cgi_get dir]
 set flag [cgi_get flag]

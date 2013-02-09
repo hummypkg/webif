@@ -4,27 +4,18 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class spinner.class altrow
 
-puts "Content-Type: text/html"
-puts ""
-
 header
 
 require totop
 
 puts "<script type=text/javascript src=/js/jquery.highlight.js></script>"
 
-cgi_input
-#cgi_dump
+set ct [cgi_get ct 0]
+set crid [cgi_get crid ""]
+set scrid [cgi_get scrid ""]
 
-set ct 0
-catch { set ct [dict get $_cgi ct] }
-set crid ""
-catch { set crid [dict get $_cgi crid] }
-set scrid ""
-catch { set scrid [dict get $_cgi scrid] }
-
-if {[dict exists $_cgi term]} {
-	set lterm [dict get $_cgi term]
+if {[cgi_exists term]} {
+	set lterm [cgi_get term]
 
 	if {[string match {CRID:*} $lterm]} {
 		set crid [string range $lterm 5 end]
@@ -46,9 +37,6 @@ require epg_search
 	}] start
 
 require epg_popup
-
-#set _cgi [dict create term "doctor who"]
-#set env(REQUEST_URI) "test"
 
 set cmd "search"
 if {$searchfull} { set cmd "searchall" }

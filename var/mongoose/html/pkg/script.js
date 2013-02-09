@@ -66,17 +66,19 @@ $(document).ready(function() {
 
 	function loaddata(data, isfinal)
 	{
-		//console.log('loaddata called, final=' + isfinal);
-		//console.log('Data: ' + data);
-		$('#dresults').append(data);
+		if (window.console)
+		{
+			console.log('loaddata called, final=' + isfinal);
+			console.log('Data: ' + data);
+		}
 		if (isfinal)
 		{
+			$('#dresults').text(data);
 			$('#dspinner').hide('slow');
-			if (!$('#dresults').text())
-				$('#dresults').append('Nothing to do.');
-			else
-				$('#complete').show('slow');
+			$('#complete').show('slow');
 		}
+		else
+			$('#dresults').append(data);
 	}
 
 	function execopkg(arg, pkg)
@@ -95,20 +97,16 @@ $(document).ready(function() {
 		$('#dialogue').attr('pkg', pkg);
 		$dialog.dialog('open');
 
-//		$('#dresults').load(opkg + arg, function() {
-//			$('#dspinner').hide('slow');
-//		});
-
 		$.ajax({
 			type: "GET",
 			url: opkg + arg,
 			progress: loaddata,
 			success: function(data) {
-				//console.log("ajax success");
 				loaddata(data, true);
 			},
 			error: function(_, _, e) {
-				//console.log("ajax error");
+				if (window.console)
+					console.log("ajax error");
 				alert(e);
 			}
 		});

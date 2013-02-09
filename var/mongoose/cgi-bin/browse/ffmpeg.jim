@@ -1,15 +1,12 @@
 #!/mod/bin/jimsh
 
 package require cgi
+source /mod/webif/lib/setup
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
+httpheader
 
 if [file exists /mod/bin/ffmpeg] {
-	set file [dict get $_cgi file]
+	set file [cgi_get file]
 	puts [exec /mod/webif/lib/bin/ffmpeg -i $file]
 } else {
 	puts "Install ffmpeg package for more information..."

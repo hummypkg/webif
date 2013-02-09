@@ -4,15 +4,11 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
+httpheader
 
 set service [cgi_get service 0]
 set event [cgi_get event 0]
-if {! [dict exists $_cgi bare]} { header }
+if {![cgi_exists bare]} header
 
 set record [lindex [epg fetch dump -service $service -event $event] 0]
 $record get_channel_info
@@ -135,5 +131,5 @@ puts "
 puts "<div id=epginfo_extra class=footnote></div>"
 
 epg cleanup
-if {! [dict exists $_cgi bare]} { footer }
+if {![cgi_exists bare]} footer
 

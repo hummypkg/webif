@@ -4,13 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require plugin
 
-puts "Content-Type: text/html"
-puts ""
-
 header
 
-cgi_input
-#cgi_dump
 set file [cgi_get file "/tmp/hosts"]
 
 puts {

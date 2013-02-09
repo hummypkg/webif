@@ -4,21 +4,16 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class system.class
 
-puts "Content-Type: text/html"
-puts ""
+httpheader
 
-cgi_input
-#cgi_dump
+set service [cgi_get service -]
+set event [cgi_get event -]
+set type [cgi_get type 1]
 
-if {![dict exists $_cgi service] || ![dict exists $_cgi event]} {
+if {$service eq "-" || $event eq "-"} {
 	puts "Error, insufficient parameters passed."
 	exit
 }
-
-set service $_cgi(service)
-set event $_cgi(event)
-set type 1
-if {[dict exists $_cgi type]} { set type $_cgi(type) }
 
 set event [lindex [epg fetch dump -service $service -event $event] 0]
 if {$event eq ""} {

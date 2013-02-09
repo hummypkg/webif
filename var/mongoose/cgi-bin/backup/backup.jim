@@ -7,11 +7,7 @@ require rsv.class
 
 set dir /mod/var/backup
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
+httpheader
 
 set now [clock seconds]
 set file [file tail [cgi_get file \

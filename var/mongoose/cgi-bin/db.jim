@@ -5,16 +5,10 @@ package require sqlite3
 source /mod/webif/lib/setup
 require altrow
 
-puts "Content-Type: text/html"
-puts ""
-
 set databases [glob /var/lib/humaxtv/*.db]
 lappend databases "/mnt/hd2/dms_cds.db"
 
 header
-
-cgi_input
-#cgi_dump
 
 set ftab [cgi_get tab]
 set fdb [cgi_get db]
@@ -24,7 +18,7 @@ if {$fdb != 0} {
 }
 
 proc db_info {db_file} {
-	global _cgi fdb ftab
+	global fdb ftab
 
 	if {$fdb != 0 && [file tail $db_file] ne $fdb} { return }
 	if {![file exists $db_file]} { return }

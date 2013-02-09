@@ -1,12 +1,9 @@
 #!/mod/bin/jimsh
 
 package require cgi
-#source /mod/webif/lib/setup
+source /mod/webif/lib/setup
 
-puts "Content-Type: text/html\r\n\r\n"
-
-cgi_input
-#cgi_dump
+httpheader
 
 set expected [cgi_get esize 1]
 set file [file normalize [cgi_get file]]

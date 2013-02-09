@@ -2,7 +2,8 @@
 
 set stream "/mnt/hd3/Streamer_down_file"
 
-puts "Content-type: text/plain\n"
+source /mod/webif/lib/setup
+httpheader "text/plain"
 
 if {[file exists $stream]} {
 	puts -nonewline [file size $stream]

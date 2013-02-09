@@ -11,8 +11,7 @@ proc chunk_pad {{len 256}} {
 }
 
 proc start_chunked {{type "text/html"}} {
-	puts -nonewline "Content-Type: $type\r\n"
-	puts -nonewline "Transfer-Encoding: chunked\r\n\r\n"
+	httpheader $type 0 "Transfer-Encoding: chunked\r\n"
 }
 
 proc end_chunked {} {

@@ -4,19 +4,13 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size altrow
 
+header
+
 source normalise.jim
 source process.jim
 
-puts "Content-Type: text/html"
-puts ""
-
-cgi_input
-#cgi_dump
-
 set dir [cgi_get dir "/media/My Video"]
 set doit [cgi_get doit 0]
-
-header
 
 puts "<script type=text/javascript src=script.js></script>"
 

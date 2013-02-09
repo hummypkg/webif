@@ -5,11 +5,6 @@ package require sqlite3
 source /mod/webif/lib/setup
 require ts.class pretty_size
 
-puts "Content-Type: text/html\r\n\r\n"
-
-cgi_input
-#cgi_dump
-
 header
 
 #append dmsfile ".rr"

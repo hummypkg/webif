@@ -10,12 +10,8 @@ if {[string match {*jim} $argv0]} { set runmode cgi }
 set schedtime 1200 
 case $runmode {
     cgi {
-	cgi_input
 	set type [cgi_get type "full"]
-	puts "Content-Type: text/html"
-	puts "Pragma: no-cache"
-	puts "Expires: Thu, 01 Jan 1970 00:00:00 GMT"
-	puts ""
+	httpheader
     }
     cli {
 	set type "full"
