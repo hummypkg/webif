@@ -180,7 +180,11 @@ ts method setsynopsis {newsynopsis} {
 ts method setguidance {newguidance} {
 	if {[string length newguidance] > 48} { return }
 
-	exec /mod/bin/hmt "+setguidance=${newguidance}" $file
+	if {$newguidance eq ""} {
+		exec /mod/bin/hmt "-guidance" $file
+	} else {
+		exec /mod/bin/hmt "+setguidance=${newguidance}" $file
+	}
 }
 
 ts method setgenre {newgenre} {

@@ -25,8 +25,11 @@ if {[file isdirectory $file]} {
 		if {[catch {
 			set new [string trim [cgi_get "rename_$attr"]]
 			set old [$ts get $attr]
-			if {[string length $new] > 0 && $new ne $old} {
-				$ts set$attr $new
+			if {$new ne $old} {
+				if {$attr eq "guidance" ||
+				    [string length $new] > 0} {
+					$ts set$attr $new
+				}
 			}
 		} msg]} {
 			puts "$attr: $msg"

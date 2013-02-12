@@ -62,8 +62,8 @@ log "Media scan starting, DLNA server status: $dlnaok" 1
 proc dsc {{size 0}} {
 	set free [system diskfree]
 
-	# Required disk space is 10GiB + 4 times the file size.
-	set req $($size * 4 + 10 * 1073741824)
+	# Required disk space is 1GiB + 3 times the file size.
+	set req $($size * 3 + 1073741824)
 
 	if {$free < $req} {
 		log "Insufficient disk space. Require=$req, Free=$free" 1
@@ -134,6 +134,7 @@ proc do_shrink {ts} {
 		return
 	}
 	set size [$ts size]
+	dsc $size
 	startclock
 	log "  SHRINK: $file" 1
 	log "          Estimate $perc% saving." 1
@@ -208,6 +209,7 @@ proc do_decrypt {ts} {
 	}
 
 	set size [$ts size]
+	dsc $size
 	startclock
 	log "  DECRYPT: $rfile" 1
 	log "  DLNA: $url" 1
@@ -267,6 +269,8 @@ proc do_mpg {ts} {
 		return
 	}
 
+	dsc [$ts size]
+
 	log "     MPG: $file" 1
 	log "          Converting..." 1
 	if {[catch {
@@ -295,7 +299,7 @@ proc entries {dir callback} {
 			log "$entry - in use\n" 1
 			continue
 		}
-		dsc [file size "$dir/$entry"]
+		#dsc [file size "$dir/$entry"]
 		$callback $ts
 	}
 }
@@ -327,9 +331,17 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 		return
 	}
 
-	if {$force && [string match {\[*} [file tail $dir]]} {
-		log "Special folder, skipping."
-		set force 0
+	if {[string match {\[*} [file tail $dir]]} {
+		# Special folder
+		file stat "$dir/" st
+		if {$st(dev) != $::rootdev} {
+			log "Special folder on different device, skipping."
+			return
+		}
+		if {$force} {
+			set force 0
+			log "Special folder, overriding recursion."
+		}
 	}
 
 	# Recursion
@@ -352,6 +364,9 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 }
 
 set root [system mediaroot]
+file stat "$root/" rootstat
+set rootdev $rootstat(dev)
+#log "Root device: $rootdev" 1
 
 if {[llength $argv] > 0} {
 	if {[lindex $argv 0] eq "test"} { set debug 1 }
