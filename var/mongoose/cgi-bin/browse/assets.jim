@@ -166,7 +166,7 @@ puts {
 
 <div id=drenameform title="Rename directory" style="display: none">
 	<form id=drenameform_form>
-	<input type=hidden name="renameorig" id="drenameorig" value="">
+	<input type=hidden name="renamefile" id="drenameorig" value="">
 	<table border=0>
 	<tr>
 	<th>
