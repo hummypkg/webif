@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require epg.class spinner.class altrow
+require epg.class spinner.class altrow settings.class
 
 header
 
@@ -41,8 +41,10 @@ require epg_popup
 set cmd "search"
 if {$searchfull} { set cmd "searchall" }
 
+set dedup 0
 if {$ct > 0 } {
 	set records [epg fetch dump -type $ct]
+	if {[[settings] genrededup]} { set dedup 1 }
 } elseif {$crid ne ""} {
 	set records [epg fetch dump -crid $crid]
 } elseif {$scrid ne ""} {
@@ -78,8 +80,15 @@ proc rsort {v1 v2} {
 	return -1
 }
 
+set seen {}
 set i 0
 foreach record [lsort -command rsort $records] {
+	if {$dedup} {
+		set ename [$record get name]
+		if {$ename in $seen} continue
+		lappend seen $ename
+	}
+
 	if {$favlist != "" && [$record get service_id] ni $favlist} {
 		continue
 	}

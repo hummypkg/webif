@@ -137,5 +137,24 @@ $(document).ready(function () {
 				    .delay(2000).fadeOut('slow');
 		    });
 	});
+
+	$('#genrededup_toggle').change(function() {
+		var arg = '0';
+		if ($(this).attr('checked'))
+			arg = '1';
+
+		$(this).disable();
+
+		$('#genrededup_output')
+		    .empty()
+		    .show('slow')
+		    .load('/cgi-bin/settings.jim?genrededup=' + arg,
+		        function() {
+				$('#genrededup_toggle').enable();
+				$('#genrededup_output')
+				    .css('font-style', 'italic')
+				    .delay(2000).fadeOut('slow');
+		    });
+	});
 });
 

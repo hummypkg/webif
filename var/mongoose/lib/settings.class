@@ -25,6 +25,7 @@ class settings {
 	notoolbar	0
 	nomobile	0
 	xepghours	4
+	genrededup	0
 }
 
 settings method hostname {{name ""}} {
@@ -125,6 +126,10 @@ settings method pkgdev {{val -1}} {
 
 settings method notoolbar {{val -1}} {
 	return [$self _nval_setting notoolbar $val]
+}
+
+settings method genrededup {{val -1}} {
+	return [$self _nval_setting genrededup $val]
 }
 
 settings method nomobile {{val -1}} {

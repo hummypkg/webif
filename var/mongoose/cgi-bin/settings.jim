@@ -39,6 +39,7 @@ set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
 set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
+set genrededup [$settings genrededup]
 
 # Handle updates
 
@@ -78,6 +79,7 @@ handle_str_update epg_style $epg_style "EPG Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
+handle_int_update genrededup $genrededup "Genre search dedup"
 
 set acluser [cgi_get acluser "-"]
 set aclpass [cgi_get aclpass "-"]
@@ -176,6 +178,16 @@ puts ">
 "
 
 puts "
+</table></fieldset>
+<br><br>
+<fieldset style=\"display: inline\">
+	<legend>
+		EPG Settings
+	</legend>
+<table>
+"
+
+puts "
 	<tr>
 	<form class=auto id=epg_style method=get action=$env(REQUEST_URI)>
 		<th class=key>Default Now/Next style</th>
@@ -253,6 +265,17 @@ puts "
 		<div id=xepghours_output></div>
 		</td>
 	</form>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+		<th class=key>De-duplicate genre search results?</th>
+		<td><input id=genrededup_toggle name=genrededup type=checkbox value=yes"
+if {$genrededup == 1} { puts -nonewline " checked" }
+puts ">
+		    <div id=genrededup_output></div>
+		</td>
 	</tr>
 "
 
