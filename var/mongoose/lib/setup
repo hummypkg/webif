@@ -45,5 +45,9 @@ if {![exists -proc require]} {
 	# largefile safe.
 
 	require filecopy
+
+	# and {file rename} with one that supports cross-filesystem moves.
+
+	require filerename
 }
 

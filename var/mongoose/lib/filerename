@@ -1,0 +1,21 @@
+
+proc {file rename} {{force {}} source target} {
+	try {
+		if {$force ni {{} -force}} {
+			error "bad option \"$force\": should be -force"
+		}
+
+		if {![file exists $source]} {
+			error "source file does not exist."
+		}
+
+		if {$force eq "" && [file exists $target]} {
+			error "error copying \"$source\" to \"$target\": file already exists"
+		}
+		exec /mod/bin/busybox/mv $source $target
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
+	}
+}
+
