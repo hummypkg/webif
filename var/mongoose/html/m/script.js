@@ -112,15 +112,15 @@ $(document).delegate('#browsepage', 'pageinit', function() {
 	//console.log('DIR: %O', dir);
 
 	// Load folder sizes
-	$.getJSON('/cgi-bin/browse/sizes.jim?dir=' + encodeURIComponent(dir),
+	$.getJSON('/browse/sizes.jim?dir=' + encodeURIComponent(dir),
 		folder_size_callback);
 
 	// Flag folders with unwatched items
-	$.getJSON('/cgi-bin/browse/newdir.jim?dir=' + encodeURIComponent(dir),
+	$.getJSON('/browse/newdir.jim?dir=' + encodeURIComponent(dir),
 		new_folder_callback);
 
 	// Flag shrunk recordings
-	$.getJSON('/cgi-bin/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
+	$.getJSON('/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
 		shrunk_callback);
 });
 

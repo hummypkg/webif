@@ -4,6 +4,12 @@ require system.class
 
 proc dedupprocess {file} {{seen {}}} {
 	set ts [ts fetch $file 1]
+
+	if {[$ts flag "Deduped"]} {
+		lappend seen [file rootname [file tail $file]]
+		return [list nothing $ts "" ""]
+	}
+
 	set dir [file dirname $file]
 	set base [file tail [file rootname $file]]
 	set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
@@ -12,7 +18,7 @@ proc dedupprocess {file} {{seen {}}} {
 	regsub -all -- {[?]} $fn "" fn
 
 	set stat ok
-	if {[system inuse [file rootname $file]]} {
+	if {[$ts inuse]} {
 		set stat inuse
 	} elseif {$fn in $seen} {
 		set stat dup
@@ -20,6 +26,7 @@ proc dedupprocess {file} {{seen {}}} {
 		set stat error
 	} elseif {$base eq $fn} {
 		set stat nothing
+		$ts set_deduped
 	} elseif {[file exists "$dir/$fn.ts"]} {
 		set stat preserve
 	}

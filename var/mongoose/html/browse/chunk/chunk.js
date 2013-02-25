@@ -69,7 +69,7 @@ $('#back').button().click(function(e) {
 	e.preventDefault();
 	var dir = $(this).attr('dir');
 
-	window.location = '/cgi-bin/browse.jim?dir=' + dir;
+	window.location = '../index.jim?dir=' + dir;
 });
 
 });

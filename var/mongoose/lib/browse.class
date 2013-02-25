@@ -15,6 +15,16 @@ proc _addicon {img {hover ""} {class va}} {
 	return $icon
 }
 
+proc {dir expiry} {dir} {
+	if {[catch {
+		set fd [open "$dir/.autoexpire"]
+		set days $([read $fd] + 0)
+		$fd close
+	}]} { set days 0 }
+	if {!$days} { set days 7 }
+	return $days
+}
+
 proc {dir iconset} {dir} {
 	set icons {}
 	set attrs {}
@@ -71,6 +81,15 @@ proc {dir iconset} {dir} {
 		set autompg 1
 		lappend icons [_addicon "/img/mpg.png" "Auto-MPG Extract"]
 		lappend attrs "autompg=1"
+	}
+
+	set autoexpire 0
+	if {[file exists "$dir/.autoexpire"]} {
+		set days [{dir expiry} $dir]
+		set autoexpire 1
+		lappend icons [_addicon "/img/clock.png" \
+		    "Auto-Expire ($days day$($days == 1 ? "" : "s"))"]
+		lappend attrs "autoexpire=1" "autoexpiredays=$days"
 	}
 
 	return [list $icons $attrs]

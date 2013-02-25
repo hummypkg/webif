@@ -2,10 +2,9 @@ var handle = 0;
 
 function update()
 {
-	var perc = $('#params').attr('perc');
 	var file = $('#params').attr('file');
 
-	$.get('progress.jim' + '?perc=' + perc + '&file=' + file,
+	$.get('progress.jim' + '?file=' + file,
 	    function(data) {
 		if (handle)
 			$('#progressbar').reportprogress(data);
@@ -14,14 +13,25 @@ function update()
 
 $(document).ready(function() {
 
+$('#analysis').load('analyse.jim?file=' + $('#params').attr('file'),
+	function(t) {
+		if ($.trim(t) == '0%')
+		{
+			$('#output').text('Recording is already stripped.');
+			$('#back').slideDown();
+		}
+		else
+			$('#stripdiv').slideDown();
+	});
+
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '/cgi-bin/browse.jim?dir=' + $('#params').attr('dir');
+	window.location = '../index.jim?dir=' + $('#params').attr('dir');
 });
 
-$('#cropit').button().click(function() {
-	$('#cropdiv').hide('slow');
+$('#stripit').button().click(function() {
+	$('#stripdiv').hide('slow');
 	$('#progressdiv').show('slow');
 	handle = setInterval("update()", 1000);
 	$('#output').text('Please do not interrupt...')

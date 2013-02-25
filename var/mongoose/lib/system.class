@@ -69,9 +69,29 @@ proc {system pkgver} {{pkg webif}} {
 	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
 }
 
-proc {system pkginst} {pkg} {
-	if {[exec opkg list-installed $pkg] ne ""} {
-	    return 1 } else { return 0 }
+proc {system pkginst} {pkg} {{cache {}} {ncache {}}} {
+	if {$pkg in $cache} { return 1 }
+	if {$pkg in $ncache} { return 0 }
+
+	# It may not be possible to get an opkg lock immediately so
+	# try several times and throw an error if not.
+	set status unknown
+	loop i 0 5 {
+		if {[catch {set status [exec opkg list-installed $pkg]}]} {
+			sleep 1
+		} else break
+	}
+	if {$status eq "unknown"} {
+		puts "Could not get opkg lock after 5 seconds."
+		exit
+	}
+
+	if {$status ne ""} {
+		lappend $cache $pkg
+		return 1
+	}
+	lappend $ncache $pkg
+	return 0
 }
 
 proc {system mediaroot} {} {

@@ -15,7 +15,7 @@ $(document).ready(function() {
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '/cgi-bin/browse.jim?dir=' + $('#params').attr('dir');
+	window.location = '../index.jim?dir=' + $('#params').attr('dir');
 });
 
 $('#decryptit').button().click(function() {

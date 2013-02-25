@@ -146,7 +146,7 @@ puts "
 </table>
 "
 
-set url "/cgi-bin/browse/ffmpeg.jim?file=[cgi_quote_url $file]"
+set url "/bin/browse/ffmpeg.jim?file=[cgi_quote_url $file]"
 puts { <script type="text/javascript"> }
 puts "var url = \"$url\";"
 puts {

@@ -48,6 +48,11 @@ ts method _parse {line} {
 	set flags [split [string range $flags_list 0 end-1] ,]
 }
 
+ts method inuse {} {
+	if {[system inuse [file rootname $file]]} { return 1 }
+	return 0
+}
+
 ts method bookmarks {} {
 	return [exec /mod/bin/hmt -bookmarks $file]
 }
@@ -64,6 +69,18 @@ ts method unlock {} {
 
 ts method lock {} {
 	set cmd [list /mod/bin/hmt +lock $file]
+	exec {*}$cmd
+	return 1
+}
+
+ts method set_shrunk {} {
+	set cmd [list /mod/bin/hmt +shrunk $file]
+	exec {*}$cmd
+	return 1
+}
+
+ts method set_deduped {} {
+	set cmd [list /mod/bin/hmt +dedup $file]
 	exec {*}$cmd
 	return 1
 }

@@ -68,6 +68,7 @@ if $flatten {
 }
 
 puts {
+	<li class=clock><a href=#expire>Auto-Expire</a></li>
 	<li class=mpg><a href=#mpg>Auto-MPG Extract</a></li>
 </ul>
 
@@ -229,6 +230,32 @@ puts {
 	</td>
 	</tr>
 	</table>
+	</form>
+</div>
+
+<div id=aexpiry title="Auto-Expiry" style="display: none">
+	<form id=aexpiry_form>
+	<input type=hidden name="dir" id="aexpiry_ldir" value="">
+}
+puts {
+	<table border=0>
+	<tr>
+	<th>
+		<label for="aexpiry_days">
+			<b>Expire after</b>
+			<span class=blood>(in days)</span>
+		</label>
+	</th>
+	<td>
+		<input type=text name="aexpiry_days" id="aexpiry_days"
+		    type=number value=0 size=5 maxlength=3
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+	<div id=aexpiry_working class=hidden>
+		<img src=/img/loading.gif> Applying auto-expiry...
+	</div>
 	</form>
 </div>
 

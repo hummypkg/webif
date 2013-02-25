@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+httpheader
+
+# dir=%2Fmedia%2FMy+Video%2FWeatherview
+# aexpiry_days=13
+
+set dir [cgi_get dir "-"]
+set days [cgi_get aexpiry_days 7]
+if {$dir eq "-"} exit
+
+if {![file isdirectory $dir]} {
+	puts "Not a directory."
+	exit
+}
+
+set fd [open "$dir/.autoexpire" w]
+puts $fd $days
+$fd close
+puts "Ok."
+

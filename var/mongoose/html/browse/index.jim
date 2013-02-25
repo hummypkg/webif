@@ -202,8 +202,8 @@ proc entry {file} {{i 0}} {
 		icon "/img/compress.png" "Shrunk" \
 		    "id=\"sp_$tbfile\"" "va hidden"
 		# Timeshifted (shown when necessary via Ajax)
-		icon "/img/clock.png" "Time-shifted Recording" \
-		    "id=\"tsr_$tbfile\"" "va hidden"
+#		icon "/img/clock.png" "Time-shifted Recording" \
+#		    "id=\"tsr_$tbfile\"" "va hidden"
 
 		set bx [$ts get bookmarks]
 	}
@@ -234,11 +234,11 @@ puts {
 	<link href=/css/jquery.bar.css rel=stylesheet type=text/css />
 	<script type=text/javascript src=/js/jquery.bar.js></script>
 	<script type=text/javascript src=/js/enadis.js></script>
-	<script type=text/javascript src=/cgi-bin/browse/browse.js></script>
-	<link type=text/css rel=stylesheet href=/cgi-bin/browse/style.css />
+	<script type=text/javascript src=script.js></script>
+	<link type=text/css rel=stylesheet href=style.css />
 }
 
-source browse/assets.jim
+source assets.jim
 
 puts "
 	<span style=\"display:none\" id=dir>$dir</span>

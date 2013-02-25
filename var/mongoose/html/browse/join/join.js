@@ -22,7 +22,7 @@ $(document).ready(function() {
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '/cgi-bin/browse.jim?dir=' + $(this).attr('dir');
+	window.location = '../index.jim?dir=' + $(this).attr('dir');
 });
 
 $('#filelist').sortable().disableSelection();

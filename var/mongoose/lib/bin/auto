@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require lock system.class ts.class tdelete pretty_size
+require lock system.class ts.class tdelete pretty_size browse.class safe_delete
 
 set debug 0
 
@@ -95,17 +95,9 @@ if {[system pkginst undelete]} {
 
 log "Dustbin: $dustbin"
 
-proc bindir {file binroot} {
-	set dir [file dirname $file]
-	regsub "^[system mediaroot]" $dir $binroot ndir
-	if {$dir eq $ndir} { set ndir $binroot }
-	system mkdir_p $ndir
-	return $ndir
-}
-
 proc dedup {dir} {
 	log "DEDUP: \[$dir]"
-	loop i 0 2 {
+	loop i 0 1 {
 		foreach line [split \
 		    [exec /mod/webif/html/dedup/dedup -yes -auto $dir] "\n"] {
 			log $line 1
@@ -113,8 +105,33 @@ proc dedup {dir} {
 	}
 }
 
+proc do_expire {ts} {
+	global ax_days
+	set file [$ts get file]
+
+	# Calculate the age of the file in days.
+	set age $(([clock seconds] - [$ts get start]) / 86400.0)
+	log "  EXPIRE: $file (age = $age)"
+
+	if {$age > $ax_days} {
+		log "     EXPIRE: $file ($age > $ax_days)" 1
+		if {[$ts inuse]} {
+			log "          In use." 1
+			return
+		}
+		if {[safe_delete $file]} {
+			log "          Deleted." 1
+		}
+	}
+}
+
 proc do_shrink {ts} {
 	global tmp dustbin tsgroup
+
+	if {[$ts flag "Shrunk"]} {
+		log "          Already shrunk."
+		return
+	}
 
 	set file [file rootname [$ts get file]]
 	if {[catch {
@@ -131,6 +148,11 @@ proc do_shrink {ts} {
 
 	if {$perc == 0} {
 		log "          Already shrunk."
+		$ts set_shrunk
+		return
+	}
+	if {[$ts inuse]} {
+		log "          In use." 1
 		return
 	}
 	set size [$ts size]
@@ -161,18 +183,8 @@ proc do_shrink {ts} {
 		file rename $f "${file}_shrunk${ext}"
 	}
 
-	# Move the old recording to the bin if undelete is installed.
-	if {$dustbin ne ""} {
-		$ts move [bindir $file "$dustbin/webif_autoshrink"] 1 1
-	} else {
-		# Delete otherwise.
-		if {[$ts delete]} {
-			log "Successfully deleted $file."
-		} else {
-			log "Problem deleting $file, [$ts get error]" 1
-			return
-		}
-	}
+	# Remove the old recording (-> bin if undelete is installed)
+	safe_delete [$ts get file] "webif_autoshrink"
 
 	# Finally, rename the shrunken recording again.
 	foreach ext $tsgroup {
@@ -181,6 +193,7 @@ proc do_shrink {ts} {
 			file rename $f "${file}.$ext"
 		}
 	}
+	$ts set_shrunk
 	log "Done... [endclock $size]" 1
 }
 
@@ -208,6 +221,10 @@ proc do_decrypt {ts} {
 		return
 	}
 
+	if {[$ts inuse]} {
+		log "          In use." 1
+		return
+	}
 	set size [$ts size]
 	dsc $size
 	startclock
@@ -230,7 +247,7 @@ proc do_decrypt {ts} {
 	log "  Removing/binning old copy."
 	# Move the old recording to the bin if undelete is installed.
 	if {$dustbin ne ""} {
-		set bin [bindir $file "$dustbin/webif_autodecrypt"]
+		set bin [_del_bindir $file "webif_autodecrypt"]
 		set tail [file tail $rfile]
 		file rename "$rfile.encrypted" "$bin/$tail.ts"
 		foreach ext {nts hmt thm} {
@@ -269,6 +286,10 @@ proc do_mpg {ts} {
 		return
 	}
 
+	if {[$ts inuse]} {
+		log "          In use." 1
+		return
+	}
 	dsc [$ts size]
 
 	log "     MPG: $file" 1
@@ -295,11 +316,6 @@ proc entries {dir callback} {
 		if {![string match {*.ts} $entry} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
-		if {[system inuse [file rootname "$dir/$entry"]]} {
-			log "$entry - in use\n" 1
-			continue
-		}
-		#dsc [file size "$dir/$entry"]
 		$callback $ts
 	}
 }
@@ -317,6 +333,14 @@ proc decrypt {dir} {
 proc mpg {dir} {
 	log "MPG: \[$dir]"
 	entries $dir do_mpg
+}
+
+proc expire {dir} {
+	global ax_days
+	log "EXPIRE: \[$dir]"
+	
+	set ax_days [{dir expiry} $dir]
+	entries $dir do_expire
 }
 
 proc scan {dir attr {force 0}} {{indent 0}} {
@@ -369,10 +393,10 @@ set rootdev $rootstat(dev)
 #log "Root device: $rootdev" 1
 
 if {[llength $argv] > 0} {
-	if {[lindex $argv 0] eq "test"} { set debug 1 }
+	set debug 1
 	foreach arg $argv { scan $root $arg }
 } else {
-	foreach arg {dedup decrypt shrink mpg} {
+	foreach arg {dedup decrypt shrink mpg expire} {
 		set st [clock milliseconds]
 		scan $root $arg
 		log "$arg scan completed in [elapsed $st] seconds." 1

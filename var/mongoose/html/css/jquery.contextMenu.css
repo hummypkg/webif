@@ -70,5 +70,6 @@
 .contextMenu LI.decrypt A { background-image: url(/img/context/decrypt.png); }
 .contextMenu LI.decryptr A { background-image: url(/img/context/decryptr.png); }
 .contextMenu LI.mpg A { background-image: url(/img/context/mpg.png); }
+.contextMenu LI.clock A { background-image: url(/img/context/clock.png); }
 
 
