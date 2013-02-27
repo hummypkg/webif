@@ -82,8 +82,7 @@ proc {system pkginst} {pkg} {{cache {}} {ncache {}}} {
 		} else break
 	}
 	if {$status eq "unknown"} {
-		puts "Could not get opkg lock after 5 seconds."
-		exit
+		error "Could not get opkg lock after 5 seconds."
 	}
 
 	if {$status ne ""} {

@@ -33,12 +33,12 @@ function reloadclipboard()
 if ($('#clipclear').length)
 {
 	$('#paste').enable();
-	$('#doptmenu').enableContextMenuItems('#paste');
+	$('#doptmenu,#dooptmenu').enableContextMenuItems('#paste');
 }
 else
 {
 	$('#paste').disable();
-	$('#doptmenu').disableContextMenuItems('#paste');
+	$('#doptmenu,#dooptmenu').disableContextMenuItems('#paste');
 }
 
 $('#clipclear').button().click(function() {
@@ -364,6 +364,7 @@ function preparedmenu(el, menu)
 $(document).ready(function() {
 
 dir = $('#dir').text();
+mediaroot = $('#mediaroot').text();
 
 var menuclick = function(action, el, pos)
 {
@@ -619,6 +620,15 @@ var dmenuclick = function(action, el, pos)
 	$('img.dopt').contextMenu(
 		{
 			menu: 'doptmenu',
+			leftButton: true,
+			beforeShow: preparedmenu
+		},
+		dmenuclick
+	);
+
+	$('img.doopt').contextMenu(
+		{
+			menu: 'dooptmenu',
 			leftButton: true,
 			beforeShow: preparedmenu
 		},

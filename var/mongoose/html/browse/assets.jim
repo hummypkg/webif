@@ -45,6 +45,14 @@ puts {
 	<li><a href=#download>Download</a></li>
 </ul>
 
+<ul id=dooptmenu class=contextMenu style="width: 250px">
+	<li class=delete><a href=#delete>Delete</a></li>
+	<li class=cut><a href=#cut>Cut to clipboard</a></li>
+	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
+	<li class=pwpaste><a href=#paste>Paste to folder</a></li>
+	<li class=separator><a href=#rename>Rename</a></li>
+</ul>
+
 <ul id=doptmenu class=contextMenu style="width: 250px">
 	<li class=delete><a href=#delete>Delete</a></li>
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>

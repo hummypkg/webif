@@ -56,9 +56,15 @@ proc directory {file bfile tbfile} {
 	puts [join $icons ""]
 	puts "</span>"
 
+	if {[string first $::mroot $file] >= 0} {
+		set class dopt
+	} else {
+		set class doopt
+	}
+
 	puts -nonewline "
 	      <a href=#>
-		<img class=\"dopt va\" border=0 width=45 "
+		<img class=\"$class va\" border=0 width=45 "
 	puts -nonewline [join $attrs " "]
 	puts "
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
@@ -223,7 +229,8 @@ proc entry {file} {{i 0}} {
 	puts "</div>"
 }
 
-set dir [cgi_get dir [system mediaroot]]
+set mroot [system mediaroot]
+set dir [cgi_get dir $mroot]
 
 ######################################################################
 # Render web page
@@ -242,6 +249,7 @@ source assets.jim
 
 puts "
 	<span style=\"display:none\" id=dir>$dir</span>
+	<span style=\"display:none\" id=mediaroot>$mroot</span>
       <fieldset class=cleft style=\"margin: 0 1em 1em 1em\">
       <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
 "

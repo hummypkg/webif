@@ -6,8 +6,11 @@ proc dedupprocess {file} {{seen {}}} {
 	set ts [ts fetch $file 1]
 
 	if {[$ts flag "Deduped"]} {
-		lappend seen [file rootname [file tail $file]]
-		return [list nothing $ts "" ""]
+		# Fast track content which has already been de-duped.
+		set fn [file rootname [file tail $file]]
+		if {$fn in $seen} { set stat dup } else { set stat nothing }
+		lappend seen $fn
+		return [list $stat $ts "" $fn]
 	}
 
 	set dir [file dirname $file]

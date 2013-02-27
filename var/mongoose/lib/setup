@@ -41,13 +41,6 @@ if {![exists -proc require]} {
 		uplevel source /mod/webif/html/m/lib/footer.jim
 	}
 
-	# Replace the built-in jim {file copy} command with one that is
-	# largefile safe.
-
-	require filecopy
-
-	# and {file rename} with one that supports cross-filesystem moves.
-
-	require filerename
+	require fileops
 }
 
