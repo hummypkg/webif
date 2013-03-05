@@ -152,6 +152,7 @@ proc entry {file} {{i 0}} {
 	set def unknown
 	set bx 0
 	set dlna 0
+	set shrunk 0
 	if {$type eq "ts"} {
 		set genre [$ts get genre]
 		set glist [ts genrelist]
@@ -204,12 +205,11 @@ proc entry {file} {{i 0}} {
 			set dlna 1
 		}
 
-		# Shrunk (shown when necessary via Ajax)
-		icon "/img/compress.png" "Shrunk" \
-		    "id=\"sp_$tbfile\"" "va hidden"
-		# Timeshifted (shown when necessary via Ajax)
-#		icon "/img/clock.png" "Time-shifted Recording" \
-#		    "id=\"tsr_$tbfile\"" "va hidden"
+		# Shrunk
+		if {[$ts flag Shrunk]} {
+			icon "/img/compress.png" "Shrunk"
+			set shrunk 1
+		}
 
 		set bx [$ts get bookmarks]
 	}
@@ -220,7 +220,7 @@ proc entry {file} {{i 0}} {
 	      <a href=#>
 		<img class=\"$omenu va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
-		    rsize=$rsz
+		    shrunk=$shrunk rsize=$rsz
 		    odencd=$odencd dlna=$dlna
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>

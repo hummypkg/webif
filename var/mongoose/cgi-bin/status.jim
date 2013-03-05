@@ -63,7 +63,10 @@ if {[llength $data]} {
 	foreach name [array names ndata] {
 		if {![dict exists $seen $name]} { set seen($name) 0 }
 		if {![dict exists $data $name]} { set data($name) 0 }
-		if {$ndata($name) == -1} {
+		if {[file exists "/mod/tmp/webif_auto/decrypting.$name.ts"]} {
+			set mode "Decrypting"
+			set icon "178_1_00_Icon_Lock.png style=\"padding: 0 0.2em 0 0.5em\""
+		} elseif {$ndata($name) == -1} {
 			incr rec
 			incr play
 			set mode "Chase Playing"

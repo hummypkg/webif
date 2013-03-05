@@ -43,6 +43,7 @@ set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"
 ts renamegroup "$dir/$shname.ts" $newname
 exec /mod/bin/hmt "+setfilename=$newname" "$dir/$newname.hmt"
+exec /mod/bin/hmt "+shrunk" "$dir/$newname.hmt"
 
 set striptime [expr [expr [clock milliseconds] - $stripstart] / 1000.0]
 puts "Time taken: $striptime"

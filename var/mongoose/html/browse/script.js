@@ -125,23 +125,23 @@ function new_folder_callback(data, status, xhr)
 	$.each(data, set_folder_new);
 }
 
-function insert_shrunk(file, perc)
-{
-	if (perc == 0)
-	{
-		file = file.replace(/[ ]/g, '');
-		file = file.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
-		//console.log("File: (%s) = (%s)", file, perc);
-		$('#sp_' + file).show();
-	}
-}
+//function insert_shrunk(file, perc)
+//{
+//	if (perc == 0)
+//	{
+//		file = file.replace(/[ ]/g, '');
+//		file = file.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+//		//console.log("File: (%s) = (%s)", file, perc);
+//		$('#sp_' + file).show();
+//	}
+//}
 
-function shrunk_callback(data, status, xhr)
-{
-	//console.log("Status: %s", status);
-	//console.dir(data);
-	$.each(data, insert_shrunk);
-}
+//function shrunk_callback(data, status, xhr)
+//{
+//	//console.log("Status: %s", status);
+//	//console.dir(data);
+//	$.each(data, insert_shrunk);
+//}
 
 function delete_callback(file, dir, id)
 {
@@ -364,7 +364,6 @@ function preparedmenu(el, menu)
 $(document).ready(function() {
 
 dir = $('#dir').text();
-mediaroot = $('#mediaroot').text();
 
 var menuclick = function(action, el, pos)
 {
@@ -757,8 +756,8 @@ var dmenuclick = function(action, el, pos)
 		folder_size_callback);
 
 	// Flag shrunk recordings
-	$.getJSON('/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
-		shrunk_callback);
+//	$.getJSON('/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
+//		shrunk_callback);
 
 	// Flag folders with unwatched items
 	$.getJSON('/browse/newdir.jim?dir=' + encodeURIComponent(dir),

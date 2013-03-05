@@ -134,6 +134,12 @@ proc do_shrink {ts} {
 	}
 
 	set file [file rootname [$ts get file]]
+
+	if {[$ts inuse]} {
+		log "  $file - in use." 1
+		return
+	}
+
 	if {[catch {
 		set perc [exec /mod/bin/stripts -aq $file]
 	    } msg]} {
@@ -149,10 +155,6 @@ proc do_shrink {ts} {
 	if {$perc == 0} {
 		log "          Already shrunk."
 		$ts set_shrunk
-		return
-	}
-	if {[$ts inuse]} {
-		log "          In use." 1
 		return
 	}
 	set size [$ts size]
@@ -227,6 +229,8 @@ proc do_decrypt {ts} {
 	}
 	set size [$ts size]
 	dsc $size
+	set flagfile "$tmp/decrypting.$bfile"
+	exec /mod/bin/busybox/touch $flagfile
 	startclock
 	log "  DECRYPT: $rfile" 1
 	log "  DLNA: $url" 1
@@ -234,6 +238,7 @@ proc do_decrypt {ts} {
 
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
 		log "        File size mismatch." 1
+		file delete $flagfile
 		return
 	}
 
@@ -264,6 +269,7 @@ proc do_decrypt {ts} {
 		tdelete "$rfile.encrypted"
 	}
 	log "Done... [endclock $size]" 1
+	file delete $flagfile
 }
 
 proc do_mpg {ts} {
