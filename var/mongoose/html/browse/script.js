@@ -358,6 +358,7 @@ function preparedmenu(el, menu)
 	fixdmenu(el, menu, 'autodedup', '#dedup', 'Auto-dedup', 0);
 	fixdmenu(el, menu, 'autodecrypt', '#decrypt', 'Auto-decrypt', 1);
 	fixdmenu(el, menu, 'autompg', '#mpg', 'Auto-mpg', 0);
+	fixdmenu(el, menu, 'automp3', '#mp3', 'Auto-audio', 0);
 	fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
 }
 
@@ -567,6 +568,10 @@ var dmenuclick = function(action, el, pos)
 
 	    case 'mpg':
 		flagdir(file, 'autompg', iconset, results, el);
+		break;
+
+	    case 'mp3':
+		flagdir(file, 'automp3', iconset, results, el);
 		break;
 
 	    case 'shrink':

@@ -288,7 +288,7 @@ proc do_mpg {ts} {
 	}
 
 	if {[$ts get definition] eq "HD"} {
-		# Cannot extract a useful MP3 from a HD recording.
+		# Cannot extract a useful MPG from a HD recording.
 		return
 	}
 
@@ -317,6 +317,59 @@ proc do_mpg {ts} {
 	file rename $tmp/mpg.mpg $file.mpg
 }
 
+proc do_mp3 {ts} {
+	global tmp tsgroup
+
+	set file [file rootname [$ts get file]]
+
+	if {[file exists $file.mp3]} {
+		# Already done.
+		return
+	}
+
+	if {[$ts flag "ODEncrypted"]} {
+		log "          Not decrypted."
+		return
+	}
+
+	if {[$ts get definition] eq "HD"} {
+		# Cannot extract a useful MP3 from a HD recording.
+		return
+	}
+
+	if {[$ts inuse]} {
+		log "          In use." 1
+		return
+	}
+	dsc [$ts size]
+
+	log "     MP3: $file" 1
+	log "          Converting..." 1
+	if {[catch {
+		foreach line [split \
+		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
+		    -i $file.ts \
+		    -f mp3 -vn -acodec copy $tmp/mp3.mp3] "\n"] {
+			log $line 1
+		}
+	    } msg]} {
+		log "Error during mp3 extract: $msg" 1
+		return
+	}
+
+	if {[system pkginst id3v2]} {
+		log [exec /mod/bin/id3v2 \
+		    --song "[$ts get title]" \
+		    --comment "[$ts get synopsis]" \
+		    --album "[$ts get channel_name]" \
+		    --year "[clock format [$ts get start] -format {%Y}]" \
+		    "$tmp/mp3.mp3"]
+	}
+
+	# Move the MP3 into the local directory
+	file rename $tmp/mp3.mp3 $file.mp3
+}
+
 proc entries {dir callback} {
 	foreach entry [readdir -nocomplain $dir] {
 		if {![string match {*.ts} $entry} continue
@@ -339,6 +392,11 @@ proc decrypt {dir} {
 proc mpg {dir} {
 	log "MPG: \[$dir]"
 	entries $dir do_mpg
+}
+
+proc mp3 {dir} {
+	log "MP3: \[$dir]"
+	entries $dir do_mp3
 }
 
 proc expire {dir} {
@@ -402,7 +460,7 @@ if {[llength $argv] > 0} {
 	set debug 1
 	foreach arg $argv { scan $root $arg }
 } else {
-	foreach arg {dedup decrypt shrink mpg expire} {
+	foreach arg {dedup decrypt shrink mpg mp3 expire} {
 		set st [clock milliseconds]
 		scan $root $arg
 		log "$arg scan completed in [elapsed $st] seconds." 1

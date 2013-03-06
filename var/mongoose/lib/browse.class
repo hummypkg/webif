@@ -83,6 +83,13 @@ proc {dir iconset} {dir} {
 		lappend attrs "autompg=1"
 	}
 
+	set automp3 0
+	if {[file exists "$dir/.automp3"]} {
+		set automp3 1
+		lappend icons [_addicon "/img/mp3.png" "Auto-Audio Extract"]
+		lappend attrs "automp3=1"
+	}
+
 	set autoexpire 0
 	if {[file exists "$dir/.autoexpire"]} {
 		set days [{dir expiry} $dir]

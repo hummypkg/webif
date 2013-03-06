@@ -21,8 +21,8 @@ if {$model eq "HDR"} {
 }
 if {[system pkginst ffmpeg]} {
 	puts {
-		<li><a href=#audio>Extract Audio</a></li>
-		<li><a href=#mpg>Extract to MPG</a></li>
+		<li class=mp3><a href=#audio>Extract Audio</a></li>
+		<li class=mpg><a href=#mpg>Extract to MPG</a></li>
 	}
 }
 if $nicesplice {
@@ -77,7 +77,16 @@ if $flatten {
 
 puts {
 	<li class=clock><a href=#expire>Auto-Expire</a></li>
-	<li class=mpg><a href=#mpg>Auto-MPG Extract</a></li>
+}
+
+if {[system pkginst ffmpeg]} {
+	puts {
+		<li class=mp3><a href=#mp3>Auto-Audio Extract</a></li>
+		<li class=mpg><a href=#mpg>Auto-MPG Extract</a></li>
+	}
+}
+
+puts {
 </ul>
 
 <div id=renameform title="Rename media file" style="display: none">
