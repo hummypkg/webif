@@ -211,7 +211,7 @@ proc do_decrypt {ts} {
 		return
 	}
 
-	lassign [$ts dlnaloc] url
+	lassign [$ts dlnaloc "127.0.0.1"] url
 	if {$url eq ""} {
 		log "          Not yet indexed."
 		return

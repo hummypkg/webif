@@ -11,7 +11,7 @@ set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-lassign [$ts dlnaloc] url
+lassign [$ts dlnaloc "127.0.0.1"] url
 
 if {$url eq ""} {
 	puts "This file has not been indexed by the media server.
