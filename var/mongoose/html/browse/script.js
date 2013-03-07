@@ -178,6 +178,20 @@ function new_callback(file, type, id)
 	$.get(url, function() { window.location.reload(true); });
 }
 
+function thumbnail_callback(file, type, id)
+{
+	var el = 'div.bf#' + id;
+	var results = el + ' .results';
+	$(results)
+	    .html('<img src=/img/loading.gif>Generating thumbnail, ' +
+		'please wait...')
+	    .slideDown('slow')
+	    .load('/browse/thumbnail.jim?file=' + file)
+	    .delay(3000)
+	    .slideUp('slow');
+	$('div.bf#' + id + ' img.opt').attr('thmok', 1);
+}
+
 function rename_submit()
 {
 	var s = $('#renameform_form').serialize();
@@ -256,6 +270,16 @@ function preparemenu(el, menu)
 			$(menu).enableContextMenuItems('#crop');
 		else
 			$(menu).disableContextMenuItems('#crop');
+
+		if (el.attr('bx') > 0 && el.attr('odencd') == 0)
+			$(menu).enableContextMenuItems('#thm');
+		else
+			$(menu).disableContextMenuItems('#thm');
+
+		if (el.attr('thmok') == 1)
+			$(menu).enableContextMenuItems('#vthm');
+		else
+			$(menu).disableContextMenuItems('#vthm');
 
 		$(menu).enableContextMenuItems('#strip');
 
@@ -422,6 +446,17 @@ var menuclick = function(action, el, pos)
 		}
 
 		$('#renameform').dialog('open');
+		break;
+
+	    case 'thm':
+		confirm_action('re-generate the thumbnail for',
+		    thumbnail_callback, file, dir, id);
+		break;
+
+	    case 'vthm':
+		window.open('/browse/bmp.jim?file=' + file, 'hxwebifbmp',
+		    'height=78,width=140,toolbar=no,' +
+		    'scrollbars=no,menubar=no,location=no,titlebar=no');
 		break;
 
 	    case 'download':

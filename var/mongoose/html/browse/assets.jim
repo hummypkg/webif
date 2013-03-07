@@ -23,8 +23,12 @@ if {[system pkginst ffmpeg]} {
 	puts {
 		<li class=mp3><a href=#audio>Extract Audio</a></li>
 		<li class=mpg><a href=#mpg>Extract to MPG</a></li>
+		<li class=thm><a href=#thm>Set Thumbnail</a></li>
 	}
 }
+
+puts { <li><a href=#vthm>View Thumbnail</a></li> }
+
 if $nicesplice {
 	puts {
 		<li class="cut"><a href=#crop>Crop</a></li>

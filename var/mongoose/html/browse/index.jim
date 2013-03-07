@@ -96,11 +96,13 @@ proc entry {file} {{i 0}} {
 
 	set base [file rootname $file]
 
+	set thmok 0
 	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
 		set type ts
 		set ts [ts fetch $file 1]
 		set img Video_TS
 		set omenu opt
+		if {[file exists "${base}.thm"]} { set thmok 1 }
 	} elseif {$ext eq ".hmt"} {
 		if {[file exists "${base}.ts"]} { continue }
 		# Sole hmt file indicates failure to track.
@@ -221,7 +223,7 @@ proc entry {file} {{i 0}} {
 		<img class=\"$omenu va\" border=0 width=45 type=$type did=$i
 		    locked=$locked encd=$encd def=$def new=$new bx=$bx
 		    shrunk=$shrunk rsize=$rsz
-		    odencd=$odencd dlna=$dlna
+		    odencd=$odencd dlna=$dlna thmok=$thmok
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>

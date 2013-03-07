@@ -2,7 +2,7 @@
 if {![exists -proc cat]} {
 	proc cat {file} {
 		if {[catch {set fp [open $file r}]} { return }
-		puts [read $fp]
+		puts -nonewline [read $fp]
 		close $fp
 	}
 }
