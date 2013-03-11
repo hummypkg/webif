@@ -1,0 +1,98 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class pretty_size
+
+header
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+set len [$ts duration 1]
+
+lassign [$ts bookmarks] book
+if {$book eq ""} { set book 0 }
+
+set pos [cgi_get pos $book]
+set pos $($pos + 0)
+if {$pos < 0} { set pos 0 }
+
+puts "
+<script type=text/javascript src=script.js></script>
+<script type=text/javascript src=/js/enadis.js></script>
+
+<fieldset class=cleft>
+<legend>Replace Thumbnail</legend>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>
+	<span class=hidden id=dir>[file dirname $rfile]</span>
+	<span id=file>$rfile</span>
+</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format %T]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
+<tr><th>Bookmarks:</th><td>[$ts get bookmarks] ($book second(s))</td></tr>
+<tr><th>Thumbnail:</th><td>
+    <img class=doublebmp src=\"../bmp.jim?file=[cgi_quote_url $rfile]\">
+</td></tr>
+</table>
+"
+
+if {[$ts get definition] eq "HD"} {
+	set start $($pos - 0.5)
+	set incr 1.0
+} else {
+	set start $($pos - 1)
+	set incr 2.0
+}
+if {$start < 0} { set start 0 }
+set limit $($start + $incr)
+
+puts "<div style=\"width=100%; text-align: center\">
+    <button id=back>Back to media browser</button>
+    <br /> <br />
+    <form method=get action=index.jim>
+	    <input type=hidden name=file value=\"$rfile\">
+	    Thumbnails from around
+	    <input name=pos id=pos size=5 maxlength=4 value=\"$pos\">
+	    second(s) into recording.
+    </form>
+    <button class=mvpos pos=[expr $pos - 30]>&lt;&lt; 30 seconds</button>
+    <button class=mvpos pos=[expr $pos - 5]>&lt; 5 seconds</button>
+    <button id=repos>Update</button>
+    <button class=mvpos pos=[expr $pos + 5]>&gt; 5 seconds</button>
+    <button class=mvpos pos=[expr $pos + 30]>&gt;&gt; 30 seconds</button>
+</div>
+<span id=start class=hidden>$start</span>
+<span id=end class=hidden>$limit</span>
+<table class=keyval cellpadding=5>
+<tr>
+"
+
+for {set i [expr $start + 0.0]} {$i <= $limit} {set i [expr $i + 0.5]} {
+	lappend times $i
+	puts "<th style=\"text-align: center\">
+	    @ <span class=mark>$i</span>s</th>"
+}
+puts "</tr><tr>"
+
+foreach i $times {
+	puts "<td>
+	    <img class=bmp src=/img/generating.png pos=$i>
+	    </td>"
+}
+
+puts "</tr><tr>"
+
+foreach i $times {
+	puts "<td style=\"text-align: center\">
+	    <button class=usethm pos=\"$i\">Use</button>
+	    </td>"
+}
+
+puts "</tr>"
+
+puts "</table>"
+

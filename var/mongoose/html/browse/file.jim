@@ -23,7 +23,12 @@ if {$type eq "ts"} {
 <table class=keyval>
 <tr>
 	<th>Title</th>
-	<td>[$ts get title]</td>
+	<td class=va>
+	"
+	if {[file exists "[file rootname $file].thm"]} {
+		puts "<img class=\"bmp va\" width=70 height=39 src=\"bmp.jim?file=$file\">"
+	}
+	puts "[$ts get title]</td>
 </tr><tr>
 	<th>Synopsis</th>
 	<td>[$ts get synopsis]</td>

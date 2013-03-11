@@ -291,5 +291,9 @@ Please wait...
 </center>
 </div>
 
+<div id=bmpdialogue title="Recording Thumbnail" class=hidden>
+<img id=thmbmp class=doublebmp src="about:blank">
+</div>
+
 }
 

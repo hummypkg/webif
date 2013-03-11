@@ -271,7 +271,7 @@ function preparemenu(el, menu)
 		else
 			$(menu).disableContextMenuItems('#crop');
 
-		if (el.attr('bx') > 0 && el.attr('odencd') == 0)
+		if (el.attr('odencd') == 0)
 			$(menu).enableContextMenuItems('#thm');
 		else
 			$(menu).disableContextMenuItems('#thm');
@@ -449,14 +449,16 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'thm':
-		confirm_action('re-generate the thumbnail for',
-		    thumbnail_callback, file, dir, id);
+		window.location.href = '/browse/thumbnail/index.jim?file=' +
+		    file;
 		break;
 
 	    case 'vthm':
-		window.open('/browse/bmp.jim?file=' + file, 'hxwebifbmp',
-		    'height=78,width=140,toolbar=no,' +
-		    'scrollbars=no,menubar=no,location=no,titlebar=no');
+//		window.open('/browse/bmpw.jim?file=' + file, 'hxwebifbmp',
+//		    'height=156,width=280,toolbar=no,' +
+//		    'scrollbars=no,menubar=no,location=no,titlebar=no');
+		$('#thmbmp').attr('src', 'bmp.jim?file=' + file);
+		$('#bmpdialogue').dialog('open');
 		break;
 
 	    case 'download':
@@ -781,6 +783,18 @@ var dmenuclick = function(action, el, pos)
 			}
 		},
 		close: function() { $('#savestream_name').val(''); }
+	});
+
+	$('#bmpdialogue').dialog({
+		autoOpen: false,
+		height: 'auto', width: 'auto',
+		modal: true,
+		buttons: {
+			"Close": function() {
+				$(this).dialog('close');
+			}
+		},
+		close: function() { $('#thmbmp').attr('src', 'about:blank'); }
 	});
 
 	// Create re-usable confirmation dialogue.

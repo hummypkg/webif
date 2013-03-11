@@ -410,3 +410,18 @@ div#restart_block
 	z-index: 31;
 }
 
+img.bmp, img.doublebmp
+{
+	transform: scaleY(-1);
+	-webkit-transform: scaleY(-1);
+	-o-transform: scaleY(-1);
+	height: 78px;
+	width: 140px;
+}
+
+img.doublebmp
+{
+	height: 156px;
+	width: 280px;
+}
+

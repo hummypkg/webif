@@ -1,0 +1,17 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require cat
+
+httpheader "image/bmp"
+
+set rfile [cgi_get file]
+set pos [cgi_get pos 0]
+
+set f "[file rootname $rfile].pos$pos.bmp"
+if {[file exists $f]} {
+	cat $f
+	file delete $f
+}
+

@@ -1,0 +1,21 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class
+
+httpheader
+
+set rfile [cgi_get file]
+set s [cgi_get s 0]
+set e [cgi_get e $($s + 2)]
+set i [expr [cgi_get i 0.5] + 0.0]
+
+if {![catch {set ts [ts fetch $rfile]}]} {
+	$ts cleanbmp
+	for {set n [expr $s + 0.0]} {$n <= $e} {set n [expr $n + $i]} {
+		puts "Generating thumbnail for pos $n"
+		$ts mkbmp $n ".pos$n"
+	}
+}
+

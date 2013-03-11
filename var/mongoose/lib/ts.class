@@ -235,20 +235,51 @@ ts method dlnaloc {{urlbase 0}} {
 	if {$url ne "" } { return [list $url $mime] } else { return {} }
 }
 
-ts method mkthm {} {
-	if {!$bookmarks} {
-		puts "No bookmarks found."
-		return
-	}
-	lassign [$self bookmarks] s
-	puts "Grabbing thumbnail from $s second(s) in."
+ts method cleanbmp {} {
 	set bfile [file rootname $file]
-	puts [exec /mod/bin/ffmpeg -loglevel fatal -ss $s -i $file \
-	    -frames 1 -pix_fmt argb -vf vflip -s 140x78 \
-	    $bfile.bmp]
-	puts [exec /bin/dd if=$bfile.bmp of=$bfile.thm bs=54 skip=1]
+	foreach f [glob -nocomplain "${bfile}*.bmp"] {
+		file delete $f
+	}
+}
+
+ts method mkbmps {{offset 0}} {
+	set bfile [file rootname $file]
+	if {[catch {
+	    exec /mod/bin/ffmpeg -loglevel fatal -ss $offset -i $file \
+	    -vf fps=fps=2 -frames 5 \
+	    -pix_fmt argb -vf vflip -s 140x78 "${bfile}%d.bmp"
+	} msg]} {
+		puts "ERROR: $msg"
+		return 0
+	}
+	return 1
+}
+
+ts method mkbmp {{offset 0} {ext ""}} {
+	set bfile [file rootname $file]
+	if {[catch {
+	    exec /mod/bin/ffmpeg -loglevel fatal -ss $offset -i $file \
+	    -frames 1 -pix_fmt argb -vf vflip -s 140x78 "$bfile$ext.bmp"
+	} msg]} {
+		puts "ERROR: $msg"
+		return 0
+	}
+	return 1
+}
+
+ts method mkthm {{offset 0}} {
+	if {![$self mkbmp $offset]} { return 0 }
+	set bfile [file rootname $file]
+	if {[catch {
+	    exec /bin/dd if=$bfile.bmp of=$bfile.thm~ bs=54 skip=1
+	    } msg]} {
+		puts "ERROR: $msg"
+		return 0
+	}
+	exec /bin/echo -n " " >> $bfile.thm~
+	file rename -force $bfile.thm~ $bfile.thm
 	tdelete $bfile.bmp
-	puts "Done."
+	return 1
 }
 
 proc {ts renamegroup} {from to} {

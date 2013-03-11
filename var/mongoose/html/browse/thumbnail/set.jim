@@ -7,7 +7,9 @@ require ts.class
 httpheader
 
 set file [cgi_get file]
+set pos [cgi_get pos 0]
+
 if {![catch {set ts [ts fetch $file]}]} {
-	$ts mkthm
+	$ts mkthm $pos
 }
 

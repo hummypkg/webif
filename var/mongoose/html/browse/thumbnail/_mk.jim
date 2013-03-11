@@ -1,0 +1,19 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class cat
+
+httpheader "image/bmp"
+
+set rfile [cgi_get file]
+set pos [cgi_get pos 0]
+
+if {![catch {set ts [ts fetch $rfile]}]} {
+	$ts mkbmp $pos ".pos$pos"
+
+	set f "[file rootname $rfile].pos$pos.bmp"
+	cat $f
+	file delete $f
+}
+
