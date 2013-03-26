@@ -308,7 +308,7 @@ proc s_time {a b} {
 set files [readdir -nocomplain $dir]
 switch $order {
 	1 {		set files [lsort -command s_time $files] }
-	default {	set files [lsort $files] }
+	default {	set files [lsort -nocase $files] }
 }
 
 foreach file $files { entry "$dir/$file" }
