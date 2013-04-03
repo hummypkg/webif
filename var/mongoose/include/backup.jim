@@ -8,12 +8,13 @@ puts {
 <h2>Backup/Restore</h2>
 
 <div id=restore_warning class="hidden warningbox">
+<div>
 <center>
 <b>!!!!!!!!!!!!!! PLEASE NOTE !!!!!!!!!!!!!!
 <br><br>
 After restoring the scheduled recordings you <b>MUST</b> restart the box using
 the link at the top of the screen or via the remote control.
-</div>
+</div></div>
 
 <div style="clear: both; float: left; width: 40%; border: 1px solid grey;
     padding: 1em">

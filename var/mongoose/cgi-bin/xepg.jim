@@ -221,7 +221,7 @@ puts "
         onSelect: function(val, sel) {
                 var stt = \$(this).attr('stt');
                 // Extract date part
-                dval  = ~~(val / 86400000);
+                dval  = Math.round(val / 86400000.0);
                 // Extract current time part
                 var tm = ~~(stt % 86400);
 

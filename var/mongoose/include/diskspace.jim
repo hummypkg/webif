@@ -4,7 +4,9 @@ source /mod/webif/lib/setup
 require system.class
 
 lassign [system diskspace] size used perc free fperc
-set file [format "%02d" [expr {$perc * 25 / 100 + 1}]]
+set dsindex $($perc * 25 / 100 + 1)
+if {$dsindex > 25} { set dsindex 25 }
+set dsfile [format "%02d" $dsindex]
 
 # The HD model only has the USB images which are blue. I prefer the green
 # one so use those if available.
@@ -19,7 +21,7 @@ puts "
 	<span style=\"float: right; 
 	    background:url('/images/345_1_27_ST_USB_BG.png')
 	    no-repeat\">
-		<img src=/images/${prefix}_$file.png>
+		<img src=/images/${prefix}_$dsfile.png>
 	</span>
 
 	<span style=\"float: right\">

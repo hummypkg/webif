@@ -65,11 +65,31 @@ div.footer
 	padding-top: 2em;
 }
 
-div.warningbox
+div.owarningbox
 {
 	background: url('/img/redshade.png') repeat-x;
 	padding: 0.5em;
 	margin: 1em;
+}
+
+div.warningbox
+{
+	width: 60%;
+	background: url('/img/redshade.png') repeat-x;
+	background-size: 100%;
+	#color: #005000;
+	border: 1px solid #7a4707;
+	padding: 10px;
+	position: relative;
+	top: -2px;
+	left: -2px;
+	font-weight: bold;
+	z-index: 30;
+	box-shadow: 2px 2px 11px #666;
+	-moz-box-shadow: 2px 2px 11px #666;
+	-webkit-box-shadow: 2px 2px 11px #666;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
 table

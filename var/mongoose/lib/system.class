@@ -139,6 +139,10 @@ proc {system diskspace} {} {
 	return [list $size $used $perc $free $fperc $dev]
 }
 
+proc {system disk} {} {
+	return [string range [lindex [system diskspace] 5] 0 end-1]
+}
+
 proc {system diskfree} {} {
 	switch [system model] {
 		HDR { set part /mnt/hd2 }
@@ -242,5 +246,8 @@ proc {system listening} {{mport 0}} {
 
 proc {system is_listening} {mport} {
 	return [llength [system listening $mport]]
+}
+
+proc {system notify} {msg} {
 }
 

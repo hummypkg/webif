@@ -1,0 +1,16 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require settings.class
+
+httpheader
+
+set settings [settings]
+
+foreach attr {realloc pending offline} {
+	set val [$settings _nval_setting "SMART_$attr"]
+	if {$val <= 0} continue
+	$settings _nval_setting "SMART_ack_$attr" $val
+}
+
+

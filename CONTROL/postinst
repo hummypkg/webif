@@ -19,10 +19,11 @@ grep -v webif/lib/bin/auto $cronf > $tmpf
 # Add anacron jobs
 
 ana=$PKG_ROOT/etc/anacrontab
-grep -v 'backup/backup.jim' $ana > $tmpf
+egrep -v 'backup/backup.jim|diskattrs' $ana > $tmpf
 (
 	cat $tmpf
 	echo "1 8 sched_backup /mod/var/mongoose/cgi-bin/backup/backup.jim"
+	echo "1 5 diskattrs /mod/webif/lib/bin/diskattrs"
 ) > $ana
 
 $PKG_ROOT/etc/init.d/S02anacron start < /dev/null > /dev/null 2>&1 &

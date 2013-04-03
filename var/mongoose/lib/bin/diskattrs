@@ -1,0 +1,45 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class settings.class
+
+if {[system model] eq "HD"} exit
+
+set disk [system disk]
+set settings [settings]
+
+# Extract overall SMART status.
+set smart ""
+set line ""
+# smartctl uses non-zero exit status to indicate health hence catch.
+catch { set line [exec /mod/bin/smartctl -H $disk | sed -n 5p] } msg
+if {$msg ne "" && $line eq ""} { set line $msg }
+if {$line ne ""} {
+	set smart [string range [lindex [split $line :] 1] 1 end]
+	$settings _tval_setting "SMART_status" $smart
+}
+
+foreach line [split [exec /mod/bin/smartctl -A -f brief $disk] "\n"] {
+	regsub -all -- {[[:space:]]+} $line " " line
+	regsub -all -- {^[[:space:]]+} $line "" line
+	lassign [split $line] id name flags val worst thresh when rval
+	if {![string is integer $id]} continue
+	set attrs($id) $rval
+}
+
+#puts "Attrs: ($attrs)"
+puts "SMART: ($smart)"
+puts "Reallocated: $attrs(5)"
+puts "Pending: $attrs(197)"
+puts "Offline: $attrs(198)"
+
+if {[dict exists $attrs 5]} {
+	$settings _nval_setting "SMART_realloc" $attrs(5)
+}
+if {[dict exists $attrs 197]} {
+	$settings _nval_setting "SMART_pending" $attrs(197)
+}
+if {[dict exists $attrs 198]} {
+	$settings _nval_setting "SMART_offline" $attrs(198)
+}
+

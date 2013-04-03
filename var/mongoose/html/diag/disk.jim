@@ -2,12 +2,12 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require system.class
+require system.class settings.class
 
 header
 
-set space [system diskspace]
-set device [string range [lindex $space 5] 0 end-1]
+set device [system disk]
+set settings [settings]
 
 set smart Unknown
 set line ""
@@ -16,9 +16,11 @@ catch { set line [exec /mod/bin/smartctl -H $device | sed -n 5p] } msg
 if {$msg ne "" && $line eq ""} { set line $msg }
 if {$line ne ""} {
 	set smart [string range [lindex [split $line :] 1] 1 end]
+	$settings _tval_setting "SMART_status" $smart
 }
 
 puts "
+<script type=text/javascript src=/js/enadis.js></script>
 <h3 class=va>
 	<img class=va width=100 src=/img/disc.png>
 	SMART data read from device $device
@@ -99,9 +101,18 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 	    id name flags val worst thresh type updated when rval
 	set class normal
 	switch $id {
-		5 { if {$rval > 0} { set class orangeshade } }
-		197 { if {$rval > 0} { set class redshade } }
-		198 { if {$rval > 0} { set class redshade } }
+		5 {
+			$settings _nval_setting "SMART_realloc" $rval
+			if {$rval > 0} { set class orangeshade }
+		}
+		197 {
+			$settings _nval_setting "SMART_pending" $rval
+			if {$rval > 0} { set class redshade }
+		}
+		198 {
+			$settings _nval_setting "SMART_offline" $rval
+			if {$rval > 0} { set class redshade }
+		}
 	}
 	puts "<tr class=$class>"
 	puts "
@@ -144,6 +155,7 @@ foreach line [split $msg "\n"] {
 	regsub -all -- {[[:space:]][[:space:]]+} $line "|" line
 	if {[incr i] < 7} continue
 	lassign [split $line "|"] id name status remaining when lba
+	if {[string length $id] > 10} continue
 	puts "<tr>
 		<td>$id</td>
 		<td>$name</td>
@@ -157,6 +169,28 @@ foreach line [split $msg "\n"] {
 puts {
 </table>
 </fieldset>
+
+
+<div class=cleft style="padding-top: 2em">
+<button id=diskack>Acknowledge any current disk faults.</button>
+</div>
+
+<script type=text/javascript>
+$(function() {
+
+$('#diskack')
+	.button()
+	.on('click', function(e) {
+		e.preventDefault();
+		$('button').disable();
+		$.get('diskack.jim', function() {
+			window.location.reload(true);
+		});
+	});
+});
+
+</script>
+
 }
 
 footer

@@ -10,7 +10,7 @@ if [ -f $cronf ]; then
 fi
 
 ana=/mod/etc/anacrontab
-grep -v 'backup/backup.jim' $ana > $tmpf
+egrep -v 'backup/backup.jim|diskattrs' $ana > $tmpf
 cp $tmpf $ana
 
 exit 0

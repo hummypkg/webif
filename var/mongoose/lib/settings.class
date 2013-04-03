@@ -26,6 +26,7 @@ class settings {
 	nomobile	0
 	xepghours	4
 	genrededup	0
+	autolog		0
 }
 
 settings method hostname {{name ""}} {
@@ -100,6 +101,29 @@ settings method _nval_setting {name {val -1}} {
 	}
 }
 
+settings method _tval_setting {name {val -1}} {
+	global settingsdb
+
+	if {$val == -1} {
+		# Get
+		set res [$settingsdb query "
+			select tval from settings
+			where name = '$name'
+		"]
+		if {$res ne ""} {
+			return [lindex [lindex $res end] end]
+		}
+		return 0
+	} else {
+		# Set
+		$settingsdb query "
+			replace into settings(name,tval)
+			values('$name', '%s')
+		" $val
+		return 0
+	}
+}
+
 settings method channel_group {{group -1}} {
 	return [$self _nval_setting channel_group $group]
 }
@@ -138,6 +162,10 @@ settings method nomobile {{val -1}} {
 
 settings method sortorder {{val -1}} {
 	return [$self _nval_setting sortorder $val]
+}
+
+settings method autolog {{level -1}} {
+	return [$self _nval_setting autolog $level]
 }
 
 settings method channel_groups {} {
@@ -230,5 +258,16 @@ settings method delacluser {user} {
 		append msg "<br>Disabled web server authentication<br>"
 	}
 	return $msg
+}
+
+settings method smartdata {} {
+	global settingsdb
+
+	set res [$settingsdb query "
+		select name, nval, tval from settings
+		where name like 'SMART_%%'
+	"]
+
+	return $res
 }
 

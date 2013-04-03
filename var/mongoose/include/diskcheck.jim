@@ -1,0 +1,67 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require settings.class
+
+set smartattrs {realloc pending offline}
+
+set smartattribs(SMART_status) "Unknown"
+foreach sa $smartattrs {
+	set smartattribs(SMART_$sa) 0
+	set smartattribs(SMART_ack_$sa) 0
+}
+
+foreach line [[settings] smartdata] {
+	lassign $line x name x n x t
+	if {$name eq "SMART_status"} {
+		set smartattribs($name) $t
+	} else {
+		set smartattribs($name) $n
+	}
+}
+
+# (SMART_ack_status 0 SMART_ack_pending 0 SMART_status PASSED SMART_pending 7 SMART_ack_realloc 0 SMART_ack_offline 0 SMART_realloc 0 SMART_offline 7)
+
+set smartmsg ""
+if {$smartattribs(SMART_status) ne "PASSED"} {
+	append smartmsg \
+	    "Disk overall health assessment is: $smartattribs(SMART_status)\n"
+}
+
+foreach sa $smartattrs {
+	if {$smartattribs(SMART_$sa) != $smartattribs(SMART_ack_$sa)} {
+		append smartmsg \
+		    "Disk $sa sector count is: $smartattribs(SMART_$sa)"
+		if {$smartattribs(SMART_ack_$sa) > 0} {
+			append smartmsg " (was $smartattribs(SMART_ack_$sa))"
+		}
+		append smartmsg "\n"
+	}
+}
+
+if {$smartmsg ne ""} {
+	puts "
+<div id=smartwarning class=warningbox><center>
+!! WARNING !!
+<br><br>
+There are some issues with the internal hard disk on this device.
+<br><br>
+[string map {"\n" "<br>"} $smartmsg]
+	"
+	if {$env(REQUEST_URI) ne "/diag/disk.jim"} {
+		puts "
+			<br>
+			<a href=/diag/disk.jim>Go to disk diagnostics</a>
+		"
+	} else {
+		puts "
+			<br>
+			For help and assistance, visit
+			<a target=_blank href=http://hummy.tv/>hummy.tv</a>
+		"
+	}
+	puts "
+</center></div>
+	"
+}
+

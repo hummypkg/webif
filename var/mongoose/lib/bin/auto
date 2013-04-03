@@ -1,9 +1,10 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require lock system.class ts.class tdelete pretty_size browse.class safe_delete
+require lock system.class ts.class tdelete pretty_size browse.class \
+    safe_delete settings.class
 
-set debug 0
+set loglevel [[settings] autolog]
 
 if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
@@ -18,8 +19,8 @@ if {[file exists $logfile] && [file size $logfile] > 2097152} {
 }
 
 set logfd [open "/mod/tmp/auto.log" "a+"]
-proc log {msg {always 0}} {
-	if {!$::debug && !$always} return
+proc log {msg {level 1}} {
+	if {$level > $::loglevel} return
 	puts $::logfd "[\
 	    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
 	    ] - $msg"
@@ -41,7 +42,7 @@ proc endclock {size} {
 }
 
 set scanstart [clock milliseconds]
-log "-------------------------------------------------------" 1
+log "-------------------------------------------------------"
 
 # is_listening is relatively expensive so it is checked once globally at
 # the start and then if the server is not listening then no decrypt
@@ -51,13 +52,13 @@ log "-------------------------------------------------------" 1
 # of the run.
 if {[system is_listening 9000]} {
 	set dlnaok 1
-	if {$::debug} { log "DLNA Server is running." }
+	log "DLNA Server is running." 2
 } else {
 	set dlnaok 0
-	if {$::debug} { log "DLNA Server is NOT running." }
+	log "DLNA Server is NOT running." 2
 }
 
-log "Media scan starting, DLNA server status: $dlnaok" 1
+log "Media scan starting, DLNA server status: $dlnaok"
 
 proc dsc {{size 0}} {
 	set free [system diskfree]
@@ -66,7 +67,7 @@ proc dsc {{size 0}} {
 	set req $($size * 3 + 1073741824)
 
 	if {$free < $req} {
-		log "Insufficient disk space. Require=$req, Free=$free" 1
+		log "Insufficient disk space. Require=$req, Free=$free" 0
 		exit
 	}
 }
@@ -76,11 +77,11 @@ dsc
 set tmp "/mod/tmp/webif_auto"
 if {![file exists $tmp]} {
 	if {[catch {file mkdir $tmp} msg]} {
-		log "Cannot create temporary directory - $tmp ($msg)" 1
+		log "Cannot create temporary directory - $tmp ($msg)" 0
 		exit
 	}
 } elseif {![file isdirectory $tmp]} {
-	log "Cannot create temporary directory - $tmp (file exists)" 1
+	log "Cannot create temporary directory - $tmp (file exists)" 0
 	exit
 }
 
@@ -93,14 +94,14 @@ if {[system pkginst undelete]} {
 	set dustbin ""
 }
 
-log "Dustbin: $dustbin"
+log "Dustbin: $dustbin" 2
 
 proc dedup {dir} {
-	log "DEDUP: \[$dir]"
+	log "DEDUP: \[$dir]" 2
 	loop i 0 1 {
 		foreach line [split \
 		    [exec /mod/webif/html/dedup/dedup -yes -auto $dir] "\n"] {
-			log $line 1
+			log $line 2
 		}
 	}
 }
@@ -111,39 +112,41 @@ proc do_expire {ts} {
 
 	# Calculate the age of the file in days.
 	set age $(([clock seconds] - [$ts get start]) / 86400.0)
-	log "  EXPIRE: $file (age = $age)"
+	log "  EXPIRE: $file (age = $age)" 2
 
 	if {$age > $ax_days} {
-		log "     EXPIRE: $file ($age > $ax_days)" 1
 		if {[$ts inuse]} {
-			log "          In use." 1
+			log "     EXPIRE: $file ($age > $ax_days)"
+			log "          In use."
 			return
 		}
 		if {[safe_delete $file]} {
-			log "          Deleted." 1
+			log "     EXPIRE: $file ($age > $ax_days)" 0
+			log "          Deleted." 0
 		}
 	}
 }
 
 proc do_shrink {ts} {
 	global tmp dustbin tsgroup
+	set file [$ts get file]
 
 	if {[$ts flag "Shrunk"]} {
-		log "          Already shrunk."
+		log "  $file - already shrunk." 2
 		return
 	}
 
 	set file [file rootname [$ts get file]]
 
 	if {[$ts inuse]} {
-		log "  $file - in use." 1
+		log "  $file - in use." 2
 		return
 	}
 
 	if {[catch {
 		set perc [exec /mod/bin/stripts -aq $file]
 	    } msg]} {
-		log "          Error: $msg" 1
+		log "          Error: $msg" 0
 		return
 	}
 	if {[string match {*%} $perc]} {
@@ -153,24 +156,24 @@ proc do_shrink {ts} {
 	}
 
 	if {$perc == 0} {
-		log "          Already shrunk."
+		log "  $file - already shrunk." 2
 		$ts set_shrunk
 		return
 	}
 	set size [$ts size]
 	dsc $size
 	startclock
-	log "  SHRINK: $file" 1
-	log "          Estimate $perc% saving." 1
-	log "          Shrinking..." 1
+	log "  SHRINK: $file" 0
+	log "          Estimate $perc% saving." 0
+	log "          Shrinking..." 0
 	if {[catch {
 		foreach line [split \
 		    [exec nice -n 19 /mod/bin/stripts -q $file $tmp/shrunk] \
 		    "\n"] {
-			log $line 1
+			log $line 0
 		}
 	    } msg]} {
-		log "Error during shrink: $msg" 1
+		log "Error during shrink: $msg" 0
 		return
 	}
 
@@ -196,7 +199,7 @@ proc do_shrink {ts} {
 		}
 	}
 	$ts set_shrunk
-	log "Done... [endclock $size]" 1
+	log "Done... [endclock $size]" 0
 }
 
 proc do_decrypt {ts} {
@@ -207,37 +210,72 @@ proc do_decrypt {ts} {
 	set bfile [file tail $file]
 
 	if {![$ts flag "ODEncrypted"]} {
-		log "          Already decrypted."
+		log "  $file - Already decrypted." 2
 		return
 	}
 
 	lassign [$ts dlnaloc "127.0.0.1"] url
 	if {$url eq ""} {
-		log "          Not yet indexed."
+		log "  $file - Not yet indexed."
 		return
 	}
 
 	if {![system is_listening 9000]} {
-		log "          DLNA Server not running."
+		log "  $file - DLNA Server not running." 2
 		set ::dlnaok 0
 		return
 	}
 
 	if {[$ts inuse]} {
-		log "          In use." 1
+		log "  $file - In use."
 		return
 	}
+
+	# Check that the file is not already decrypted by analysing it.
+	set anencd [exec /mod/bin/stripts -qE $rfile]
+	if {$anencd != "1"} {
+		log "  $file - already decrypted but the HMT flag is wrong." 0
+		system notify "$file - auto-decrypt - file is already decrypted but the HMT flag is wrong."
+		return
+	}
+
+	# Perform the decryption by requesting the file from the DLNA server.
 	set size [$ts size]
 	dsc $size
 	set flagfile "$tmp/decrypting.$bfile"
 	exec /mod/bin/busybox/touch $flagfile
 	startclock
-	log "  DECRYPT: $rfile" 1
-	log "  DLNA: $url" 1
+	log "  DECRYPT: $rfile" 0
+	log "  DLNA: $url" 0
 	exec wget -O "$tmp/$bfile" $url
 
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
-		log "        File size mismatch." 1
+		log "  $file - File size mismatch." 0
+		file delete "$tmp/$bfile"
+		file delete $flagfile
+		return
+	}
+
+	# Check if the file is in use. It is possible that the file is
+	# now being played even though it was free when decryption started.
+	if {[$ts inuse]} {
+		log "  $file - In use."
+		file delete "$tmp/$bfile"
+		file delete $flagfile
+		return
+	}
+
+	# Copy the HMT file over for stripts
+	set thmt "$tmp/[file rootname $bfile].hmt"
+	file copy "$rfile.hmt" $thmt
+	# Check that the file is no longer encrypted by analysing it.
+	set anencd [exec /mod/bin/stripts -qE "$tmp/[file rootname $bfile]"]
+	file delete $thmt
+
+	if {$anencd != "0"} {
+		log "  $file - File did not decrypt properly." 0
+		system notify "$file - auto-decrypt failed."
+		file delete "$tmp/$bfile"
 		file delete $flagfile
 		return
 	}
@@ -249,7 +287,7 @@ proc do_decrypt {ts} {
 	# Patch the HMT - quickest way to get back to a playable file.
 	exec /mod/bin/hmt -encrypted "$rfile.hmt"
 
-	log "  Removing/binning old copy."
+	log "  Removing/binning old copy." 0
 	# Move the old recording to the bin if undelete is installed.
 	if {$dustbin ne ""} {
 		set bin [_del_bindir $file "webif_autodecrypt"]
@@ -268,7 +306,7 @@ proc do_decrypt {ts} {
 	} else {
 		tdelete "$rfile.encrypted"
 	}
-	log "Done... [endclock $size]" 1
+	log "Done... [endclock $size]" 0
 	file delete $flagfile
 }
 
@@ -283,7 +321,7 @@ proc do_mpg {ts} {
 	}
 
 	if {[$ts flag "ODEncrypted"]} {
-		log "          Not decrypted."
+		log "  $file - Not decrypted." 2
 		return
 	}
 
@@ -293,23 +331,23 @@ proc do_mpg {ts} {
 	}
 
 	if {[$ts inuse]} {
-		log "          In use." 1
+		log "  $file - In use."
 		return
 	}
 	dsc [$ts size]
 
-	log "     MPG: $file" 1
-	log "          Converting..." 1
+	log "     MPG: $file" 0
+	log "          Converting..." 0
 	if {[catch {
 		foreach line [split \
 		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
 		    -i $file.ts \
 		    -map 0:0 -map 0:1 \
 		    -vcodec copy -acodec copy $tmp/mpg.mpg] "\n"] {
-			log $line 1
+			log $line 0
 		}
 	    } msg]} {
-		log "Error during mpg extract: $msg" 1
+		log "Error during mpg extract: $msg" 0
 		return
 	}
 
@@ -328,32 +366,33 @@ proc do_mp3 {ts} {
 	}
 
 	if {[$ts flag "ODEncrypted"]} {
-		log "          Not decrypted."
+		log "  $file - Not decrypted." 2
 		return
 	}
 
 	if {[$ts get definition] eq "HD"} {
 		# Cannot extract a useful MP3 from a HD recording.
+		log "  $file - High definition." 2
 		return
 	}
 
 	if {[$ts inuse]} {
-		log "          In use." 1
+		log "  $file - In use."
 		return
 	}
 	dsc [$ts size]
 
-	log "     MP3: $file" 1
-	log "          Converting..." 1
+	log "     MP3: $file" 0
+	log "          Converting..." 0
 	if {[catch {
 		foreach line [split \
 		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
 		    -i $file.ts \
 		    -f mp3 -vn -acodec copy $tmp/mp3.mp3] "\n"] {
-			log $line 1
+			log $line 0
 		}
 	    } msg]} {
-		log "Error during mp3 extract: $msg" 1
+		log "Error during mp3 extract: $msg" 0
 		return
 	}
 
@@ -363,7 +402,7 @@ proc do_mp3 {ts} {
 		    --comment "[$ts get synopsis]" \
 		    --album "[$ts get channel_name]" \
 		    --year "[clock format [$ts get start] -format {%Y}]" \
-		    "$tmp/mp3.mp3"]
+		    "$tmp/mp3.mp3"] 0
 	}
 
 	# Move the MP3 into the local directory
@@ -380,28 +419,28 @@ proc entries {dir callback} {
 }
 
 proc shrink {dir} {
-	log "SHRINK: \[$dir]"
+	log "SHRINK: \[$dir]" 2
 	entries $dir do_shrink
 }
 
 proc decrypt {dir} {
-	log "DECRYPT: \[$dir]"
+	log "DECRYPT: \[$dir]" 2
 	if {$::dlnaok} { entries $dir do_decrypt }
 }
 
 proc mpg {dir} {
-	log "MPG: \[$dir]"
+	log "MPG: \[$dir]" 2
 	entries $dir do_mpg
 }
 
 proc mp3 {dir} {
-	log "MP3: \[$dir]"
+	log "MP3: \[$dir]" 2
 	entries $dir do_mp3
 }
 
 proc expire {dir} {
 	global ax_days
-	log "EXPIRE: \[$dir]"
+	log "EXPIRE: \[$dir]" 2
 	
 	set ax_days [{dir expiry} $dir]
 	entries $dir do_expire
@@ -412,10 +451,10 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 
 	incr indent 2
 
-	log "[string repeat " " $indent]\[$dir]"
+	log "[string repeat " " $indent]\[$dir]" 2
 
 	if {$dir eq $dustbin} {
-		log "Dustbin, skipping."
+		log "Dustbin, skipping." 2
 		return
 	}
 
@@ -423,18 +462,18 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 		# Special folder
 		file stat "$dir/" st
 		if {$st(dev) != $::rootdev} {
-			log "Special folder on different device, skipping."
+			log "Special folder on different device, skipping." 2
 			return
 		}
 		if {$force} {
 			set force 0
-			log "Special folder, overriding recursion."
+			log "Special folder, overriding recursion." 2
 		}
 	}
 
 	# Recursion
 	if {!$force && [file exists "$dir/.auto${attr}r"]} {
-		log "[string repeat " " $indent]  (R)"
+		log "[string repeat " " $indent]  (R)" 2
 		set force 1
 	}
 
@@ -454,20 +493,20 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 set root [system mediaroot]
 file stat "$root/" rootstat
 set rootdev $rootstat(dev)
-#log "Root device: $rootdev" 1
+log "Root device: $rootdev" 2
 
 if {[llength $argv] > 0} {
-	set debug 1
+	set loglevel 2
 	foreach arg $argv { scan $root $arg }
 } else {
 	foreach arg {dedup decrypt shrink mpg mp3 expire} {
 		set st [clock milliseconds]
 		scan $root $arg
-		log "$arg scan completed in [elapsed $st] seconds." 1
+		log "$arg scan completed in [elapsed $st] seconds."
 	}
 }
 
 release_lock webif_auto
 
-log "Media scan completed in [elapsed $scanstart] seconds." 1
+log "Media scan completed in [elapsed $scanstart] seconds."
 
