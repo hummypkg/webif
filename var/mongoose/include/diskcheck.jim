@@ -40,11 +40,13 @@ foreach sa $smartattrs {
 }
 
 if {$smartmsg ne ""} {
+	if {![dict exists $env REQUEST_URI]} { set env(REQUEST_URI) "" }
 	puts "
 <div id=smartwarning class=warningbox><center>
 !! WARNING !!
 <br><br>
-There are some issues with the internal hard disk on this device.
+There appear to be some hardware problems with the internal hard disk on
+this device.
 <br><br>
 [string map {"\n" "<br>"} $smartmsg]
 	"
@@ -56,7 +58,7 @@ There are some issues with the internal hard disk on this device.
 	} else {
 		puts "
 			<br>
-			For help and assistance, visit
+			Don't panic; for help and assistance, visit
 			<a target=_blank href=http://hummy.tv/>hummy.tv</a>
 		"
 	}

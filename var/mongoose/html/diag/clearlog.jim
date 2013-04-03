@@ -9,10 +9,12 @@ set logdirs {/var/log /mod/tmp /mnt/hd3}
 set logext {.log}
 
 set log [cgi_get file 0]
+set unlink [cgi_get unlink 0]
 
 set ldir [file dirname $log]
 if {[file dirname $log] in $logdirs && [file extension $log] in $logext} {
 	file copy -force "/dev/null" $log
+	if {$unlink} { file delete $log }
 	puts "Cleared $log"
 	exit
 }

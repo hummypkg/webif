@@ -38,8 +38,14 @@ if {[dict exists $attrs 5]} {
 }
 if {[dict exists $attrs 197]} {
 	$settings _nval_setting "SMART_pending" $attrs(197)
+	if {$attrs(197) < [$settings _nval_setting "SMART_ack_pending"]} {
+		$settings _nval_setting "SMART_ack_pending" $attrs(197)
+	}
 }
 if {[dict exists $attrs 198]} {
 	$settings _nval_setting "SMART_offline" $attrs(198)
+	if {$attrs(198) < [$settings _nval_setting "SMART_ack_offline"]} {
+		$settings _nval_setting "SMART_ack_offline" $attrs(198)
+	}
 }
 

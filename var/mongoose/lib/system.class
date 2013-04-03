@@ -249,5 +249,10 @@ proc {system is_listening} {mport} {
 }
 
 proc {system notify} {msg} {
+	set logfd [open "/mod/tmp/notify.log" "a+"]
+	puts $logfd "[\
+	    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
+	    ] - $msg"
+	$logfd close
 }
 

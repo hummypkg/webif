@@ -1,0 +1,30 @@
+#!/mod/bin/jimsh
+
+if {[file exists /mod/tmp/notify.log]} {
+
+source /mod/webif/lib/setup
+require cat
+
+puts "
+<div id=sysnotify class=warningbox><center>
+!! WARNING !!
+<br><br>
+You have pending system notifications:
+<br><br>
+<pre>
+"
+cat /mod/tmp/notify.log
+puts {
+</pre>
+<button id=sysnotify_ack>Acknowledge</button>
+</center></div>
+<script type=text/javascript>
+$('#sysnotify_ack').button().on('click', function() {
+	$('#sysnotify').slideUp('slow');
+	$.get('/diag/clearlog.jim?file=/mod/tmp/notify.log&unlink=1');
+});
+</script>
+}
+
+}
+

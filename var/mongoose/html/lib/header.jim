@@ -26,6 +26,7 @@ puts "<div id=restart_block>"
 source /mod/webif/include/restart.jim
 puts "</div>"
 source /mod/webif/include/diskcheck.jim
+source /mod/webif/include/notify.jim
 
 puts {
 <div style="clear: both">
