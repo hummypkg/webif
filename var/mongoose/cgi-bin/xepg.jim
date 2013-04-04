@@ -173,7 +173,10 @@ foreach e $records {
 	    clock format $ee -format "%H:%M"])"
 	if {$showing} { append hxt " ($perc%)" }
 
-	puts "<div class=\"xeprog $bg\"
+	set lbg $bg
+	if {[$e scheduled]} { set lbg "blueshade" }
+
+	puts "<div class=\"xeprog $lbg\"
 	    style=\"width: [expr $px - 4]px;\" title=\"$htxt\">
 	    <a class=event href=# xs=[$e get service_id]
 		xe=[$e get event_id] sch=[$e get sched_type]

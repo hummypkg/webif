@@ -321,6 +321,40 @@ proc {rsv lookuptab} {} {
 	set records {}
 	foreach tab {tbl_reservation pending} {
 		set res [$::rsvdb query "
+			select usSvcId, usevtid, ucCRIDType, szCRID,
+			    ucRecKind
+			from $tab left join channel.TBL_SVC
+			on $tab.hSvc = channel.TBL_SVC.hSvc
+			where ersvtype <= 3
+		"]
+
+		foreach rec $res {
+			if {$rec(ucRecKind) == 4} {
+				set p "S"
+			} else {
+				set p "E"
+			}
+			set records("$rec(usSvcId):$rec(usevtid)") $p
+			if {$rec(szCRID) eq ""} continue
+			if {$rec(ucCRIDType) == 49} {
+				set p "E"
+			} elseif {$rec(ucCRIDType) == 50} {
+				set p "S"
+			} else {
+				continue
+			}
+			set records([\
+			    string tolower "$rec(usSvcId):$rec(szCRID)"]) $p
+		}
+	}
+
+	return $records
+}
+
+proc {rsv xlookuptab} {} {
+	set records {}
+	foreach tab {tbl_reservation pending} {
+		set res [$::rsvdb query "
 			select $tab.szCRID, channel.TBL_SVC.hSvc
 			from $tab left join channel.TBL_SVC
 			on $tab.hSvc = channel.TBL_SVC.hSvc

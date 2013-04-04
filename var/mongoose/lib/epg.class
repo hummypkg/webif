@@ -5,7 +5,6 @@ if {![exists -proc sqlite3.open]} { package require sqlite3 }
 
 require settings.class progressbar rsv.class mwildcard
 
-
 set ::epgpath /mnt/hd1/dvbepg/epg.dat
 set ::epgdbpath /mnt/hd1/epg.db
 set ::hdepgpath /media/drive1/epgsavedata
@@ -21,8 +20,6 @@ if {[file exists $::epgdbpath]} {
 	$::channeldb query {attach database '%s' as epg} $::epgdbpath
 	set ::qepg 1
 }
-
-set ::rsvlookup [rsv lookuptab]
 
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
@@ -48,7 +45,7 @@ class epg {
 	channel_crid	""
 	channel_hsvc	0
 
-	sched_type	0
+	sched_type	-1
 	rsv		0
 }
 
@@ -175,13 +172,42 @@ epg method get_rsv {} {
 }
 
 epg method process_sched {} {
+	$self scheduled
+}
+
+set rsvlookup ""
+
+epg method scheduled {} {
+	global rsvlookup
+
+	if {$sched_type >= 0} { return $sched_type }
 	set sched_type 0
-	if {$event_crid ne "" && "$channel_hsvc$event_crid" in $::rsvlookup} {
-		set sched_type 1
-	} elseif {$series_crid ne "" &&
-	    "$channel_hsvc$series_crid" in $::rsvlookup} {
-		set sched_type 2
+
+	if {$rsvlookup eq ""} {
+		set rsvlookup [rsv lookuptab]
+		#puts $rsvlookup
 	}
+
+	set p 0
+	foreach key [list \
+	    "$service_id:$event_id" \
+	    [string tolower "$service_id:$channel_crid$series_crid"] \
+	    [string tolower "$service_id:$channel_crid$event_crid"] \
+	] {
+		#puts "Check key ($key)"
+		if {[dict exists $rsvlookup $key]} {
+			set p $rsvlookup($key)
+			break
+		}
+	}
+
+	switch $p {
+	    S		{ set sched_type 2 }
+	    E		{ set sched_type 1 }
+	    default	{ set sched_type 0 }
+	}
+
+	return $sched_type
 }
 
 epg method icon_set {{height 0}} {
