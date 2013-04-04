@@ -1,9 +1,13 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require settings.class
+require settings.class plugin
 
 proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
+	if {$title eq "-reset"} {
+		set num 0
+		return
+	}
 	incr num
 	if {$title eq ""} return
 	if {$num > 4} {
@@ -15,7 +19,8 @@ proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
 <div class=left num=$num>
 	<center>
 	<a href=$link>
-		<img src=$icon ${extra}border=0 width=$width"
+		<img src=$icon ${extra}border=0 "
+	if {$width} { puts -nonewline " width=$width" }
 	if {$height} { puts -nonewline " height=$height" }
 	puts -nonewline ">
 	</a>
@@ -61,4 +66,23 @@ menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
 
 menuitem "Diagnostics" "/img/diagnostics.png" \
 	/diag/diag.jim 217 228
+
+eval_plugins menu
+
+menuitem "-reset" "" ""
+puts {</div><div style="clear: both; padding-top: 3em">}
+
+menuitem "hummy.tv<br>Forums" "/img/forum.png" \
+	"http://hummy.tv/ target=_blank" 0 100 \
+	"style=\"padding: 1em\""
+menuitem "hummy.tv<br>Wiki" "/img/wiki.png" \
+	"http://wiki.hummy.tv/ target=_blank" 0 100 \
+	"style=\"padding: 1em\""
+menuitem "Things Every<br>Owner Should Know" "/img/started.png" \
+	"http://hummy.tv/forum/threads/1858/ target=_blank" 0 100 \
+	"style=\"padding: 1em\""
+menuitem "Twitter<br>Feed" "/img/silver-twitter-bird-button.png" \
+	"http://twitter.com/HummyPkg target=_blank" 0 100 \
+	"style=\"padding: 1em\""
+
 

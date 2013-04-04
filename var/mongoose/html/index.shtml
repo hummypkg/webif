@@ -19,7 +19,6 @@ $(document).ready(function() {
 </script>
 
 <!--#exec cmd="/mod/webif/include/menuicons.jim" -->
-<!--#exec cmd="/mod/webif/include/menuplugins.jim" -->
 </div>
 
 <div class=footer>
