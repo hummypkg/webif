@@ -197,6 +197,7 @@ epg method scheduled {} {
 		#puts "Check key ($key)"
 		if {[dict exists $rsvlookup $key]} {
 			set p $rsvlookup($key)
+			#puts "FOUND ($p)"
 			break
 		}
 	}
@@ -206,6 +207,8 @@ epg method scheduled {} {
 	    E		{ set sched_type 1 }
 	    default	{ set sched_type 0 }
 	}
+
+	#puts "SCHED_TYPE: ($sched_type)"
 
 	return $sched_type
 }
