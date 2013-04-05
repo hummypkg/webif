@@ -39,5 +39,7 @@ if [ ! -f /mod/webif/.strip-updated ]; then
 	touch /mod/webif/.strip-updated
 fi
 
+/mod/webif/lib/bin/diskattrs
+
 exit 0
 

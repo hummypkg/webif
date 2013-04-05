@@ -24,6 +24,7 @@ class settings {
 	pkgdev		0
 	notoolbar	0
 	nomobile	0
+	nohelplinks	0
 	xepghours	4
 	genrededup	0
 	autolog		0
@@ -158,6 +159,10 @@ settings method genrededup {{val -1}} {
 
 settings method nomobile {{val -1}} {
 	return [$self _nval_setting nomobile $val]
+}
+
+settings method nohelplinks {{val -1}} {
+	return [$self _nval_setting nohelplinks $val]
 }
 
 settings method sortorder {{val -1}} {

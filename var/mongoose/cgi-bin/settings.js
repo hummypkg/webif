@@ -41,117 +41,33 @@ $(document).ready(function () {
 		});
 	});
 
-	$('#pkgdev').change(function() {
+	$('.setting_toggle').change(function() {
 		var arg = '0';
+		var urlargs;
 		if ($(this).attr('checked'))
 			arg = '1';
 
-		$(this).disable();
+		if ($(this).attr('invert'))
+			arg = arg == "0" ? "1" : "0";
 
-		$('#pkgdev_output')
-		    .empty()
-		    .show('slow')
-		    .load('/cgi-bin/settings.jim?pkgdev=' + arg,
-		        function() {
-				$('#pkgdev').enable();
-				$('#pkgdev_output')
-				    .css('font-style', 'italic')
-				    .delay(2000).fadeOut('slow');
-		    });
-	});
+		var el = $(this);
+		var attr = $(this).attr('attr');
+		var output = '#' + attr + '_output';
 
-	$('#https_toggle').change(function() {
-		var arg = 'off';
-		if ($(this).attr('checked'))
-			arg = 'on';
+		if ($(this).attr('useval'))
+			urlargs = 'act=' + attr + '&val=' + arg;
+		else
+			urlargs = attr + '=' + arg;
 
 		$(this).disable();
 
-		$('#https_output')
-		    .empty()
-		    .html('<img src=/img/loading.gif>Please Wait...')
-		    .show('slow')
-		    .load('/cgi-bin/settings.jim?act=https&val=' + arg,
-		        function() {
-				$('#https_toggle').enable();
-				$('#https_output')
-				    .css('font-style', 'italic')
-				    .delay(2000).fadeOut('slow');
-		    });
-	});
-
-	$('#xtelnet_toggle').change(function() {
-		var arg = 'off';
-		if ($(this).attr('checked'))
-			arg = 'on';
-
-		$(this).disable();
-
-		$('#xtelnet_output')
-		    .empty()
-		    .html('<img src=/img/loading.gif>Please Wait...')
-		    .show('slow')
-		    .load('/cgi-bin/settings.jim?act=xtelnet&val=' + arg,
-		        function() {
-				$('#xtelnet_toggle').enable();
-				$('#xtelnet_output')
-				    .css('font-style', 'italic')
-				    .delay(2000).fadeOut('slow');
-		    });
-	});
-
-	$('#toolbar_toggle').change(function() {
-		var arg = '1';
-		if ($(this).attr('checked'))
-			arg = '0';
-
-		$(this).disable();
-
-		$('#toolbar_output')
+		$(output)
 		    .empty()
 		    .show('slow')
-		    .load('/cgi-bin/settings.jim?notoolbar=' + arg,
+		    .load('/cgi-bin/settings.jim?' + urlargs,
 		        function() {
-				$('#toolbar_toggle').enable();
-				$('#toolbar_output')
-				    .css('font-style', 'italic')
-				    .delay(2000).fadeOut('slow');
-		    });
-	});
-
-	$('#mobile_toggle').change(function() {
-		var arg = '1';
-		if ($(this).attr('checked'))
-			arg = '0';
-
-		$(this).disable();
-
-		$('#mobile_output')
-		    .empty()
-		    .show('slow')
-		    .load('/cgi-bin/settings.jim?nomobile=' + arg,
-		        function() {
-				$('#mobile_toggle').enable();
-				$('#mobile_output')
-				    .css('font-style', 'italic')
-				    .delay(2000).fadeOut('slow');
-		    });
-	});
-
-	$('#genrededup_toggle').change(function() {
-		var arg = '0';
-		if ($(this).attr('checked'))
-			arg = '1';
-
-		$(this).disable();
-
-		$('#genrededup_output')
-		    .empty()
-		    .show('slow')
-		    .load('/cgi-bin/settings.jim?genrededup=' + arg,
-		        function() {
-				$('#genrededup_toggle').enable();
-				$('#genrededup_output')
+				$(el).enable();
+				$(output)
 				    .css('font-style', 'italic')
 				    .delay(2000).fadeOut('slow');
 		    });

@@ -7,7 +7,8 @@ require settings.class plugin system.class
 httpheader
 
 if {[cgi_get act] eq "https"} {
-	if {[cgi_get val off] eq "off"} {
+	set val [cgi_get val off]
+	if {$val in {0 off}} {
 		file delete /mod/etc/mongoose.cert
 		puts "HTTPS Server will be disabled after next reboot."
 	} else {
@@ -18,7 +19,8 @@ if {[cgi_get act] eq "https"} {
 }
 
 if {[cgi_get act] eq "xtelnet"} {
-	if {[cgi_get val off] eq "off"} {
+	set val [cgi_get val off]
+	if {$val in {0 off}} {
 		file delete /mod/boot/xtelnet
 		puts "Telnet server expert mode will be disabled after next reboot."
 	} else {
@@ -37,6 +39,7 @@ set epg_style [$settings epg_style]
 set pkgdev [$settings pkgdev]
 set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
+set nohelplinks [$settings nohelplinks]
 set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
 set genrededup [$settings genrededup]
@@ -80,6 +83,7 @@ handle_str_update epg_style $epg_style "EPG Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
+handle_int_update nohelplinks $nohelplinks "Disable help links"
 handle_int_update genrededup $genrededup "Genre search dedup"
 handle_int_update autolog $autolog "Auto-processing log level"
 
@@ -122,6 +126,22 @@ puts {
 <link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
 }
 
+proc setting_toggle {name attr checked {invert 0} {val 0}} {
+	puts -nonewline "
+	    <tr>
+		<th class=key>$name</th>
+		<td><input class=setting_toggle type=checkbox value=yes"
+	if {$checked} { puts -nonewline " checked" }
+	puts -nonewline " attr=$attr"
+	if {$invert} { puts -nonewline " invert=1" }
+	if {$val} { puts -nonewline " useval=1" }
+	puts -nonewline ">
+		<div id=${attr}_output></div>
+		</td>
+	</tr>
+	"
+}
+
 puts "
 	<fieldset style=\"display: inline\">
 		<legend>
@@ -146,40 +166,14 @@ puts "
 	</tr>
 "
 
-puts -nonewline "
-	<tr>
-		<th class=key>HTTPS web server?</th>
-		<td><input id=https_toggle name=https type=checkbox value=yes"
-if {[file exists /mod/etc/mongoose.cert]} { puts -nonewline " checked" }
-puts ">
-		    <div id=https_output></div>
-		</td>
-	</tr>
-"
+setting_toggle "HTTPS web server?" "https" \
+    [file exists /mod/etc/mongoose.cert] 0 1
+setting_toggle "Slide-down toolbar?" "notoolbar" $(!$notoolbar) 1
+setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
+setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1
 
 puts -nonewline "
 	<tr>
-		<th class=key>Slide-down toolbar?</th>
-		<td><input id=toolbar_toggle name=toolbar type=checkbox value=yes"
-if {$notoolbar == 0} { puts -nonewline " checked" }
-puts ">
-		    <div id=toolbar_output></div>
-		</td>
-	</tr>
-"
-
-puts -nonewline "
-	<tr>
-		<th class=key>Mobile link on main page?</th>
-		<td><input id=mobile_toggle name=mobile type=checkbox value=yes"
-if {$nomobile == 0} { puts -nonewline " checked" }
-puts ">
-		    <div id=mobile_output></div>
-		</td>
-	</tr>
-"
-
-puts -nonewline "
 	<form class=auto id=autolog method=get action=$env(REQUEST_URI)>
 		<th class=key>Auto-processing log level</th>
 		<td><select id=autolog name=autolog
@@ -202,6 +196,7 @@ puts "
 		<div id=autolog_output></div>
 		</td>
 	</form>
+	</tr>
 "
 
 puts "
@@ -295,49 +290,43 @@ puts "
 	</tr>
 "
 
-puts -nonewline "
-	<tr>
-		<th class=key>De-duplicate genre search results?</th>
-		<td><input id=genrededup_toggle name=genrededup type=checkbox value=yes"
-if {$genrededup == 1} { puts -nonewline " checked" }
-puts ">
-		    <div id=genrededup_output></div>
-		</td>
-	</tr>
-"
+setting_toggle "De-duplicate genre search results?" genrededup $genrededup
 
 puts "
 	</table>
 	</fieldset>
 	<br><br>
-	<fieldset style=\"display: inline\">
-	<legend> Email Settings </legend>
-	<table>
 "
 
-puts "
-	<tr>
-	<form class=auto id=smtp_server method=get action=$env(REQUEST_URI)>
-		<th class=key>SMTP Server for outbound email</th>
-		<td><input name=smtp_server value=\"$smtp_server\"
-		    class=\"text ui-widget-content ui-corner-all\"
-		    length=20 maxlength=50>
-		    <small>
-		    <input id=smtp_server_submit value=\"change\" type=submit>
-		    </small>
-		    <div id=smtp_server_output></div>
-		</td>
-	</form>
-	</tr>
-"
+#puts "
+#	<fieldset style=\"display: inline\">
+#	<legend> Email Settings </legend>
+#	<table>
+#"
+#
+#puts "
+#	<tr>
+#	<form class=auto id=smtp_server method=get action=$env(REQUEST_URI)>
+#		<th class=key>SMTP Server for outbound email</th>
+#		<td><input name=smtp_server value=\"$smtp_server\"
+#		    class=\"text ui-widget-content ui-corner-all\"
+#		    length=20 maxlength=50>
+#		    <small>
+#		    <input id=smtp_server_submit value=\"change\" type=submit>
+#		    </small>
+#		    <div id=smtp_server_output></div>
+#		</td>
+#	</form>
+#	</tr>
+#"
+#
+#puts "
+#	</table>
+#	</fieldset>
+#	<br><br>
+#"
 
 puts "
-	</table>
-	</fieldset>
-"
-
-puts "
-	<br><br>
 	<fieldset style=\"display: inline\">
 	<legend> Web Interface User Access Control </legend>
 	<table>
@@ -432,34 +421,16 @@ puts -nonewline "
 	<fieldset style=\"display: inline\">
 	<legend> Advanced Settings </legend>
 	<table>
-	<tr>
-		<th class=key>Show development and advanced packages?</th>
-		<td><input name=pkgdev id=pkgdev value=1 type=checkbox
 "
-if {$pkgdev} { puts -nonewline " checked" }
-puts ">
-		</td>
-	</tr>
-"
+setting_toggle "Show development and advanced packages?" "pkgdev" $pkgdev
 
 if {[system modversion 1] >= 214} {
-
-puts -nonewline "
-	<tr>
-		<th class=key>Expert mode telnet server?</th>
-		<td><input id=xtelnet_toggle name=xtelnet type=checkbox value=yes"
-if {[file exists /mod/boot/xtelnet]} { puts -nonewline " checked" }
-puts ">
-		    <div id=xtelnet_output></div>
-		</td>
-	</tr>
-"
-
+	setting_toggle "Expert mode telnet server?" "xtelnet" \
+	    [file exists /mod/boot/xtelnet] 0 1
 }
 
 puts "
 	</table>
-	<div id=pkgdev_output></div>
 	</fieldset>
 "
 

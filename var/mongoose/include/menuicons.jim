@@ -34,7 +34,9 @@ proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
 "
 }
 
-if {[[settings] epg_style] eq "grid"} {
+set settings [settings]
+
+if {[$settings epg_style] eq "grid"} {
 	set epglink "/cgi-bin/xepg.jim"
 } else {
 	set epglink "/epg.shtml"
@@ -69,6 +71,8 @@ menuitem "Diagnostics" "/img/diagnostics.png" \
 
 eval_plugins menu
 
+if {[$settings nohelplinks] == 0} {
+
 menuitem "-reset" "" ""
 puts {</div><div style="clear: both; padding-top: 3em">}
 
@@ -85,4 +89,5 @@ menuitem "Twitter<br>Feed" "/img/silver-twitter-bird-button.png" \
 	"http://twitter.com/HummyPkg target=_blank" 0 100 \
 	"style=\"padding: 1em\""
 
+}
 

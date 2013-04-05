@@ -1,6 +1,10 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
+require system.class
+
+if {[system model] eq "HDR"} {
+
 require settings.class
 
 set smartattrs {realloc pending offline}
@@ -58,12 +62,17 @@ this device.
 	} else {
 		puts "
 			<br>
-			Don't panic; for help and assistance, visit
-			<a target=_blank href=http://hummy.tv/>hummy.tv</a>
+			Don't panic; for help, visit
+			<a target=_blank
+			    href=http://wiki.hummy.tv/wiki/Disk_Problem>
+				wiki.hummy.tv
+			</a>
 		"
 	}
 	puts "
 </center></div>
 	"
+}
+
 }
 
