@@ -105,6 +105,10 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 			$settings _nval_setting "SMART_realloc" $rval
 			if {$rval > 0} { set class orangeshade }
 		}
+		10 {
+			$settings _nval_setting "SMART_spinretry" $rval
+			if {$rval > 0} { set class orangeshade }
+		}
 		197 {
 			$settings _nval_setting "SMART_pending" $rval
 			if {$rval > 0} { set class redshade }

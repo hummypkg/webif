@@ -14,8 +14,8 @@
 //
 // For details, visit http://creativecommons.org/licenses/by/3.0/us/
 
-// Modified by Andy Fiddaman to support left click and
-// support modification of menu items.
+// Modified by af123 to support left click, modification of menu items and
+// utilise jQuery.ui.position for smart element positioning.
 
 if (jQuery) (function() {
     $.extend($.fn, {
@@ -53,31 +53,17 @@ if (jQuery) (function() {
 
 			    if (o.beforeShow) o.beforeShow(el, menu);
 
-                            // Detect mouse position
-                            var d = {}, x, y;
-                            if (self.innerHeight) {
-                                d.pageYOffset = self.pageYOffset;
-                                d.pageXOffset = self.pageXOffset;
-                                d.innerHeight = self.innerHeight;
-                                d.innerWidth = self.innerWidth;
-                            } else if (document.documentElement &&
-								document.documentElement.clientHeight) {
-                                d.pageYOffset = document.documentElement.scrollTop;
-                                d.pageXOffset = document.documentElement.scrollLeft;
-                                d.innerHeight = document.documentElement.clientHeight;
-                                d.innerWidth = document.documentElement.clientWidth;
-                            } else if (document.body) {
-                                d.pageYOffset = document.body.scrollTop;
-                                d.pageXOffset = document.body.scrollLeft;
-                                d.innerHeight = document.body.clientHeight;
-                                d.innerWidth = document.body.clientWidth;
-                            }
-                            (e.pageX) ? x = e.pageX : x = e.clientX + d.scrollLeft;
-                            (e.pageY) ? y = e.pageY : x = e.clientY + d.scrollTop;
-
                             // Show the menu
                             $(document).unbind('click');
-                            $(menu).css({ top: y, left: x }).fadeIn(o.inSpeed);
+//                            $(menu).css({ top: y, left: x }).fadeIn(o.inSpeed);
+			$(menu).css('display', 'block').position({
+			    my: "left top",
+			    at: "right bottom",
+			    of: this,
+			    offset: "0 5",
+			    collision: "fit"
+			}).css('display', 'none').fadeIn(o.inSpeed);
+
                             // Hover events
                             $(menu).find('A').mouseover(function() {
                                 $(menu).find('LI.hover').removeClass('hover');

@@ -17,9 +17,9 @@ if {![exists -proc require]} {
 			puts -nonewline "Pragma: no-cache\r\n"
 			puts -nonewline "Cache-Control: no-cache\r\n"
 		} else {
-			puts "Content-Type: $type; charset=\"UTF-8\"\r\n"
+			puts -nonewline "Content-Type: $type; charset=\"UTF-8\"\r\n"
 		}
-		puts -nonewline $extra
+		if {$extra ne ""} { puts -nonewline "$extra" }
 		puts -nonewline "\r\n"
 		set done 1
 	}

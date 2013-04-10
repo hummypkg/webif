@@ -7,7 +7,7 @@ if {[system model] eq "HDR"} {
 
 require settings.class
 
-set smartattrs {realloc pending offline}
+set smartattrs {realloc pending offline spinretry}
 
 set smartattribs(SMART_status) "Unknown"
 foreach sa $smartattrs {

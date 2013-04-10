@@ -29,23 +29,19 @@ foreach line [split [exec /mod/bin/smartctl -A -f brief $disk] "\n"] {
 
 #puts "Attrs: ($attrs)"
 puts "SMART: ($smart)"
-puts "Reallocated: $attrs(5)"
-puts "Pending: $attrs(197)"
-puts "Offline: $attrs(198)"
 
-if {[dict exists $attrs 5]} {
-	$settings _nval_setting "SMART_realloc" $attrs(5)
-}
-if {[dict exists $attrs 197]} {
-	$settings _nval_setting "SMART_pending" $attrs(197)
-	if {$attrs(197) < [$settings _nval_setting "SMART_ack_pending"]} {
-		$settings _nval_setting "SMART_ack_pending" $attrs(197)
-	}
-}
-if {[dict exists $attrs 198]} {
-	$settings _nval_setting "SMART_offline" $attrs(198)
-	if {$attrs(198) < [$settings _nval_setting "SMART_ack_offline"]} {
-		$settings _nval_setting "SMART_ack_offline" $attrs(198)
+foreach a {
+    {5 "realloc"}
+    {10 "spinretry"}
+    {197 "pending"}
+    {198 "offline"}
+    } {
+	lassign $a id attr
+	if {![dict exists $attrs $id]} continue
+	puts "$attr: $attrs($id)"
+	$settings _nval_setting "SMART_$attr" $attrs($id)
+	if {$attrs($id) < [$settings _nval_setting "SMART_ack_$attr"]} {
+		$settings _nval_setting "SMART_ack_$attr" $attrs($id)
 	}
 }
 

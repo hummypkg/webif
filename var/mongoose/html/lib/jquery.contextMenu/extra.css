@@ -1,0 +1,21 @@
+
+.context-menu-item.icon-pwedit { background-image: url(/img/context/page_white_edit.png); }
+.context-menu-item.icon-pwcopy { background-image: url(/img/context/page_white_copy.png); }
+.context-menu-item.icon-pwpaste { background-image: url(/img/context/page_white_paste.png); }
+.context-menu-item.icon-pwdelete { background-image: url(/img/context/page_white_delete.png); }
+.context-menu-item.icon-edit { background-image: url(/img/context/edit.png); }
+.context-menu-item.icon-copy { background-image: url(/img/context/copy.png); }
+.context-menu-item.icon-paste { background-image: url(/img/context/paste.png); }
+.context-menu-item.icon-delete { background-image: url(/img/context/delete.png); }
+.context-menu-item.icon-cut { background-image: url(/img/context/cut.png); }
+.context-menu-item.icon-quit { background-image: url(/img/context/door.png); }
+.context-menu-item.icon-compress { background-image: url(/img/context/compress.png); }
+.context-menu-item.icon-compressr { background-image: url(/img/context/compressr.png); }
+.context-menu-item.icon-dedup { background-image: url(/img/context/dedup.png); }
+.context-menu-item.icon-decrypt { background-image: url(/img/context/decrypt.png); }
+.context-menu-item.icon-decryptr { background-image: url(/img/context/decryptr.png); }
+.context-menu-item.icon-mpg { background-image: url(/img/context/mpg.png); }
+.context-menu-item.icon-mp3 { background-image: url(/img/context/mp3.png); }
+.context-menu-item.icon-clock { background-image: url(/img/context/clock.png); }
+.context-menu-item.icon-thm { background-image: url(/img/context/thumb.png); }
+
