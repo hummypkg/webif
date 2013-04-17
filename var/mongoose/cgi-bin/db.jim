@@ -6,6 +6,7 @@ source /mod/webif/lib/setup
 require altrow
 
 set databases [glob /var/lib/humaxtv/*.db]
+lappend databases {*}[glob /mod/etc/*.db]
 lappend databases "/mnt/hd2/dms_cds.db"
 
 header

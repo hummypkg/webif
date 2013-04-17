@@ -2,7 +2,7 @@
 
 source /mod/webif/lib/setup
 require lock system.class ts.class tdelete pretty_size browse.class \
-    safe_delete settings.class
+    safe_delete settings.class plugin
 
 set loglevel [[settings] autolog]
 
@@ -40,6 +40,34 @@ proc endclock {size} {
 	set rate $($size / $el)
 	return "[pretty_size $size] in $el seconds - [pretty_size $rate]/s"
 }
+
+set modules {dedup decrypt shrink mpg mp3 expire}
+foreach mod $modules {
+	set "hook_pre$mod" {}
+	set "hook_post$mod" {}
+}
+
+proc register {type fn} {
+	global "hook_$type"
+	if {[info exists "hook_$type"]} {
+		lappend "hook_$type" $fn
+		log "Registered $fn for $type hook." 1
+	} else {
+		log "Unknown hook hook_$type" 0
+	}
+}
+
+proc runplugin {name ts} {
+	set var "hook_$name"
+	global $var
+	foreach p [subst $$var] {
+		if {[catch {$p $ts} msg]} {
+			log "Plugin error: $msg" 0
+		}
+	}
+}
+
+eval_plugins auto
 
 set scanstart [clock milliseconds]
 log "-------------------------------------------------------"
@@ -120,9 +148,11 @@ proc do_expire {ts} {
 			log "          In use."
 			return
 		}
+		runplugin preexpire $ts
 		if {[safe_delete $file]} {
 			log "     EXPIRE: $file ($age > $ax_days)" 0
 			log "          Deleted." 0
+			runplugin postexpire $ts
 		}
 	}
 }
@@ -162,6 +192,7 @@ proc do_shrink {ts} {
 	}
 	set size [$ts size]
 	dsc $size
+	runplugin preshrink $ts
 	startclock
 	log "  SHRINK: $file" 0
 	log "          Estimate $perc% saving." 0
@@ -201,6 +232,7 @@ proc do_shrink {ts} {
 	}
 	$ts set_shrunk
 	log "Done... [endclock $size]" 0
+	runplugin postshrink $ts
 }
 
 proc do_decrypt {ts} {
@@ -243,6 +275,7 @@ proc do_decrypt {ts} {
 	# Perform the decryption by requesting the file from the DLNA server.
 	set size [$ts size]
 	dsc $size
+	runplugin predecrypt $ts
 	set flagfile "$tmp/decrypting.$bfile"
 	exec /mod/bin/busybox/touch $flagfile
 	startclock
@@ -309,6 +342,7 @@ proc do_decrypt {ts} {
 	}
 	log "Done... [endclock $size]" 0
 	file delete $flagfile
+	runplugin postdecrypt $ts
 }
 
 proc do_mpg {ts} {
@@ -335,6 +369,7 @@ proc do_mpg {ts} {
 		log "  $file - In use."
 		return
 	}
+	runplugin prempg $ts
 	dsc [$ts size]
 
 	log "     MPG: $file" 0
@@ -355,6 +390,7 @@ proc do_mpg {ts} {
 
 	# Move the MPG into the local directory
 	file rename $tmp/mpg.mpg $file.mpg
+	runplugin postmpg $ts
 }
 
 proc do_mp3 {ts} {
@@ -382,6 +418,7 @@ proc do_mp3 {ts} {
 		log "  $file - In use."
 		return
 	}
+	runplugin premp3 $ts
 	dsc [$ts size]
 
 	log "     MP3: $file" 0
@@ -410,6 +447,7 @@ proc do_mp3 {ts} {
 
 	# Move the MP3 into the local directory
 	file rename $tmp/mp3.mp3 $file.mp3
+	runplugin postmp3 $ts
 }
 
 proc entries {dir callback} {
@@ -502,7 +540,7 @@ if {[llength $argv] > 0} {
 	set loglevel 2
 	foreach arg $argv { scan $root $arg }
 } else {
-	foreach arg {dedup decrypt shrink mpg mp3 expire} {
+	foreach arg $modules {
 		set st [clock milliseconds]
 		scan $root $arg
 		log "$arg scan completed in [elapsed $st] seconds."

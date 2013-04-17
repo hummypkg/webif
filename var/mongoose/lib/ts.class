@@ -76,6 +76,7 @@ ts method lock {} {
 ts method set_shrunk {} {
 	set cmd [list /mod/bin/hmt +shrunk $file]
 	exec {*}$cmd
+	lappend flags "Shrunk"
 	return 1
 }
 

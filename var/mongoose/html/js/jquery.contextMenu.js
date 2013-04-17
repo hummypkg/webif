@@ -106,7 +106,8 @@ if (jQuery) (function() {
                                 $(document).unbind('click').unbind('keypress');
                                 $(".contextMenu").hide();
                                 // Callback
-                                if (callback) callback($(this).attr('href').substr(1), $(srcElement), { x: x - offset.left, y: y - offset.top, docX: x, docY: y });
+                                //if (callback) callback($(this).attr('href').substr(1), $(srcElement), { x: x - offset.left, y: y - offset.top, docX: x, docY: y });
+                                if (callback) callback($(this).attr('href').substr(1), $(srcElement));
                                 return false;
                             });
 

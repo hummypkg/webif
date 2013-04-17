@@ -77,13 +77,19 @@ proc directory {file bfile tbfile} {
 	puts "</div>"
 }
 
+set dircount 0
+set filecount 0
+
 proc entry {file} {{i 0}} {
+	global dircount filecount
+	
 	set bfile [file tail $file]
 	regsub -all " +" $bfile "" tbfile
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
 	}
 	if [file isdirectory "$file"] {
+		incr dircount
 		directory $file $bfile $tbfile
 		return
 	}
@@ -116,6 +122,7 @@ proc entry {file} {{i 0}} {
 		set img Video_Other
 		set omenu oopt
 	}
+	incr filecount
 
 	set new 0
 	if {$type eq "ts"} {
@@ -313,7 +320,11 @@ switch $order {
 
 foreach file $files { entry "$dir/$file" }
 
-puts "<a href=# id=selectall>Select all</a> | <a href=# id=deselectall>none</a>"
+puts "
+<a href=# id=selectall>Select all</a> | <a href=# id=deselectall>none</a>
+&nbsp;&nbsp;
+Directories: $dircount, Files: $filecount
+"
 
 # Sort icons
 puts "<div id=sortdiv>"
