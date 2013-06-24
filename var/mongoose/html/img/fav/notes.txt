@@ -1,0 +1,6 @@
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 64x64" type=image/vnd.microsoft.icon />
+<link rel="apple-touch-icon" href="/img/fav/57.png" />
+<link rel="apple-touch-icon" sizes="57x57" href="/img/fav/57.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="/img/fav/72.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="/img/fav/114.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="/img/fav/144.png" />

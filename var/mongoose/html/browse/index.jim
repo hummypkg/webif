@@ -268,7 +268,7 @@ set stub ""
 foreach part [split $dir /] {
 	if {$stub eq "/"} { set name $part } else { set name "/$part" }
 	append stub $name
-	puts "<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $stub]>$name</a>
+	puts "<a href=\"$env(REQUEST_URI)?dir=[cgi_quote_url $stub]\">$name</a>
 }
 puts "<span class=filesize id=dirsize></span>"
 puts "</legend>"
@@ -278,7 +278,7 @@ set parent [join [lrange [split $dir /] 0 end-1] /]
 if {$parent ne ""} {
 	puts "
 	    <div class=va>
-		<a href=$env(REQUEST_URI)?dir=[cgi_quote_url $parent]>
+		<a href=\"$env(REQUEST_URI)?dir=[cgi_quote_url $parent]\">
 		<img border=0 src=/images/711_3_09_Media_Folder_UP.png class=va>
 			\[parent directory\]</a>
 	    </div>
@@ -337,7 +337,7 @@ foreach sl $sortlist {
 	set tag "Currently sorting"
 	if {$order != $index} {
 		puts "
-		    <a href=$env(REQUEST_URI)?$env(QUERY_STRING)&order=$index>"
+	    <a href=\"$env(REQUEST_URI)?$env(QUERY_STRING)&order=$index\">"
 		set tag "Sort"
 	}
 	puts "<img class=va border=0 src=/img/$img.gif> $tag by $descr"

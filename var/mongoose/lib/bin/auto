@@ -41,10 +41,13 @@ proc endclock {size} {
 	return "[pretty_size $size] in $el seconds - [pretty_size $rate]/s"
 }
 
-set modules {dedup decrypt shrink mpg mp3 expire}
+set modules {decrypt dedup shrink mpg mp3 expire}
+
 foreach mod $modules {
+	set "hook_pre${mod}scan" {}
 	set "hook_pre$mod" {}
 	set "hook_post$mod" {}
+	set "hook_post${mod}scan" {}
 }
 
 proc register {type fn} {
@@ -542,7 +545,9 @@ if {[llength $argv] > 0} {
 } else {
 	foreach arg $modules {
 		set st [clock milliseconds]
+		runplugin "pre${arg}scan" 0
 		scan $root $arg
+		runplugin "post${arg}scan" 0
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
 }

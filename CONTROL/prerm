@@ -2,16 +2,17 @@
 
 export tmpf=/tmp/cronf.$$
 
-cronf=$PKG_ROOT/var/spool/cron/crontabs/root
-if [ -f $cronf ]; then
-	grep -v webif/lib/bin/auto $cronf > $tmpf
-	cp $tmpf $cronf
-	[ -s $cronf ] || rm -f $cronf
+crontab=$PKG_ROOT/bin/crontab
+if [ -x $crontab ]; then
+	$crontab -l | grep -v webif/lib/bin/auto > $tmpf
+	[ -s $tmpf ] && $crontab $tmpf || $crontab -r
 fi
 
 ana=/mod/etc/anacrontab
-egrep -v 'backup/backup.jim|diskattrs' $ana > $tmpf
+egrep -v 'backup/backup.jim|bin/diskattrs' $ana > $tmpf
 cp $tmpf $ana
+
+[ -f $tmpf ] && rm -f $tmpf
 
 exit 0
 

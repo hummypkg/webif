@@ -268,7 +268,7 @@ puts {
 		</label>
 	</th>
 	<td>
-		<input type=text name="aexpiry_days" id="aexpiry_days"
+		<input name="aexpiry_days" id="aexpiry_days"
 		    type=number value=0 size=5 maxlength=3
 		    class="text ui-widget-content ui-corner-all">
 	</td>
