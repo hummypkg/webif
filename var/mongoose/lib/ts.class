@@ -1,5 +1,6 @@
 
 if {![exists -proc class]} { package require oo }
+if {![exists -proc pack]} { package require pack }
 source /mod/webif/lib/setup
 require tdelete system.class
 
@@ -331,5 +332,39 @@ proc {ts genrelist} {} {
 		160	{ Lifestyle		Leisure }
 		240	{ Drama			Show }
 	}
+}
+
+proc {ts resetnew} {dir} {
+	if {![file isdirectory $dir]} return
+	if {![file exists "$dir/.series"]} return
+
+	set tot 0
+	set watched 0
+	foreach file [readdir -nocomplain $dir] {
+		if {![string match {*.ts} $file]} { continue }
+		incr tot
+		if {[set ts [ts fetch "$dir/$file"]] != 0} {
+			if {![$ts flag "New"]} { incr watched }
+		}
+	}
+
+	set fd [open "$dir/.series"]
+	set bytes [read $fd]
+	close $fd
+	set recs [unpack $bytes -uintle 0 32]
+	set played [unpack $bytes -uintle 32 32]
+
+	#puts "Current: $played/$recs"
+	#hexdump $bytes
+	#puts "Calculated: $watched/$tot"
+
+	pack bytes $tot -intle 32 0 
+	pack bytes $watched -intle 32 32
+
+	#hexdump $bytes
+
+	set fd [open "$dir/.series" "w"]
+	puts -nonewline $fd $bytes
+	close $fd
 }
 

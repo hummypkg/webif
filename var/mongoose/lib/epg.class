@@ -119,7 +119,7 @@ epg method type_icon {} {
 }
 
 proc {epg channelicon} {name {width 0} {style ""}} {
-	set str "<img src=\"/img/channels/$name.png\"";
+	set str "<img src=\"/img/channels/out/$name.png\"";
 	if {$width > 0} { append str " width=$width" }
 	if {$style ne ""} { append str " style=\"$style\" }
 	append str " alt=\"\">"
@@ -127,7 +127,7 @@ proc {epg channelicon} {name {width 0} {style ""}} {
 }
 
 epg method channel_icon {{width 0} {style ""}} {
-	set str "<img src=\"/img/channels/$channel_name.png\"";
+	set str "<img src=\"/img/channels/out/$channel_name.png\"";
 	if {$width > 0} { append str " width=$width" }
 	if {$style ne ""} { append str " style=\"$style\" }
 	append str " alt=\"\">"

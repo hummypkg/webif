@@ -60,7 +60,7 @@ proc register {type fn} {
 	}
 }
 
-proc runplugin {name ts} {
+proc runplugin {name {ts 0}} {
 	set var "hook_$name"
 	global $var
 	foreach p [subst $$var] {
@@ -127,6 +127,15 @@ if {[system pkginst undelete]} {
 
 log "Dustbin: $dustbin" 2
 
+set recalc 0
+
+proc dorecalc {dir} {
+	global recalc
+	if {!$recalc} return
+	ts resetnew $dir
+	set recalc 0
+}
+
 proc dedup {dir} {
 	log "DEDUP: \[$dir]" 2
 	loop i 0 1 {
@@ -156,6 +165,7 @@ proc do_expire {ts} {
 			log "     EXPIRE: $file ($age > $ax_days)" 0
 			log "          Deleted." 0
 			runplugin postexpire $ts
+			incr ::recalc
 		}
 	}
 }
@@ -531,6 +541,8 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 		}
 	}
 
+	dorecalc $dir
+
 	incr indent -2
 }
 
@@ -545,9 +557,9 @@ if {[llength $argv] > 0} {
 } else {
 	foreach arg $modules {
 		set st [clock milliseconds]
-		runplugin "pre${arg}scan" 0
+		runplugin "pre${arg}scan"
 		scan $root $arg
-		runplugin "post${arg}scan" 0
+		runplugin "post${arg}scan"
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
 }

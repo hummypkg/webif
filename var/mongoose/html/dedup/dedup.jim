@@ -26,6 +26,7 @@ puts "<fieldset style=\"display: inline\">
 "
 
 loadseries $dir
+set recalc 0
 foreach file [readdir $dir] {
 	set file "$dir/$file"
 	if {[file extension $file] ne ".hmt"} { continue }
@@ -52,6 +53,7 @@ foreach file [readdir $dir] {
 			}
 			ts renamegroup $file "_duplicates/$fn"
 			puts -nonewline " - Renamed to _duplicates/$fn"
+			incr recalc
 		}
 	    }
 	    error {
@@ -77,6 +79,8 @@ foreach file [readdir $dir] {
 	puts "</td>"
 	puts "</tr>"
 }
+
+if {$recalc} { ts resetnew $dir }
 
 puts {
 </table>
