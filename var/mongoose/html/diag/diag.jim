@@ -11,6 +11,9 @@ pkg loaddiagmeta
 set smv [system modversion 1]
 
 puts {
+<style>
+button.half { width: 48%; }
+</style>
 <script type=text/javascript src=/js/enadis.js></script>
 <script type=text/javascript src=script.js></script>
 
@@ -54,8 +57,8 @@ puts {
 
 <tr>
 <td colspan=2 align=center>
-<button id=runedit style="width: 48%">File Editor</button>
-<button id=dbinfo style="width: 48%">Database Browser</button>
+<button id=runedit class=half>File Editor</button>
+<button id=dbinfo class=half>Database Browser</button>
 </td>
 </tr>
 
@@ -63,26 +66,25 @@ puts {
 <td colspan=2 align=center>
 }
 if {[system model] eq "HDR"} {
-	puts { <button id=diskdiag style="width: 48%">Hard Disk</button> }
+	puts { <button id=diskdiag class=half>Hard Disk</button> }
 }
 puts {
-<button id=channelinfo style="width: 48%">Channel Information</button>
+<button id=channelinfo class=half>Channel Information</button>
 </td>
 </tr>
 
+<tr>
+<td colspan=2 align=center>
+<button id=dspace class=half>Disk Space</button>
 }
 
 if {[system model] eq "HDR"} {
-puts {
-<tr>
-<td colspan=2 align=center>
-<button id=dlna style="width: 48%">DLNA Server</button>
-</td>
-</tr>
-}
+	puts { <button id=dlna class=half>DLNA Server</button> }
 }
 
 puts {
+</td>
+</tr>
 
 <tr><td colspan=2 style="height: 10px"></td></tr>
 

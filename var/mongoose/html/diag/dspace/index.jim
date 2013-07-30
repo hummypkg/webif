@@ -1,0 +1,96 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require system.class pretty_size
+
+header
+jqplugin easy-pie-chart
+
+puts {
+<link href=style.css rel=stylesheet type=text/css />
+<script type=text/javascript src=script.js></script>
+}
+
+set dustbin [system dustbin 1]
+set root [system mediaroot]
+set lroot [string length $root]
+
+proc hasnew {dir} {
+	if {![file exists "$dir/.series"]} { return 0 }
+	if {[catch {set fd [open "$dir/.series"]}]} { return 0 }
+	set bytes [read $fd 8]
+	$fd close
+	set recs [unpack $bytes -uintle 0 32]
+	set plays [unpack $bytes -uintle 32 32]
+	set diff $($recs - $plays)
+	if {$diff != 0} { return 1 }
+	return 0
+}
+
+set rsize 0
+
+proc gen {dir ddir {depth 0} {expand 0}} {
+	global root lroot rsize
+
+	if {[catch {set dsize [exec /mod/bin/busybox/du -s "$dir/"]} msg]} {
+		puts "Error, $dir, $msg"
+		return
+	}
+	lassign $dsize dsize
+	if {!$rsize} { set rsize $dsize }
+
+	set dlist {}
+	foreach entry [lsort [readdir -nocomplain $dir]] {
+		if {[string index $entry 0] eq "."} continue
+		if {![file isdirectory "$dir/$entry"]} continue
+		lappend dlist $entry
+	}
+
+	set img "/images/711_1_09_Media_Folder.png"
+	if {[hasnew $dir]} { set img "/img/Folder_New.png" }
+	if {[string first "/$::dustbin" $dir] > -1} {
+		set img "/img/Dustbin_Folder.png"
+	}
+
+	if {$expand > 0} { set class "open" } else { set class "closed" }
+	if {$expand > 1} { set timg "minus" } else { set timg "plus" }
+	if {![llength $dlist]} { set timg "join" }
+
+	set perc $($dsize * 100 / $rsize)
+
+	puts -nonewline "
+	    <div class=\"va $class\" style=\"padding-left: ${depth}em\">
+		<img border=0 class=\"va tlink\" src=/img/tree/$timg.png>
+		<span class=\"va fileperc\" data-percent=$perc>
+		    <img border=0 class=va src=\"$img\"></span>
+		<span class=filesize>
+		    ([pretty_size $($dsize * 1024)] - $perc%)
+		</span>
+		<span class=path>
+		    <a target=dspace_drill
+			href=\"/browse/?dir=[cgi_quote_url $dir]\">$ddir</a>
+		</span>
+	"
+
+	incr depth 2
+	incr expand -1
+
+	foreach subd $dlist { gen "$dir/$subd" $subd $depth $expand }
+
+	puts {</div>}
+}
+
+puts {
+<fieldset style="display: inline">
+<legend> Disk Utilisation </legend>
+}
+
+gen $root "/" 0 2
+
+puts {
+</fieldset>
+}
+
+footer
+

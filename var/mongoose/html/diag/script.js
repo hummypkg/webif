@@ -78,6 +78,11 @@ $('#dlna').click(function(e) {
 	window.location = '/dlna/dlna.jim';
 });
 
+$('#dspace').click(function(e) {
+	e.preventDefault();
+	window.location = 'dspace/index.jim';
+});
+
 $('#reboot').click(function(e) {
 	e.preventDefault();
 	if (confirm('Are you sure you wish to perform a reboot now?'))

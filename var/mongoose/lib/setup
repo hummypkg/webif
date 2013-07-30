@@ -41,6 +41,17 @@ if {![exists -proc require]} {
 		uplevel source /mod/webif/html/m/lib/footer.jim
 	}
 
+	proc jqplugin {name} {
+		foreach file [glob "/mod/webif/html/lib/jquery.$name/*.js"] {
+			set file [join [lrange [split $file /] 4 end] /]
+			puts "<script type=text/javascript src=/$file></script>"
+		}
+		foreach file [glob "/mod/webif/html/lib/jquery.$name/*.css"] {
+			set file [join [lrange [split $file /] 4 end] /]
+			puts "<link href=/$file rel=stylesheet type=text/css />"
+		}
+	}
+
 	require fileops
 }
 

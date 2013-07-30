@@ -15,6 +15,7 @@ foreach dir [glob -nocomplain "$root"] {
 	if {[file exists "$dir/.series"]} {
 		set fd [open "$dir/.series"]
 		set bytes [read $fd 8]
+		$fd close
 		set recs [unpack $bytes -uintle 0 32]
 		set plays [unpack $bytes -uintle 32 32]
 		set diff $($recs - $plays)
