@@ -69,7 +69,7 @@ proc gen {dir ddir {depth 0} {expand 0}} {
 		</span>
 		<span class=path>
 		    <a target=dspace_drill
-			href=\"/browse/?dir=[cgi_quote_url $dir]\">$ddir</a>
+			href=\"/browse/index.jim?dir=[cgi_quote_url $dir]\">$ddir</a>
 		</span>
 	"
 

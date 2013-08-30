@@ -23,7 +23,7 @@ puts {
 Use the <i>Open</i> button below to begin.
 </div>
 
-<textarea cols=80 rows=20 id=editor
+<textarea cols=120 rows=20 id=editor
 class="ui-widget ui-corner-all"></textarea>
 
 <br>

@@ -20,7 +20,7 @@ puts "
 	<span style=\"float: right; 
 	    background:url('/images/345_1_27_ST_USB_BG.png')
 	    no-repeat\">
-		<a href=/diag/dspace/>
+		<a href=/diag/dspace/index.jim>
 		  <img border=0 src=/images/${prefix}_$dsfile.png>
 		</a>
 	</span>

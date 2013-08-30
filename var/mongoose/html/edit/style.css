@@ -2,6 +2,7 @@ textarea
 {
 	background: white;
 	color: black;
+	font-family: Consolas, "Courier New", "Lucida Console", Monaco, "Courier", monospace !important;
 }
 
 #filename
