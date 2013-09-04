@@ -336,7 +336,11 @@ proc {ts genrelist} {} {
 
 proc {ts resetnew} {dir} {
 	if {![file isdirectory $dir]} return
-	if {![file exists "$dir/.series"]} return
+	if {![file exists "$dir/.series"]} {
+		set fd [open "$dir/.series" "w"]
+		puts -nonewline $fd [string repeat "\x0" 276]
+		close $fd
+	}
 
 	set tot 0
 	set watched 0
