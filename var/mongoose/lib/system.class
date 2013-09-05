@@ -228,6 +228,19 @@ proc {system mkdir_p} {dir} {
 	exec /mod/bin/busybox/mkdir -p $dir
 }
 
+proc {system rmdir_if_empty} {dir} {
+	foreach e [readdir -nocomplain $dir] {
+		if {$e eq "." || $e eq ".."} continue
+		if {[file isdirectory "$dir/$e"]} {
+			return 0
+		} elseif {[string index $e 0] ne "."} {
+			return 0
+		}
+	}
+	file delete -force $dir
+	return 1
+}
+
 proc {system listening} {{mport 0}} {
 	set ret {}
 	foreach line [split [exec /mod/bin/busybox/netstat -lntpw] "\n"] {
