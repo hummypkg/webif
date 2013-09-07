@@ -2,7 +2,9 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require epg.class spinner.class altrow epg_search totop
+require epg.class spinner.class altrow epg_search totop system.class
+
+set irinst [system pkginst ir]
 
 [spinner new {
 	text "Loading Now/Next Information..."
@@ -29,8 +31,10 @@ if {$::qepg} {
 }
 set got [clock milliseconds]
 
+jqplugin confirmAction
 
 puts {
+	<script type=text/javascript src=/js/chanchange.js></script>
 	<small><button id=switch>Switch to grid-style Now/Next</button></small>
 	<script type=text/javascript>
 		$('#switch').button().click(function() {
@@ -55,7 +59,13 @@ foreach record $records {
 		if {$lcn > 0} { puts "</tr>" }
 		altrow
 		puts "<td>$chnum</td>"
-		puts "<td>[$record channel_icon 50]</td>
+		puts "<td>"
+		if {$irinst} {
+			puts "<a class=chanchange chan=$chnum href=#>"
+		}
+		puts "[$record channel_icon 50]"
+		if {$irinst} { puts "</a>" }
+		puts "</td>
 		    <td>
 	    <a href=\"/cgi-bin/epg/service.jim?service=[\
 		$record get service_id]\">

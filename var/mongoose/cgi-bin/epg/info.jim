@@ -2,7 +2,9 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require epg.class
+require epg.class system.class
+
+set irinst [system pkginst ir]
 
 httpheader
 
@@ -14,7 +16,10 @@ set record [lindex [epg fetch dump -service $service -event $event] 0]
 $record get_channel_info
 set others [$record othertimes]
 
+jqplugin confirmAction
+
 puts "
+<script type=text/javascript src=/js/chanchange.js></script>
 	<table class=keyval>
 	<tr>
 		<th>Programme</th>
@@ -116,7 +121,14 @@ if {[$record get rec_crid] != ""} {
 puts "
 	<tr>
 		<td colspan=2 valign=top>
-			[$record channel_icon 70]
+"
+if {$irinst} {
+	puts "<a class=chanchange chan=[$record get channel_num] href=#>"
+}
+puts [$record channel_icon 70]
+if {$irinst} { puts "</a>" }
+
+puts "
 			[join [$record icon_set] "&nbsp;"]
 		</td>
 	</tr>

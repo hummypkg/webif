@@ -120,8 +120,6 @@ header
 puts {
 <script type="text/javascript" src="/cgi-bin/settings.js"></script>
 <script type="text/javascript" src="/js/jquery.form.js"></script>
-<script type="text/javascript" src="/js/jconfirmaction.jquery.js"></script>
-<link href=/css/jconfirmaction.jquery.css rel=stylesheet type=text/css />
 <script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
 <link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
 }

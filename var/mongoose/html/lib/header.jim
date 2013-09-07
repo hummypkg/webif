@@ -10,7 +10,7 @@ puts {
 source /mod/webif/include/model.jim
 puts {
 </title>
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 64x64"
     type="image/vnd.microsoft.icon" />
 <link rel="apple-touch-icon" href="/img/fav/57.png" />

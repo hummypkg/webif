@@ -115,7 +115,13 @@ function set_folder_new(folder, cnt)
 	folder = folder.replace(/ /g, '');
 	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
 	//console.log("Folder: (%s) = (%s)", folder, cnt);
-	$('#img' + folder).attr('src', '/img/Folder_New.png');
+	left = cnt > 99 ? 11 : (cnt > 9 ? 14 : 17);
+	$('#img' + folder)
+	    .attr('src', '/img/Folder_New.png')
+	    .next('span.foldernum')
+	    .css('left', left + 'px')
+	    .text(cnt)
+	    .show();
 }
 
 function new_folder_callback(data, status, xhr)

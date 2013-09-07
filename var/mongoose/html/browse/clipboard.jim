@@ -113,6 +113,7 @@ switch $action {
 				    "$dir/[file tail $path]"}
 			}
 		}
+		ts resetnew $dir
 	}
 	$cb clear
 	$cb save
