@@ -72,5 +72,13 @@ $(document).ready(function () {
 				    .delay(2000).fadeOut('slow');
 		    });
 	});
+
+	$('#accordian').accordian({
+	    header: 'h4',
+	    collapsible: true,
+	    active: 1,
+	    animate: 'bounceslide',
+	    heightStyle: 'content'
+	});
 });
 
