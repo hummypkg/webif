@@ -18,7 +18,7 @@ puts {
 <link rel="apple-touch-icon" sizes="72x72" href="/img/fav/72.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="/img/fav/114.png" />
 <link rel="apple-touch-icon" sizes="144x144" href="/img/fav/144.png" />
-<link type="text/css" href="/lib/jquery.ui/css/custom-theme/jquery-ui.css"
+<link type="text/css" href="/lib/jquery.ui/css/humax/jquery-ui.css"
     rel="Stylesheet" />     
 <link href="/css/style.css" rel="Stylesheet" type="text/css" />
 <script type="text/javascript" src="/js/jquery.js"></script>

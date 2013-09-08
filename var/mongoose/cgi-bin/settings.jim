@@ -122,7 +122,7 @@ puts {
 <script type="text/javascript" src="/js/jquery.form.js"></script>
 <script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
 <link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
-<div id=accordian>
+<div id=accordion>
 }
 
 proc setting_toggle {name attr checked {invert 0} {val 0}} {
@@ -143,7 +143,7 @@ proc setting_toggle {name attr checked {invert 0} {val 0}} {
 
 puts "
 	<h4>General Settings</h4>
-	<fieldset style=\"display: inline\">
+	<div><fieldset style=\"display: inline\">
 		<legend>
 			General Settings
 		</legend>
@@ -200,10 +200,10 @@ puts "
 "
 
 puts "
-</table></fieldset>
+</table></fieldset></div>
 
 <h4>EPG Settings</h4>
-<fieldset style=\"display: inline\">
+<div><fieldset style=\"display: inline\">
 	<legend>
 		EPG Settings
 	</legend>
@@ -295,7 +295,7 @@ setting_toggle "De-duplicate genre search results?" genrededup $genrededup
 
 puts "
 	</table>
-	</fieldset>
+	</fieldset></div>
 "
 
 #puts "
@@ -328,6 +328,7 @@ puts "
 
 puts "
 	<h4>Web Interface User Access Control</h4>
+	<div>
 	<fieldset style=\"display: inline\">
 	<legend> Web Interface User Access Control </legend>
 	<table>
@@ -382,6 +383,7 @@ puts "
 	</table>
 	<div id=aclnewuser_output></div>
 	</fieldset>
+	</div>
 "
 
 puts {
@@ -419,6 +421,7 @@ $('button.pwchange').click(function(el) {
 
 puts -nonewline "
 	<h4>Advanced Settings</h4>
+	<div>
 	<fieldset style=\"display: inline\">
 	<legend> Advanced Settings </legend>
 	<table>
@@ -433,12 +436,14 @@ if {[system modversion 1] >= 214} {
 puts "
 	</table>
 	</fieldset>
+	</div>
 "
 
 set hook settings
 foreach plugin [glob -nocomplain /mod/webif/plugin/*] {
 	if {[file isfile "$plugin/$hook.hook"]} {
-		puts "<h4>Settings for [file tail $plugin] package</h4><div>"
+		puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
+		puts "<div class=pluginsettings>"
 		catch {source "$plugin/$hook.hook"}
 		puts "</div>"
 	} 

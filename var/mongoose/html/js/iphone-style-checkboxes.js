@@ -50,7 +50,8 @@ $.extend($[iphoneStyle].prototype, {
   
   // Disable IE text selection, other browsers are handled in CSS
   disableTextSelection: function() {
-    if (!$.browser.msie) { return; }
+    return;
+//    if (!$.browser.msie) { return; }
 
     // Elements containing text should be unselectable
     $.each([this.handle, this.offLabel, this.onLabel, this.container], function() {
@@ -147,7 +148,8 @@ $.extend($[iphoneStyle].prototype, {
   initialPosition: function() {
     this.offLabel.css({ width: this.container.width() - 5 });
 
-    var offset = ($.browser.msie && $.browser.version < 7) ? 3 : 6;
+//    var offset = ($.browser.msie && $.browser.version < 7) ? 3 : 6;
+    var offset = 6;
     this.rightSide = this.container.width() - this.handle.width() - offset;
 
     if (this.$elem.is(':checked')) {

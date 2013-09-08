@@ -73,12 +73,14 @@ $(document).ready(function () {
 		    });
 	});
 
-	$('#accordian').accordian({
+	$('#accordion').accordion({
 	    header: 'h4',
 	    collapsible: true,
-	    active: 1,
-	    animate: 'bounceslide',
+	    active: 0,
 	    heightStyle: 'content'
 	});
+
+	// For now - until plugins are updated.
+	$('div.pluginsettings').find('br + br').remove();
 });
 
