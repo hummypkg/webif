@@ -9,15 +9,13 @@ $('button.nav').click(function() {
             '&pos=' + $('#xegrid').scrollTop();
 });
 
-var now = new Date().getTime();
-
 $('#xepg_dp').datepicker({
         buttonImage: '/img/cal.gif',
         buttonImageOnly: true,
         showOn: 'button',
         dateFormat: '@',
-        minDate: now,
-        maxDate: now + 7 * 86400,
+        minDate: 0,
+        maxDate: 8,
         onSelect: function(val, sel) {
                 var stt = $(this).attr('stt');
                 // Extract date part

@@ -25,6 +25,7 @@ class settings {
 	notoolbar	0
 	nomobile	0
 	nohelplinks	0
+	nounwatchedcount	0
 	xepghours	4
 	genrededup	0
 	autolog		0
@@ -163,6 +164,10 @@ settings method nomobile {{val -1}} {
 
 settings method nohelplinks {{val -1}} {
 	return [$self _nval_setting nohelplinks $val]
+}
+
+settings method nounwatchedcount {{val -1}} {
+	return [$self _nval_setting nounwatchedcount $val]
 }
 
 settings method sortorder {{val -1}} {

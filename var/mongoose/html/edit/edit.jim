@@ -46,6 +46,7 @@ class="ui-widget ui-corner-all"></textarea>
 <ul>
 	<li><a href=# class=qfile>/mod/etc/anacrontab</a></li>
 	<li><a href=# class=qfile>/mod/var/spool/cron/crontabs/root</a></li>
+	<li><a href=# class=qfile>/mod/webif/html/css/EXTRA.css</a></li>
 }
 
 proc quickedit {file} {

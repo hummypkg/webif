@@ -1,0 +1,25 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class ts.class
+
+proc scan {dir} {
+	puts "Fixing $dir..."
+	file stat "$dir/" st
+	if {$st(dev) != $::rootdev} { return }
+
+	ts resetnew $dir
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			scan "$dir/$entry"
+		}
+	}
+}
+
+set root [system mediaroot]
+file stat "$root/" rootstat
+set rootdev $rootstat(dev)
+
+scan $root
+

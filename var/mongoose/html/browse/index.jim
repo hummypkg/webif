@@ -20,12 +20,16 @@ if {![dict exists $env REQUEST_URI]} {
 
 if {![dict exists $env QUERY_STRING]} { set env(QUERY_STRING) "root" }
 
+set config [settings new]
+
 set order [cgi_get order -]
 if {$order eq "-"} {
-	set order [[settings new] sortorder]
+	set order [$config sortorder]
 } else {
-	[settings new] sortorder $order
+	$config sortorder $order
 }
+
+set nofcount [$config nounwatchedcount]
 
 set model [system model]
 set dustbin [system dustbin 1]
@@ -43,7 +47,7 @@ proc directory {file bfile tbfile} {
 	set img "/images/711_1_09_Media_Folder.png"
 	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
 	puts "<img border=0 class=va id=\"img$tbfile\" src=$img>"
-	puts "<span class=foldernum></span>"
+	if {!$::nofcount} { puts "<span class=foldernum></span>" }
 	puts "<input class=\"fs fsdir\" type=checkbox>"
 	puts "<a class=dbf
 	    href=\"$::env(REQUEST_URI)?dir=[cgi_quote_url $file]\"

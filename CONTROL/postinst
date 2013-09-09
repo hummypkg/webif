@@ -37,6 +37,7 @@ if [ ! -f /mod/webif/.strip-updated ]; then
 fi
 
 /mod/webif/lib/bin/diskattrs
+var/mongoose/lib/bin/resetnew
 
 [ -f $tmpf ] && rm -f $tmpf
 
