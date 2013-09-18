@@ -29,6 +29,7 @@ class settings {
 	xepghours	4
 	genrededup	0
 	autolog		0
+	changechangenc	0
 }
 
 settings method hostname {{name ""}} {
@@ -168,6 +169,10 @@ settings method nohelplinks {{val -1}} {
 
 settings method nounwatchedcount {{val -1}} {
 	return [$self _nval_setting nounwatchedcount $val]
+}
+
+settings method chanchangenc {{val -1}} {
+	return [$self _nval_setting chanchangenc $val]
 }
 
 settings method sortorder {{val -1}} {

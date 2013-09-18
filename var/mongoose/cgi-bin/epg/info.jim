@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require epg.class system.class
+require epg.class system.class settings.class
 
 set irinst [system pkginst ir]
 
@@ -16,10 +16,14 @@ set record [lindex [epg fetch dump -service $service -event $event] 0]
 $record get_channel_info
 set others [$record othertimes]
 
-jqplugin confirmAction
+if {[[settings] chanchangenc]} {
+	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
+} else {
+	jqplugin confirmAction
+	puts { <script type=text/javascript src=/js/chanchange.js></script> }
+}
 
 puts "
-<script type=text/javascript src=/js/chanchange.js></script>
 	<table class=keyval>
 	<tr>
 		<th>Programme</th>

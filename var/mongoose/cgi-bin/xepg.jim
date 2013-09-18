@@ -2,9 +2,9 @@
 
 package require cgi
 source /mod/webif/lib/setup
+require settings.class
 
 header
-jqplugin confirmAction
 
 require epg.class spinner.class altrow epg_search totop system.class
 
@@ -14,7 +14,13 @@ puts {
 <link type="text/css" href="/css/xepg.css" rel="Stylesheet" />
 <script type=text/javascript src=/js/enadis.js></script>
 <script type=text/javascript src=xepg.js></script>
-<script type=text/javascript src=/js/chanchange.js></script>
+}
+
+if {[[settings] chanchangenc]} {
+	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
+} else {
+	jqplugin confirmAction
+	puts { <script type=text/javascript src=/js/chanchange.js></script> }
 }
 
 [spinner new {

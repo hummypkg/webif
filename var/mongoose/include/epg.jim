@@ -31,10 +31,14 @@ if {$::qepg} {
 }
 set got [clock milliseconds]
 
-jqplugin confirmAction
+if {[[settings] chanchangenc]} {
+	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
+} else {
+	jqplugin confirmAction
+	puts { <script type=text/javascript src=/js/chanchange.js></script> }
+}
 
 puts {
-	<script type=text/javascript src=/js/chanchange.js></script>
 	<small><button id=switch>Switch to grid-style Now/Next</button></small>
 	<script type=text/javascript>
 		$('#switch').button().click(function() {

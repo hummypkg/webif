@@ -41,6 +41,7 @@ set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
 set nounwatchedcount [$settings nounwatchedcount]
+set chanchangenc [$settings chanchangenc]
 set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
 set genrededup [$settings genrededup]
@@ -85,6 +86,8 @@ handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
 handle_int_update nohelplinks $nohelplinks "Disable help links"
+handle_int_update chanchangenc $chanchangenc \
+    "Disable channel change confirmation"
 handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
 handle_int_update genrededup $genrededup "Genre search dedup"
 handle_int_update autolog $autolog "Auto-processing log level"
@@ -174,6 +177,10 @@ setting_toggle "Slide-down toolbar?" "notoolbar" $(!$notoolbar) 1
 setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
 setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1
 setting_toggle "Unwatched count on folders?" "nounwatchedcount" $(!$nounwatchedcount) 1
+if {[system pkginst ir]} {
+	setting_toggle "Disable channel change confirmation?" \
+	    "chanchangenc" $chanchangenc 0
+}
 
 puts -nonewline "
 	<tr>
