@@ -443,7 +443,7 @@ puts "
 "
 
 set hook settings
-foreach plugin [glob -nocomplain /mod/webif/plugin/*] {
+foreach plugin [lsort [glob -nocomplain /mod/webif/plugin/*]] {
 	if {[file isfile "$plugin/$hook.hook"]} {
 		puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
 		puts "<div class=pluginsettings>"

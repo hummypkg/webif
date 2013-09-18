@@ -177,9 +177,9 @@ proc entry {file} {{i 0}} {
 		}
 		lassign $ret txt img
 		if {$img eq "Unclassified"} {
-			icon "/images/173_3_26_G3_$img.png" $txt
+			icon "/images/173_3_26_G3_$img.png" $txt "" "va genre"
 		} else {
-			icon "/images/173_3_00_G3_$img.png" $txt
+			icon "/images/173_3_00_G3_$img.png" $txt "" "va genre"
 		}
 
 		# HD / SD
