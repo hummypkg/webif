@@ -218,7 +218,7 @@ epg method icon_set {{height 0}} {
 	set icon [$self type_icon]
 	set set ""
 	if {$icon != ""} {
-		lappend set "<img src=$icon $height
+		lappend set "<img class=genre src=$icon $height
 		    alt=\"$content_type\" title=\"$content_type\">"
 	}
 

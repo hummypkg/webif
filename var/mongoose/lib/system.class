@@ -228,17 +228,23 @@ proc {system mkdir_p} {dir} {
 	exec /mod/bin/busybox/mkdir -p $dir
 }
 
-proc {system rmdir_if_empty} {dir} {
+proc {system rmdir_if_empty} {dir {why 0}} {
+	set fl {}
 	foreach e [readdir -nocomplain $dir] {
 		if {$e eq "." || $e eq ".."} continue
 		if {[file isdirectory "$dir/$e"]} {
-			return 0
+			if {!$why} { return 0 }
+			lappend fl $e
 		} elseif {[string index $e 0] ne "."} {
-			return 0
+			if {!$why} { return 0 }
+			lappend fl $e
 		}
 	}
-	file delete -force $dir
-	return 1
+	if {!$why} {
+		file delete -force $dir
+		return 1
+	}
+	return $fl
 }
 
 proc {system listening} {{mport 0}} {
