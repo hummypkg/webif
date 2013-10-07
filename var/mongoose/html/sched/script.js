@@ -205,5 +205,12 @@ $('table.schedule tbody tr').hover(
 $('a.smenu')
 	.contextMenu({menu: 'optmenu', leftButton: true, beforeShow: preparemenu}, menuclick);
 
+$('#schedule_cleanup').bind('click', function(e) {
+	if (confirm('Are you sure you want to remove all finished recordings?'))
+		$.get('cleanup.jim',
+		    function() { window.location.reload(true);
+		});
+});
+
 });
 

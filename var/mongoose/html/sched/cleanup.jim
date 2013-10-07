@@ -1,0 +1,28 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require rsv.class
+
+header
+
+set events [rsv list]
+set n [clock seconds]
+foreach event $events {
+
+	set s [$event get nsttime]
+	set d [$event get nduration]
+	set e $($s + $d)
+
+	if {$n - $e > 7200 && [$event get ersvtype] <= 3} {
+		$event clear_ulslot
+		$event set_delete
+		$event insert
+
+		system restartpending
+
+	}
+
+}
+
+footer
+
