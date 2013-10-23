@@ -4,7 +4,7 @@ source /mod/webif/lib/setup
 require system.class ts.class
 
 proc scan {dir} {
-	puts "Fixing $dir..."
+	puts "Resetting unwatched count on $dir..."
 	file stat "$dir/" st
 	if {$st(dev) != $::rootdev} { return }
 

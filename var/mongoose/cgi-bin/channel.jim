@@ -71,6 +71,7 @@ foreach tw [$db query {
 			"ITV3" { set mux "COM4/SDN" }
 			"Dave" { set mux "COM5/ARQ A" }
 			"Film4" { set mux "COM6/ARQ B" }
+			"BBC News HD" { set mux "COM7/ARQ C" }
 			"Movies4Men" { set mux "Local" }
 		}
 	}
