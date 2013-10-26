@@ -5,7 +5,7 @@ source /mod/webif/lib/setup
 
 require rsv.class
 
-set dir /mod/var/backup
+set dir "/mod/var/backup"
 
 httpheader
 
@@ -26,58 +26,12 @@ if {[string match {auto-*} $file]} {
 	}
 }
 
-set ffile "/$dir/$file.rbk"
+set ffile "$dir/$file.rbk"
 
 if {[file exists $ffile]} {
 	puts "Backup file <i>$file</i> already exists."
 	exit
 }
 
-if {[catch { set fd [open $ffile w] } msg]} {
-	puts "Error creating backup file. - $msg"
-	exit
-}
-
-puts "Backing up scheduled recordings and events..."
-
-set events [rsv list]
-
-set fields [lsort [[rsv] vars]]
-
-#puts $fd "# [join $fields "\t"]"
-
-foreach event $events {
-	puts "  Backing up scheduled event '[$event name]'"
-	puts -nonewline $fd "event\t"
-
-	foreach f $fields {
-		if {$f eq "aulEventToRecordInfo"} { continue }
-		puts -nonewline $fd "[$event get $f]\t"
-	}
-	puts $fd ""
-}
-puts "Done."
-
-puts "Backing up channel favourites..."
-
-set grp 0
-foreach res [$rsvdb query {
-	select	eFavGroup,
-		TBL_FAV.eSvcType,
-		substr(szSvcName, 2) as szSvcName,
-		favIdx
-	from TBL_FAV join TBL_SVC using (hSvc)
-	order by eFavGroup, favIdx
-    }] {
-	if {$res(eFavGroup) != $grp} {
-		set grp $res(eFavGroup)
-		puts "  Group $grp"
-	}
-	puts "    $res(szSvcName)"
-	puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)\t$res(favIdx)"
-}
-puts "Done."
-
-close $fd
-rsv cleanup
+rsv backup $ffile
 

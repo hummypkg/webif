@@ -1,6 +1,6 @@
 
 if {![exists -proc get_channel_attr]} {
-	require rsv.class
+	if {![exists -proc rsv]} { require rsv.class }
 
 	proc get_channel_attr {channel {field hSvc}} {
 		global rsvdb

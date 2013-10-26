@@ -499,3 +499,172 @@ proc {rsv construct} {event type} {
 	return [rsv new $args]
 }
 
+proc {rsv backup} {file} {
+	global rsvdb
+
+	if {[catch { set fd [open $file w] } msg]} {
+		error "Error creating backup file. - $msg"
+	}
+
+	puts "Backing up scheduled recordings and events..."
+
+	set events [rsv list]
+
+	set fields [lsort [[rsv] vars]]
+
+	#puts $fd "# [join $fields "\t"]"
+
+	foreach event $events {
+		puts "  Backing up scheduled event '[$event name]'"
+		puts -nonewline $fd "event\t"
+
+		foreach f $fields {
+			if {$f eq "aulEventToRecordInfo"} { continue }
+			puts -nonewline $fd "[$event get $f]\t"
+		}
+		puts $fd ""
+	}
+	puts "Done."
+
+	puts "Backing up channel favourites..."
+
+	set grp 0
+	foreach res [$rsvdb query {
+		select	eFavGroup,
+			TBL_FAV.eSvcType,
+			substr(szSvcName, 2) as szSvcName,
+			favIdx
+		from TBL_FAV join TBL_SVC using (hSvc)
+		order by eFavGroup, favIdx
+	    }] {
+		if {$res(eFavGroup) != $grp} {
+			set grp $res(eFavGroup)
+			puts "  Group $grp"
+		}
+		puts "    $res(szSvcName)"
+		puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)\t$res(favIdx)"
+	}
+	puts "Done."
+
+	close $fd
+}
+
+proc {rsv restore} {file} {
+	global rsvdb
+	require findhsvc
+
+	if {![file exists $file]} {
+		error "Backup file <i>$file</i> does not exist."
+	}
+
+	if {[catch { set fd [open $file r] } msg]} {
+		error "Error opening <i>$file</i> - $msg"
+	}
+
+	puts "Restoring scheduled events from <i>$file</i>..."
+
+	$rsvdb query {begin transaction;}
+	$rsvdb query {delete from TBL_RESERVATION;}
+
+	set fields [lsort [[rsv] vars]]
+
+	set data [split [read $fd] "\n"]
+
+	foreach line $data {
+		set vals [split $line "\t"]
+		if {[lindex $vals 0] ne "event"} { continue }
+		set vars {}
+		set i 0
+		foreach f $fields {
+			if {$f eq "aulEventToRecordInfo"} { continue }
+			incr i
+			lappend vars $f [lindex $vals $i]
+		}
+
+		# Don't restore DSO events.
+		if {$vars(ersvtype) == 11} { continue }
+
+		set rsv [rsv new $vars]
+
+		# Need to fix up channel and CRID mappings in case something
+		# has changed during a channel scan.
+
+		puts "  Restoring [$rsv name]"
+
+		set bad 0
+		# First, the service number
+		set ohsvc [$rsv get hsvc]
+		if {$ohsvc > 0} {
+			set hsvc [$rsv fix_hsvc]
+			if {$hsvc == 0} {
+				puts "    Cannot find channel, restore failed."
+				set bad 1
+			} elseif {$hsvc != $ohsvc} {
+				puts -nonewline "    Service number has "
+				puts "changed $ohsvc -> $hsvc, fixing."
+			} else {
+				puts "    No change in channel service."
+			}
+		}
+
+		if {!$bad} {
+			if {[catch {$rsv insert pending 1} msg]} {
+				puts "    Error inserting event, $msg"
+			}
+		}
+	}
+
+	$rsvdb query {commit transaction;}
+
+	puts "Restoring favourite channels..."
+	$rsvdb query {begin transaction;}
+	$rsvdb query {delete from channel.TBL_FAV}
+
+	$rsvdb query {drop table if exists pending.fav}
+	$rsvdb query {create table pending.fav (
+		favIdx integer primary key autoincrement unique,
+		hSvc integer(4),
+		eFavGroup integer(4),
+		[eSvcType] integer(4)
+	)}
+
+	set grp 0
+	foreach line $data {
+		set vals [split $line "\t"]
+		if {[lindex $vals 0] ne "fav"} { continue }
+
+		set group [lindex $vals 1]
+		set type [lindex $vals 2]
+		set chan [lindex $vals 3]
+		set idx [lindex $vals 4]
+		if {$idx eq ""} { set idx 0 }
+		set hsvc [get_channel_attr $chan]
+
+		if {$grp != $group} {
+			set grp $group
+			puts "  Group $grp"
+		}
+
+		puts "    $chan"
+
+		if {$hsvc eq ""} {
+			puts "        Cannot map channel name to service."
+			continue
+		}
+
+		set query "
+			insert into
+			pending.fav(favIdx, hSvc, eFavGroup, eSvcType)
+			values($idx, $hsvc, $group, $type);
+		"
+
+		$rsvdb query $query
+	}
+
+	$rsvdb query {commit transaction;}
+
+	system restartpending
+
+	close $fd
+}
+

@@ -352,6 +352,11 @@ proc {ts resetnew} {dir} {
 		}
 	}
 
+	if {!$tot} {
+		file delete "$dir/.series"
+		return
+	}
+
 	set fd [open "$dir/.series"]
 	set bytes [read $fd]
 	close $fd

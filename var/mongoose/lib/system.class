@@ -275,3 +275,11 @@ proc {system notify} {msg} {
 	$logfd close
 }
 
+proc {system display} {hdr hd} {
+	if {[system model] eq "HDR"} {
+		exec /sbin/display $hdr
+	} else {
+		exec /sbin/display "\$$hd"
+	}
+}
+
