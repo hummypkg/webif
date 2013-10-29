@@ -39,10 +39,27 @@ proc {file rename} {{force {}} source target} {
 	}
 }
 
+proc {file touch} {target {ref ""}} {
+	try {
+		if {$ref ne ""} {
+			if {![file exists $ref]} {
+				error "ref file does not exist."
+			}
+			exec /mod/bin/busybox/touch -r $ref $target
+		} else {
+			exec /mod/bin/busybox/touch $target
+		}
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
+	}
+}
+
 local proc file {cmd args} {
 	switch $cmd {
 	    "rename" { tailcall {file rename} {*}$args }
 	    "copy" { tailcall {file copy} {*}$args }
+	    "touch" { tailcall {file touch} {*}$args }
 	    default { tailcall upcall file $cmd {*}$args }
 	}
 }

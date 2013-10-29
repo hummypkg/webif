@@ -290,7 +290,7 @@ proc do_decrypt {ts} {
 	dsc $size
 	runplugin predecrypt $ts
 	set flagfile "$tmp/decrypting.$bfile"
-	exec /mod/bin/busybox/touch $flagfile
+	file touch $flagfile
 	startclock
 	log "  DECRYPT: $rfile" 0
 	log "  DLNA: $url" 0
@@ -331,6 +331,8 @@ proc do_decrypt {ts} {
 	file rename $file "$rfile.encrypted"
 	# Move the decrypted copy into place.
 	file rename "$tmp/$bfile" $file
+	# Set the file time to match the old file
+	file touch $file "$rfile.encrypted"
 	# Patch the HMT - quickest way to get back to a playable file.
 	exec /mod/bin/hmt -encrypted "$rfile.hmt"
 
