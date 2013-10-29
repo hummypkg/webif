@@ -35,7 +35,7 @@ class settings {
 settings method hostname {{name ""}} {
 	if {$name == ""} {
 		# Get
-		if {[catch {set fd [open "/var/lib/humaxtv/hostname" r]}]} {
+		if {[catch {set fd [open "/var/lib/humaxtv/mod/hostname" r]}]} {
 			set name "humax"
 		} else {
 			set name [string trim [read $fd]]
@@ -45,10 +45,10 @@ settings method hostname {{name ""}} {
 	} else {
 		# Set
 		if [string is alnum -strict $name] {
-			set fd [open "/var/lib/humaxtv/hostname" w]
+			set fd [open "/var/lib/humaxtv/mod/hostname" w]
 			puts $fd $name
 			close $fd
-			exec hostname -F /var/lib/humaxtv/hostname
+			exec hostname -F /var/lib/humaxtv/mod/hostname
 		}
 	}
 }
