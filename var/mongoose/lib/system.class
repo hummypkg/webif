@@ -165,7 +165,7 @@ proc {system diskfree} {} {
 
 proc {system busy} {} {
 	# Is humaxtv doing anything important?
-	if {[catch {set pid [exec /mod/bin/busybox/pgrep humaxtv]}]} {
+	if {[catch {set pid [exec /mod/bin/busybox/pgrep -n humaxtv]}]} {
 		return 0
 	}
 	set c 0

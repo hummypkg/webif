@@ -19,7 +19,7 @@ case $runmode {
     }
 }
 
-if {[catch {set pid [exec pgrep humaxtv]}]} {
+if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 	puts "Cannot find humaxtv process."
 	exit
 }
