@@ -12,6 +12,7 @@ lmap i \
     {
 	set svcmap([lindex $i 1]) [lindex $i 3]
     }
+set svckeys [array names svcmap]
 
 require epg_popup
 
@@ -55,7 +56,7 @@ proc eventheader {{table TBL_RESERVATION} note} {
 }
 
 proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
-	global svcmap
+	global svcmap svckeys
 
 	set name [$event name]
 
@@ -111,7 +112,6 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 		incr ::ended
 	} else {
 		set elist [$event aul]
-
 		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
 		puts "<td nowrap class=\"va"
 		if {$n > $e} { puts " blood" }
@@ -119,7 +119,7 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 
 		if {[llength $elist] > 0} {
 			lassign [lindex $elist 0] service_id start end event_id
-			if {$start == $s} {
+			if {$start == $s && $service_id in $svckeys} {
 				puts "<a class=event href=#
 				    xs=$svcmap($service_id) xe=$event_id>
 				    $ds</a>"
@@ -143,10 +143,16 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 			foreach e $elist {
 				lassign $e service_id start end event_id
 				if {$start == $s} continue
-				puts "<a class=event href=#
+				if {$service_id in $svckeys} {
+				  puts "<a class=event href=#
 				    xs=$svcmap($service_id) xe=$event_id>
 				    [clock format $start \
 				    -format {%a %d %b %Y %H:%M}]</a><br>"
+				} else {
+				  puts "[clock format $start \
+				    -format {%a %d %b %Y %H:%M}]
+				    ($service_id)<br>"
+				}
 			}
 			puts "</div>";
 		}
