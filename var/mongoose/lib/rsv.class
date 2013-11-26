@@ -54,6 +54,8 @@ class rsv {
 	action			0
 }
 
+require findhsvc
+
 rsv method aul {} {
 	if {![exists -proc binary]} { package require binary }
 	set aul {}
@@ -206,20 +208,9 @@ rsv method remove_pending {} {
 }
 
 rsv method fix_hsvc {} {
-	global rsvdb
-
-	set _hsvc [$rsvdb query {
-		select hSvc
-		from channel.TBL_SVC
-		where szSvcName = '%s'
-		or szSvcname = '\025%s'
-		limit 1
-	} $szSvcName $szSvcName]
-
-	if {[llength $_hsvc] == 1} {
-		set hsvc [lindex [lindex $_hsvc 0] 1]
-	} else {
-		set hsvc 0
+	set _hsvc [get_channel_attr $szSvcName]
+	if {$_hsvc eq ""} {
+		set _hsvc [get_channel_attr_bylcn $usLcn]
 	}
 	return $hsvc
 }
@@ -551,7 +542,6 @@ proc {rsv backup} {file} {
 
 proc {rsv restore} {file} {
 	global rsvdb
-	require findhsvc
 
 	if {![file exists $file]} {
 		error "Backup file <i>$file</i> does not exist."

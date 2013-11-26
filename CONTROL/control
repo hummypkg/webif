@@ -1,9 +1,9 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 1.0.7-8
+Version: 1.0.7-9
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
-Depends: webif-channelicons(>=1.1.4),mongoose(>=3.0-9),jim(>=0.74-2),jim-oo,jim-sqlite3(>=0.74-1),jim-cgi(>=0.7),jim-binary,service-control(>=1.2),busybox(>=1.20.2-1),lsof,epg(>=1.0.13),hmt(>=1.1.14),ssmtp,anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.0.2),webif-charts(>=1.2),stripts(>=1.2.3),smartmontools,tmenu(>=1.05),ffmpeg,id3v2,multienv(>=1.6)
+Depends: webif-channelicons(>=1.1.5),mongoose(>=3.0-9),jim(>=0.74-2),jim-oo,jim-sqlite3(>=0.74-1),jim-cgi(>=0.7),jim-binary,service-control(>=1.2),busybox(>=1.20.2-1),lsof,epg(>=1.0.13),hmt(>=1.1.14),ssmtp,anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.0.2),webif-charts(>=1.2),stripts(>=1.2.3),smartmontools,tmenu(>=1.05),ffmpeg,id3v2,multienv(>=1.6)
 Suggests:
 Description: An evolving web interface for the Humax.
