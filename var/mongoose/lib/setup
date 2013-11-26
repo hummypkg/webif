@@ -54,6 +54,6 @@ if {![exists -proc require]} {
 		}
 	}
 
-	require fileops
+	require fileops overrides
 }
 
