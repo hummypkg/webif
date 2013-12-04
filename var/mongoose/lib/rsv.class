@@ -212,7 +212,7 @@ rsv method fix_hsvc {} {
 	if {$_hsvc eq ""} {
 		set _hsvc [get_channel_attr_bylcn $usLcn]
 	}
-	return $hsvc
+	set hsvc $_hsvc
 }
 
 rsv method insert {{table pending} {force 0}} {

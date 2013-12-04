@@ -1,10 +1,10 @@
 
-proc {dict merge} {dict args} {
-	foreach d $args {
-		foreach k [dict keys $d] {
-			dict set dict $k [dict get $d $k]
-		}
-	}
-	return $dict
-}
+#proc {dict merge} {dict args} {
+#	foreach d $args {
+#		foreach k [dict keys $d] {
+#			dict set dict $k [dict get $d $k]
+#		}
+#	}
+#	return $dict
+#}
 
