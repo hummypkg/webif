@@ -1,6 +1,10 @@
 
 if {![exists -proc altrow]} {
 	proc altrow {{attrs ""}} {{i 0}} {
+		if {$attrs eq "reset"} {
+			set i 0
+			return
+		}
 		puts -nonewline "<tr"
 		if {[string first "class=" $attrs] == -1} {
 			case $i {

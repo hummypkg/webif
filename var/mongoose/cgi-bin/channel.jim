@@ -29,20 +29,23 @@ puts "
 		<th>Signal Quality</th>
 		<th>Network</th>
 		<th>Mux</th>
+		<th>Type</th>
 		<th>Channels</th>
 		<th>&gt;799</th>
 	</tr>
 "
 foreach tw [$db query {
-		select tsIdx, szNetName, usTsID, ulFrequency, ucLevel, ucQuality
+		select tsIdx, szNetName, usTsID, ulFrequency, ucLevel,
+		ucQuality, eTransMode
 		from TBL_TS join TBL_NET using (netIdx)
 		order by ulFrequency
 	}] {
 	lassign $tw \
-	    x tsIdx x netName x usTsID x ulFrequency x ucLevel x ucQuality
+	    x tsIdx x netName x usTsID x ulFrequency x ucLevel x ucQuality \
+	    x eTransMode
 
-	altrow
 	puts "
+		<tr class=odd>
 		<td>[f2c $ulFrequency]</td>
 		<td>[expr $ulFrequency / 1000.0] MHz</td>
 	"
@@ -64,18 +67,23 @@ foreach tw [$db query {
 		set name [string range $name 1 end]
 		if {$lcn >= 800} { incr ehs }
 		switch $name {
-			"BBC ONE" { set mux "PSB1/BBC A" }
+			"BBC THREE" { set mux "PSB1/BBC A" }
 			"ITV1" { set mux "PSB2/D3&amp;4" }
 			"ITV" { set mux "PSB2/D3&amp;4" }
-			"BBC ONE HD" { set mux "PSB3/BBC B (HD)" }
+			"BBC ONE HD" { set mux "PSB3/BBC B" }
 			"ITV3" { set mux "COM4/SDN" }
 			"Dave" { set mux "COM5/ARQ A" }
-			"Film4" { set mux "COM6/ARQ B" }
-			"BBC News HD" { set mux "COM7/ARQ C" }
+			"Film4+1" { set mux "COM6/ARQ B" }
+			"BBC NEWS HD" { set mux "COM7/ARQ C" }
 			"Movies4Men" { set mux "Local" }
 		}
 	}
 	puts "<td>$mux</td>"
+	if {$eTransMode == 2} {
+		puts "<td>DVB-T (SD)</td>"
+	} else {
+		puts "<td class=blood>DVB-T2 (HD)</td>"
+	}
 
 	puts "<td>[llength $channels]
 		<a class=mchan ts=$tsIdx href=#>
@@ -93,6 +101,7 @@ foreach tw [$db query {
 		<th>Provider</th>
 		<th>Authority</th>
 	      </tr>"
+	altrow reset
 	foreach chan $channels {
 		lassign $chan x lcn x name x prv x auth
 		set name [string range $name 1 end]
