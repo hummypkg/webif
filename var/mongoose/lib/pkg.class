@@ -101,6 +101,7 @@ proc {pkg fetchmeta} {} {
 	set f [socket stream hummypkg.org.uk:80]
 	$f puts -nonewline "GET /hdrfoxt2/pkg.meta HTTP/1.1\r\n"
 	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
+	$f puts -nonewline "Connection: close\r\n"
 	$f puts -nonewline "\r\n"
 
 	set line [string trim [$f gets]]
@@ -119,6 +120,7 @@ proc {pkg fetchdiagmeta} {} {
 	set f [socket stream hummypkg.org.uk:80]
 	$f puts -nonewline "GET /diag/diag.meta HTTP/1.1\r\n"
 	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
+	$f puts -nonewline "Connection: close\r\n"
 	$f puts -nonewline "\r\n"
 
 	set line [string trim [$f gets]]

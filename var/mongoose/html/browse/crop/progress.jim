@@ -7,7 +7,7 @@ require ts.class
 httpheader
 
 set perc [cgi_get perc 100]
-set tsfile [file normalize [cgi_get file]]
+set tsfile [cgi_get file]
 
 set origfile "[file dirname $tsfile]/_original/[file tail $tsfile]"
 set newfile [file rootname $tsfile]

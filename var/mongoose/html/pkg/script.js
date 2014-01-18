@@ -3,34 +3,41 @@ var opkg = '/cgi-bin/opkg.jim?cmd=';
 $(document).ready(function() {
 
 	var busy = false;
-	var reload = false;
+	var tswitch = false;
 
 	$('#opkgupdate')
 	    .button()
-	    .click(function() { reload = true; execopkg('update'); })
+	    .click(function() { tswitch = 2; execopkg('update'); })
 	    .fadeIn('slow');
 
 	$('#opkgupgradeall')
 	    .button()
-	    .click(function() { reload = true; execopkg('upgrade'); })
+	    .click(function() { tswitch = 2; execopkg('upgrade'); })
 	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
-		select: function() {
+		create: function(event, ui) {
+			$(ui.panel).html("<img src=/img/loading.gif>" +
+			    "Loading data... Please wait...");
+			busy = true;
+			$('#pkgtabs').tabs('disable');
+		},
+		activate: function(event, ui) {
 			if (busy)
 			{
 				alert('Please wait until the current ' +
 				    'operation completes.');
 				return false;
 			}
+			$(ui.newPanel).html("<img src=/img/loading.gif>" +
+			    "Loading data... Please wait...");
 			busy = true;
-			$('#pkgtabs')
-			    .tabs('option', 'disabled', [0,1,2]);
+			$('#pkgtabs').tabs('disable');
 		},
 		load: function() {
 			busy = false;
 			setup_buttons();
-			$('#pkgtabs').tabs('option', 'disabled', []);
+			$('#pkgtabs').tabs('enable');
 		},
 		spinner: '<img border=0 src=/img/loading.gif> ' +
 		    '<em>Loading...</em>'
@@ -45,11 +52,17 @@ $(document).ready(function() {
 		buttons: { "Close":
 		    function() {$(this).dialog('close');}},
 		close: function(e,u) {
-			if (reload)
+			if (tswitch)
 			{
-				$('#refreshing').show('slow');
-				$('#pkgtabs').hide('fast');
-				window.location.reload(true);
+				var curtab = $('#pkgtabs')
+				    .tabs('option', 'active');
+				if (curtab != tswitch)
+					$('#pkgtabs').tabs('option',
+					    'active', tswitch);
+				else
+					$('#pkgtabs').tabs('load', tswitch);
+				tswitch = false;
+				$('button.va').enable();
 			}
 			else
 			{
@@ -64,18 +77,20 @@ $(document).ready(function() {
 
 	jQuery.ajaxSetup({progressInterval: 1});
 
-	function loaddata(data, isfinal)
+	function loaddata(data, status)
 	{
 		if (window.console)
 		{
-			console.log('loaddata called, final=' + isfinal);
+			console.log('loaddata called, status=' + status);
 			console.log('Data: ' + data);
 		}
-		if (isfinal)
+		if (status)
 		{
 			$('#dresults').text(data);
 			$('#dspinner').hide('slow');
 			$('#complete').show('slow');
+			if (status == 'success')
+				$('#dialogue').dialog('close');
 		}
 		else
 			$('#dresults').append(data);
@@ -101,8 +116,8 @@ $(document).ready(function() {
 			type: "GET",
 			url: opkg + arg,
 			progress: loaddata,
-			success: function(data) {
-				loaddata(data, true);
+			success: function(data, status) {
+				loaddata(data, status);
 			},
 			error: function(_, _, e) {
 				if (window.console)
