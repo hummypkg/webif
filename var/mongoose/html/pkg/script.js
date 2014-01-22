@@ -60,7 +60,12 @@ $(document).ready(function() {
 					$('#pkgtabs').tabs('option',
 					    'active', tswitch);
 				else
+				{
+					$('.ui-tabs-panel')
+					    .html("<img src=/img/loading.gif>" +
+					    "Loading data... Please wait...");
 					$('#pkgtabs').tabs('load', tswitch);
+				}
 				tswitch = false;
 				$('button.va').enable();
 			}

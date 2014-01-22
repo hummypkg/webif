@@ -40,6 +40,7 @@ set pkgdev [$settings pkgdev]
 set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
+set notwitfeed [$settings notwitfeed]
 set nounwatchedcount [$settings nounwatchedcount]
 set chanchangenc [$settings chanchangenc]
 set xepghours [$settings xepghours]
@@ -86,6 +87,7 @@ handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
 handle_int_update nohelplinks $nohelplinks "Disable help links"
+handle_int_update notwitfeed $notwitfeed "Disable twitter feed ticker"
 handle_int_update chanchangenc $chanchangenc \
     "Disable channel change confirmation"
 handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
@@ -176,6 +178,7 @@ setting_toggle "HTTPS web server?" "https" \
 setting_toggle "Slide-down toolbar?" "notoolbar" $(!$notoolbar) 1
 setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
 setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1
+setting_toggle "Twitter feed ticker on main page?" "notwitfeed" $(!$notwitfeed) 1
 setting_toggle "Unwatched count on folders?" "nounwatchedcount" $(!$nounwatchedcount) 1
 if {[system pkginst ir]} {
 	setting_toggle "Disable channel change confirmation?" \

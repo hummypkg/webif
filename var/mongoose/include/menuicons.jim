@@ -71,10 +71,25 @@ menuitem "Diagnostics" "/img/diagnostics.png" \
 
 eval_plugins menu
 
+if {[$settings notwitfeed] == 0} {
+
+puts {
+<script type="text/javascript" async=true
+    src='http://twitcker.com/ticker/HummyPkg.js?open=true&container=own-container&own-container=twitfeed&speed=3&count=5&background=cccccc'>
+</script>
+
+<div id=twitfeed
+    style="clear: both; padding-top: 3em; width: 100%">
+</div>
+}
+
+}
+
+
 if {[$settings nohelplinks] == 0} {
 
 menuitem "-reset" "" ""
-puts {</div><div style="clear: both; padding-top: 3em">}
+puts {</div><div style="clear: both; padding-top: 2em">}
 
 menuitem "hummy.tv<br>Forums" "/img/forum.png" \
 	"http://hummy.tv/ target=_blank" 0 100 \

@@ -18,7 +18,13 @@ if {[file exists $logfile] && [file size $logfile] > 2097152} {
 	file delete $logfile
 }
 
-set logfd [open "/mod/tmp/auto.log" "a+"]
+if {[lindex $argv 0] eq "-d"} {
+	set argv [lrange $argv 1 end]
+	set loglevel 2
+	set logfd stdout
+} else {
+	set logfd [open "/mod/tmp/auto.log" "a+"]
+}
 proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
 	puts $::logfd "[\
@@ -502,7 +508,7 @@ proc expire {dir} {
 	entries $dir do_expire
 }
 
-proc scan {dir attr {force 0}} {{indent 0}} {
+proc scan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 	global dustbin
 
 	incr indent 2
@@ -511,6 +517,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 
 	if {$dir eq $dustbin} {
 		log "Dustbin, skipping." 2
+		incr indent -2
 		return
 	}
 
@@ -519,6 +526,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 		file stat "$dir/" st
 		if {$st(dev) != $::rootdev} {
 			log "Special folder on different device, skipping." 2
+			incr indent -2
 			return
 		}
 		if {$force} {
@@ -538,7 +546,7 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 	if {$force || [file exists "$dir/.auto$attr"]} { $attr $dir }
 
 	foreach entry [readdir -nocomplain $dir] {
-		if {[file isdirectory "$dir/$entry"]} {
+		if {$recurse && [file isdirectory "$dir/$entry"]} {
 			scan "$dir/$entry" $attr $force
 		}
 	}
@@ -548,12 +556,50 @@ proc scan {dir attr {force 0}} {{indent 0}} {
 	incr indent -2
 }
 
+proc scanup {dir flag} {
+	global root
+
+	set rl [string length $root]
+	while {[string length $dir] >= $rl} {
+		if {[string match {\[*} [file tail $dir]]} {
+			return -1
+		}
+		if {[file exists "$dir/.auto${flag}r"]} {
+			log "scanup:   Found ${flag}r ($dir)" 2
+			return 1
+		}
+		set dir [file dirname $dir]
+	}
+
+	return 0
+}
+
+proc scansingle {dirs} {
+	global modules root
+
+	foreach dir $dirs {
+		log "Scanning single directory '$dir'"
+		foreach arg $modules {
+			set st [clock milliseconds]
+			set sup [scanup $dir $arg]
+			if {$sup == -1} {
+				log "Encountered special directory."
+				break
+			}
+			scan $dir $arg $sup 0
+			log "$arg scan completed in [elapsed $st] seconds."
+		}
+	}
+}
+
 set root [system mediaroot]
 file stat "$root/" rootstat
 set rootdev $rootstat(dev)
 log "Root device: $rootdev" 2
 
-if {[llength $argv] > 0} {
+if {[lindex $argv 0] eq "-single"} {
+	scansingle [lrange $argv 1 end]
+} elseif {[llength $argv] > 0} {
 	set loglevel 2
 	foreach arg $argv { scan $root $arg }
 } else {
