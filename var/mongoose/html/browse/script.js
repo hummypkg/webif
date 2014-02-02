@@ -231,6 +231,7 @@ function savestream_submit()
 {
 	var s = $('#savestream_form').serialize();
 	var sf = $('#save_stream').attr('file');
+	$('#savestream_name').disable();
 	$('#savestream_spin').show();
 	$.get('/browse/savestream.jim?sfile=' +
 	    encodeURIComponent(sf) + '&' + s,
@@ -791,6 +792,11 @@ var dmenuclick = function(action, el, pos)
 		close: function() { $('#savestream_name').val(''); }
 	});
 
+	$('#savestream_name').keyup(function(e) {
+		if (e.keyCode == $.ui.keyCode.ENTER)
+			savestream_submit();
+	});
+
 	$('#bmpdialogue').dialog({
 		autoOpen: false,
 		height: 'auto', width: 'auto',
@@ -837,11 +843,20 @@ var dmenuclick = function(action, el, pos)
 	});
 
 	$('#save_stream').button().click(function() {
+		$('#savestream_retrieving').show();
+		$('#savestream_detail').text('').hide();
 		$('#savestream_spin').hide();
+		$('#savestream_name').val('').enable();
+
 		$('#savestreamform').dialog('open');
 		$('#savestream_detail').load(
 		    '/browse/ffmpeg.jim?file=' +
-		    encodeURIComponent($('#save_stream').attr('file')));
+		    encodeURIComponent($('#save_stream').attr('file')),
+		    function() {
+			$('#savestream_retrieving').hide();
+			$('#savestream_detail').show();
+			$('#savestream_form').show();
+		    });
 	});
 
 	$('#selectall').click(function(e) {

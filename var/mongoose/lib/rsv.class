@@ -224,7 +224,8 @@ rsv method insert {{table pending} {force 0}} {
 			set rec [$rsvdb query "
 				select ulslot from $tab
 				where szCRID = '%s'
-			" $szCRID]
+				and hsvc = '%s'
+			" $szCRID $hsvc]
 			if {[llength $rec] > 0} {
 				throw 20 "Duplicate reservation."
 				return

@@ -209,7 +209,10 @@ puts {
 <div id=savestreamform title="Save streamed content"
     style="display: none">
 	<div class=pre id=savestream_detail></div>
-	<form id=savestream_form>
+	<div id=savestream_retrieving>
+		<img src=/img/loading.gif> Retrieving details...
+	</div>
+	<form id=savestream_form class=hidden>
 }
 puts "<input type=hidden name=dir value=\"$dir\">"
 puts {
@@ -217,7 +220,7 @@ puts {
 	<tr>
 	<th>
 		<label for="savestream_name">
-			<b>Filename</b>
+			<b>Enter Filename</b>
 		</label>
 	</th>
 	<td>
@@ -225,7 +228,9 @@ puts {
 		    id="savestream_name"
 		    value="" size=70 maxlength=255
 		    class="text ui-widget-content ui-corner-all">
-		<img id=savestream_spin src=/img/loading.gif>
+		<span id=savestream_spin>
+			<img src=/img/loading.gif> Saving...
+		</span>
 	</td>
 	</tr>
 	</table>
