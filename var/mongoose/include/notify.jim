@@ -6,16 +6,18 @@ source /mod/webif/lib/setup
 require cat
 
 puts "
-<div id=sysnotify class=warningbox><center>
+<div id=sysnotify class=warningbox style=\"width: 90%\"><center>
 !! WARNING !!
 <br><br>
 You have pending system notifications:
 <br><br>
+</center>
 <pre>
 "
 cat /mod/tmp/notify.log
 puts {
 </pre>
+<center>
 <button id=sysnotify_ack>Acknowledge</button>
 </center></div>
 <script type=text/javascript>

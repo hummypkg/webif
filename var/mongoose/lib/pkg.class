@@ -169,3 +169,11 @@ proc {pkg fetchdiagmeta} {} {
 	$ff close
 }
 
+proc {pkg update} {} {
+	exec /bin/opkg update
+}
+
+proc {pkg upgrade} {nm} {
+	exec /bin/opkg upgrade $nm
+}
+
