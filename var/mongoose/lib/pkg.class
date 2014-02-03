@@ -5,7 +5,10 @@ class pkg {
 	name		""
 	latest		""
 	descr		""
+	changes		""
+	url		""
 	installed	""
+	raw		{}
 }
 
 set ::pkgmeta {}
@@ -15,12 +18,39 @@ pkg method _load {nm} {
 	set name $nm
 	foreach line [split [exec /bin/opkg list $nm] "\n"] {
 		# betaftpd - 0.0.8pre17-1 - Description...
-		regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x latest descr
+		if {[string match { *} $line]} {
+			append descr $line
+		} else {
+			regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x latest descr
+		}
 	}
+	regexp {(.*) \[(.*)\]} $descr x descr changes
 	set info [exec /bin/opkg list-installed $nm]
-	regexp {^([^ ]+) - ([^ ]+)$} $info full xname installed
+	regexp {^([^ ]+) - ([^ ]+)$} $info x x installed
 
 	return $self
+}
+
+pkg method loadraw {} {
+	set tag ""
+	set txt ""
+	set raw {}
+	
+	foreach line [split [exec /bin/opkg info $name] "\n"] {
+		if {$tag ne "" && [string match { *} $line]} {
+			append raw($tag) $line
+			continue
+		}
+		regexp {^([^:]+): (.*)$} $line x tag txt
+		if {![dict exists $raw $tag]} {
+			set tag [string tolower $tag]
+			set raw($tag) $txt
+		} else {
+			set tag ""
+		}
+	}
+
+	if {[dict exists $raw tags]} { set url $raw(tags) }
 }
 
 proc {pkg load} {nm} {
@@ -47,7 +77,9 @@ proc {pkg avail} {} {
 	foreach pkg [split [exec /bin/opkg list] "\n"] {
 		if [regexp {^ } $pkg] { continue }
 		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
-		if {$name ni $inst_pkgs} { lappend avail_pkgs $name }
+		if {$name ni $inst_pkgs && $name ni $avail_pkgs} {
+			lappend avail_pkgs $name
+		}
 		#puts "New: $name<br>"
 	}
 	return $avail_pkgs
@@ -58,7 +90,9 @@ proc {pkg inst} {} {
 	set inst_pkgs {}
 	foreach pkg [split [exec /bin/opkg list-installed] "\n"] {
 		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
-		lappend inst_pkgs $name
+		if {$name ni $inst_pkgs} {
+			lappend inst_pkgs $name
+		}
 		#puts "Inst: $name<br>"
 	}
 	return $inst_pkgs

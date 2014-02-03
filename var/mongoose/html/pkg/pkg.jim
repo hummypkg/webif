@@ -30,11 +30,28 @@ proc pkgrow {pkg} {
 		puts "<td nowrap>[$pkg get latest]</td>"
 	}
 
+	puts "<td>"
 	if {[dict exists $::pkgmeta $name]} {
-		puts "<td>$::pkgmeta($name)</td>"
+		puts "$::pkgmeta($name)"
 	} else {
-		puts "<td>[$pkg get descr]</td>"
+		puts "[$pkg get descr]"
 	}
+	if {$::type eq "upgr"} {
+		$pkg loadraw
+		set url [$pkg get url]
+		set changes [$pkg get changes]
+		if {$changes ne ""} {
+			puts "<br>&nbsp;&nbsp;-&nbsp;<i>$changes</i>"
+		}
+		if {$url ne ""} {
+			puts "
+	<br>
+	<a class=va href=\"$url\" target=_blank style=\"color: darkblue\">
+		<img class=va height=18 width=18 src=/img/info.png> $url
+	</a>"
+		}
+	}
+	puts "</td>"
 
 	if {![$pkg is installed]} {
 		set type Install
@@ -82,7 +99,7 @@ if {[llength $pkgs] > 0} {
 		pkgrow [pkg load $pkg]
 	}
 	puts "</table>"
-	if {$filter} {
+	if {$type ne "upgr" && $filter} {
 		puts "<font class=footnote>This is a filtered package list. To show all packages, enable the <i>Show development and advanced packages</i> in the settings screen.</font>"
 	}
 } else {

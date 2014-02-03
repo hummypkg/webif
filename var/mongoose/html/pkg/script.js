@@ -4,6 +4,7 @@ $(document).ready(function() {
 
 	var busy = false;
 	var tswitch = false;
+	var stick = false;
 
 	$('#opkgupdate')
 	    .button()
@@ -94,8 +95,9 @@ $(document).ready(function() {
 			$('#dresults').text(data);
 			$('#dspinner').hide('slow');
 			$('#complete').show('slow');
-			if (status == 'success')
+			if (status == 'success' && !stick)
 				$('#dialogue').dialog('close');
+			stick = false;
 		}
 		else
 			$('#dresults').append(data);
@@ -151,6 +153,7 @@ $(document).ready(function() {
 		$('a.depends').click(function(e) {
 			e.preventDefault();
 			var pkg = $(this).closest('tr').attr('pkg');
+			stick = true;
 			execopkg(encodeURIComponent('whatdepends ' + pkg),
 			    false);
 		});
