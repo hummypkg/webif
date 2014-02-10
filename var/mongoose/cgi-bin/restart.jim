@@ -7,7 +7,7 @@ require rsv.class system.class
 httpheader
 
 if {[cgi_get act] eq "cancel"} {
-	file delete /tmp/.restartpending
+	system restartpending 0
 	exit
 }
 
@@ -18,7 +18,7 @@ if {[cgi_get now] eq "yes"} {
 	exit
 }
 
-file delete /tmp/.restartpending
+system restartpending 0
 header
 
 # Commit pending reservations on older mod versions.

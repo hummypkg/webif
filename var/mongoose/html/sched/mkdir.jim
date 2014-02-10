@@ -1,0 +1,32 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require rsv.class system.class
+
+httpheader
+
+set slot [cgi_get slot 0]
+set table [cgi_get table TBL_RESERVATION] 
+
+set event [rsv slot $table $slot]
+
+# Humax TV replaces these characters.
+# "%*./:<>?\|
+
+set dir "[system mediaroot]/[\
+    regsub -all {["%*\./:<>?\\|]} [$event get szFPBRecPath] "_"]"
+
+
+if {[file exists $dir]} {
+	puts "Folder $dir already exists."
+} else {
+	if {[catch {file mkdir $dir} msg]} {
+		puts "Failed to create $dir ($msg)"
+	} else {
+		puts "Created $dir"
+	}
+}
+
+system restartpending
+

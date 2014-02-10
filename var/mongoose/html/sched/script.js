@@ -148,9 +148,15 @@ function preparemenu(el, menu)
 		$('#optmenu').disableContextMenuItems('#ar');
 
 	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
+	{
 		$('#optmenu').enableContextMenuItems('#folder');
+		$('#optmenu').enableContextMenuItems('#mkfolder');
+	}
 	else
+	{
 		$('#optmenu').disableContextMenuItems('#folder');
+		$('#optmenu').disableContextMenuItems('#mkfolder');
+	}
 }
 
 function menuclick(action, el, pos)
@@ -190,6 +196,18 @@ function menuclick(action, el, pos)
 		$('#fchangeslot').val(sid);
 		$('#fchangename').val($(el).find('a.schedule').text());
 		$('#fchange').dialog('open');
+		break;
+
+	    case 'mkfolder':
+		$('#output')
+                    .empty()
+                    .show('slow')
+                    .load('mkdir.jim?slot=' + sid,
+                        function() {
+                                $(output)
+                                    .css('font-style', 'italic')
+                                    .delay(5000).fadeOut('slow');
+                    });
 		break;
 
 	    default:

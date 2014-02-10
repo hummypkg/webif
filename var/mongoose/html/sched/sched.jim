@@ -24,6 +24,7 @@ puts {
 <script type=text/javascript src=/js/jquery.form.js></script>
 <script type=text/javascript src=script.js></script>
 
+<div id=output class=hidden></div>
 <div id=sdialogue></div>
 }
 

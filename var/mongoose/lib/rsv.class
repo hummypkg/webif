@@ -309,6 +309,10 @@ proc {rsv list} {{table tbl_reservation} {extra ""}} {
 	return $records
 }
 
+proc {rsv count} {{table tbl_reservation}} {
+	return [llength [rsv list $table]]
+}
+
 proc {rsv lookuptab} {} {
 	set records {}
 	foreach tab {tbl_reservation pending} {

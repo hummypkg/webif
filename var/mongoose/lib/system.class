@@ -192,8 +192,12 @@ proc {system reboot} {} {
 	exec /sbin/reboot
 }
 
-proc {system restartpending} {} {
-	close [open /tmp/.restartpending w]
+proc {system restartpending} {{mode 1}} {
+	if {$mode} {
+		close [open /tmp/.restartpending w]
+	} else {
+		file delete /tmp/.restartpending
+	}
 }
 
 proc {system param} {param {type Value} {tbl MENUCONFIG}} {

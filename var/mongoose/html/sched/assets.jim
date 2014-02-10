@@ -15,6 +15,7 @@ puts {
 	<li class=delete><a href=#delete>Delete</a></li>
 	<li class=separator><a href=#ar>Enable AR</a></li>
 	<li class=separator><a href=#folder>Change Folder</a></li>
+	<li class=separator><a href=#mkfolder>Create Folder</a></li>
 </ul>
 
 <div id=padding style="display: none">

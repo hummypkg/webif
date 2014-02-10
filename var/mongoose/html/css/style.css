@@ -427,7 +427,16 @@ button.red
 
 div#restart_block
 {
+	text-align: center;
 	z-index: 31;
+	float: right;
+	width: 60%;
+	position: absolute;
+	top: 10px;
+	left: 100px;
+	background-color: #f8f8f8;
+	opacity: 0.9;
+	filter:alpha(opacity=90);
 }
 
 img.bmp, img.doublebmp
