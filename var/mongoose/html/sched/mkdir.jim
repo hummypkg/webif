@@ -15,7 +15,7 @@ set event [rsv slot $table $slot]
 # "%*./:<>?\|
 
 set dir "[system mediaroot]/[\
-    regsub -all {["%*\./:<>?\\|]} [$event get szFPBRecPath] "_"]"
+    regsub -all {["%*\./:<>?\\|]} [$event folder] "_"]"
 
 
 if {[file exists $dir]} {

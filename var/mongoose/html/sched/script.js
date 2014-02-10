@@ -147,16 +147,15 @@ function preparemenu(el, menu)
 	else
 		$('#optmenu').disableContextMenuItems('#ar');
 
-	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
-	{
-		$('#optmenu').enableContextMenuItems('#folder');
+	if ($(el).attr('reckind') == 4)
 		$('#optmenu').enableContextMenuItems('#mkfolder');
-	}
 	else
-	{
-		$('#optmenu').disableContextMenuItems('#folder');
 		$('#optmenu').disableContextMenuItems('#mkfolder');
-	}
+
+	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
+		$('#optmenu').enableContextMenuItems('#folder');
+	else
+		$('#optmenu').disableContextMenuItems('#folder');
 }
 
 function menuclick(action, el, pos)
@@ -164,13 +163,13 @@ function menuclick(action, el, pos)
 	if (!$(el).is("tr"))
 		el = $(el).closest('tr');
 	var sid = $(el).attr('sid');
+	var table = $(el).attr('table');
 	//if (window.console)
 	      //console.log("Got %s, el: %o, id: %d", action, el, sid);
 
 	switch (action)
 	{   
 	    case 'delete':
-		var table = $(el).attr('table');
 		if (confirm('Are you sure you want to delete this entry?'))
 			$.get('cancel.jim?slot=' + sid +
 			    '&table=' + table,
@@ -202,7 +201,7 @@ function menuclick(action, el, pos)
 		$('#output')
                     .empty()
                     .show('slow')
-                    .load('mkdir.jim?slot=' + sid,
+                    .load('mkdir.jim?slot=' + sid + '&table=' + table,
                         function() {
                                 $(output)
                                     .css('font-style', 'italic')
