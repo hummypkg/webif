@@ -308,9 +308,9 @@ proc s_time {a b} {
 	}
 
 	if {[catch {file stat $a l}]} { return 0}
-	set at $l(ctime)
+	set at $l(mtime)
 	if {[catch {file stat $b l}]} { return 0}
-	set bt $l(ctime)
+	set bt $l(mtime)
 
 	if {$at < $bt} { return -1 }
 	if {$at > $bt} { return 1 }

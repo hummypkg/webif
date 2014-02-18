@@ -1,6 +1,7 @@
 
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
+if {![exists -proc binary]} { package require binary }
 
 class system {}
 
@@ -179,6 +180,15 @@ proc {system busy} {} {
 proc {system inuse} {file} {
 	# Is anything using the file?
 	set file [file rootname [file tail $file]]
+
+	# Escape any unicode characters to match lsof output.
+	foreach range [lreverse [\
+	    regexp -inline -indices -all -- {[\x80-\xff]} $file]] {
+		set i [lindex $range 0]
+		binary scan [string index $file $i] H2 hex
+		set file [string replace $file $i $i "\\x$hex"]
+	}
+
 	set c 0
 	foreach line [split [exec /mod/bin/lsof] "\n"] {
 		if {[string first $file $line] >= 0} { incr c }
