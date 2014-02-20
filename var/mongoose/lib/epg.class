@@ -50,21 +50,9 @@ class epg {
 }
 
 epg method _parse {line} {
-	set vars [split $line "\t"]
-
-	set service_id [lindex $vars 0]
-	set event_id [lindex $vars 1]
-	set start [lindex $vars 2]
-	set duration [lindex $vars 3]
-	set encrypted [lindex $vars 4]
-	set name [lindex $vars 5]
-	set text [lindex $vars 6]
-	set warning [lindex $vars 7]
-	set content_code [lindex $vars 8]
-	set content_type [lindex $vars 9]
-	set event_crid [lindex $vars 10]
-	set series_crid [lindex $vars 11]
-	set rec_crid [lindex $vars 12]
+	lassign [split $line "\t"] \
+	    service_id event_id start duration encrypted name text warning \
+	    content_code content_type event_crid series_cris rec_crid
 }
 
 epg method percent {} {
@@ -95,6 +83,10 @@ epg method elapsed {} {
 
 epg method remaining {} {
 	return [expr $duration - [$self elapsed]]
+}
+
+epg method end {} {
+	return $($start + $duration)
 }
 
 epg method type_icon {} {
@@ -371,6 +363,7 @@ proc {epg dbfetch} {mode args} {
 	set records {}
 	set extra ""
 	set params {}
+	set debug 0
 
 	set select "
 	    select distinct *,
@@ -393,6 +386,7 @@ proc {epg dbfetch} {mode args} {
 		if {[string first "-" $arg] == 0} {
 			set v $args($arg)
 			switch -- $arg {
+				-debug { set debug $v }
 				-crid { append q \
 				    "and e.event_crid = '$v' " }
 				-scrid { append q \
@@ -407,6 +401,9 @@ proc {epg dbfetch} {mode args} {
 				    "and e.start < $v and e.end > $v " }
 				-after { append q \
 				    "and e.end >= $v " }
+				-before { append q \
+				    "and e.start < $v " }
+				-sort { set sort "order by $v" }
 				-trange {
 					lassign [split $v :] stt ett
 					append q "and (
@@ -433,6 +430,7 @@ proc {epg dbfetch} {mode args} {
 					}
 					append q ") "
                                 }
+				-param { lappend params $v }
 				default { error "Invalid option, $arg" }
 			}
 		}
@@ -440,7 +438,10 @@ proc {epg dbfetch} {mode args} {
 
 	set query "$select $from $q $sort"
 
-	#puts "QUERY -$query-"
+	if ($debug) {
+		puts "QUERY -$query-"
+		puts "PARAMS -$params-"
+	}
 
 	set records {}
 	if {[catch {

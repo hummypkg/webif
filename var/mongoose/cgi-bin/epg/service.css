@@ -1,0 +1,68 @@
+
+table.weekview
+{
+	width: 100%;
+	border: 1px solid red;
+}
+
+th.day, th.hour, td.dayhour
+{
+	border: solid 1px #d3d3d3;
+}
+
+th.day, th.hour
+{
+	background: #ccff99;
+	color: black;
+}
+
+th.day
+{
+	text-align: center;
+	font-size: 1.2em;
+	width: 13%;
+}
+
+th.hour
+{
+	vertical-align: top;
+	text-align: center;
+	font-size: 1.3em;
+	padding: 8px 0;
+}
+
+td.dayhour
+{
+	vertical-align: top;
+	background: #ffffcc;
+}
+
+div.prog
+{
+	margin: 5px;
+}
+
+div.progp
+{
+	padding-top: 1em;
+}
+
+div.time
+{
+	font-size: 1.3em;
+	opacity: 0.6;
+	margin-bottom: 0.4em;
+}
+
+div.title
+{
+	font-size: 1.1em;
+	text-weight: bold;
+	margin-bottom: 0.4em;
+}
+
+div.synopsis
+{
+	font-size: 0.9em;
+}
+

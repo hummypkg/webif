@@ -16,52 +16,117 @@ require totop
 
 require epg_popup
 
-set service [cgi_get service 4351]
-set records [epg fetch dump -service $service]
+set service [cgi_get service 4170]
+set records [epg dbfetch dump \
+    -service $service \
+    -sort "strftime('%%H%%J', start, 'unixepoch'), strftime('%%M', start, 'unixepoch')" \
+    -debug 0
+]
 
+if {[llength $records] == 0} {
+	puts "No data for service.."
+	exit
+}
+
+# Load the channel information from the first entry
 set tr [lindex $records 0]
 $tr get_channel_info
 set channel_num [$tr get channel_num]
 set channel_name [$tr get channel_name]
 
 puts "
+	<link type=text/css rel=Stylesheet href=service.css />
 	<div style=\"margin: 0 1em 1em 1em\">
-	[$tr channel_icon 80 {vertical-align:middle}]
+	[$tr channel_icon 40 {vertical-align:middle}]
 	<span style=\"vertical-align: middle\">
 		$channel_num - $channel_name
 	</span>
 	</div>
 "
 
-puts {
-	<table class=borders>
-	<tr>
-		<th></th>
-		<th>Date</th>
-		<th>Time</th>
-		<th>Programme</th>
-		<th>Synopsis</th>
-	</tr>
+puts "
+<div class=weekview>
+<table class=weekview>
+<thead>
+<tr>
+<th class=hour></th>
+"
+set t [clock seconds]
+set firstday [clock format $t -format {%Y%m%d}]
+set daymap {}
+loop i 0 7 {
+	puts "<th class=\"day day-$i\">[clock format $t -format {%a}]<br>"
+	puts "[clock format $t -format {%e %b}]</th>"
+	set daymap([clock format $t -format {%Y%m%d}]) $i
+	incr t 86400
+}
+puts "
+</tr>
+</thead>
+<tbody>
+"
+
+set currhour -1
+set currday -1
+foreach e $records {
+	set start [$e get start]
+	set day [clock format $start -format "%Y%m%d"]
+	if {$day ni $daymap} continue
+	set hour [clock format $start -format "%H"]
+	if {$hour != $currhour} {
+		if {$currhour ne "-1"} {
+			loop i $daymap($currday) 6 {
+				puts "</td><td class=\"dayhour\">"
+			}
+			puts -nonewline "</td></tr>"
+		}
+		puts "
+			<tr class=\"hour\">
+			<th class=hour>$hour:00</th>
+			<td class=\"dayhour\">
+		"
+		set currhour $hour
+		set currday $firstday
+		set newcell 1
+	}
+	if {$day ne $currday} {
+		loop i $daymap($currday) $daymap($day) {
+			puts "</td><td class=\"dayhour\">"
+		}
+		set currday $day
+		set newcell 1
+	}
+	set class "prog"
+	if {!$newcell} { set class "prog progp" }
+	if {[$e get series_crid] ne ""} {
+		set ro 2
+	} else {
+		set ro 1
+	}
+	set st [$e scheduled]
+	puts "
+<div class=\"$class\">
+<div class=time>
+[clock format $start -format {%H:%M}]-[clock format [$e end] -format {%H:%M}]
+</div>
+<div class=title>
+<a class=event href=# xs=$service xe=[$e get event_id] sch=$st rec=$ro>
+[$e get name]
+</a>
+</div>
+<div class=synopsis>[$e get text] [join [$e icon_set 14] '']</div>
+</div>
+"
+	set newcell 0
 }
 
-set i 0
-foreach record $records {
-	altrow
-	#$record get_channel_info
-	set ended [$record ended]
-	if {[$record showing]} {
-	    puts "<td><img src=/images/111_1_00_Cursor_2R_Arrow.png></td>"
-	} else { puts "<td></td>" }
-	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
-	puts "[clock format [$record get start] -format "%a %d %b %Y"]</td>"
-	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
-	puts "[clock format [$record get start] -format "%H:%M"]</td>"
-	puts [$record cell]
-	puts "<td>[$record get text]</td>"
-	puts "<td>[$record get warning]</td>"
-	puts "</tr>"
-}
-puts "</table>"
+puts "
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+"
 
 epg cleanup
 footer

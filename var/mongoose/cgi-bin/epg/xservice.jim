@@ -1,0 +1,68 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class spinner.class altrow
+
+header
+
+require totop
+
+[spinner new {
+	text "Loading EPG Data..."
+	size "1.2em"
+	style "margin: 1em;"
+	}] start
+
+require epg_popup
+
+set service [cgi_get service 4351]
+set records [epg fetch dump -service $service]
+
+set tr [lindex $records 0]
+$tr get_channel_info
+set channel_num [$tr get channel_num]
+set channel_name [$tr get channel_name]
+
+puts "
+	<div style=\"margin: 0 1em 1em 1em\">
+	[$tr channel_icon 80 {vertical-align:middle}]
+	<span style=\"vertical-align: middle\">
+		$channel_num - $channel_name
+	</span>
+	</div>
+"
+
+puts {
+	<table class=borders>
+	<tr>
+		<th></th>
+		<th>Date</th>
+		<th>Time</th>
+		<th>Programme</th>
+		<th>Synopsis</th>
+	</tr>
+}
+
+set i 0
+foreach record $records {
+	altrow
+	#$record get_channel_info
+	set ended [$record ended]
+	if {[$record showing]} {
+	    puts "<td><img src=/images/111_1_00_Cursor_2R_Arrow.png></td>"
+	} else { puts "<td></td>" }
+	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
+	puts "[clock format [$record get start] -format "%a %d %b %Y"]</td>"
+	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
+	puts "[clock format [$record get start] -format "%H:%M"]</td>"
+	puts [$record cell]
+	puts "<td>[$record get text]</td>"
+	puts "<td>[$record get warning]</td>"
+	puts "</tr>"
+}
+puts "</table>"
+
+epg cleanup
+footer
+

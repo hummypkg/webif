@@ -55,7 +55,10 @@ $(document).ready(function() {
 		var url = '/cgi-bin/epg/info.jim?service=' +
 		    o.attr('xs') + '&event=' +
 		    o.attr('xe') + '&bare=1';
-		$('#dialogue').load(url, function() {
+		$('#dialogue')
+		    .html('<img src=/img/loading.gif> Loading details...' +
+			' Please wait...')
+		    .load(url, function() {
 			$('#dialogue a.event').click(function(e) {
 				epgpopup(e, $(this));
 			});
