@@ -1,0 +1,1 @@
+../lib/jquery.iphone-style-checkboxes/iphone-style-checkboxes.js
