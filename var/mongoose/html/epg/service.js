@@ -8,9 +8,9 @@ $('#synopsis').iphoneStyle({
 	uncheckedLabel: 'NO'
 }).bind('change', function() {
 	if ($(this).attr('checked'))
-		$('.synopsis').slideDown();
+		$('.synopsis').show();
 	else
-		$('.synopsis').slideUp();
+		$('.synopsis').hide();
 });
 
 $('#listview').bind('click', function() {
