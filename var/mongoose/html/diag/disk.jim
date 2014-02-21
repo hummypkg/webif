@@ -4,6 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require system.class settings.class
 
+jqplugin enadis
 header
 
 set device [system disk]
@@ -20,7 +21,6 @@ if {$line ne ""} {
 }
 
 puts "
-<script type=text/javascript src=/js/enadis.js></script>
 <h3 class=va>
 	<img class=va width=100 src=/img/disc.png>
 	SMART data read from device $device

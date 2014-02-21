@@ -4,6 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size
 
+jqplugin progressbar
+jscss crop.js
 header
 
 set rfile [cgi_get file]
@@ -13,10 +15,6 @@ set dir [file dirname $rfile]
 set len [$ts duration 1]
 
 puts "
-<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
-<script type=text/javascript src=/js/jquery.progressbar.js></script>
-<script type=text/javascript src=crop.js></script>
-
 <fieldset class=cleft>
 <legend>Crop recording</legend>
 

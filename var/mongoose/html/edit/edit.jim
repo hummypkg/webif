@@ -4,17 +4,13 @@ package require cgi
 source /mod/webif/lib/setup
 require plugin
 
+jqplugin enadis tabsupport filetree
+jscss script.js style.css
 header
 
 set file [cgi_get file "/tmp/hosts"]
 
 puts {
-<script type=text/javascript src=/js/enadis.js></script>
-<script type=text/javascript src=/js/tabsupport.js></script>
-<script type=text/javascript src=/js/jqueryFileTree.js></script>
-<link rel=stylesheet type=text/css href=/css/jqueryFileTree.css />
-<script type=text/javascript src=script.js></script>
-<link rel=stylesheet href=style.css type=text/css />
 
 <fieldset class=cleft>
 <legend>File Editor</legend>

@@ -28,11 +28,8 @@ puts "
 <span id=duration style=\"display: none\">[$ts duration 1]</span>
 "
 
+jscss {vlc.js play.js} vlc.css
 puts {
-<script language=javascript src=vlc.js></script>
-<link rel=stylesheet type=text/css href=vlc.css />
-<script type=text/javascript src=play.js></script>
-
 <fieldset class=cleft style="margin: 0 1em 1em 1em">
 <legend>VLC Player</legend>
 }

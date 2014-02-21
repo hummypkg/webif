@@ -30,7 +30,7 @@ $('table.tablesorter').tablesorter({
 	6: { sorter: false },
 	7: { sorter: false }
     }
-});
+}).freezeHeader();
 
 $('table.tablesorter thead th').filter('[class!=header]')
     .addClass('headerplain');

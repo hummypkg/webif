@@ -4,6 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size
 
+jqplugin progressbar
+jscss strip.js
 header
 
 set rfile [cgi_get file]
@@ -15,10 +17,6 @@ set len [$ts duration 1]
 set esttime $([$ts size] / 5700000)
 
 puts "
-<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
-<script type=text/javascript src=/js/jquery.progressbar.js></script>
-<script type=text/javascript src=strip.js></script>
-
 <fieldset class=cleft>
 <legend>Make recordings smaller by removing unecessary frames</legend>
 

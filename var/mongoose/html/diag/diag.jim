@@ -4,19 +4,16 @@ package require cgi
 source /mod/webif/lib/setup
 require pretty_size system.class pkg.class
 
+jqplugin enadis
+jscss script.js style.css
 header
 
 pkg loaddiagmeta
 
 set smv [system modversion 1]
 
-puts {
-<style>
-button.half { width: 48%; }
-</style>
-<script type=text/javascript src=/js/enadis.js></script>
-<script type=text/javascript src=script.js></script>
 
+puts {
 <fieldset class=cleft>
 <legend>Utilities</legend>
 <table>

@@ -42,8 +42,8 @@ if {[system is_listening 9000]} {
 	set img "745_1_11_Video_1REC.png"
 }
 
+jscss script.js
 puts "
-<script type=text/javascript src=script.js></script>
 <fieldset class=cleft>
 <legend>DLNA Server Information</legend>
 

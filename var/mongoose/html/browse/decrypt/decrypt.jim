@@ -5,6 +5,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class
 
+jqplugin progressbar
+jscss decrypt.js
 header
 
 set rfile [cgi_get file]
@@ -14,9 +16,6 @@ set len [$ts duration 1]
 lassign [$ts dlnaloc "127.0.0.1"] url
 
 puts "
-<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
-<script type=text/javascript src=/js/jquery.progressbar.js></script>
-<script type=text/javascript src=decrypt.js></script>
 
 <fieldset class=cleft>
 <legend>Decrypt in-place</legend>

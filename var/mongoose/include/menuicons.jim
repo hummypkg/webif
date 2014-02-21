@@ -62,7 +62,7 @@ if {[[settings] nomobile] eq "0"} {
 menuitem "Service Management" "/img/spanner.png" \
 	/services.shtml 217 228
 menuitem "Package Management" "/img/packages.png" \
-	/pkg/index.shtml 217 228
+	/pkg/index.jim 217 228
 menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
 	/cgi-bin/settings.jim 217 228
 

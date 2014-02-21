@@ -3,8 +3,8 @@
 source /mod/webif/lib/setup
 require altrow rsv.class
 
+jscss /cgi-bin/backup/backup.js
 puts {
-<script type=text/javascript src=/cgi-bin/backup/backup.js></script>
 <h2>Backup/Restore</h2>
 
 <div id=restore_warning class="hidden warningbox">

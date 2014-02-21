@@ -14,6 +14,7 @@ if {![exists -proc require]} {
 		if {!$cache} {
 			puts -nonewline "Content-Type: $type; charset=\"UTF-8\"; no-cache\r\n"
 			puts -nonewline "Expires: -1\r\n"
+			puts -nonewline "Connection: close\r\n"
 			puts -nonewline "Pragma: no-cache\r\n"
 			puts -nonewline "Cache-Control: no-cache\r\n"
 		} else {
@@ -24,9 +25,17 @@ if {![exists -proc require]} {
 		set done 1
 	}
 
+	set ::_mws_headerdone 0
+	set ::_mws_js {}
+	set ::_mws_css {}
 	proc header {{type "text/html"} {cache 0}} {
 		httpheader $type $cache
 		uplevel source /mod/webif/html/lib/header.jim
+		incr ::_mws_headerdone
+	}
+
+	proc noheader {} {
+		incr ::_mws_headerdone
 	}
 
 	proc footer {} {
@@ -41,17 +50,44 @@ if {![exists -proc require]} {
 		uplevel source /mod/webif/html/m/lib/footer.jim
 	}
 
-	proc jqplugin {name} {{done {}}}  {
-		if {$name in $done} return
+	proc _css {file} {
+		if {$::_mws_headerdone} {
+		  puts "<link href=\"$file\" rel=stylesheet type=text/css />"
+		} else {
+			lappend ::_mws_css $file
+		}
+	}
+
+	proc _js {file} {
+		if {$::_mws_headerdone} {
+		  puts "<script type=text/javascript src=\"$file\"></script>"
+		} else {
+			lappend ::_mws_js $file
+		}
+	}
+
+	proc jqplugin {args} {{done {}}}  {
+	    foreach name $args {
+		if {$name in $done} continue
 		lappend done $name
-		foreach file [glob "/mod/webif/html/lib/jquery.$name/*.js"] {
-			set file [join [lrange [split $file /] 4 end] /]
-			puts "<script type=text/javascript src=/$file></script>"
+		set dir "/mod/webif/html/lib/jquery.plugin/$name"
+		if {![file isdirectory $dir]} {
+			error "Unknown JQ Plugin - '$name'"
 		}
-		foreach file [glob "/mod/webif/html/lib/jquery.$name/*.css"] {
+		foreach file [glob -nocomplain "$dir/*.js"] {
 			set file [join [lrange [split $file /] 4 end] /]
-			puts "<link href=/$file rel=stylesheet type=text/css />"
+			_js "/$file"
 		}
+		foreach file [glob -nocomplain "$dir/*.css"] {
+			set file [join [lrange [split $file /] 4 end] /]
+			_css "/$file"
+		}
+	    }
+	}
+
+	proc jscss {{js ""} {css ""}} {
+		foreach j $js { _js $j }
+		foreach c $css { _css $c }
 	}
 
 	require fileops overrides

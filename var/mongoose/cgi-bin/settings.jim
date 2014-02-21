@@ -36,6 +36,7 @@ set hostname [$settings hostname]
 set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
 set epg_style [$settings epg_style]
+set service_style [$settings service_style]
 set pkgdev [$settings pkgdev]
 set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
@@ -83,6 +84,7 @@ _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 handle_int_update xepghours $xepghours "Grid EPG Hours"
 handle_str_update epg_style $epg_style "EPG Type"
+handle_str_update service_style $service_style "EPG Channel Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
@@ -122,13 +124,11 @@ if {$aclact ne "-" && $acluser ne "-"} {
 	exit
 }
 
+jqplugin form iphone-style-checkboxes
 header
 
 puts {
-<script type="text/javascript" src="/cgi-bin/settings.js"></script>
-<script type="text/javascript" src="/js/jquery.form.js"></script>
-<script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
-<link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
+<script type="text/javascript" src="settings.js"></script>
 <div id=accordion>
 }
 
@@ -242,6 +242,30 @@ puts "
 		<input name=epg_style value=\"set\" type=submit>
 		</small>
 		<div id=epg_style_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form class=auto id=service_style method=get action=$env(REQUEST_URI)>
+		<th class=key>Default Single-channel style</th>
+		<td><select id=service_style name=service_style
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=standard"
+if {$service_style eq "standard"} { puts " selected" }
+puts ">Standard\n"
+puts "<option value=grid"
+if {$service_style ne "standard"} { puts " selected" }
+puts ">Grid\n"
+puts "
+		</select>
+		<small>
+		<input name=service_style value=\"set\" type=submit>
+		</small>
+		<div id=service_style_output></div>
 		</td>
 	</form>
 	</tr>

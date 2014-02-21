@@ -20,6 +20,7 @@ class settings {
 	hostname	""
 	channel_group	0
 	epg_style	"standard"
+	service_style	"grid"
 	smtp_server	""
 	pkgdev		0
 	notoolbar	0
@@ -138,14 +139,22 @@ settings method xepghours {{hours -1}} {
 
 settings method epg_style {{style -1}} {
 	if {$style != -1} {
-		if {$style eq "grid"} { set style 1 } else { set style 0}
+		if {$style eq "grid"} { set style 1 } else { set style 0 }
 		return [$self _nval_setting epg_style $style]
 	}
 	set val [$self _nval_setting epg_style]
-	if {$val == 1} {
-		return "grid"
-	}
+	if {$val == 1} { return "grid" }
 	return "standard"
+}
+
+settings method service_style {{style -1}} {
+	if {$style != -1} {
+		if {$style eq "grid"} { set style 0 } else { set style 1 }
+		return [$self _nval_setting service_style $style]
+	}
+	set val [$self _nval_setting service_style]
+	if {$val == 1} { return "standard" }
+	return "grid"
 }
 
 settings method pkgdev {{val -1}} {

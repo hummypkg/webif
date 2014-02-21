@@ -19,6 +19,7 @@ if {[cgi_get now] eq "yes"} {
 }
 
 system restartpending 0
+jqplugin progressbar
 header
 
 # Commit pending reservations on older mod versions.
@@ -27,8 +28,6 @@ if {![file exists /sbin/rsvsync] && ![file exists /mod/boot/rsvsync]} {
 }
 
 puts { 
-<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
-<script type="text/javascript" src="/js/jquery.progressbar.js"></script>
 
 <script type=text/javascript>
 	var handle = 0;

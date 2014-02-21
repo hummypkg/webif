@@ -1,0 +1,253 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require epg.class spinner.class altrow
+
+jqplugin iphone-style-checkboxes freezeheader
+jscss service.js service.css
+header
+
+require totop
+
+[spinner new {
+	text "Loading EPG Data..."
+	size "1.2em"
+	style "margin: 1em;"
+	}] start
+
+require epg_popup
+
+set service [cgi_get service 4170]
+set records [epg dbfetch dump \
+    -service $service \
+    -sort "strftime('%%H%%J', start, 'unixepoch'), strftime('%%M', start, 'unixepoch')" \
+    -debug 0
+]
+
+if {[llength $records] == 0} {
+	puts "No data for service.."
+	exit
+}
+
+# Load the channel information from the first entry
+set tr [lindex $records 0]
+$tr get_channel_info
+set channel_num [$tr get channel_num]
+set channel_name [$tr get channel_name]
+puts "
+
+	<div style=\"margin: 0 1em 1em 1em\">
+	<table class=va><tr><td class=va>
+	[$tr channel_icon 40 {vertical-align:middle}]
+	</td><td>
+		$channel_num - $channel_name
+	</td><td style=\"width: 50px\">&nbsp;</td><td>
+		Show synopsis?
+	</td><td>
+		<input type=checkbox id=synopsis value=1 checked />
+	</td><td style=\"width: 50px\">&nbsp;</td><td>
+		<button id=listview service=$service>List View</button>
+	</td></tr></table>
+	</div>
+"
+puts {
+<script type=text/javascript>
+$('button').button();
+$('#synopsis').iphoneStyle({checkedLabel: 'YES', uncheckedLabel: 'NO'});
+</script>
+}
+
+puts "
+<div class=weekview>
+<table class=weekview>
+<thead>
+<tr>
+<th class=hour></th>
+"
+set t [clock seconds]
+set firstday [clock format $t -format {%Y%m%d}]
+set daymap {}
+loop i 0 8 {
+	puts "<th class=\"day day-$i\">[clock format $t -format {%a}]<br>"
+	puts "[clock format $t -format {%e %b}]</th>"
+	set day [clock format $t -format {%Y%m%d}]
+	set daymap($day) $i
+	set dayrmap($i) $day
+	incr t 86400
+}
+puts "
+</tr>
+</thead>
+<tbody>
+"
+
+set contprog {}
+
+proc slink {e} {
+	global service
+	if {[$e get series_crid] ne ""} {
+		set ro 2
+	} else {
+		set ro 1
+	}
+	set st [$e scheduled]
+	return "<a class=event href=# xs=$service xe=[$e get event_id] sch=$st rec=$ro>"
+}
+
+proc prog {e {cont 0} {hour 99}} {
+	global service day contprog
+
+	set start [$e get start]
+	set end [$e end]
+	set class "prog"
+	if {$cont} { set class "prog progp" }
+	puts "
+<div class=\"$class\">
+<div class=time>
+[clock format $start -format {%H:%M}]-[clock format $end -format {%H:%M}]
+</div>
+<div class=title>
+[slink $e]
+[$e get name]
+</a>
+</div>
+<div class=synopsis>[$e get text] [join [$e icon_set 14] ""]</div>
+</div>
+"
+
+	# Programmes which cross the hour boundary
+	if {[clock format $end -format "%H%M"] > "$($hour + 1)00"} {
+		puts "<div class=cont><img class=cimg src=/img/contt.png></div>"
+		set contprog($day) $e
+	}
+}
+
+proc cprog {} {
+	global service day contprog hour
+
+	set e $contprog($day)
+
+	set end [$e end]
+
+	if {[clock format $end -format "%H%M"] eq "${hour}00"} {
+		dict unset contprog $day
+		return 0
+	}
+
+	set start [$e get start]
+
+	puts "
+<div class=cont><img class=cimg src=/img/contb.png></div>
+<div class=prog>
+<div class=time>
+...... -[clock format $end -format {%H:%M}]
+</div>
+<div class=title>
+[slink $e]
+[$e get name]
+</a>
+</div>
+</div>
+"
+	if {[clock format $end -format "%H"] > $hour} {
+		puts "<div class=cont><img class=cimg src=/img/contt.png></div>"
+	} else {
+		dict unset contprog $day
+	}
+	return 1
+}
+
+proc jcprog {day} {
+	global contprog
+
+	set e $contprog($day)
+
+	set start [$e get start]
+	set end [$e end]
+
+	puts "
+<div class=cont><img class=cimg src=/img/contb.png></div>
+<div class=prog>
+<div class=time>
+[clock format $start -format {%H:%M}]-[clock format $end -format {%H:%M}]
+</div>
+<div class=title>
+[slink $e]
+[$e get name]
+</a>
+</div>
+</div>
+<div class=cont><img class=cimg src=/img/contt.png></div>
+"
+}
+
+proc skiptoday {day} {
+	global daymap dayrmap currday contprog oldcell
+	if {!$oldcell && [dict exists $contprog $currday]} {
+		jcprog $currday
+	}
+	#puts "Skiptoday: $day ($daymap($currday))<br>"
+	if {$daymap($currday) eq $day} return
+	puts "</td><td class=dayhour>"
+	incr day -1
+	loop i $daymap($currday) $day {
+		set j $($i + 1)
+		if {[dict exists $contprog $dayrmap($j)]} {
+			jcprog $dayrmap($j)
+		}
+		puts "</td><td class=dayhour>"
+	}
+}
+
+set currhour -1
+set currday -1
+set oldcell 0
+foreach e $records {
+	set start [$e get start]
+	set day [clock format $start -format "%Y%m%d"]
+	if {$day ni $daymap} continue
+	set hour [clock format $start -format "%H"]
+	if {$hour != $currhour} {
+		if {$currhour ne "-1"} {
+			if {$daymap($currday) < 7} {
+				skiptoday 7
+				if {[dict exists $contprog $dayrmap(7)]} {
+					jcprog $dayrmap(7)
+				}
+			}
+			puts -nonewline "</td></tr>"
+		}
+		puts "
+			<tr class=hour>
+			<th class=hour>$hour:00</th>
+			<td class=dayhour>
+		"
+		set currhour $hour
+		set currday $firstday
+		set oldcell 0
+	}
+	if {$day ne $currday} {
+		skiptoday $daymap($day)
+		set currday $day
+		set oldcell 0
+	}
+	# Continuations from previous hour...
+	if {!$oldcell && [dict exists $contprog $day]} {
+		if {[cprog]} { set oldcell 1 }
+	}
+	prog $e $oldcell $hour
+	set oldcell 1
+}
+
+puts "
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+"
+
+epg cleanup
+footer
+

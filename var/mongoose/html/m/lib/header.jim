@@ -24,14 +24,16 @@ puts {
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/lib/jquery.mobile/jquery.mobile.js">
 </script>
-<script type="text/javascript" src="/js/enadis.js">
-</script>
 <script type="text/javascript" src="/m/script.js"></script>
 <link rel="apple-touch-icon" href="/img/mobile_57.png" />
 <link rel="apple-touch-icon" sizes="57x57" href="/img/mobile_57.png" />
 <link rel="apple-touch-icon" sizes="72x72" href="/img/mobile_72.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="/img/mobile_114.png" />
 <link rel="apple-touch-icon" sizes="144x144" href="/img/mobile_144.png" />
+}
+noheader
+jqplugin enadis
+puts {
 </head> 
 }
 

@@ -4,11 +4,10 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class spinner.class altrow settings.class
 
+jqplugin highlight
 header
 
 require totop
-
-puts "<script type=text/javascript src=/js/jquery.highlight.js></script>"
 
 set ct [cgi_get ct 0]
 set crid [cgi_get crid ""]
@@ -56,6 +55,11 @@ if {$ct > 0 } {
 }
 
 set favlist [epg favlist]
+if {[$s service_style] eq "standard"} {
+	set surl xservice
+} else {
+	set surl service
+}
 
 if {[llength $records] > 0} {
 	puts {
@@ -105,7 +109,7 @@ foreach record [lsort -command rsort $records] {
 	puts "<td>[$record get channel_num]</td>"
 	puts "<td>[$record channel_icon 50]</td>"
 	puts "<td nowrap>
-	    <a href=/cgi-bin/epg/service.jim?service=[$record get service_id]>
+	    <a href=/epg/$surl.jim?service=[$record get service_id]>
 	    [$record get channel_name]
 	    </a></td>"
 	puts [$record cell]

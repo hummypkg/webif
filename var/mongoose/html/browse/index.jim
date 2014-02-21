@@ -4,6 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size system.class settings.class escape browse.class
 
+jqplugin contextMenu bar enadis
+jscss script.js style.css
 header
 
 set nicesplice [system pkginst nicesplice]
@@ -248,16 +250,6 @@ set dir [cgi_get dir $mroot]
 
 ######################################################################
 # Render web page
-
-puts { 
-	<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
-	<script type=text/javascript src=/js/jquery.contextMenu.js></script>
-	<link href=/css/jquery.bar.css rel=stylesheet type=text/css />
-	<script type=text/javascript src=/js/jquery.bar.js></script>
-	<script type=text/javascript src=/js/enadis.js></script>
-	<script type=text/javascript src=script.js></script>
-	<link type=text/css rel=stylesheet href=style.css />
-}
 
 source assets.jim
 

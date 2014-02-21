@@ -4,23 +4,27 @@ package require cgi
 source /mod/webif/lib/setup
 require settings.class
 
+jqplugin enadis
+jscss xepg.js /css/xepg.css
 header
 
 require epg.class spinner.class altrow epg_search totop system.class
 
 set irinst [system pkginst ir]
 
-puts {
-<link type="text/css" href="/css/xepg.css" rel="Stylesheet" />
-<script type=text/javascript src=/js/enadis.js></script>
-<script type=text/javascript src=xepg.js></script>
-}
+set s [settings]
 
-if {[[settings] chanchangenc]} {
+if {[$s chanchangenc]} {
 	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
 } else {
 	jqplugin confirmAction
 	puts { <script type=text/javascript src=/js/chanchange.js></script> }
+}
+
+if {[$s service_style] eq "standard"} {
+	set surl xservice
+} else {
+	set surl service
 }
 
 [spinner new {
@@ -40,7 +44,7 @@ if {$stt <= $now} {
 	set current 0
 }
 
-set favgroup [[settings] channel_group]
+set favgroup [$s channel_group]
 
 set hours [expr 1.0 * [[settings] xepghours]]
 if {$hours == 0} { set hours 4.0 }
@@ -139,7 +143,7 @@ foreach e $records {
 		puts "[$e channel_icon 30]&nbsp;"
 		if {$irinst} { puts "</a>" }
 		puts "$chnum
-	    <a href=\"/cgi-bin/epg/service.jim?service=[$e get service_id]\"
+	    <a href=\"/epg/$surl.jim?service=[$e get service_id]\"
 		title=\"[$e get channel_name]\">
 	    [$e get channel_name]
 	    </a></div>"

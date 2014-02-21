@@ -37,6 +37,12 @@ td.dayhour
 	background: #ffffcc;
 }
 
+td.sdayhour
+{
+	vertical-align: middle;
+	background: #ffffcc;
+}
+
 div.prog
 {
 	margin: 5px;
@@ -64,5 +70,10 @@ div.title
 div.synopsis
 {
 	font-size: 0.9em;
+}
+
+img.cimg
+{
+	width: 100%;
 }
 

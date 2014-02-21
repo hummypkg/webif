@@ -5,6 +5,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class system.class
 
+jqplugin progressbar
+jscss audio.js
 header
 
 set rfile [cgi_get file]
@@ -12,10 +14,8 @@ set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
 
+
 puts "
-<link href=/css/jquery.progressbar.css rel=stylesheet type=text/css />
-<script type=text/javascript src=/js/jquery.progressbar.js></script>
-<script type=text/javascript src=audio.js></script>
 
 <fieldset class=cleft>
 <legend>Audio Extraction</legend>

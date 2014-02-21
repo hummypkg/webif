@@ -1,7 +1,7 @@
 <!--#include virtual="/lib/header.shtml" -->
-<link href=/css/iphone-style-checkboxes.css rel=stylesheet type=text/css />
-<script type="text/javascript" src="/js/iphone-style-checkboxes.js"></script>
-<script type="text/javascript" src="/js/enadis.js"></script>
+<link href=/lib/jquery.plugin/iphone-style-checkboxes/iphone-style-checkboxes.css rel=stylesheet type=text/css />
+<script type="text/javascript" src="/lib/jquery.plugin/iphone-style-checkboxes/iphone-style-checkboxes.js"></script>
+<script type="text/javascript" src="/lib/jquery.plugin/enadis/enadis.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {

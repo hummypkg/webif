@@ -4,6 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require altrow rsv.class progressbar epg.class system.class
 
+jqplugin tablesorter contextMenu form freezeheader
+jscss script.js
 header
 
 set svcmap {}
@@ -17,13 +19,6 @@ set svckeys [array names svcmap]
 require epg_popup
 
 puts {
-<script type=text/javascript src=/js/jquery.tablesorter.js></script>
-<link type=text/css href=/css/tsort.css rel=Stylesheet />
-<link href=/css/jquery.contextMenu.css rel=stylesheet type=text/css />
-<script type=text/javascript src=/js/jquery.contextMenu.js></script>
-<script type=text/javascript src=/js/jquery.form.js></script>
-<script type=text/javascript src=script.js></script>
-
 <div id=output class=hidden></div>
 <div id=sdialogue></div>
 }

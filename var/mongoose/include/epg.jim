@@ -32,10 +32,10 @@ if {$::qepg} {
 set got [clock milliseconds]
 
 if {[[settings] chanchangenc]} {
-	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
+	jscss /js/chanchangeenc.js
 } else {
 	jqplugin confirmAction
-	puts { <script type=text/javascript src=/js/chanchange.js></script> }
+	jscss /js/chanchange.js
 }
 
 puts {
@@ -71,7 +71,7 @@ foreach record $records {
 		if {$irinst} { puts "</a>" }
 		puts "</td>
 		    <td>
-	    <a href=\"/cgi-bin/epg/service.jim?service=[\
+	    <a href=\"/epg/service.jim?service=[\
 		$record get service_id]\">
 		    [$record get channel_name]
 		    </a></td>"

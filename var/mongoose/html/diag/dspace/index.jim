@@ -4,13 +4,9 @@ package require cgi
 source /mod/webif/lib/setup
 require system.class pretty_size
 
-header
 jqplugin easy-pie-chart
-
-puts {
-<link href=style.css rel=stylesheet type=text/css />
-<script type=text/javascript src=script.js></script>
-}
+jscss script.js style.css
+header
 
 set dustbin [system dustbin 1]
 set root [system mediaroot]

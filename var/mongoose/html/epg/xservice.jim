@@ -26,14 +26,28 @@ set channel_name [$tr get channel_name]
 
 puts "
 	<div style=\"margin: 0 1em 1em 1em\">
-	[$tr channel_icon 80 {vertical-align:middle}]
-	<span style=\"vertical-align: middle\">
+	<table class=va><tr><td class=va>
+	[$tr channel_icon 40 {vertical-align:middle}]
+	</td><td>
 		$channel_num - $channel_name
-	</span>
+	</td><td style=\"width: 50px\">&nbsp;</td><td>
+	<button id=gridview>
+		Grid View
+	</button>
+	</td></tr></table>
 	</div>
+"
+puts "
+<script type=text/javascript>
+\$('button').button();
+\$('#gridview').button().bind('click', function() {
+	document.location.href = '/epg/service.jim?service=$service';
+});
+</script>
 "
 
 puts {
+	<div id=list>
 	<table class=borders>
 	<tr>
 		<th></th>
@@ -61,7 +75,7 @@ foreach record $records {
 	puts "<td>[$record get warning]</td>"
 	puts "</tr>"
 }
-puts "</table>"
+puts "</table></div>"
 
 epg cleanup
 footer

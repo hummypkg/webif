@@ -1,6 +1,12 @@
-<!--#include virtual="/lib/header.shtml" -->
+#!/mod/bin/jimsh
 
-<link href=style.css rel=stylesheet type=text/css />
+source /mod/webif/lib/setup
+
+jqplugin enadis iajax
+jscss script.js style.css
+header
+
+puts {
 
 <div class=va style="padding: 0 0 1em 0">
 	<h1 style="display: inline" class=va>
@@ -35,10 +41,6 @@
 	</div>
 </div>
 
-<script type=text/javascript src=/js/enadis.js></script>
-<script type=text/javascript src=/js/iajax.js></script>
-<script type=text/javascript src=script.js></script>
-
 <div id=pkgtabs>
 <ul>
 	<li>
@@ -56,5 +58,7 @@
 	</li>
 </ul>
 </div>
+}
 
-<!--#include virtual="/lib/footer.shtml" -->
+footer
+

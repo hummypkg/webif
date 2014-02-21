@@ -12,7 +12,7 @@ source process.jim
 set dir [cgi_get dir "/media/My Video"]
 set doit [cgi_get doit 0]
 
-puts "<script type=text/javascript src=script.js></script>"
+jscss script.js
 
 puts "<fieldset style=\"display: inline\">
 <legend>De-duplicate <span id=dir>$dir</span></legend>
