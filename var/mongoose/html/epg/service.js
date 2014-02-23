@@ -20,5 +20,10 @@ $('#listview').bind('click', function() {
 
 $('table.weekview').freezeHeader();
 
+$('#jumptonow').bind('click', function() {
+	var hour = $(this).attr('hour');
+	$('body').scrollTo('#hour_' + hour);
+});
+
 });
 

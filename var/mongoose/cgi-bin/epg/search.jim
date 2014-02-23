@@ -55,6 +55,7 @@ if {$ct > 0 } {
 }
 
 set favlist [epg favlist]
+set s [settings]
 if {[$s service_style] eq "standard"} {
 	set surl xservice
 } else {

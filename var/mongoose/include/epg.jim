@@ -2,7 +2,11 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require epg.class spinner.class altrow epg_search totop system.class
+require epg.class spinner.class altrow epg_search system.class
+
+noheader
+
+require totop
 
 set irinst [system pkginst ir]
 
@@ -17,7 +21,8 @@ require epg_popup
 set start [clock milliseconds]
 set now [clock seconds]
 set then $($now + 14400)
-set favgroup [[settings] channel_group]
+set s [settings]
+set favgroup [$s channel_group]
 if {$::qepg} {
 	if {$favgroup} {
 		set records [epg dbfetch dump \
@@ -31,11 +36,17 @@ if {$::qepg} {
 }
 set got [clock milliseconds]
 
-if {[[settings] chanchangenc]} {
+if {[$s chanchangenc]} {
 	jscss /js/chanchangeenc.js
 } else {
 	jqplugin confirmAction
 	jscss /js/chanchange.js
+}
+
+if {[$s service_style] eq "standard"} {
+	set surl xservice
+} else {
+	set surl service
 }
 
 puts {
@@ -71,7 +82,7 @@ foreach record $records {
 		if {$irinst} { puts "</a>" }
 		puts "</td>
 		    <td>
-	    <a href=\"/epg/service.jim?service=[\
+	    <a href=\"/epg/$surl.jim?service=[\
 		$record get service_id]\">
 		    [$record get channel_name]
 		    </a></td>"

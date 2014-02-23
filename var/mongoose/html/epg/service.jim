@@ -4,7 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require epg.class spinner.class altrow
 
-jqplugin iphone-style-checkboxes freezeheader
+jqplugin iphone-style-checkboxes freezeheader scrollto
 jscss service.js service.css
 header
 
@@ -30,6 +30,8 @@ if {[llength $records] == 0} {
 	exit
 }
 
+set nowhour [clock format [clock seconds] -format "%H"]
+
 # Load the channel information from the first entry
 set tr [lindex $records 0]
 $tr get_channel_info
@@ -42,6 +44,8 @@ puts "
 	[$tr channel_icon 40 {vertical-align:middle}]
 	</td><td>
 		$channel_num - $channel_name
+	</td><td style=\"width: 50px\">&nbsp;</td><td>
+		<button id=jumptonow hour=$nowhour>Jump to Now</button>
 	</td><td style=\"width: 50px\">&nbsp;</td><td>
 		Show synopsis?
 	</td><td>
@@ -219,7 +223,7 @@ foreach e $records {
 			puts -nonewline "</td></tr>"
 		}
 		puts "
-			<tr class=hour>
+			<tr class=hour id=hour_$hour>
 			<th class=hour>$hour:00</th>
 			<td class=dayhour>
 		"

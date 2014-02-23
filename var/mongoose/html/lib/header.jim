@@ -26,10 +26,10 @@ puts {
 <script type="text/javascript" src="/lib/jquery.ui/js/jquery-ui.js"></script>
 }
 if {[info exists _mws_js]} {
-	foreach js $_mws_js {
+	foreach js $::_mws_js {
 		puts "<script type=text/javascript src=\"$js\"></script>"
 	}
-	foreach css $_mws_css {
+	foreach css $::_mws_css {
 		puts "<link href=\"$css\" rel=stylesheet type=text/css />"
 	}
 }
