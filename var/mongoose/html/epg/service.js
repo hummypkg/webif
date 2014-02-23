@@ -22,7 +22,9 @@ $('table.weekview').freezeHeader();
 
 $('#jumptonow').bind('click', function() {
 	var hour = $(this).attr('hour');
-	$('body').scrollTo('#hour_' + hour);
+	$('body').scrollTo('#hour_' + hour, 500, {
+		offset: {top: -50, left: 0}
+	});
 });
 
 });
