@@ -52,7 +52,7 @@ class epg {
 epg method _parse {line} {
 	lassign [split $line "\t"] \
 	    service_id event_id start duration encrypted name text warning \
-	    content_code content_type event_crid series_cris rec_crid
+	    content_code content_type event_crid series_crid rec_crid
 }
 
 epg method percent {} {
