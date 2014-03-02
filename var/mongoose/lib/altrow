@@ -7,7 +7,7 @@ if {![exists -proc altrow]} {
 		}
 		puts -nonewline "<tr"
 		if {[string first "class=" $attrs] == -1} {
-			case $i {
+			switch $i {
 			    0 { puts -nonewline " class=odd" }
 			    1 { puts -nonewline " class=even" }
 			}

@@ -8,7 +8,7 @@ set runmode cli
 if {[string match {*jim} $argv0]} { set runmode cgi }
 
 set schedtime 1200 
-case $runmode {
+switch $runmode {
     cgi {
 	set type [cgi_get type "full"]
 	httpheader

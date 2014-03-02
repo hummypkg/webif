@@ -97,5 +97,8 @@ if {![exists -proc require]} {
 	}
 
 	require fileops overrides
+
+	# Jim 0.75 removes legacy 'case'
+	alias case switch
 }
 

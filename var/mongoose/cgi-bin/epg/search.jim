@@ -88,8 +88,10 @@ proc rsort {v1 v2} {
 set seen {}
 set i 0
 foreach record [lsort -command rsort $records] {
+	set ename [$record get name]
+	if {$ename eq ""} continue
+
 	if {$dedup} {
-		set ename [$record get name]
 		if {$ename in $seen} continue
 		lappend seen $ename
 	}
