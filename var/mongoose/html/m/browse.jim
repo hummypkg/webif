@@ -54,8 +54,7 @@ proc entry {file {i 0}} {
 	set ext [file extension $file]
 	if {$ext in $::ignore || $ext ni $::include} { return }
 
-	file stat $file st
-	set rsz $st(size)
+	set rsz [file size $file]
 	set sz [pretty_size $rsz]
 
 	set base [file rootname $file]
@@ -192,9 +191,9 @@ proc s_time {a b} {
 	}
 
 	if {[catch {file stat $a l}]} { return 0}
-	set at $l(ctime)
+	set at $l(mtime)
 	if {[catch {file stat $b l}]} { return 0}
-	set bt $l(ctime)
+	set bt $l(mtime)
 
 	if {$at < $bt} { return -1 }
 	if {$at > $bt} { return 1 }

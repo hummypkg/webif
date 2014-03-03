@@ -11,8 +11,7 @@ set type [cgi_get type]
 
 if {$file == 0} exit
 
-file stat $file st
-set sz [pretty_size $st(size)]
+set sz [pretty_size [file size $file]]
 
 if {$type eq "ts"} {
 	require epg.class ts.class

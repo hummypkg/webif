@@ -48,6 +48,7 @@ set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
 set genrededup [$settings genrededup]
 set autolog [$settings autolog]
+set audiomp3 [$settings audiomp3]
 
 # Handle updates
 
@@ -95,6 +96,7 @@ handle_int_update chanchangenc $chanchangenc \
 handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
 handle_int_update genrededup $genrededup "Genre search dedup"
 handle_int_update autolog $autolog "Auto-processing log level"
+handle_int_update audiomp3 $audiomp3 "MP3 type"
 
 set acluser [cgi_get acluser "-"]
 set aclpass [cgi_get aclpass "-"]
@@ -199,7 +201,7 @@ puts "<option value=1"
 if {$autolog == 1} { puts " selected" }
 puts ">Actions, errors and scan information\n"
 puts "<option value=2"
-if {$autolog == 1} { puts " selected" }
+if {$autolog == 2} { puts " selected" }
 puts ">Debugging information\n"
 puts "
 		</select>
@@ -207,6 +209,30 @@ puts "
 		<input name=autolog value=\"set\" type=submit>
 		</small>
 		<div id=autolog_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=audiomp3 method=get action=$env(REQUEST_URI)>
+		<th class=key>Audio extraction type</th>
+		<td><select id=audiomp3 name=audiomp3
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=0"
+if {$audiomp3 == 0} { puts " selected" }
+puts ">[$settings audiomp3descr 0] - very fast but less compatible.\n"
+puts "<option value=1"
+if {$audiomp3 == 1} { puts " selected" }
+puts ">[$settings audiomp3descr 1] - around 60 times slower.\n"
+puts "
+		</select>
+		<small>
+		<input name=audiomp3 value=\"set\" type=submit>
+		</small>
+		<div id=audiomp3_output></div>
 		</td>
 	</form>
 	</tr>

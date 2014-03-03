@@ -34,8 +34,7 @@ ts method duration {{raw 0}} {
 }
 
 ts method size {} {
-	file stat $file st
-	return $st(size)
+	return [file size $file]
 }
 
 ts method _parse {line} {

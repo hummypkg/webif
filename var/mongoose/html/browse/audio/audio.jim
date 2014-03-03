@@ -3,17 +3,19 @@
 package require sqlite3
 package require cgi
 source /mod/webif/lib/setup
-require ts.class system.class
+require ts.class system.class settings.class
 
 jqplugin progressbar
 jscss audio.js
 header
 
+set s [settings]
+set type [$s audiomp3descr [$s audiomp3]]
+
 set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-
 
 puts "
 
@@ -31,7 +33,7 @@ puts "
 ></span>
 
 <div id=audiodiv style=\"padding: 1em\">
-<button id=audioit>Perform audio extraction</button>
+<button id=audioit>Perform audio extraction - $type</button>
 </div>
 
 <div id=progressdiv class=hidden>

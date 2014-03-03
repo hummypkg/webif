@@ -103,8 +103,7 @@ proc entry {file} {{i 0}} {
 	set ext [string tolower [file extension $file]]
 	if {$ext in $::ignore || $ext ni $::include} { return }
 
-	file stat $file st
-	set rsz $st(size)
+	set rsz [file size $file]
 	set sz [pretty_size $rsz]
 
 	set base [file rootname $file]

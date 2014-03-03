@@ -4,7 +4,9 @@ source /mod/webif/lib/setup
 require lock system.class ts.class tdelete pretty_size browse.class \
     safe_delete settings.class plugin
 
-set loglevel [[settings] autolog]
+set settings [settings]
+set loglevel [$settings autolog]
+set audiomp3 [$settings audiomp3]
 
 if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
@@ -443,12 +445,14 @@ proc do_mp3 {ts} {
 	dsc [$ts size]
 
 	log "     MP3: $file" 0
-	log "          Converting..." 0
+	log "          Converting... [$::settings audiomp3descr $::audiomp3]" 0
 	if {[catch {
-		foreach line [split \
-		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
-		    -i $file.ts \
-		    -f mp3 -vn -acodec copy $tmp/mp3.mp3] "\n"] {
+		set cmd [list nice -n 19 \
+		    /mod/bin/ffmpeg -y -benchmark -v 0 -i "$file.ts" \
+		    -f mp3 -vn]
+		if {!$::audiomp3} { lappend cmd -acodec copy }
+		lappend cmd "$tmp/mp3.mp3"
+		foreach line [split [exec {*}$cmd] "\n"] {
 			log $line 0
 		}
 	    } msg]} {
