@@ -7,7 +7,8 @@ if {![exists -proc pretty_size]} {
 			set size $($size / 1024.0)
 		}
 
-		set size [string trimright [format "%.2f" $size] "0."]
+		set size [string trimright \
+			[string trimright [format "%.2f" $size] "0"] "."]
 
 		return "$size [lindex $units $i]"
 	}
