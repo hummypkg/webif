@@ -42,11 +42,10 @@ exec wget -O "$rfile.decrypting" $url
 
 puts "Moving recording to $origdir"
 
-foreach f [glob -nocomplain "${base}.*"] {
-	if {[file extension $f] eq ".decrypting"} { continue }
-	set tail [file tail $f]
-	puts "  $tail"
-	file rename $f "${origdir}/$tail"
+set tail [file tail $base]
+foreach ext $tsgroup {
+	puts "  $tail.$ext"
+	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
 
 file rename "$rfile.decrypting" $rfile

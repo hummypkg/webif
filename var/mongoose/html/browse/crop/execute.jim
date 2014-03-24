@@ -34,10 +34,11 @@ if {[file exists "$origdir/$shname.ts"]} {
 }
 
 puts "Moving recording to $origdir"
-foreach f [glob -nocomplain "${base}.*"] {
-	set tail [file tail $f]
-	puts "  $tail"
-	file rename $f "$origdir/$tail"
+
+set tail [file tail $base]
+foreach ext $tsgroup {
+	puts "  $tail.$ext"
+	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
 
 puts [exec /mod/bin/nicesplice \

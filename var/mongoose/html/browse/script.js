@@ -833,7 +833,7 @@ var dmenuclick = function(action, el, pos)
 	reloadclipboard();
 
 	// Uncheck everything
-	$('input.fs:checked').attr('checked', false);
+	$('input.fs:checked').prop('checked', false);
 
 	// Buttons
 
@@ -861,11 +861,11 @@ var dmenuclick = function(action, el, pos)
 
 	$('#selectall').click(function(e) {
 		e.preventDefault();
-		$('input.fs').attr('checked', true).trigger('change');
+		$('input.fs').prop('checked', true).trigger('change');
 	});
 	$('#deselectall').click(function(e) {
 		e.preventDefault();
-		$('input.fs:checked').attr('checked', false).trigger('change');
+		$('input.fs:checked').prop('checked', false).trigger('change');
 	});
 
 	$('#join').button().disable()
@@ -936,7 +936,7 @@ var dmenuclick = function(action, el, pos)
 		    'path': files
 		    }, function() {
 			reloadclipboard();
-			$('input.fs:checked').attr('checked', false);
+			$('input.fs:checked').prop('checked', false);
 		    });
 	    });
 

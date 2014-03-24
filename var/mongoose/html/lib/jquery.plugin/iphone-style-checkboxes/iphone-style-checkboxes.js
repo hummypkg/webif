@@ -116,10 +116,10 @@ $.extend($[iphoneStyle].prototype, {
           var p = (x - $[iphoneStyle].dragStartPosition) / obj.rightSide;
           checked = (p < 0) ? Math.abs(p) < 0.5 : p >= 0.5;
         } else {
-          checked = !obj.$elem.attr('checked');
+          checked = !obj.$elem.prop('checked');
         }
         
-        obj.$elem.attr('checked', checked);
+        obj.$elem.prop('checked', checked);
 
         $[iphoneStyle].currentlyClicking = null;
         $[iphoneStyle].dragging = null;
@@ -135,7 +135,7 @@ $.extend($[iphoneStyle].prototype, {
         obj.container.removeClass(obj.disabledClass);
       }
       
-      var new_left = obj.$elem.attr('checked') ? obj.rightSide : 0;
+      var new_left = obj.$elem.prop('checked') ? obj.rightSide : 0;
 
       obj.handle.animate({         left: new_left },                 obj.duration);
       obj.onLabel.animate({       width: new_left + 4 },             obj.duration);

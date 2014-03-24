@@ -44,7 +44,7 @@ $(document).ready(function () {
 	$('.setting_toggle').change(function() {
 		var arg = '0';
 		var urlargs;
-		if ($(this).attr('checked'))
+		if ($(this).prop('checked'))
 			arg = '1';
 
 		if ($(this).attr('invert'))

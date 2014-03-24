@@ -7,7 +7,7 @@ $('#synopsis').iphoneStyle({
 	checkedLabel: 'YES',
 	uncheckedLabel: 'NO'
 }).bind('change', function() {
-	if ($(this).attr('checked'))
+	if ($(this).prop('checked'))
 		$('.synopsis').show();
 	else
 		$('.synopsis').hide();
