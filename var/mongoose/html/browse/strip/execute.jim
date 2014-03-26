@@ -30,6 +30,7 @@ if {[file exists "$origdir/$shname.ts"]} {
 puts "Moving recording to $origdir"
 set tail [file tail $base]
 foreach ext $tsgroup {
+	if {![file exists "$base.$ext"]} continue
 	puts "  $tail.$ext"
 	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
