@@ -188,20 +188,23 @@ proc jcprog {day} {
 
 proc skiptoday {day} {
 	global daymap dayrmap currday contprog oldcell
+	#puts "Skiptoday: $day ($daymap($currday))<br>"
 	if {!$oldcell && [dict exists $contprog $currday]} {
+		#puts "Skipping, jcprog<br>"
 		jcprog $currday
 	}
-	#puts "Skiptoday: $day ($daymap($currday))<br>"
 	if {$daymap($currday) eq $day} return
 	puts "</td><td class=dayhour>"
-	incr day -1
-	loop i $daymap($currday) $day {
+	set lday $($day - 1)
+	loop i $daymap($currday) $lday {
 		set j $($i + 1)
 		if {[dict exists $contprog $dayrmap($j)]} {
+			#puts "Skipping, jcprog<br>"
 			jcprog $dayrmap($j)
 		}
 		puts "</td><td class=dayhour>"
 	}
+	#puts "skiptoday - arrived at $day<br>"
 }
 
 set currhour -1
@@ -212,7 +215,7 @@ foreach e $records {
 	set day [clock format $start -format "%Y%m%d"]
 	if {$day ni $daymap} continue
 	set hour [clock format $start -format "%H"]
-	if {$hour != $currhour} {
+	if {$hour != $currhour || $day < $currday} {
 		if {$currhour ne "-1"} {
 			if {$daymap($currday) < 7} {
 				skiptoday 7
