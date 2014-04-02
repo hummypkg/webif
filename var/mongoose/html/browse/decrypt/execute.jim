@@ -50,12 +50,14 @@ foreach ext $tsgroup {
 }
 
 file rename "$rfile.decrypting" $rfile
+file touch $rfile "$origdir/$tail.ts"
 
 foreach ext {nts hmt thm} {
 	set sidecar "$shname.$ext"
 	if {[file exists "$origdir/$sidecar"]} {
 		puts "Copying back sidecar $ext"
 		file copy "$origdir/$sidecar" "$dir/$sidecar"
+		file touch "$dir/$sidecar" "$origdir/$tail.ts"
 	}
 }
 

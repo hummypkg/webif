@@ -239,6 +239,8 @@ proc do_shrink {ts} {
 	foreach f [glob "$tmp/shrunk.*"] {
 		set ext [file extension $f]
 		file rename $f "${file}_shrunk${ext}"
+		# Set the file time to match the old file
+		file touch "${file}_shrunk${ext}" [$ts get file]
 	}
 
 	# Remove the old recording (-> bin if undelete is installed)

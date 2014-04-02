@@ -318,6 +318,22 @@ proc {ts renamegroup} {from to} {
 	}
 }
 
+proc {ts touchgroup} {target ref} {
+	global tsgroup
+
+	set dir [file dirname $target]
+	set root [file rootname $target]
+
+	# Catch from string without a . character in it
+	if {$root eq $target} { return }
+
+	foreach ext $tsgroup {
+		set f "$root.$ext"
+		if {![file exists $f]} continue
+		file touch $f $ref
+	}
+}
+
 proc {ts genrelist} {} {
 	return {
 		0	{ Unclassified		Unclassified }

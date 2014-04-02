@@ -40,6 +40,10 @@ puts [exec /mod/bin/stripts \
     "$dir/$shname" \
     ]
 
+
+# Set the file time to match the old file
+ts touchgroup "$dir/$shname.ts" "$origdir/$shname.ts"
+
 set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"
 ts renamegroup "$dir/$shname.ts" $newname
