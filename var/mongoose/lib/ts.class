@@ -392,3 +392,28 @@ proc {ts resetnew} {dir} {
 	close $fd
 }
 
+proc {ts iterate} {callback {verbose 0} {dir ""}} {{rootdev 0}} {
+	require system.class
+	if {$dir eq ""} {
+		set dir [system mediaroot]
+		file stat "$dir/" rootstat
+		set rootdev $rootstat(dev)
+	}
+
+	if {$verbose} { puts "Scanning directory ($dir)" }
+
+	file stat "$dir/" st
+	if {$st(dev) != $rootdev} return
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			ts iterate $callback $verbose "$dir/$entry"
+			continue
+		}
+		if {![string match {*.ts} $entry]} continue
+		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
+		if {$ts == 0} continue
+                $callback $ts
+	}
+}
+

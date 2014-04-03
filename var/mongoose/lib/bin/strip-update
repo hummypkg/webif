@@ -3,7 +3,8 @@
 source /mod/webif/lib/setup
 require system.class ts.class
 
-proc do_shrink {ts} {
+ts iterate [lambda {ts} {
+	#puts "    [$ts get file]"
 	if {[$ts flag "Shrunk"]} { return }
 
 	set file [file rootname [$ts get file]]
@@ -26,34 +27,5 @@ proc do_shrink {ts} {
 		puts "  Flagging $file as shrunk..."
 		$ts set_shrunk
 	}
-}
-
-proc entries {dir callback} {
-	foreach entry [readdir -nocomplain $dir] {
-		if {![string match {*.ts} $entry} continue
-		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
-		if {$ts == 0} continue
-		$callback $ts
-	}
-}
-
-proc scan {dir} {
-	puts "Scanning $dir..."
-	file stat "$dir/" st
-	if {$st(dev) != $::rootdev} { return }
-
-	entries $dir do_shrink
-
-	foreach entry [readdir -nocomplain $dir] {
-		if {[file isdirectory "$dir/$entry"]} {
-			scan "$dir/$entry"
-		}
-	}
-}
-
-set root [system mediaroot]
-file stat "$root/" rootstat
-set rootdev $rootstat(dev)
-
-scan $root
+}] 1
 
