@@ -1,5 +1,10 @@
-<!--#include virtual="/lib/header.shtml" -->
+#!/mod/bin/jimsh
 
+source /mod/webif/lib/setup
+
+header
+
+puts {
 <div class=toolbarouter style="top: -40px">
   <div id=status class=toolbar>
     <span id=status_txt>
@@ -17,8 +22,11 @@ $(document).ready(function() {
 		});
 });
 </script>
+}
 
-<!--#exec cmd="/mod/webif/include/menuicons.jim" -->
+source /mod/webif/include/menuicons.jim
+
+puts {
 </div>
 
 <div class=footer>
@@ -31,8 +39,13 @@ Firmware</a> |
 <a target=_blank href="http://wiki.hummy.tv/wiki/Webif_release_notes">Webif</a>
 </li>
 </ul>
-<!--#exec cmd="/mod/webif/include/modversion.jim" -->
-</div>
+}
 
-<!--#include virtual="/lib/footer.shtml" -->
+source /mod/webif/include/modversion.jim
+
+puts {
+</div>
+}
+
+footer
 

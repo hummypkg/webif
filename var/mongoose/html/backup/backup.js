@@ -1,7 +1,7 @@
 
 function refresh_files()
 {
-	$('#backup_files').load('/cgi-bin/backup/files.jim', function() {
+	$('#backup_files').load('files.jim', function() {
 		$('input.restore').change(function() {
 			$('#restore_button').removeAttr('disabled')
 			    .button('option', 'disabled', false);
@@ -20,7 +20,7 @@ $(document).ready(function() {
 
 	$('#backup_button').click(function() {
 		$('#backup_working').slideDown();
-		$('#results').load('/cgi-bin/backup/backup.jim?' +
+		$('#results').load('backup.jim?' +
 		    $('#backup_name').serialize(), function() {
 			$('#results').slideDown(function() {
 				$('#backup_working').slideUp();
@@ -32,7 +32,7 @@ $(document).ready(function() {
 		var backup = $('input.restore:checked').val();
 		if (confirm('Confirm deletion of ' + backup))
 		{
-			$('#results').load('/cgi-bin/backup/delete.jim?' +
+			$('#results').load('delete.jim?' +
 			    $('input.restore').serialize(), function() {
 				$('#results').slideDown(function() {
 					refresh_files();
@@ -42,7 +42,7 @@ $(document).ready(function() {
 	});
 	$('#view_button').click(function() {
 		var backup = $('input.restore:checked').val();
-		$('#results').load('/cgi-bin/backup/view.jim?' +
+		$('#results').load('view.jim?' +
 		    $('input.restore').serialize(), function() {
 			$('#results').slideDown(function() {
 				refresh_files();
@@ -54,7 +54,7 @@ $(document).ready(function() {
 		if (confirm('!!!!!!!!!!!!!!!!!!!!!!!!! PLEASE CONFIRM !!!!!!!!!!!!!!!!!!!!!!!!!\n\nAre you sure you wish to erase all scheduled recordings and favourite channels and then restore them from\n' + backup + '?'))
 		{
 			$('#restore_working').slideDown();
-			$('#results').load('/cgi-bin/backup/restore.jim?' +
+			$('#results').load('restore.jim?' +
 			    $('input.restore').serialize(), function() {
 				$('#results').slideDown(function() {
 					$('#restore_working').slideUp();

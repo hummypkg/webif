@@ -1,4 +1,0 @@
-<!--#include virtual="/lib/header.shtml" -->
-<!--#exec cmd="/mod/webif/include/epg.jim" -->
-<!--#include virtual="/lib/footer.shtml" -->
-

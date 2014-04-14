@@ -6,6 +6,6 @@ require settings.class
 if {[[settings] epg_style] eq "grid"} {
 	puts -nonewline "/cgi-bin/xepg.jim"
 } else {
-	puts -nonewline "/epg.shtml"
+	puts -nonewline "/epg/list.jim"
 }
 

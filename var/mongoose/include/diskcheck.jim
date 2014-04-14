@@ -44,7 +44,7 @@ foreach sa $smartattrs {
 }
 
 if {$smartmsg ne ""} {
-	if {![dict exists $env REQUEST_URI]} { set env(REQUEST_URI) "" }
+	if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 	puts "
 <div id=smartwarning class=warningbox><center>
 !! WARNING !!
@@ -54,7 +54,7 @@ this device.
 <br><br>
 [string map {"\n" "<br>"} $smartmsg]
 	"
-	if {$env(REQUEST_URI) ne "/diag/disk.jim"} {
+	if {$env(SCRIPT_NAME) ne "/diag/disk.jim"} {
 		puts "
 			<br>
 			<a href=/diag/disk.jim>Go to disk diagnostics</a>

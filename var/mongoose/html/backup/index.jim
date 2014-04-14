@@ -3,8 +3,9 @@
 source /mod/webif/lib/setup
 require altrow rsv.class
 
-noheader
-jscss /cgi-bin/backup/backup.js
+jscss backup.js
+header
+
 puts {
 <h2>Backup/Restore</h2>
 
@@ -64,4 +65,6 @@ puts {
     margin-top: 1em; border: 1px solid grey; width: 70%">
 </div>
 }
+
+footer
 

@@ -13,7 +13,7 @@ set raw [cgi_get raw]
 puts "<pre>"
 if { $raw == 0 } {
 	puts [epg exec dump -raw 1 -service $service -event $event]
-	puts "<a href=$env(REQUEST_URI)?$env(QUERY_STRING)&raw=1>
+	puts "<a href=$env(SCRIPT_NAME)?$env(QUERY_STRING)&raw=1>
 		Click here for extended dump</a>"
 } else {
 	puts [epg exec dumpraw -raw 1 -service $service -event $event]

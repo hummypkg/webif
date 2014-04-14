@@ -63,7 +63,7 @@ proc db_info {db_file} {
 if {$fdb == 0} {
 	puts "Please choose database to view:<ul>"
 	foreach db $databases {
-		puts "<li><a href=$::env(REQUEST_URI)?db=[file tail $db]>
+		puts "<li><a href=$::env(SCRIPT_NAME)?db=[file tail $db]>
 		    $db</a></li>"
 	}
 	puts "</ul>"

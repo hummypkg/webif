@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pkg.class chunked
+require pkg.class
 
 cgi_input
 #cgi_dump
@@ -10,30 +10,27 @@ cgi_input
 set cmd [cgi_get cmd update]
 
 proc opkg {cmd} {
-	chunk ">>> opkg $cmd\r\n"
+	puts ">>> opkg $cmd\r\n"
 	set bcmd "|/mod/webif/lib/bin/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
-		chunk "$line\r\n"
-		#chunk_pad
+		puts "$line\r\n"
 	}
 	close $fd
-	chunk "\r\n"
+	puts "\r\n"
 }
 
-start_chunked
+httpheader "text/plain"
 
 if {$cmd eq "upgrade"} { opkg update }
 opkg $cmd
 
 if {$cmd eq "update" || $cmd eq "upgrade"} {
-	chunk "Updating package meta information\r\n"
+	puts "Updating package meta information\r\n"
 	pkg fetchmeta
-	chunk "Done.\r\n"
-	chunk "Updating diagnostic meta information\r\n"
+	puts "Done.\r\n"
+	puts "Updating diagnostic meta information\r\n"
 	pkg fetchdiagmeta
-	chunk "Done.\r\n"
+	puts "Done.\r\n"
 }
-
-end_chunked
 

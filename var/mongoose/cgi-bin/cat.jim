@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require system.class chunked pretty_size
+require system.class pretty_size
 
 cgi_input
 #cgi_dump
@@ -10,16 +10,14 @@ cgi_input
 set file [cgi_get file "-"]
 if {$file eq "-"} { exit }
 
-start_chunked
+httpheader "text/plain"
 
 if {![file exists $file]} {
-	chunk ">>> File $file does not exist.\r\n"
+	puts ">>> File $file does not exist.\r\n"
 } else {
-	chunk ">>> Contents of $file [pretty_size [file size $file]]\r\n"
+	puts ">>> Contents of $file [pretty_size [file size $file]]\r\n"
 	set fp [open $file r]
-	chunk [read $fp]
+	puts [read $fp]
 	close $fp
 }
-
-end_chunked
 

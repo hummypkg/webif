@@ -2,9 +2,9 @@
 
 package require cgi
 source /mod/webif/lib/setup
+header
 require epg.class spinner.class altrow epg_search system.class
 
-noheader
 
 require totop
 
@@ -111,4 +111,6 @@ puts "<font class=footnote>
     </font>"
 
 epg cleanup
+
+footer
 

@@ -2,32 +2,28 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require system.class chunked
+require system.class
 
 cgi_input
 #cgi_dump
 
 set diag [cgi_get diag general]
 
-start_chunked
+httpheader "text/plain"
 
 if {[system modversion 1] < 113} {
-	chunk ">>> Diagnostics only available with customised firmware 1.13 or above."
-	end_chunked
+	puts ">>> Diagnostics only available with customised firmware 1.13 or above."
 	exit
 }
 
-chunk ">>> Beginning diagnostic $diag\r\n"
+puts ">>> Beginning diagnostic $diag\r\n"
 
 set bcmd "|/bin/diag $diag"
 set fd [open $bcmd r]
 while {[gets $fd line] >= 0} {
-	chunk "$line\r\n"
-	#chunk_pad
+	puts "$line"
 }
 close $fd
-chunk "\r\n"
-chunk ">>> Ending diagnostic $diag\r\n"
-
-end_chunked
+puts "\r\n"
+puts ">>> Ending diagnostic $diag\r\n"
 

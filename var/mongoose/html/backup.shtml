@@ -1,4 +1,0 @@
-<!--#include virtual="/lib/header.shtml" -->
-<!--#exec cmd="/mod/webif/include/backup.jim" -->
-<!--#include virtual="/lib/footer.shtml" -->
-

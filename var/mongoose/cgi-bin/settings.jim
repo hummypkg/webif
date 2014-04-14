@@ -52,7 +52,7 @@ set audiomp3 [$settings audiomp3]
 
 # Handle updates
 
-if {![dict exists $env REQUEST_URI]} { set env(REQUEST_URI) "" }
+if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 
 proc _handle_update {class var old text} {
 	global _cgi
@@ -161,7 +161,7 @@ puts "
 
 puts "
 	<tr>
-	<form class=auto id=hostname method=get action=$env(REQUEST_URI)>
+	<form class=auto id=hostname method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Hostname</th>
 		<td><input name=hostname value=\"$hostname\"
 		    class=\"text ui-widget-content ui-corner-all\"
@@ -189,7 +189,7 @@ if {[system pkginst ir]} {
 
 puts -nonewline "
 	<tr>
-	<form class=auto id=autolog method=get action=$env(REQUEST_URI)>
+	<form class=auto id=autolog method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Auto-processing log level</th>
 		<td><select id=autolog name=autolog
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -216,7 +216,7 @@ puts "
 
 puts -nonewline "
 	<tr>
-	<form class=auto id=audiomp3 method=get action=$env(REQUEST_URI)>
+	<form class=auto id=audiomp3 method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Audio extraction type</th>
 		<td><select id=audiomp3 name=audiomp3
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -251,7 +251,7 @@ puts "
 
 puts "
 	<tr>
-	<form class=auto id=epg_style method=get action=$env(REQUEST_URI)>
+	<form class=auto id=epg_style method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Default Now/Next style</th>
 		<td><select id=epg_style name=epg_style
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -275,7 +275,7 @@ puts "
 
 puts "
 	<tr>
-	<form class=auto id=service_style method=get action=$env(REQUEST_URI)>
+	<form class=auto id=service_style method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Default Single-channel style</th>
 		<td><select id=service_style name=service_style
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -299,7 +299,7 @@ puts "
 
 puts "
 	<tr>
-	<form class=auto id=channel_group method=get action=$env(REQUEST_URI)>
+	<form class=auto id=channel_group method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Channel Group for EPG</th>
 		<td><select id=channel_group name=channel_group
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -329,7 +329,7 @@ puts "
 
 puts "
 	<tr>
-	<form class=auto id=xepghours method=get action=$env(REQUEST_URI)>
+	<form class=auto id=xepghours method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Grid-style EPG Hours</th>
 		<td><select id=xepghours name=xepghours
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -369,7 +369,7 @@ puts "
 #
 #puts "
 #	<tr>
-#	<form class=auto id=smtp_server method=get action=$env(REQUEST_URI)>
+#	<form class=auto id=smtp_server method=get action=$env(SCRIPT_NAME)>
 #		<th class=key>SMTP Server for outbound email</th>
 #		<td><input name=smtp_server value=\"$smtp_server\"
 #		    class=\"text ui-widget-content ui-corner-all\"
@@ -427,7 +427,7 @@ if {[llength $aclusers]} {
 
 puts "<tr><th colspan=5 class=odd>Add New User</th></tr>"
 puts "
-	<form id=aclnewuser method=get action=$env(REQUEST_URI)>
+	<form id=aclnewuser method=get action=$env(SCRIPT_NAME)>
 	<tr><th class=key>New User:</th><td>
 	    <input
 		class=\"text ui-widget-content ui-corner-all\"

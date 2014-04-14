@@ -1,7 +1,10 @@
-<!--#include virtual="/lib/header.shtml" -->
-<link href=/lib/jquery.plugin/iphone-style-checkboxes/iphone-style-checkboxes.css rel=stylesheet type=text/css />
-<script type="text/javascript" src="/lib/jquery.plugin/iphone-style-checkboxes/iphone-style-checkboxes.js"></script>
-<script type="text/javascript" src="/lib/jquery.plugin/enadis/enadis.js"></script>
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+jqplugin iphone-style-checkboxes enadis
+header
+
+puts {
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -48,6 +51,35 @@ Results...
 <th>Auto Startup</th>
 <th>Status</th>
 </tr>
-<!--#exec cmd="/mod/webif/include/services.jim" -->
+}
+
+set services [split [exec /mod/bin/service mlist]]
+
+foreach service $services {
+	lassign [split $service ":"] name installed auto running
+
+	if {$name eq "mongoose"} continue
+
+	puts "<tr><td class=even>$name</td>"
+	if (!$installed) {
+		puts "<td colspan=3><i>Not installed</i></td></tr>"
+		continue
+	}
+
+	puts -nonewline "<td><input type=checkbox class=auto name=\"$name\""
+	if ($auto) { puts -nonewline " checked" }
+	puts "></td>"
+
+	puts -nonewline "<td><input type=checkbox class=toggle name=\"$name\""
+	if ($running) { puts -nonewline " checked" }
+	puts "></td>"
+
+	puts "</tr>"
+}
+
+puts {
 </table>
-<!--#include virtual="/lib/footer.shtml" -->
+}
+
+footer
+

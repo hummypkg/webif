@@ -1,7 +1,7 @@
 $(function() {
 
 $('#epgswitch').button().click(function() {
-	window.location = '/epg.shtml';
+	window.location = '/epg/list.jim';
 });
 
 $('button.nav').click(function() {

@@ -227,7 +227,7 @@ eventfooter
 puts {
 	<br>
 	<small>
-	<button onclick="window.location='/backup.shtml';">
+	<button onclick="window.location='/backup/index.jim';">
 		Backup/Restore Scheduled Recordings/Events
 	</button>
 }
