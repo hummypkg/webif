@@ -241,7 +241,10 @@ settings method aclusers {} {
 	return $users
 }
 
+# Legacy function for Mongoose.
+
 settings method mongooseauth {{mode 1}} {
+	if {![file exists /mod/etc/mongoose.conf]} return
 	set fd [open "/mod/etc/mongoose.conf" r]
 	set fdnew [open "/mod/etc/mongoose.conf.new" w]
 	foreach line [string trim [split [read $fd] "\n"]] {
@@ -263,42 +266,54 @@ settings method mongooseauth {{mode 1}} {
 	file rename "/mod/etc/mongoose.conf.new" "/mod/etc/mongoose.conf"
 }
 
-settings method addacluser {user pass} {
-	set msg ""
-	if {![llength [$self aclusers]]} {
-		$self mongooseauth 1
-		append msg "Enabled web server authentication<br>"
-	}
-	set cmd "/mod/sbin/mongoose -A /mod/etc/htpasswd webif $user $pass"
-	exec {*}$cmd
-	append msg "Successfully updated user $user"
-	return $msg
+settings method htdigest {user pass} {
+	set str "$user:webif:$pass"
+	set hash [string range [exec echo -n $str | md5sum] 0 32]
+	return "$user:webif:$hash"
 }
 
-settings method delacluser {user} {
-	if {![file exists "/mod/etc/htpasswd"]} { return }
-	set fd [open "/mod/etc/htpasswd" r]
+settings method modacluser {user {pass 0}} {
 	set fdnew [open "/mod/etc/htpasswd.new" w]
-	set num 0
-	foreach line [string trim [split [read $fd] "\n"]] {
-		lassign [split $line ":"] xuser
-		if {$xuser eq $user} { continue }
-		if {$line ne ""} {
-			puts $fdnew $line
-			incr num
+
+	# Remove existing user, if present.
+	if {[file exists "/mod/etc/htpasswd"]} {
+		set fd [open "/mod/etc/htpasswd" r]
+		set num 0
+		foreach line [string trim [split [read $fd] "\n"]] {
+			lassign [split $line ":"] xuser
+			if {$xuser eq $user} { continue }
+			if {$line ne ""} {
+				puts $fdnew $line
+				incr num
+			}
 		}
+		$fd close
 	}
-	$fd close
+
+	# Add user, if required.
+	if {$pass ne "0"} {
+		puts $fdnew [$self htdigest $user $pass]
+		incr num
+		set msg "Added/updated user $user"
+	} else {
+		set msg "Removed user $user"
+	}
+
 	$fdnew close
 	file delete "/mod/etc/htpasswd"
 	file rename "/mod/etc/htpasswd.new" "/mod/etc/htpasswd"
-	set msg "Successfully removed user $user"
 
-	if {$num == 0} {
-		$self mongooseauth 0
-		append msg "<br>Disabled web server authentication<br>"
-	}
+	$self mongooseauth $num
+
 	return $msg
+}
+
+settings method addacluser {user pass} {
+	return [$self modacluser $user $pass]
+}
+
+settings method delacluser {user} {
+	return [$self modacluser $user]
 }
 
 settings method smartdata {} {

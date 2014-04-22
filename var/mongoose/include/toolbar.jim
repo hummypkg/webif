@@ -43,7 +43,7 @@ tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/sched.jim"
 tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" $epglink
 tb "/img/spanner.png" "Services" "/services/index.jim"
 tb "/img/packages.png" "Packages" "/pkg/index.jim"
-tb "/images/326_1_00_Menu_Settings.png" "Settings" "/cgi-bin/settings.jim"
+tb "/images/326_1_00_Menu_Settings.png" "Settings" "/settings/settings.jim"
 tb "/img/diagnostics.png" "Diag" "/diag/diag.jim"
 eval_plugins toolbar
 

@@ -64,7 +64,8 @@ $(document).ready(function () {
 		$(output)
 		    .empty()
 		    .show('slow')
-		    .load('/cgi-bin/settings.jim?' + urlargs,
+		    .html('<img src=/img/loading.gif> Please wait...')
+		    .load('/settings/settings.jim?' + urlargs,
 		        function() {
 				$(el).enable();
 				$(output)

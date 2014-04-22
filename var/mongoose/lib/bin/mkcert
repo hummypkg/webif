@@ -1,0 +1,41 @@
+#!/bin/sh
+
+config=/tmp/openssl.cnf.$$
+
+if [ "$1" = "-delete" ]; then
+	cd /mod/etc
+	[ -f webif.pem ] && rm -f webif.pem
+	[ -f mongoose.cert ] && rm -f mongoose.cert
+	exit 0
+fi
+
+cat << EOM > $config
+[req]
+distinguished_name = req_dn
+
+[req_dn]
+
+EOM
+
+/mod/bin/openssl req \
+  -x509 -nodes -days 365 \
+  -newkey rsa:2048 \
+  -subj "/C=GB/ST=Humax/CN=`hostname`" \
+  -sha1 \
+  -nodes \
+  -batch \
+  -keyout /mod/etc/webif.pem -out /mod/etc/webif.pem \
+  -config $config
+
+rm -f $config
+
+# Support legacy mongoose server...
+
+(
+	cd /mod/etc
+	[ -f mongoose.cert ] && rm -f mongoose.cert
+	ln -sf webif.pem mongoose.cert
+)
+
+exit 0
+

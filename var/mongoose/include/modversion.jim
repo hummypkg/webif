@@ -16,5 +16,8 @@ puts "<font class=blood style=\"font-size: 0.9em; float: right; clear: right\">
 if {![catch {set fhtcpversion [system fhtcpversion]}]} {
 	puts "<br>Humax Version: $fhtcpversion"
 }
+if {![catch {set kernelver [system kernelver]}]} {
+	puts "<br>Kernel Version: $kernelver"
+}
 puts "</font>"
 
