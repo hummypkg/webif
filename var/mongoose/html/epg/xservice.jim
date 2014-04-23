@@ -61,7 +61,7 @@ puts {
 set i 0
 foreach record $records {
 	altrow
-	#$record get_channel_info
+	$record get_channel_info
 	set ended [$record ended]
 	if {[$record showing]} {
 	    puts "<td><img src=/images/111_1_00_Cursor_2R_Arrow.png></td>"

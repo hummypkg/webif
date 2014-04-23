@@ -330,7 +330,8 @@ proc {rsv lookuptab} {} {
 			} else {
 				set p "E"
 			}
-			set records("$rec(usSvcId):$rec(usevtid)") $p
+			set records([\
+			    string tolower "$rec(usSvcId):$rec(usevtid)"]) $p
 			if {$rec(szCRID) eq ""} continue
 			if {$rec(ucCRIDType) == 49} {
 				set p "E"
