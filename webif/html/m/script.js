@@ -2,6 +2,7 @@
 function s(query) {return $("div.ui-page-active " + query);}
 
 $(document).on('pageshow', '#indexpage', function() {
+console.log('pageshow - indexpage');
 	$('div.status').last().empty()
 	    .load('/cgi-bin/status.jim', function() {
 		$(this).slideDown('slow');
@@ -9,6 +10,7 @@ $(document).on('pageshow', '#indexpage', function() {
 });
 
 $(document).on('pagecreate', '#indexpage', function() {
+console.log('pagecreate - indexpage');
 	$('a.refresh').on('click', function(e) {
 		e.preventDefault();
 		$.mobile.loading('show');
@@ -16,7 +18,6 @@ $(document).on('pagecreate', '#indexpage', function() {
 	});
 
 	$('#xepgsearch').hide('fast');
-
 	$('#epgsearch').on('click', function(e) {
 		e.preventDefault();
 		$('#xepgsearch').toggle('slow');

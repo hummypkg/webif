@@ -2,7 +2,7 @@
 
 # Handle moving the legacy /var/mongoose directory to /webif..
 
-if [ -h /mod/webif -a -d /var/mongoose ]; then
+if [ -h /mod/webif -a -d /mod/var/mongoose -a ! -h /mod/var/mongoose ]; then
 	echo "Relocating web interface files..."
 
 	cd /mod
