@@ -19,7 +19,7 @@ fi
 ana=$PKG_ROOT/etc/anacrontab
 egrep -v 'backup/backup.jim|bin/diskattrs' $ana > $tmpf
 cat $tmpf - << EOM > $ana
-1 8 sched_backup /mod/webif/cgi-bin/backup/backup.jim
+1 8 sched_backup /mod/webif/html/backup/backup.jim
 1 5 diskattrs /mod/webif/lib/bin/diskattrs
 EOM
 

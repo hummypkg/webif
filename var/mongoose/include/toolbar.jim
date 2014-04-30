@@ -55,7 +55,7 @@ puts {
 <script type=text/javascript>
 var lastupd = 0;
 if (window.location.pathname != '/' &&
-    window.location.pathname != '/index.shtml')
+    window.location.pathname != '/index.jim')
 {
 	var down = function() {
 		$('#toolbar').stop(true, true).delay(200).slideDown(400,
