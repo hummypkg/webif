@@ -31,7 +31,7 @@ puts "<li><a id=epgsearch href=#>
 	<h3>Search EPG</h3>
 	</a>
     </li>
-    <li id=xepgsearch class=ui-screen-hidden>
+    <li id=xepgsearch>
 "
 set term ""
 set full 0

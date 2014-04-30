@@ -1,28 +1,32 @@
 
 function s(query) {return $("div.ui-page-active " + query);}
 
-$(document).bind('pageinit', function() {
-	$('div.status').last().load('/cgi-bin/status.jim', function() {
+$(document).on('pageshow', '#indexpage', function() {
+	$('div.status').last().empty()
+	    .load('/cgi-bin/status.jim', function() {
 		$(this).slideDown('slow');
-	});
-	$('a.refresh').on('click', function(e) {
-		e.preventDefault();
-		$.mobile.showPageLoadingMsg();
-		window.location.reload(true);
 	});
 });
 
-$(document).delegate('#indexpage', 'pageinit', function() {
+$(document).on('pagecreate', '#indexpage', function() {
+	$('a.refresh').on('click', function(e) {
+		e.preventDefault();
+		$.mobile.loading('show');
+		window.location.reload(true);
+	});
+
+	$('#xepgsearch').hide('fast');
+
 	$('#epgsearch').on('click', function(e) {
 		e.preventDefault();
 		$('#xepgsearch').toggle('slow');
 	});
 });
 
-$(document).delegate('#event_dpage', 'pageinit', function() {
+$(document).on('pagecreate', '#event_dpage', function() {
 	$('a.schedule').click(function(e) {
 		e.preventDefault();
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading('show');
 		$('#epginfo_extra').load('/cgi-bin/epg/schedule.jim?' +
 		    'service=' +
 		    encodeURIComponent($(this).attr('sid')) +
@@ -35,17 +39,17 @@ $(document).delegate('#event_dpage', 'pageinit', function() {
 	});
 });
 
-$(document).delegate('#schedule_dpage', 'pageinit', function() {
+$(document).on('pagecreate', '#schedule_dpage', function() {
 	$('#delevent').click(function(e) {
 		e.preventDefault();
 		if (!confirm('Confirm event cancellation?'))
 			return;
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading('show');
 		$.get('/sched/cancel.jim' +
 		    '?slot=' + $(this).attr('slot') +
 		    '&table=' + $(this).attr('tab'), function() {
 			$('.ui-dialog').dialog('close');
-			$.mobile.showPageLoadingMsg();
+			$.mobile.loading('show');
 			window.location.reload(true);
 		});
 	});
@@ -106,7 +110,7 @@ function shrunk_callback(data, status, xhr)
 	$.each(data, insert_shrunk);
 }
 
-$(document).delegate('#browsepage', 'pageinit', function() {
+$(document).on('pagecreate', '#browsepage', function() {
 	var dir = $('span.dir').last().text();
 
 	//console.log('DIR: %O', dir);
@@ -127,7 +131,7 @@ $(document).delegate('#browsepage', 'pageinit', function() {
 var opkgreload = false;
 function execopkg(arg, pkg)
 {
-	$.mobile.showPageLoadingMsg();
+	$.mobile.loading('show');
 	s('a').disable();
 	s('.opkg_op_complete').hide('fast');
 	s('.opkg_popup_text')
@@ -148,7 +152,7 @@ function execopkg(arg, pkg)
 	});
 }
 
-$(document).delegate('#pkga,#pkgi,#pkgu', 'pageinit', function() {
+$(document).on('pagecreate', '#pkga,#pkgi,#pkgu', function() {
 
 	$('a.remove, a.install, a.upgrade')
 	    .click(function() {
@@ -172,7 +176,7 @@ $(document).delegate('#pkga,#pkgi,#pkgu', 'pageinit', function() {
 	});
 });
 
-$(document).delegate('#servicespage', 'pageinit', function() {
+$(document).on('pagecreate', '#servicespage', function() {
 
 	// Don't allow turning off the web server from within the web server..
 	$('select[service=mongoose]').disable();

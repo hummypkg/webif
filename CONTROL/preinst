@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Handle moving the legacy /var/mongoose directory to /webif..
+
+if [ -h /mod/webif -a -d /var/mongoose ]; then
+	echo "Relocating web interface files..."
+
+	cd /mod
+	rm webif || exit 1
+	mv var/mongoose webif || exit 1
+	cd var
+	ln -s ../webif mongoose
+fi
+
+exit 0
+

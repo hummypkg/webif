@@ -25,7 +25,7 @@ proc nav {active} {
 proc pkgtop {type} {
 	puts "
 	<div data-role=page id=pkga>
-		<div data-role=header data-theme=b>
+		<div data-role=header data-theme=a>
 			[_header]
 			[nav $type]
 		</div>
@@ -63,7 +63,7 @@ proc pkgrow {type pkg} {
 
 	puts "
  <p>
-    <a data-inline=true data-role=button data-mini=true data-theme=e
+    <a data-inline=true data-role=button data-mini=true data-theme=a
      href=#
      action=[string tolower $btype] pkg=\"$name\"
      class=[string tolower $btype]>$btype</a>
@@ -122,14 +122,14 @@ pkgtop $type
 puts {
 <ul data-role=listview>
 <li>
-	<button data-theme=e class=opkg_update>
+	<button data-theme=a class=opkg_update>
 		Update package list from Internet
 	</button>
 }
 
 if {$pageid eq "pkgu_b"} {
 	puts {
-		<button data-theme=e class=opkg_upgrade>
+		<button data-theme=a class=opkg_upgrade>
 			Upgrade all packages
 		</button>
 	}
@@ -143,18 +143,18 @@ puts {
 pkglist $qtype
 
 puts {
-<div data-role=popup class="opkg_popup ui-corner-all" data-theme=e>
+<div data-role=popup class="opkg_popup ui-corner-all" data-theme=a>
 	<div data-role=header data-theme=a class=ui-corner-top>
 		<h1>Results</h1>
 	</div>
-	<div data-role=content data-theme=d class="ui-corner-bottom ui-content">
-		<p class="pre opkg_popup_text" data-theme=d></p>
+	<div data-role=content data-theme=a class="ui-corner-bottom ui-content">
+		<p class="pre opkg_popup_text" data-theme=a></p>
 	</div>
 	<center><div class="hidden opkg_op_complete">
 		<img border=0 src=/images/167_2_00_Check_W2_SUB.png>
 		Operation complete.
 		<a href=# data-role=button data-inline=true data-rel=back
-		    data-mini=true data-theme=b>Close</a>  
+		    data-mini=true data-theme=a>Close</a>  
 	</div></center>
 </div>
 }

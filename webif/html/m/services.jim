@@ -12,6 +12,8 @@ set i 0
 foreach service $services {
         lassign [split $service ":"] name installed auto running
 
+	if {[string tolower $name] eq "mongoose"} continue
+
         if (!$installed) {
 		puts "<li><h3>[string totitle $name]</h3>"
                 puts "<p><i>Not installed.</i></p>"

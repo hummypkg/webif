@@ -17,7 +17,7 @@ set others [$record othertimes]
 
 puts "
 
-<div data-role=header data-theme=b>
+<div data-role=header data-theme=a>
 	<h1>EPG Event</h1>
 </div>
 
@@ -132,15 +132,15 @@ set sch [$record get sched_type]
 
 if {!$sch} {
 	if {$rec == 2} {
-		puts "<a href=# data-theme=b class=schedule stype=2
+		puts "<a href=# data-theme=a class=schedule stype=2
 		    sid=$sid eid=$eid data-role=button>
 		    Record Series</a>"
 	}
 	if {$rec > 0} {
-		puts "<a href=# data-theme=b class=schedule stype=1
+		puts "<a href=# data-theme=a class=schedule stype=1
 		    sid=$sid eid=$eid data-role=button>
 		    Record Programme</a>"
-		puts "<a href=# data-theme=b class=schedule stype=3
+		puts "<a href=# data-theme=a class=schedule stype=3
 		    sid=$sid eid=$eid data-role=button>
 		    Set Reminder</a>"
 	}

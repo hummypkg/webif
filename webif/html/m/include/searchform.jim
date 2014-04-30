@@ -25,7 +25,7 @@ if {$full} { puts -nonewline " selected" }
 puts ">On</option>
 		</select>
 		<button type=submit data-mini=true name=search value=search
-		    data-theme=b>Search</button>
+		    data-theme=a>Search</button>
 	</div>
     </form>
 "

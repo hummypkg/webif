@@ -64,11 +64,11 @@ proc _header {{title ""}} {
 	return "
 <div class=ui-btn-right style=\"top: -5px\">
     <div style=\"display: inline-block; margin-right: 10px;\">
-	<a data-theme=b data-icon=home data-iconpos=notext data-role=button
+	<a data-theme=a data-icon=home data-iconpos=notext data-role=button
 	    data-direction=reverse href=index.jim></a>
     </div>
     <div style=\"display: inline-block;\">
-	<a data-theme=b data-icon=refresh data-iconpos=notext data-role=button
+	<a data-theme=a data-icon=refresh data-iconpos=notext data-role=button
 	    class=refresh data-direction=reverse href=#></a>
     </div>
 </div>
@@ -86,7 +86,7 @@ if {$_bare} {
 
  <div class=\"hidden status\"></div>
 
- <div data-role=header data-theme=b>
+ <div data-role=header data-theme=a>
     [_header]
  </div>
  <div data-role=content>

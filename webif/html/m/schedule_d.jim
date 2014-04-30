@@ -14,7 +14,7 @@ mheader
 
 puts "
 
-<div data-role=header data-theme=b>
+<div data-role=header data-theme=a>
 	<h1>Scheduled Event</h1>
 </div>
 
@@ -108,7 +108,7 @@ puts "</td></tr>"
 puts "</table>"
 
 # Buttons
-puts "<a href=# data-theme=b id=delevent data-role=button
+puts "<a href=# data-theme=a id=delevent data-role=button
     tab=$table slot=$slot>Cancel Event</a>"
 puts "<a href=# data-role=button data-theme=a id=close data-rel=back>Close</a>"
 
