@@ -8,6 +8,8 @@ set settings [settings]
 set loglevel [$settings autolog]
 set audiomp3 [$settings audiomp3]
 
+set modules {decrypt dedup shrink mpg mp3 expire}
+
 if {![acquire_lock webif_auto]} {
 	puts "Cannot acquire exclusive lock, terminating."
 	exit
@@ -48,8 +50,6 @@ proc endclock {size} {
 	set rate $($size / $el)
 	return "[pretty_size $size] in $el seconds - [pretty_size $rate]/s"
 }
-
-set modules {decrypt dedup shrink mpg mp3 expire}
 
 foreach mod $modules {
 	set "hook_pre${mod}scan" {}
@@ -187,6 +187,18 @@ proc do_shrink {ts} {
 		return
 	}
 
+	# If the directory is flagged for decryption as well as shrink
+	# then check to see if decryption has already occured. If not,
+	# defer the shrink for now.
+	set dir [file dirname $file]
+	if {[file exists "$dir/.autodecrypt"] || [scanup $dir decrypt] == 1} {
+		log "  $dir is also set for decryption." 2
+		if {[$ts flag "ODEncrypted"]} {
+			log "  $file - deferring shrink until decrypted." 1
+			return
+		}
+	}
+
 	set file [file rootname [$ts get file]]
 
 	if {[$ts inuse]} {
@@ -291,7 +303,7 @@ proc do_decrypt {ts} {
 	set anencd [exec /mod/bin/stripts -qE $rfile]
 	if {$anencd != "1"} {
 		log "  $file - already decrypted but the HMT flag is wrong." 0
-		system notify "$file - auto-decrypt - file is already decrypted but the HMT flag is wrong."
+		system notify "$file - auto-decrypt - file is already decrypted but the HMT flag is wrong. Run the 'fixencflags' diagnostic."
 		return
 	}
 
