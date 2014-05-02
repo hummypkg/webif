@@ -1,6 +1,6 @@
-var/mongoose/html/css/EXTRA.css
-var/mongoose/html/favicon.ico
-var/mongoose/html/img/fav/57.png
-var/mongoose/html/img/fav/72.png
-var/mongoose/html/img/fav/114.png
-var/mongoose/html/img/fav/144.png
+webif/html/css/EXTRA.css
+webif/html/favicon.ico
+webif/html/img/fav/57.png
+webif/html/img/fav/72.png
+webif/html/img/fav/114.png
+webif/html/img/fav/144.png
