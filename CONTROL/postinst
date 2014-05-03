@@ -1,6 +1,16 @@
 #!/bin/sh
 
-echo "Postinstall $*"
+# Relocate any stray files in /mod/var/mongoose
+
+if [ -d /mod/var/mongoose -a ! -h /mod/var/mongoose ]; then
+	(
+		cd /mod/var/mongoose
+		find . | cpio -pmud /mod/webif
+		cd /mod/var
+		rm -rf mongoose
+		ln -s ../webif mongoose
+	)
+fi
 
 export tmpf=/tmp/cronf.$$
 
