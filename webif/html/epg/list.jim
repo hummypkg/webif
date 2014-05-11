@@ -98,7 +98,7 @@ if {$lcn > 0} { puts "</tr>" }
 puts "</table>"
 
 puts "
-	<a href=/cgi-bin/settings.jim>
+	<a href=/settings/settings.jim>
 	<img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
 	Visit settings to change EPG options.
 	</a><br>
