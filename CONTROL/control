@@ -1,11 +1,11 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 1.0.13-1
+Version: 1.0.13-2
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
 Depends: webif-channelicons(>=1.1.11),lighttpd(>=1.4.35-2),jim(>=0.75-1),jim-oo,jim-sqlite3(>=0.75),jim-cgi(>=0.7),jim-binary(>=0.75),service-control(>=1.2),busybox(>=1.20.2-1),lsof,epg(>=1.0.13),hmt(>=1.1.14),ssmtp,anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.0.2),webif-charts(>=1.2-1),stripts(>=1.2.5-3),smartmontools,tmenu(>=1.08),ffmpeg,id3v2,multienv(>=1.6),mongoose
 Conflicts: tvdiary(<0.0.2-6)
 Suggests:
-Description: An evolving web interface for the Humax. [Switch web server software]
+Description: An evolving web interface for the Humax. [Enhance auto-expiry options]
 Tags: http://hummy.tv/forum/threads/5031/

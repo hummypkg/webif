@@ -229,12 +229,16 @@ pre, .pre
 	background: transparent;
 }
 
-.footnote
+.footnote, .bfootnote
 {
-	color: #ff4000;
 	background: transparent;
 	font-size: 70%;
 	font-weight: bold;
+}
+
+.footnote
+{
+	color: #ff4000;
 }
 
 .blueshade

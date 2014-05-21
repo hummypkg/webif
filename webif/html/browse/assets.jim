@@ -80,7 +80,7 @@ if $flatten {
 }
 
 puts {
-	<li class=clock><a href=#expire>Auto-Expire</a></li>
+	<li class=clock><a href=#expire>Auto-Expire Options</a></li>
 }
 
 if {[system pkginst ffmpeg]} {
@@ -259,28 +259,76 @@ puts {
 	</form>
 </div>
 
-<div id=aexpiry title="Auto-Expiry" style="display: none">
+<div id=aexpiry title="Auto-Expiry Settings"
+    style="display: none; line-height: 1em;">
 	<form id=aexpiry_form>
 	<input type=hidden name="dir" id="aexpiry_ldir" value="">
 }
 puts {
 	<table border=0>
-	<tr>
-	<th>
+
+	<tr><th align=right>
 		<label for="aexpiry_days">
-			<b>Expire after</b>
-			<span class=blood>(in days)</span>
+			<b>Remove recordings after</b> (in days)
+			<br><span class=footnote>
+			(Leave blank to skip age check)
+			</span>
 		</label>
-	</th>
-	<td>
+	</th><td>
 		<input name="aexpiry_days" id="aexpiry_days"
 		    type=number value=0 size=5 maxlength=3
 		    class="text ui-widget-content ui-corner-all">
-	</td>
-	</tr>
+	</td></tr>
+
+	<tr><th>
+		<label for="aexpiry_min">
+			<b>Keep at least</b>
+			(number of recordings)
+			<br>
+			<span class=footnote>(Oldest will be deleted first)
+			    </span>
+		</label>
+	</th><td>
+		<input name="aexpiry_min" id="aexpiry_min"
+		    type=number value=0 size=5 maxlength=3
+		    class="text ui-widget-content ui-corner-all">
+	</td></tr>
+
+	<tr><th>
+		<label for="aexpiry_timetype">
+			<b>For date of recording, use</b>
+		</label>
+	</th><td>
+		<input name="aexpiry_timetype" id="aexpiry_timetype0"
+		    type=radio value=0 checked
+		    class="text ui-widget-content ui-corner-all">
+		Recording end time
+		<br>
+		<input name="aexpiry_timetype" id="aexpiry_timetype1"
+		    type=radio value=1
+		    class="text ui-widget-content ui-corner-all">
+		<span>
+		When last watched
+		<span class=bfootnote>(or end time if unwatched)</span>
+		</span>
+	</td></tr>
+
+	<tr><th>
+		<label for="aexpiry_unwatched">
+			<b>Never delete unwatched recordings</b>
+		</label>
+	</th><td>
+		<input name="aexpiry_unwatched" id="aexpiry_unwatched"
+		    type=checkbox value=1
+		    class="ui-widget-content ui-corner-all">
+	</td></tr>
+
 	</table>
 	<div id=aexpiry_working class=hidden>
-		<img src=/img/loading.gif> Applying auto-expiry...
+		<img src=/img/loading.gif> Applying changes...
+	</div>
+	<div id=aexpiry_loading class=hidden>
+		<img src=/img/loading.gif> Retrieving data...
 	</div>
 	</form>
 </div>

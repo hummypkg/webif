@@ -2,23 +2,48 @@
 
 package require cgi
 source /mod/webif/lib/setup
-
-httpheader
+require browse.class
 
 # dir=%2Fmedia%2FMy+Video%2FWeatherview
 # aexpiry_days=13
 
 set dir [cgi_get dir "-"]
-set days [cgi_get aexpiry_days 7]
 if {$dir eq "-"} exit
+
+set act [cgi_get act "update"]
+
+if {$act eq "fetch"} {
+	httpheader "application/json"
+	set data [{dir expiry} $dir]
+	puts "{"
+	puts " \"days\": \"$data(days)\","
+	puts " \"keep\": \"$data(keep)\","
+	puts " \"type\": \"$data(type)\","
+	puts " \"keepnew\": \"$data(keepnew)\""
+	puts "}"
+	exit
+}
+
+if {$act eq "remove"} {
+	httpheader
+	if {[file exists "$dir/.autoexpire"]} {
+		file delete "$dir/.autoexpire"
+	}
+	exit
+}
+
+httpheader
+
+set data(days) [cgi_get aexpiry_days 0]
+set data(keep) [cgi_get aexpiry_min 0]
+set data(type) [cgi_get aexpiry_timetype recorded]
+set data(keepnew) [cgi_get aexpiry_unwatched 0]
 
 if {![file isdirectory $dir]} {
 	puts "Not a directory."
 	exit
 }
 
-set fd [open "$dir/.autoexpire" w]
-puts $fd $days
-$fd close
+{dir expiry} $dir $data
 puts "Ok."
 

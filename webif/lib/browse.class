@@ -15,14 +15,21 @@ proc _addicon {img {hover ""} {class va}} {
 	return $icon
 }
 
-proc {dir expiry} {dir} {
-	if {[catch {
-		set fd [open "$dir/.autoexpire"]
-		set days $([read $fd] + 0)
+proc {dir expiry} {dir {data {}}} {
+	if {[llength $data] > 1} {
+		set fd [open "$dir/.autoexpire" w]
+		puts $fd "$data(days):$data(type):$data(keep):$data(keepnew):"
 		$fd close
-	}]} { set days 0 }
-	if {!$days} { set days 7 }
-	return $days
+		return
+	}
+	set ret { days "" type 0 keep "" keepnew 0 }
+	catch {
+		set fd [open "$dir/.autoexpire"]
+		lassign [split [string trim [read $fd]] ":"] \
+		    ret(days) ret(type) ret(keep) ret(keepnew)
+		$fd close
+	} msg
+	return $ret
 }
 
 proc {dir iconset} {dir} {
@@ -34,7 +41,7 @@ proc {dir iconset} {dir} {
 		if {[string match {\[*\]} [file tail $dir]]} { set noflat 1 }
 		if {[file exists "$dir/.noflatten"]} { set noflat 1 }
 		if $noflat { lappend icons \
-		    [_addicon "/img/flat-tyre.png" "No-flatten" }
+		    [_addicon "/img/flat-tyre.png" "No-flatten"] }
 		lappend attrs "noflat=$noflat"
 	}
 
@@ -92,11 +99,9 @@ proc {dir iconset} {dir} {
 
 	set autoexpire 0
 	if {[file exists "$dir/.autoexpire"]} {
-		set days [{dir expiry} $dir]
 		set autoexpire 1
-		lappend icons [_addicon "/img/clock.png" \
-		    "Auto-Expire ($days day$($days == 1 ? "" : "s"))"]
-		lappend attrs "autoexpire=1" "autoexpiredays=$days"
+		lappend icons [_addicon "/img/clock.png" "Auto-Expire"]
+		lappend attrs "autoexpire=1"
 	}
 
 	return [list $icons $attrs]

@@ -220,6 +220,14 @@ function aexpiry_submit()
 	    function() { window.location.reload(true); });
 }
 
+function aexpiry_remove()
+{
+	$('#aexpiry_working').slideDown('slow');
+	var s = $('#aexpiry_form').serialize();
+	$.get('/browse/aexpiry.jim?act=remove&' + s,
+	    function() { window.location.reload(true); });
+}
+
 function newdir_submit()
 {
 	var s = $('#newdirform_form').serialize();
@@ -390,7 +398,7 @@ function preparedmenu(el, menu)
 	fixdmenu(el, menu, 'autodecrypt', '#decrypt', 'Auto-decrypt', 1);
 	fixdmenu(el, menu, 'autompg', '#mpg', 'Auto-mpg', 0);
 	fixdmenu(el, menu, 'automp3', '#mp3', 'Auto-audio', 0);
-	fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
+	//fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
 }
 
 $(document).ready(function() {
@@ -587,19 +595,37 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'expire':
-		if ($(el).attr('autoexpire') == 1)
-			flagdir(file, 'autoexpire', iconset, results, el);
-		else
-		{
-			$('#aexpiry_ldir').val(decodeURIComponent(file));
-			if ($(el).attr('autoexpiredays') > 0)
-				$('#aexpiry_days')
-				     .val($(el).attr('autoexpiredays'));
-			else
-				$('#aexpiry_days').val(7);
-			$('#aexpiry_working').hide('fast');
-			$('#aexpiry').dialog('open');
-		}
+		$('#aexpiry_ldir').val(decodeURIComponent(file));
+
+		// Initialise form with default values
+		$('#aexpiry_days').val("");
+		$('#aexpiry_timetype0').prop('checked', true);
+		$('#aexpiry_min').val("");
+		$('#aexpiry_unwatched').prop('checked', false);
+		$('#aexpiry_form input').disable();
+
+		$('#aexpiry_working').hide('fast');
+		$('#aexpiry_loading').show('fast');
+
+		$.getJSON('aexpiry.jim?act=fetch&dir=' + file, function(data) {
+			$.each(data, function(key, val) {
+				if (key == 'days')
+					$('#aexpiry_days').val(val);
+				else if (key == 'keep')
+					$('#aexpiry_min').val(val);
+				else if (key == 'keepnew')
+					$('#aexpiry_unwatched')
+					    .prop('checked',
+					    val == "1" ? true : false);
+				else if (key == 'type')
+					$('#aexpiry_timetype' + val)
+					    .prop('checked', true);
+			});
+			$('#aexpiry_loading').hide('slow');
+			$('#aexpiry_form input').enable();
+		});
+
+		$('#aexpiry').dialog('open');
 		break;
 
 	    case 'flat':
@@ -772,6 +798,7 @@ var dmenuclick = function(action, el, pos)
 		modal: true,
 		buttons: {
 			"Update": aexpiry_submit,
+			"Remove Settings": aexpiry_remove,
 			"Close": function() {
 				$(this).dialog('close');
 			}
