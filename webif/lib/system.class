@@ -380,3 +380,10 @@ proc {system display} {hdr hd} {
 	}
 }
 
+proc {system uptime} {} {
+	set fd [open /proc/uptime r]
+	set uptime [lindex [split [read $fd]] 0]
+	$fd close
+	return $uptime
+}
+

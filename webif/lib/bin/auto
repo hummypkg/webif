@@ -259,6 +259,11 @@ proc do_decrypt {ts} {
 		return
 	}
 
+	if {[$ts flag "Encrypted"]} {
+		log "  $file - Protected (Enc flag)." 2
+		return
+	}
+
 	lassign [$ts dlnaloc "127.0.0.1"] url
 	if {$url eq ""} {
 		log "  $file - Not yet indexed."

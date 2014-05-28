@@ -291,12 +291,15 @@ function preparemenu(el, menu)
 		else
 			$(menu).disableContextMenuItems('#thm');
 
+		if (el.attr('shrunk') == 0)
+			$(menu).enableContextMenuItems('#strip');
+		else
+			$(menu).disableContextMenuItems('#strip');
+
 		if (el.attr('thmok') == 1)
 			$(menu).enableContextMenuItems('#vthm');
 		else
 			$(menu).disableContextMenuItems('#vthm');
-
-		$(menu).enableContextMenuItems('#strip');
 
 		if (el.attr('rsize') > 4294967296)
 			$(menu).enableContextMenuItems('#chunk');
@@ -308,7 +311,6 @@ function preparemenu(el, menu)
 			$(menu).changeContextMenuItem('#new', 'Mark watched');
 		else
 			$(menu).changeContextMenuItem('#new', 'Mark new');
-
 
 		$(menu).enableContextMenuItems('#lock');
 		if (el.attr('locked') == 1)
