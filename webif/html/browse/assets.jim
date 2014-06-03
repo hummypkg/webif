@@ -38,6 +38,16 @@ if $nicesplice {
 puts {
 	<li class=separator><a href=#lock>Toggle Lock</a></li>
 	<li><a href=#new>Toggle New</a></li>
+}
+
+if {[llength $plugins(menu)]} {
+	foreach plugin $plugins(menu) {
+		lassign $plugin tag options
+		puts "<li class=$tag><a href=#$tag>$options(desc)</a></li>"
+	}
+}
+
+puts {
 </ul>
 
 <ul id=ooptmenu class=contextMenu style="width: 160px">
@@ -87,6 +97,13 @@ if {[system pkginst ffmpeg]} {
 	puts {
 		<li class=mp3><a href=#mp3>Auto-Audio Extract</a></li>
 		<li class=mpg><a href=#mpg>Auto-MPG Extract</a></li>
+	}
+}
+
+if {[llength $plugins(dmenu)]} {
+	foreach plugin $plugins(dmenu) {
+		lassign $plugin tag options
+		puts "<li class=$tag><a href=#$tag>$options(desc)</a></li>"
 	}
 }
 

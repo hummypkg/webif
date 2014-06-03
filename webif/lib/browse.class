@@ -1,5 +1,5 @@
 
-require system.class
+require system.class plugin
 
 #if {![exists -proc class]} { package require oo }
 #class browse {}
@@ -103,6 +103,8 @@ proc {dir iconset} {dir} {
 		lappend icons [_addicon "/img/clock.png" "Auto-Expire"]
 		lappend attrs "autoexpire=1"
 	}
+
+	eval_plugins diriconset
 
 	return [list $icons $attrs]
 }

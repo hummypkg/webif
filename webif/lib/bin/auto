@@ -574,6 +574,22 @@ proc expire {dir} {
 	}
 }
 
+proc scan_run {dir flag callback} {
+	global dustbin
+
+	if {$dir eq $dustbin} return
+
+	if {[string match {\[*} [file tail $dir]]} return
+
+	if {[file exists "$dir/.$flag"]} { $callback $dir }
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			scan_run "$dir/$entry" $flag $callback
+		}
+	}
+}
+
 proc scan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 	global dustbin
 
@@ -671,6 +687,7 @@ if {[lindex $argv 0] eq "-single"} {
 } else {
 	foreach arg $modules {
 		set st [clock milliseconds]
+		log "$arg scan starting."
 		runplugin "pre${arg}scan"
 		scan $root $arg
 		runplugin "post${arg}scan"

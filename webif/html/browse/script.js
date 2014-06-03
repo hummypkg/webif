@@ -1,4 +1,9 @@
 
+var plugins = {
+	menu: {},
+	dmenu: {}
+};
+
 var dir;
 
 function disableall()
@@ -130,24 +135,6 @@ function new_folder_callback(data, status, xhr)
 	//console.dir(data);
 	$.each(data, set_folder_new);
 }
-
-//function insert_shrunk(file, perc)
-//{
-//	if (perc == 0)
-//	{
-//		file = file.replace(/[ ]/g, '');
-//		file = file.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
-//		//console.log("File: (%s) = (%s)", file, perc);
-//		$('#sp_' + file).show();
-//	}
-//}
-
-//function shrunk_callback(data, status, xhr)
-//{
-//	//console.log("Status: %s", status);
-//	//console.dir(data);
-//	$.each(data, insert_shrunk);
-//}
 
 function delete_callback(file, dir, id)
 {
@@ -471,9 +458,6 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'vthm':
-//		window.open('/browse/bmpw.jim?file=' + file, 'hxwebifbmp',
-//		    'height=156,width=280,toolbar=no,' +
-//		    'scrollbars=no,menubar=no,location=no,titlebar=no');
 		$('#thmbmp').attr('src', 'bmp.jim?file=' + file);
 		$('#bmpdialogue').dialog('open');
 		break;
@@ -515,7 +499,10 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    default:
-		alert('Unhandled action: ' + action);
+		if (plugins.menu[action])
+			plugins.menu[action](file);
+		else
+			alert('Unhandled action: ' + action);
 		break;
 	}
 };
@@ -668,7 +655,10 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    default:
-		alert('Unhandled action: ' + action);
+		if (plugins.dmenu[action])
+			plugins.dmenu[action](file);
+		else
+			alert('Unhandled action: ' + action);
 		break;
 	}
 };
@@ -849,10 +839,6 @@ var dmenuclick = function(action, el, pos)
 	// Load folder sizes
 	$.getJSON('/browse/sizes.jim?dir=' + encodeURIComponent(dir),
 		folder_size_callback);
-
-	// Flag shrunk recordings
-//	$.getJSON('/browse/shrunk.jim?dir=' + encodeURIComponent(dir),
-//		shrunk_callback);
 
 	// Flag folders with unwatched items
 	$.getJSON('/browse/newdir.jim?dir=' + encodeURIComponent(dir),
