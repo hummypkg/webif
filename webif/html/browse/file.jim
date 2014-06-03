@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pretty_size
+require pretty_size progressbar
 
 httpheader
 
@@ -79,6 +79,11 @@ if {$type eq "ts"} {
 	<td>[$ts duration] minute(s).
 	    <font class=also>(Scheduled: [expr [$ts get scheddur] / 60])
 	    </font></td>
+</tr><tr>
+	<th>Resumes</th>
+	<td>[$ts get resume] seconds into recording.
+	    [progressbar $([$ts get resume] * 100 / [$ts duration 1])]
+	</td>
 </tr><tr>
 	<th>Size</th>
 	<td>$sz</td>

@@ -25,6 +25,7 @@ class ts {
 	schedstart	0
 	scheddur	0
 	genre		0
+	resume		0
 }
 
 ts method duration {{raw 0}} {
@@ -43,7 +44,7 @@ ts method _parse {line} {
 	lassign [split $line "\t"] \
 	    title synopsis definition channel_num channel_name \
 	    start end flags_list guidance bookmarks schedstart scheddur \
-	    genre
+	    genre resume
 
 	set flags [split [string range $flags_list 0 end-1] ,]
 }
