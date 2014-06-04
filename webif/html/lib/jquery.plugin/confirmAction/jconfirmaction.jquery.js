@@ -1,50 +1,53 @@
 /*
  * jQuery Plugin : jConfirmAction
  * 
- * by Hidayat Sagita
+ * Original by Hidayat Sagita
  * http://www.webstuffshare.com
  * Licensed Under GPL version 2 license.
  *
+ * Modified by af123
  */
 (function($){
-
-	jQuery.fn.jConfirmAction = function (options, callback) {
-		
-		// Some jConfirmAction options (limited to customize language) :
-		// question : a text for your question.
-		// yesAnswer : a text for Yes answer.
-		// cancelAnswer : a text for Cancel/No answer.
-		var theOptions = jQuery.extend ({
+	jQuery.fn.dojConfirmAction = function(options, callback) {
+		var options = jQuery.extend ({
 			question: "Are You Sure?",
 			yesAnswer: "Yes",
 			cancelAnswer: "Cancel"
 		}, options);
-		
-		return this.each (function () {
-			$(this).click(function(e) {
 
-				e.preventDefault();
+		var obj = $(this);
 
-				var p = $(this);
-				
-				if($(this).next('.question').length <= 0)
-					$(this).after('<div class="jcaquestion">'+theOptions.question+'<br/> <span class="jcayes">'+theOptions.yesAnswer+'</span><span class="jcacancel">'+theOptions.cancelAnswer+'</span></div>');
-				
-				$(this).next('.jcaquestion').animate({opacity: 1}, 300);
-				
-				$('.jcayes').bind('click', function() {
-					callback(p);
-				});
-		
-				$('.jcacancel').bind('click', function(){
-					$(this).parents('.jcaquestion').fadeOut(300, function() {
-						$(this).remove();
-					});
-				});
-				
+		if (obj.next('.jcaquestion').length <= 0)
+		{
+			obj.after('<div class=jcaquestion>' +
+			    options.question + '<br/>' +
+			    '<span class=jcayes>' + options.yesAnswer +
+			    '</span>' +
+			    '<span class=jcacancel>' + options.cancelAnswer +
+			    '</span></div>');
+
+			o = obj.next('.jcaquestion');
+
+			o.animate({opacity: 1}, 300);
+			o.find('.jcayes').on('click', function() {
+				callback(obj);
 			});
-			
-		});
+			o.find('.jcacancel').on('click', function() {
+				$(this).parents('.jcaquestion')
+				    .fadeOut(300, function() {
+					$(this).remove();
+				});
+			});
+		}
 	}
+
+	jQuery.fn.jConfirmAction = function(options, callback) {
+		return this.each(function () {
+			$(this).on('click', function(e) {
+				e.preventDefault();
+				$(this).dojConfirmAction(options, callback);
+			});
+		});
+	};
 	
 })(jQuery);

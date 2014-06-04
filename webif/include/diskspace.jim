@@ -1,9 +1,18 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require system.class
+require system.class pretty_size
 
-lassign [system diskspace] size used perc free fperc
+lassign [system diskspace 1] size used perc free fperc tsrbuf tsrused
+
+# Calculate the TSR reserve
+set tsrreserve $($tsrbuf - $tsrused)
+# Adjust values to account for the TSR reserve
+set free $($free - $tsrreserve)
+set used $($size - $free)
+set fperc $($free * 100 / $size)
+set perc $(100 - $fperc)
+
 set dsindex $($perc * 25 / 100 + 1)
 if {$dsindex > 25} { set dsindex 25 }
 set dsfile [format "%02d" $dsindex]
@@ -27,9 +36,9 @@ puts "
 
 	<span style=\"float: right\">
 		<br>
-		Total space: $size<br>
-		Used: $used ($perc%)<br>
-		Free: $free ($fperc%)
+		Total space: [pretty_size $size]<br>
+		Used: [pretty_size $used] ($perc%)<br>
+		Free: [pretty_size $free] ($fperc%)
 	</span>
 "
 

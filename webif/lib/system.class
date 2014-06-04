@@ -181,13 +181,24 @@ proc {system diskspace} {{raw 0}} {
 	set perc $($used * 100 / $size)
 	set fperc $(100 - $perc)
 
+	if {[file isdirectory /mnt/hd2/Tsr]} {
+		set tsrbuf 21474836480
+		lassign [exec du -ks /mnt/hd2/Tsr] tsrused
+		set tsrused $($tsrused * 1024)
+	} else {
+		set tsrbuf 0
+		set tsrused 0
+	}
+
 	if {!$raw} {
 		set size [pretty_size $size]
 		set free [pretty_size $free]
 		set used [pretty_size $used]
+		set tsrbuf [pretty_size $tsrbuf]
+		set tsrused [pretty_size $tsrused]
 	}
 
-	return [list $size $used $perc $free $fperc]
+	return [list $size $used $perc $free $fperc $tsrbuf $tsrused]
 }
 
 proc {system diskfree} {} {

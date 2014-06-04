@@ -6,7 +6,7 @@
 			$(this)
 			    .removeClass('ui-state-disabled')
 			    .removeClass('ui-button-disabled')
-			    .removeProp('disabled')
+			    .prop('disabled', false)
 			    .removeAttr('aria-disabled');
 		});
 	};

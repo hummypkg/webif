@@ -7,11 +7,12 @@
 	height: 78px;
 	font-size: 13px;
 	line-height: 1.5em;
-	background: url('/img/bubble.png') left top no-repeat;
+	background: url(/img/bubble.png) left top no-repeat;
 	padding: 10px 0 0 0;
 	text-shadow: 0px 1px 0px #fff;
 	margin-left: -7em;
 	margin-top: -6em;
+	z-index: 1000;
 	opacity: 0;
 }
 
@@ -24,7 +25,7 @@
 	height: 21px;
 	color: #fff;
 	text-shadow: 0px 1px 0px #000;
-	background: url('/img/button.png') left top no-repeat;
+	background: url(/img/button.png) left top no-repeat;
 }
 
 .jcatitle {
