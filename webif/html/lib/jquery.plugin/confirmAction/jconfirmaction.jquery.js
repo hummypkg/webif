@@ -18,7 +18,6 @@
 		var obj = $(this);
 
 		if (obj.next('.jcaquestion').length <= 0)
-		{
 			obj.after('<div class=jcaquestion>' +
 			    options.question + '<br/>' +
 			    '<span class=jcayes>' + options.yesAnswer +
@@ -26,19 +25,16 @@
 			    '<span class=jcacancel>' + options.cancelAnswer +
 			    '</span></div>');
 
-			o = obj.next('.jcaquestion');
+		o = obj.next('.jcaquestion');
 
-			o.animate({opacity: 1}, 300);
-			o.find('.jcayes').on('click', function() {
-				callback(obj);
-			});
-			o.find('.jcacancel').on('click', function() {
-				$(this).parents('.jcaquestion')
-				    .fadeOut(300, function() {
-					$(this).remove();
-				});
-			});
-		}
+		o.animate({opacity: 1}, 300);
+		o.find('.jcayes').on('click', function() {
+			o.animate({opacity: 0}, 300);
+			callback(obj);
+		});
+		o.find('.jcacancel').on('click', function() {
+			o.animate({opacity: 0}, 300);
+		});
 	}
 
 	jQuery.fn.jConfirmAction = function(options, callback) {

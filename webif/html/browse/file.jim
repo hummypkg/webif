@@ -81,7 +81,7 @@ if {$type eq "ts"} {
 	    </font></td>
 </tr><tr>
 	<th>Resumes</th>
-	<td>[$ts get resume] seconds into recording.
+	<td>[expr [$ts get resume] / 60] minutes into recording.
 	    [progressbar $([$ts get resume] * 100 / [$ts duration 1])]
 	</td>
 </tr><tr>
