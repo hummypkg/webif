@@ -29,11 +29,11 @@
 
 		o.animate({opacity: 1}, 300);
 		o.find('.jcayes').on('click', function() {
-			o.animate({opacity: 0}, 300);
+			o.fadeOut(300, function() { $(this).remove(); });
 			callback(obj);
 		});
 		o.find('.jcacancel').on('click', function() {
-			o.animate({opacity: 0}, 300);
+			o.fadeOut(300, function() { $(this).remove(); });
 		});
 	}
 

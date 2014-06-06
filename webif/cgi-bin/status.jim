@@ -34,6 +34,7 @@ proc get_data {} {
 	} else {
 		foreach line [split $data "\n"] {
 			regsub -all -- {[[:space:]]+} $line " " line
+			regsub -- { \([^\)]+\)$} $line "" line
 			set name [file rootname [file tail $line]]
 			if {[dict exists $ret $name]} {
 				set ret($name) -1

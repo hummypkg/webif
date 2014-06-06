@@ -181,9 +181,14 @@ proc {system diskspace} {{raw 0}} {
 	set perc $($used * 100 / $size)
 	set fperc $(100 - $perc)
 
-	if {[file isdirectory /mnt/hd2/Tsr]} {
+	switch [system model] {
+		HDR { set tsrdir "/mnt/hd2/Tsr" }
+		HD { set tsrdir "/media/drive1/.tsr" }
+	}
+
+	if {[file isdirectory $tsrdir]} {
 		set tsrbuf 21474836480
-		lassign [exec du -ks /mnt/hd2/Tsr] tsrused
+		lassign [exec du -ks $tsrdir] tsrused
 		set tsrused $($tsrused * 1024)
 	} else {
 		set tsrbuf 0
