@@ -14,9 +14,7 @@ set event [rsv slot $table $slot]
 # Humax TV replaces these characters.
 # "%*./:<>?\|
 
-set dir "[system mediaroot]/[\
-    regsub -all {["%*\./:<>?\\|]} [$event folder] "_"]"
-
+set dir "[system mediaroot]/[system filename [$event_folder]]"
 
 if {[file exists $dir]} {
 	puts "Folder $dir already exists."

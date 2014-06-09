@@ -62,7 +62,7 @@ foreach service $services {
 
 	puts "<tr><td class=even>$name</td>"
 	if (!$installed) {
-		puts "<td colspan=3><i>Not installed</i></td></tr>"
+		puts "<td colspan=2><i>Not installed</i></td></tr>"
 		continue
 	}
 

@@ -390,7 +390,24 @@ function preparedmenu(el, menu)
 	//fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
 }
 
-$(document).ready(function() {
+function flagdir(file, flag, iconset, output, options)
+{
+	var url = '/browse/flagdir.jim?dir=' + file +
+		    '&flag=' + flag;
+
+	$(output).slideDown().load(url, function() {
+		$(iconset)
+		    .empty()
+		    .html('<img src=/img/loading.gif> Updating...')
+		    .load('/browse/iconset.jim?file=' + file);
+		if ($(options).attr(flag) == '1')
+			$(options).attr(flag, 0);
+		else
+			$(options).attr(flag, 1);
+	}).delay(3000).slideUp();
+}
+
+$(function() {
 
 dir = $('#dir').text();
 
@@ -506,23 +523,6 @@ var menuclick = function(action, el, pos)
 		break;
 	}
 };
-
-function flagdir(file, flag, iconset, output, options)
-{
-	var url = '/browse/flagdir.jim?dir=' + file +
-		    '&flag=' + flag;
-
-	$(output).load(url, function() {
-		$(iconset)
-		    .empty()
-		    .html('<img src=/img/loading.gif> Updating...')
-		    .load('/browse/iconset.jim?file=' + file);
-		if ($(options).attr(flag) == '1')
-			$(options).attr(flag, 0);
-		else
-			$(options).attr(flag, 1);
-	}).delay(3000).slideUp();
-}
 
 var dmenuclick = function(action, el, pos)
 {
@@ -656,7 +656,7 @@ var dmenuclick = function(action, el, pos)
 
 	    default:
 		if (plugins.dmenu[action])
-			plugins.dmenu[action](file);
+			plugins.dmenu[action](file, iconset, results, el);
 		else
 			alert('Unhandled action: ' + action);
 		break;

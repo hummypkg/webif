@@ -24,20 +24,27 @@ if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 	exit
 }
 
+set exts {.ts .mkv .mp4}
+
 proc get_data {} {
-	global pid
+	global pid exts
 
 	set ret {}
 	if {[catch {set data \
-	    [exec /mod/bin/lsof -p $pid | grep Video | fgrep .ts]} ]} {
+	    [exec /mod/bin/lsof -p $pid | grep Video]} msg]} {
 		set ret {}
 	} else {
 		foreach line [split $data "\n"] {
 			regsub -all -- {[[:space:]]+} $line " " line
 			regsub -- { \([^\)]+\)$} $line "" line
-			set name [file rootname [file tail $line]]
+			set file [file tail $line]
+			set ext [file extension $line]
+			if {$ext ni $exts} continue
+			set name [file rootname $file]
 			if {[dict exists $ret $name]} {
-				set ret($name) -1
+				if {$ext eq ".ts"} {
+					set ret($name) -1
+				}
 			} else {
 				set size [lindex [split $line " "] 6]
 				set ret($name) $size

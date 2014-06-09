@@ -352,3 +352,10 @@ proc {system uptime} {} {
 	return $uptime
 }
 
+proc {system filename} {str {extra ""}} {
+	# Humax TV replaces these characters.
+	# "%*./:<>?\|
+	set chars "\"%*\./:<>?\\\\|$extra"
+	return [regsub -all "\[$chars]" $str "_"]
+}
+

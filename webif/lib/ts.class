@@ -28,6 +28,10 @@ class ts {
 	resume		0
 }
 
+ts method bfile {} {
+	return [file tail [file rootname $file]]
+}
+
 ts method duration {{raw 0}} {
 	set d [expr $end - $start]
 	if {!$raw} { set d $($d / 60) }
@@ -305,22 +309,22 @@ proc {ts renamegroup} {from to} {
 
 	exec /mod/bin/hmt "+setfilename=$to" "${dir}/${to}.hmt"
 
-	set ndir [file normalize $dir]
-
-	if {![catch {set db [sqlite3.open $::dmsfile]}]} {
-	    catch {
-		set x [lindex [$db query {select mediaid from tblMedia
-		    where localUrl = '%s'} [file normalize $from]] 0]
-		lassign $x key mediaid
-		if {$mediaid ne ""} {
-			$db query {update tblMedia set localUrl = '%s'
-			    where mediaid = %s} "${ndir}/{$to}.ts" $mediaid
-			$db query {update tblMedia set title = '%s'
-			    where mediaid = %s} "{$to}.ts" $mediaid
-		}
-	    }
-	$db close
-	}
+#	set ndir [file normalize $dir]
+#
+#	if {![catch {set db [sqlite3.open $::dmsfile]}]} {
+#	    catch {
+#		set x [lindex [$db query {select mediaid from tblMedia
+#		    where localUrl = '%s'} [file normalize $from]] 0]
+#		lassign $x key mediaid
+#		if {$mediaid ne ""} {
+#			$db query {update tblMedia set localUrl = '%s'
+#			    where mediaid = %s} "${ndir}/{$to}.ts" $mediaid
+#			$db query {update tblMedia set title = '%s'
+#			    where mediaid = %s} "{$to}.ts" $mediaid
+#		}
+#	    }
+#	$db close
+#	}
 }
 
 proc {ts touchgroup} {target ref} {
@@ -407,8 +411,10 @@ proc {ts iterate} {callback {verbose 0} {dir ""}} {{rootdev 0}} {
 
 	if {$verbose} { puts "Scanning directory ($dir)" }
 
-	file stat "$dir/" st
-	if {$st(dev) != $rootdev} return
+	if {$rootdev != 0} {
+		file stat "$dir/" st
+		if {$st(dev) != $rootdev} return
+	}
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
