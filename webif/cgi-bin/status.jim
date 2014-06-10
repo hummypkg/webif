@@ -24,7 +24,7 @@ if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 	exit
 }
 
-set exts {.ts .mkv .mp4}
+set exts {.ts .mkv .avi .mpg .mpeg .wmv .mp3 .mp4 .mov}
 
 proc get_data {} {
 	global pid exts
@@ -50,18 +50,21 @@ proc get_data {} {
 				set size [string range $line 1 end]
 			    }
 			    n {
-				if {[string first Video $line] == -1} {
-					continue
-				}
+				regsub -- { \([^\)]+\)$} $line "" line
 				set ext [file extension $line]
 				if {$ext ni $exts} continue
-				set name [file tail [file rootname $line]]
-				# Handle chase play (same file open twice)
-				if {[dict exists $ret $name] && \
+				set file [string range $line 1 end]
+				# Handle chase play (same file open twice
+				# and recently written)
+				if {[dict exists $ret $file] && \
 				    $ext eq ".ts"} {
-					set ret($name) -1
+					set age [expr [clock seconds] - \
+					    [file mtime $file]]
+					if {$age < 60} {
+						set ret($file) -1
+					}
 				} else  {
-					set ret($name) $size
+					set ret($file) $size
 				}
 			    }
 			}
@@ -84,18 +87,19 @@ if {[llength $data]} {
 	set ndata [get_data]
 #	puts " DATA: ($data)"
 #	puts " NDATA: ($ndata)"
-	foreach name [array names ndata] {
-		if {![dict exists $seen $name]} { set seen($name) 0 }
-		if {![dict exists $data $name]} { set data($name) 0 }
-		if {[file exists "/mod/tmp/webif_auto/decrypting.$name.ts"]} {
+	foreach file [array names ndata] {
+		set bname [file rootname [file tail $file]]
+		if {![dict exists $seen $file]} { set seen($file) 0 }
+		if {![dict exists $data $file]} { set data($file) 0 }
+		if {[file exists "/mod/tmp/webif_auto/decrypting.$bname.ts"]} {
 			set mode "Decrypting"
 			set icon "178_1_00_Icon_Lock.png style=\"padding: 0 0.2em 0 0.5em\""
-		} elseif {$ndata($name) == -1} {
+		} elseif {$ndata($file) == -1} {
 			incr rec
 			incr play
 			set mode "Chase Playing"
 			set icon "745_1_11_Video_3REC_Live.png"
-		} elseif {$ndata($name) > $data($name) && $seen($name) < 1} {
+		} elseif {$ndata($file) > $data($file) && $seen($file) < 1} {
 			incr rec
 			set mode "Recording"
 			set icon "745_1_11_Video_1REC.png"
@@ -105,7 +109,14 @@ if {[llength $data]} {
 			set icon "745_1_10_Video_2Live.png"
 		}
 
-		incr seen($name)
+		incr seen($file)
+
+		set name [string map {
+			"/mnt/hd2/My Video/" ""
+			"/media/drive1/Video/" ""
+			"/media/" ""
+			".ts" ""
+		} $file]
 
 		if {$runmode eq "cgi"} {
 			lappend output [concat \
