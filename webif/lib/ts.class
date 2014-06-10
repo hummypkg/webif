@@ -58,8 +58,7 @@ ts method lastmod {} {
 }
 
 ts method inuse {} {
-	if {[system inuse [file rootname $file]]} { return 1 }
-	return 0
+	return [system inuse $file]
 }
 
 ts method bookmarks {} {

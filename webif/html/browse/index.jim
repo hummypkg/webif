@@ -93,7 +93,7 @@ set dircount 0
 set filecount 0
 
 proc entry {file} {{i 0}} {
-	global dircount filecount
+	global dircount filecount dinuse
 	
 	set bfile [file tail $file]
 	regsub -all " +" $bfile "" tbfile
@@ -174,7 +174,7 @@ proc entry {file} {{i 0}} {
 	set dlna 0
 	set shrunk 0
 	if {$type eq "ts"} {
-		if {[$ts inuse]} {
+		if {$bfile in $dinuse} {
 			icon "/img/inuse.png"
 		}
 		set genre [$ts get genre]
@@ -322,6 +322,7 @@ switch $order {
 	default {	set files [lsort -nocase $files] }
 }
 
+set dinuse [system dirinuse $dir]
 foreach file $files { entry "$dir/$file" }
 
 puts "

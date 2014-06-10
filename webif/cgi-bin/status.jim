@@ -31,23 +31,39 @@ proc get_data {} {
 
 	set ret {}
 	if {[catch {set data \
-	    [exec /mod/bin/lsof -p $pid | grep Video]} msg]} {
+	    [exec /mod/webif/lib/bin/lsof -X -Fns -p $pid]} msg]} {
 		set ret {}
 	} else {
+		
+		#aw
+		#s583700480
+		#n/mnt/hd2/My Video/Real Lives Reunited_20140610_1002.ts
+
+		# Unfortunately, the access flag isn't reliable for
+		# some reason. If it were, the sleep could be removed!
+
+		set size 0
 		foreach line [split $data "\n"] {
-			regsub -all -- {[[:space:]]+} $line " " line
-			regsub -- { \([^\)]+\)$} $line "" line
-			set file [file tail $line]
-			set ext [file extension $line]
-			if {$ext ni $exts} continue
-			set name [file rootname $file]
-			if {[dict exists $ret $name]} {
-				if {$ext eq ".ts"} {
-					set ret($name) -1
+			set typ [string index $line 0]
+			switch $typ {
+			    s {
+				set size [string range $line 1 end]
+			    }
+			    n {
+				if {[string first Video $line] == -1} {
+					continue
 				}
-			} else {
-				set size [lindex [split $line " "] 6]
-				set ret($name) $size
+				set ext [file extension $line]
+				if {$ext ni $exts} continue
+				set name [file tail [file rootname $line]]
+				# Handle chase play (same file open twice)
+				if {[dict exists $ret $name] && \
+				    $ext eq ".ts"} {
+					set ret($name) -1
+				} else  {
+					set ret($name) $size
+				}
+			    }
 			}
 		}
 	}
@@ -59,15 +75,15 @@ set rec 0
 set seen {}
 set output {}
 
+set data {}
 if {$type eq "full"} {
 	set data [get_data]
-} else {
-	set data {}
 }
-
 if {[llength $data]} {
 	sleep 3
 	set ndata [get_data]
+#	puts " DATA: ($data)"
+#	puts " NDATA: ($ndata)"
 	foreach name [array names ndata] {
 		if {![dict exists $seen $name]} { set seen($name) 0 }
 		if {![dict exists $data $name]} { set data($name) 0 }
@@ -103,6 +119,9 @@ if {[llength $data]} {
 		}
 	}
 }
+
+######################################################################
+# Live viewing information
 
 if {![system instandby] && $play < 1} {
 	set hsvc [system param CUR_SVC Value USERCONFIG]
@@ -144,6 +163,9 @@ if {![system instandby] && $play < 1} {
 	}
 }
 
+######################################################################
+# In standby
+
 if {[system instandby]} {
 	if {$runmode eq "cgi"} {
 		lappend output [concat \
@@ -157,6 +179,9 @@ if {[system instandby]} {
 		lappend output "System is in standby."
 	}
 }
+
+######################################################################
+# Upcoming recordings
 
 set events [rsv list tbl_reservation \
     " where ersvtype = 3 and nsttime - [clock seconds] < $schedtime 
@@ -180,6 +205,9 @@ foreach event $events {
 		]
 	}
 }
+
+######################################################################
+# Output
 
 if {[llength $output]} {
 	if {$runmode eq "cgi"} {

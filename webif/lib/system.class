@@ -218,7 +218,8 @@ proc {system busy} {} {
 		return 0
 	}
 	set c 0
-	foreach line [split [exec /mod/bin/lsof -p $pid] "\n"] {
+	foreach line [split [\
+	    exec /mod/webif/lib/bin/lsof -X -Fn -p $pid] "\n"] {
 		if {[string match {*Video*.ts} $line]} { incr c }
 	}
 	if {$c > 0} { return 1 }
@@ -226,23 +227,22 @@ proc {system busy} {} {
 }
 
 proc {system inuse} {file} {
-	# Is anything using the file?
-	set file [file rootname [file tail $file]]
-
-	# Escape any unicode characters to match lsof output.
-	foreach range [lreverse [\
-	    regexp -inline -indices -all -- {[\x80-\xff]} $file]] {
-		set i [lindex $range 0]
-		binary scan [string index $file $i] H2 hex
-		set file [string replace $file $i $i "\\x$hex"]
+	set op [exec /mod/webif/lib/bin/lsof -X -Fn $file]
+	if {$op eq ""} {
+		return 0
+	} else {
+		return 1
 	}
+}
 
-	set c 0
-	foreach line [split [exec /mod/bin/lsof] "\n"] {
-		if {[string first $file $line] >= 0} { incr c }
+proc {system dirinuse} {dir} {
+	set files {}
+	foreach line [split [\
+	    exec /mod/webif/lib/bin/lsof -X -Fn +d $dir] "\n"] {
+		if {[string index $line 0] ne "n"} continue
+		lappend files [file tail $line]
 	}
-	if {$c > 0} { return 1 }
-	return 0
+	return $files
 }
 
 proc {system reboot} {} {
