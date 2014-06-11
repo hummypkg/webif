@@ -21,6 +21,15 @@ html>body
 {
 	clear: left;
 }
+.right, .cright
+{
+	float: right;
+}
+.cright
+{
+	clear: right;
+}
+
 fieldset.left, fieldset.cleft
 {
 	display: inline;

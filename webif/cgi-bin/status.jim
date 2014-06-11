@@ -50,6 +50,10 @@ proc get_data {} {
 				set size [string range $line 1 end]
 			    }
 			    n {
+				if {[string first Video/ $line] == -1 && \
+				    [string first /media/ $line] == -1} {
+					continue
+				}
 				regsub -- { \([^\)]+\)$} $line "" line
 				set ext [file extension $line]
 				if {$ext ni $exts} continue
