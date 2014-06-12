@@ -55,11 +55,23 @@ proc {file touch} {target {ref ""}} {
 	}
 }
 
+proc {file tdelete} {target} {
+	if {[file isdirectory $target]} {
+		foreach f [readdir -nocomplain $target] {
+			file tdelete "$target/$f"
+		}
+		exec /mod/bin/busybox/rm -rf $target
+	} else {
+		exec /mod/bin/trm $target
+	}
+}
+
 local proc file {cmd args} {
 	switch $cmd {
 	    "rename" { tailcall {file rename} {*}$args }
 	    "copy" { tailcall {file copy} {*}$args }
 	    "touch" { tailcall {file touch} {*}$args }
+	    "tdelete" { tailcall {file tdelete} {*}$args }
 	    default { tailcall upcall file $cmd {*}$args }
 	}
 }

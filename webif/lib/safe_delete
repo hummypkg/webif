@@ -2,7 +2,7 @@
 if {![exists -proc _del_bindir]} {
 
 	source /mod/webif/lib/setup
-	require ts.class system.class tdelete
+	require ts.class system.class
 
 	if {[system pkginst undelete]} {
 		set _del_dustbin [system dustbin]
@@ -48,7 +48,7 @@ if {![exists -proc _del_bindir]} {
 				file rename $file $ndir
 				_del_touch $ndir
 			} else {
-				tdelete $file
+				file tdelete $file
 			}
 			return 1
 		}
@@ -78,7 +78,7 @@ if {![exists -proc _del_bindir]} {
 			file rename $file $nfile
 			_del_touch $nfile
 		} else {
-			tdelete $file
+			file tdelete $file
 		}
 		catch {file delete "[file rootname $file].hmi"}
 		return 1

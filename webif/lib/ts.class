@@ -2,7 +2,7 @@
 if {![exists -proc class]} { package require oo }
 if {![exists -proc pack]} { package require pack }
 source /mod/webif/lib/setup
-require tdelete system.class
+require system.class
 
 set dmsfile /mnt/hd2/dms_cds.db
 
@@ -164,7 +164,7 @@ proc {ts fetch} {file {checked 0}} {
 
 ts method delete {} {
 	foreach f [$self fileset] {
-		tdelete $f
+		file tdelete $f
 		puts "Removed $f<br>"
 	}
 	return 1
@@ -287,7 +287,7 @@ ts method mkthm {{offset 0}} {
 	}
 	exec /bin/echo -n " " >> $bfile.thm~
 	file rename -force $bfile.thm~ $bfile.thm
-	tdelete $bfile.bmp
+	file tdelete $bfile.bmp
 	return 1
 }
 

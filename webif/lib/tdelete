@@ -1,19 +1,7 @@
 
-if {![exists -proc tdelete]} {
-	proc tdelete {path} {
-		if {[file isdirectory $path]} {
-			regsub -all {([\\["$])} $path {\\\1} cpath
-			foreach file [glob -nocomplain "${cpath}/*"] {
-				if {[file isdirectory $file]} {
-					tdelete $file
-				} else {
-					exec /mod/bin/trm $file
-				}
-			}
-			exec /mod/bin/busybox/rm -rf $path
-		} else {
-			exec /mod/bin/trm $path
-		}
-	}
+# Deprecated - just use {file tdelete}
+
+if {![exists -alias  tdelete]} {
+	alias tdelete {file tdelete}
 }
 

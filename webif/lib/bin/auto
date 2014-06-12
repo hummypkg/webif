@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require lock system.class ts.class tdelete pretty_size browse.class \
+require lock system.class ts.class pretty_size browse.class \
     safe_delete settings.class plugin
 
 set settings [settings]
@@ -125,7 +125,7 @@ if {![file exists $tmp]} {
 }
 
 # Clean-up the temporary directory
-foreach file [readdir -nocomplain $tmp] { tdelete "$tmp/$file" }
+foreach file [readdir -nocomplain $tmp] { file tdelete "$tmp/$file" }
 
 if {[system pkginst undelete]} {
 	set dustbin "[system dustbin]"
@@ -357,7 +357,7 @@ proc do_decrypt {ts} {
 			}
 		}
 	} else {
-		tdelete "$rfile.encrypted"
+		file tdelete "$rfile.encrypted"
 	}
 	log "Done... [endclock $size]" 0
 	file delete $flagfile
