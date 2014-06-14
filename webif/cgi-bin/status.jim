@@ -19,6 +19,12 @@ switch $runmode {
     }
 }
 
+if {"-d" in $argv} {
+	proc debug {arg} { puts $arg }
+} else {
+	proc debug {arg} {}
+}
+
 if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 	puts "Cannot find humaxtv process."
 	exit
@@ -54,6 +60,9 @@ proc get_data {} {
 				    [string first /media/ $line] == -1} {
 					continue
 				}
+				if {[string first "/.tsr/" $line] != -1} {
+					continue
+				}
 				regsub -- { \([^\)]+\)$} $line "" line
 				set ext [file extension $line]
 				if {$ext ni $exts} continue
@@ -79,7 +88,6 @@ proc get_data {} {
 
 set play 0
 set rec 0
-set seen {}
 set output {}
 
 set data {}
@@ -87,33 +95,69 @@ if {$type eq "full"} {
 	set data [get_data]
 }
 if {[llength $data]} {
-	sleep 3
-	set ndata [get_data]
-#	puts " DATA: ($data)"
-#	puts " NDATA: ($ndata)"
-	foreach file [array names ndata] {
+	debug " DATA: ($data)"
+	if {![file exists /tmp/.rractive]} {
+		set rr 0
+		sleep 3
+		set ndata [get_data]
+		debug " NDATA: ($ndata)"
+	} else {
+		set rr 1
+		set recs {}
+		loop i 0 2 {
+			catch {
+				set fd [open "/tmp/.rec$i" r]
+				lappend recs "[$fd read -nonewline].ts"
+				$fd close
+			}
+		}
+		debug " RECS: $recs"
+	}
+	foreach file [array names data] {
 		set bname [file rootname [file tail $file]]
-		if {![dict exists $seen $file]} { set seen($file) 0 }
-		if {![dict exists $data $file]} { set data($file) 0 }
+
 		if {[file exists "/mod/tmp/webif_auto/decrypting.$bname.ts"]} {
-			set mode "Decrypting"
-			set icon "178_1_00_Icon_Lock.png style=\"padding: 0 0.2em 0 0.5em\""
-		} elseif {$ndata($file) == -1} {
-			incr rec
-			incr play
-			set mode "Chase Playing"
-			set icon "745_1_11_Video_3REC_Live.png"
-		} elseif {$ndata($file) > $data($file) && $seen($file) < 1} {
-			incr rec
-			set mode "Recording"
-			set icon "745_1_11_Video_1REC.png"
+			set mode dec
+		} elseif {$data($file) == -1} {
+			set mode chase
+		} elseif {$rr} {
+			if {$file in $recs} {
+				set mode rec
+			} else {
+				set mode play
+			}
 		} else {
-			incr play
-			set mode "Playing"
-			set icon "745_1_10_Video_2Live.png"
+			if {![dict exists $ndata $file]} continue
+			if {$ndata($file) > $data($file)} {
+				set mode rec
+			} else {
+				set mode play
+			}
 		}
 
-		incr seen($file)
+		switch $mode {
+			chase {
+				incr rec
+				incr play
+				set mode "Chase Playing"
+				set icon "745_1_11_Video_3REC_Live.png"
+			}
+			rec {
+				incr rec
+				set mode "Recording"
+				set icon "745_1_11_Video_1REC.png"
+			}
+			play {
+				incr play
+				set mode "Playing"
+				set icon "745_1_10_Video_2Live.png"
+			}
+			dec {
+				set mode "Decrypting"
+				set icon "178_1_00_Icon_Lock.png "
+				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+			}
+		}
 
 		set name [string map {
 			"/mnt/hd2/My Video/" ""
