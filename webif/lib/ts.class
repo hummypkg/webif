@@ -61,8 +61,14 @@ ts method inuse {} {
 	return [system inuse $file]
 }
 
-ts method bookmarks {} {
-	return [exec /mod/bin/hmt -bookmarks $file]
+ts method bookmarks {{aslist 0}} {
+	set marks [split [string trim [exec /mod/bin/hmt -bookmarks $file]]]
+	if {$aslist} { return $marks }
+	return [join $marks " "]
+}
+
+ts method setbookmarks {marks} {
+	exec /mod/bin/hmt +setbookmarks=[join $marks :] $file
 }
 
 ts method flag {f} {

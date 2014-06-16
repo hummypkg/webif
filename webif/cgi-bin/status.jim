@@ -60,9 +60,6 @@ proc get_data {} {
 				    [string first /media/ $line] == -1} {
 					continue
 				}
-				if {[string first "/.tsr/" $line] != -1} {
-					continue
-				}
 				regsub -- { \([^\)]+\)$} $line "" line
 				set ext [file extension $line]
 				if {$ext ni $exts} continue

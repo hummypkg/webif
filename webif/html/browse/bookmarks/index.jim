@@ -1,0 +1,47 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class pretty_size
+
+jscss script.js style.css
+header
+
+set rfile [cgi_get file]
+set ts [ts fetch $rfile]
+set dir [file dirname $rfile]
+
+set len [$ts duration 1]
+
+puts "
+<script type=text/javascript>
+var initbookmarks = '[$ts bookmarks]';
+var len = [$ts duration 1];
+var file = '$rfile';
+var dir = '$dir';
+</script>
+<fieldset class=cleft>
+<legend>Manage Bookmarks</legend>
+
+<table class=keyval cellpadding=5>
+<tr><th>File:</th><td>$rfile</td></tr>
+<tr><th>Length:</th><td>[clock format $len -format %T]</td></tr>
+<tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
+<tr><th>Bookmarks<br><span class=footnote>(enter in seconds)</span></th><td>
+<input id=bookmarks size=80 maxlength=255 init=\"[$ts bookmarks]\"
+    value=\"\" />
+<button id=update>Update</button>
+<br>
+<span id=bookmarkstime></span>
+</td></tr><tr><td align=right>
+<button class=left id=addbmark>Add Bookmark</button>
+<button class=left id=delbmark>Remove Bookmark</button>
+</td><td><div id=slider></div></td></tr>
+</table>
+<div id=buttons>
+<button id=save>Save Bookmarks</button>
+<button id=back>Back to Media Browser</button>
+</div>
+<div id=results class=\"hidden blood\"></div>
+"
+

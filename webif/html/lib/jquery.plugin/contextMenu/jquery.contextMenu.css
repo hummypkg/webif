@@ -73,5 +73,6 @@
 .contextMenu LI.mp3 A { background-image: url(/img/context/mp3.png); }
 .contextMenu LI.clock A { background-image: url(/img/context/clock.png); }
 .contextMenu LI.thm A { background-image: url(/img/context/thumb.png); }
+.contextMenu LI.bookmark A { background-image: url(/img/context/bookmark.png); }
 
 

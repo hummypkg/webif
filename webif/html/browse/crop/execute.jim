@@ -7,6 +7,7 @@ require ts.class pretty_size system.class
 httpheader
 
 set rfile [cgi_get file]
+set invert [cgi_get invert]
 
 if {[system inuse $rfile]} {
 	puts "This file is in use. Cannot process at the moment."
@@ -25,13 +26,15 @@ set origdir "$dir/_original"
 if {![file exists $origdir]} { file mkdir $origdir }
 
 set shname [file tail $base]
-puts "Processing $shname"
+puts "Processing $shname (inverted: $invert)"
 
 if {[file exists "$origdir/$shname.ts"]} {
 	puts "This recording already exists within _original"
 	puts "Cannot continue."
 	exit
 }
+
+set bookmarks [$ts bookmarks]
 
 puts "Moving recording to $origdir"
 
@@ -42,17 +45,36 @@ foreach ext $tsgroup {
 	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
 
-puts [exec /mod/bin/nicesplice \
-    -in "$origdir/$shname" \
-    -out "$dir/$shname" \
-    -cutBookMarks]
+set cmd [list /mod/bin/nicesplice \
+	-in "$origdir/$shname" \
+	-out "$dir/$shname"]
+
+if {$invert} {
+	if {[expr [llength $bookmarks] % 2] != 0} {
+		lappend bookmarks [$ts duration 1]
+	}
+	foreach k [array names bookmarks] {
+		lappend cmd -cut $($k * 10) $($bookmarks($k) * 10)
+	}
+} else {
+	lappend cmd "-cutBookMarks"
+}
+
+puts "CMD: $cmd"
+
+puts [exec {*}$cmd]
+#puts [exec /mod/bin/nicesplice \
+#    -in "$origdir/$shname" \
+#    -out "$dir/$shname" \
+#    -cutBookMarks]
 
 set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"
 ts renamegroup "$dir/$shname.ts" $newname
 exec /mod/bin/hmt "+setfilename=$newname" "$dir/$newname.hmt"
 # New nicesplice shrinks whilst cropping.
-exec /mod/bin/hmt "+shrunk" "$dir/$newname.hmt"
+# No longer required - nicesplice now sets this flag.
+#exec /mod/bin/hmt "+shrunk" "$dir/$newname.hmt"
 
 set croptime [expr [expr [clock milliseconds] - $cropstart] / 1000.0]
 puts "Time taken: $croptime"

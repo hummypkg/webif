@@ -24,14 +24,20 @@ $('#cropit').button().click(function() {
 	$('#cropdiv').hide('slow');
 	$('#progressdiv').show('slow');
 	handle = setInterval("update()", 1000);
-	$('#output').text('Please do not interrupt...')
-	    .load('execute.jim?file=' + $('#params').attr('file'),
+	$('#output').show().text('Please do not interrupt...')
+	    .load('execute.jim?file=' + $('#params').attr('file') +
+	    '&invert=' + $('#invert').attr('invert'),
 	    function() {
 		clearInterval(handle);
 		handle = 0;
 		$('#back').show();
 		$('#progressbar').reportprogress(100);
 	});
+});
+
+$('#invert').button().on('click', function() {
+	window.location = 'crop.jim?file=' + $('#params').attr('file') +
+	   '&invert=' + ($(this).attr('invert') == '1' ? '0' : '1');
 });
 
 });

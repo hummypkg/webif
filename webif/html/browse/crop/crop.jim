@@ -9,13 +9,14 @@ jscss crop.js
 header
 
 set rfile [cgi_get file]
+set invert [cgi_get invert 0]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 
 set len [$ts duration 1]
 
 puts "
-<fieldset class=cleft>
+<fieldset>
 <legend>Crop recording</legend>
 
 <table class=keyval cellpadding=5>
@@ -24,12 +25,9 @@ puts "
 <tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
 <tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
 
-set flag 0
-foreach b [$ts bookmarks] {
-	if $flag { puts -nonewline ", " }
-	incr flag
-	puts -nonewline [clock format $b -format "%T"]
-}
+puts [join [lmap i [$ts bookmarks 1] {
+	clock format $i -format "%T"
+}] ", "]
 
 puts "</td></tr><tr><th>File</th><td>"
 
@@ -41,10 +39,16 @@ proc div {type left right} {
 	    $type</div>"
 }
 
+set bookmarks {}
+if {$invert} {
+	append bookmarks "0 "
+}
+append bookmarks [$ts bookmarks]
+
 set keeping 0
 set last 0
 set start -1
-foreach b [$ts bookmarks] {
+foreach b $bookmarks {
 	if {$start < 0} {
 		set start $b
 		continue
@@ -94,6 +98,7 @@ puts "
 ></span>
 
 <div id=cropdiv style=\"padding: 1em\">
+<button id=invert invert=$invert>Invert selection</button>
 <button id=cropit>Perform crop operation</button>
 </div>
 
@@ -101,9 +106,9 @@ puts "
 Cropping: <div id=progressbar></div>
 </div>
 
-<button id=back class=hidden>Back to media list</button>
+<button id=back>Back to media list</button>
 
-<div id=output class=pre style=\"margin-top: 10px\"></div>
+<div id=output class=\"hidden pre\" style=\"margin-top: 10px\"></div>
 </fieldset>
 
 "

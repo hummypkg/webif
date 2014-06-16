@@ -116,7 +116,10 @@ puts "</td>
 	<td>[$ts get flags]
 "
 if {[$ts get bookmarks]} {
-		puts " \[Bookmarks: [$ts get bookmarks]\]"
+		puts " \[Bookmarks: [$ts get bookmarks] @ [join \
+		    [lmap i [$ts bookmarks 1] {
+			clock format $i -format "%T"
+		    }] ", "]"
 }
 
 	puts "</tr>"

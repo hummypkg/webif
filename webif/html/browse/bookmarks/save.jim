@@ -1,0 +1,20 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class
+
+httpheader
+
+set file [cgi_get file]
+set bookmarks [cgi_get bookmarks ""]
+
+if {[system inuse $file]} {
+	puts "This file is in use. Cannot process at the moment."
+	exit
+}
+
+set ts [ts fetch $file]
+$ts setbookmarks [split [string trim $bookmarks]]
+puts "Bookmarks saved successfully."
+

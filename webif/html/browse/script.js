@@ -479,6 +479,11 @@ var menuclick = function(action, el, pos)
 		$('#bmpdialogue').dialog('open');
 		break;
 
+	    case 'bmarks':
+		window.location.href = '/browse/bookmarks/?file=' +
+		    file;
+		break;
+
 	    case 'download':
 		window.location.href = '/browse/download.jim?file=' +
 		    file + '&base=' +
