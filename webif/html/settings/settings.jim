@@ -126,7 +126,7 @@ if {$aclact ne "-" && $acluser ne "-"} {
 	exit
 }
 
-jqplugin form iphone-style-checkboxes
+jqplugin form iphone-style-checkboxes touchpunch
 jscss settings.js
 header
 

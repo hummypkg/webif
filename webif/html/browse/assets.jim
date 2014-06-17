@@ -29,7 +29,7 @@ if {[system pkginst ffmpeg]} {
 
 puts { <li><a href=#vthm>View Thumbnail</a></li> }
 
-puts { <li class=bookmark><a href=#bmarks>Manage Bookmarks</a></li> }
+puts { <li class=bookmark><a href=#bmarks>Bookmarks</a></li> }
 
 if $nicesplice {
 	puts {

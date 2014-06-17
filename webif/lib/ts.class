@@ -165,6 +165,10 @@ proc {ts fetch} {file {checked 0}} {
 		if {![file exists "[file rootname $file].nts"]} { return 0 }
 	}
 
+	if {[file extension $file] ne ".ts"} {
+		set file "[file rootname $file].ts"
+	}
+
 	return [ts parse $file [ts exec $file]]
 }
 
