@@ -4,7 +4,7 @@ $(document).ready(function() {
 
 	var busy = false;
 	var tswitch = false;
-	var stick = false;
+	var stick = true;
 
 	$('#opkgupdate')
 	    .button()
@@ -97,7 +97,7 @@ $(document).ready(function() {
 			$('#complete').show('slow');
 			if (status == 'success' && !stick)
 				$('#dialogue').dialog('close');
-			stick = false;
+			//stick = false;
 		}
 		else
 			$('#dresults').append(data);

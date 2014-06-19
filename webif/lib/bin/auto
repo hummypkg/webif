@@ -63,7 +63,7 @@ proc register {type fn {priority 50}} {
 	global "hook_$type"
 	if {[info exists "hook_$type"]} {
 		lappend "hook_$type" [list $fn $priority]
-		log "Registered $fn for $type hook." 1
+		log "Registered $fn for $type hook with priority $priority." 1
 	} else {
 		log "Unknown hook hook_$type" 0
 	}
@@ -72,7 +72,7 @@ proc register {type fn {priority 50}} {
 proc runplugin {name {ts 0}} {
 	set var "hook_$name"
 	global $var
-	foreach p [lsort -index end -integer [subst $$var]] {
+	foreach p [lsort -index end -decreasing -integer [subst $$var]] {
 		lassign $p fn priority
 		log "Running $name plugin $fn (priority $priority)" 2
 		if {[catch {$fn $ts} msg]} {
