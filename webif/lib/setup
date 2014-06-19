@@ -96,7 +96,7 @@ if {![exists -proc require]} {
 		foreach c $css { _css $c }
 	}
 
-	require fileops overrides
+	require fileops overrides utils
 
 	# Jim 0.75 removes legacy 'case'
 	alias case switch

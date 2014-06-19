@@ -131,19 +131,28 @@ proc {pkg loaddiagmeta} {} {
 	}
 }
 
-proc {pkg fetchmeta} {} {
-	set f [socket stream hummypkg.org.uk:80]
-	$f puts -nonewline "GET /hdrfoxt2/pkg.meta HTTP/1.1\r\n"
-	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
+proc {pkg fetchfile} {url} {
+	set f [socket stream hpkg.tv:80]
+	$f puts -nonewline "GET /hdrfoxt2/$url HTTP/1.1\r\n"
+	$f puts -nonewline "Host: hpkg.tv\r\n"
 	$f puts -nonewline "Connection: close\r\n"
 	$f puts -nonewline "\r\n"
 
+	# Skip headers in the response.
 	set line [string trim [$f gets]]
 	while {[string length $line]} {
+		#puts "Web Header: $line"
 		set line [string trim [$f gets]]
 	}
-	set ::pkgmeta [$f read]
+	
+	# Save the body
+	set ret [$f read]
 	$f close
+	return $ret
+}
+
+proc {pkg fetchmeta} {} {
+	set ::pkgmeta [pkg fetchfile pkg.meta]
 
 	set ff [open "/mod/var/pkg.meta" w]
 	puts $ff $::pkgmeta
@@ -151,18 +160,7 @@ proc {pkg fetchmeta} {} {
 }
 
 proc {pkg fetchdiagmeta} {} {
-	set f [socket stream hummypkg.org.uk:80]
-	$f puts -nonewline "GET /diag/diag.meta HTTP/1.1\r\n"
-	$f puts -nonewline "Host: hummypkg.org.uk\r\n"
-	$f puts -nonewline "Connection: close\r\n"
-	$f puts -nonewline "\r\n"
-
-	set line [string trim [$f gets]]
-	while {[string length $line]} {
-		set line [string trim [$f gets]]
-	}
-	set ::diagmeta [$f read]
-	$f close
+	set ::diagmeta [pkg fetchfile diag.meta]
 
 	set ff [open "/mod/var/diag.meta" w]
 	puts $ff $::diagmeta

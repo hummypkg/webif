@@ -1,0 +1,12 @@
+
+proc ladd {var val} {
+	upvar $var v
+	if {$val ni $v} { lappend v $val }
+}
+
+proc lremove {var val} {
+	upvar $var v
+	if {$val ni $v} return
+	set v [lsearch -all -inline -not -exact $v $val]
+}
+

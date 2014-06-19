@@ -119,10 +119,10 @@ proc {system pkginst} {pkg} {{cache {}} {ncache {}}} {
 	}
 
 	if {$status ne ""} {
-		lappend $cache $pkg
+		lappend cache $pkg
 		return 1
 	}
-	lappend $ncache $pkg
+	lappend ncache $pkg
 	return 0
 }
 

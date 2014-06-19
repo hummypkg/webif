@@ -32,6 +32,10 @@ ts method bfile {} {
 	return [file tail [file rootname $file]]
 }
 
+ts method dir {} {
+	return [file dirname $file]
+}
+
 ts method duration {{raw 0}} {
 	set d [expr $end - $start]
 	if {!$raw} { set d $($d / 60) }
@@ -78,49 +82,56 @@ ts method flag {f} {
 ts method unlock {} {
 	set cmd [list /mod/bin/hmt -lock $file]
 	exec {*}$cmd
+	lremove flags "Locked"
 	return 1
 }
 
 ts method lock {} {
 	set cmd [list /mod/bin/hmt +lock $file]
 	exec {*}$cmd
+	ladd flags "Locked"
 	return 1
 }
 
 ts method set_shrunk {} {
 	set cmd [list /mod/bin/hmt +shrunk $file]
 	exec {*}$cmd
-	lappend flags "Shrunk"
+	ladd flags "Shrunk"
 	return 1
 }
 
 ts method set_deduped {} {
 	set cmd [list /mod/bin/hmt +dedup $file]
 	exec {*}$cmd
+	ladd flags "Deduped"
 	return 1
 }
 
 ts method unenc {} {
 	set cmd [list /mod/bin/hmt -protect $file]
 	exec {*}$cmd
+	lremove flags "Encrypted"
 	return 1
 }
 
 ts method enc {} {
 	set cmd [list /mod/bin/hmt +protect $file]
 	exec {*}$cmd
+	ladd flags "Encrypted"
 	return 1
 }
 
 ts method set_new {} {
 	set cmd [list /mod/bin/hmt +new $file]
 	exec {*}$cmd
+	ladd flags "New"
 	return 1
 }
 
 ts method set_watched {} {
 	set cmd [list /mod/bin/hmt -new $file]
 	exec {*}$cmd
+	lremove flags "New"
 	return 1
 }
 
@@ -205,12 +216,14 @@ ts method settitle {newtitle} {
 	if {[string length newtitle] > 48} { return }
 
 	exec /mod/bin/hmt "+settitle=${newtitle}" $file
+	set title $newtitle
 }
 
 ts method setsynopsis {newsynopsis} {
 	if {[string length newsynopsis] > 252} { return }
 
 	exec /mod/bin/hmt "+setsynopsis=${newsynopsis}" $file
+	set synopsis $newsynopsis
 }
 
 ts method setguidance {newguidance} {
@@ -221,10 +234,12 @@ ts method setguidance {newguidance} {
 	} else {
 		exec /mod/bin/hmt "+setguidance=${newguidance}" $file
 	}
+	set guidance $newguidance
 }
 
 ts method setgenre {newgenre} {
 	exec /mod/bin/hmt "+setgenre=-${newgenre}" $file
+	set genre $newgenre
 }
 
 ts method dlnaloc {{urlbase 0}} {

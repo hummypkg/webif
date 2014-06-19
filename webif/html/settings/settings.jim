@@ -248,7 +248,7 @@ puts "
 	<table>
 "
 setting_toggle "HTTPS web server?" "https" \
-    [file exists /mod/etc/mongoose.cert] 0 1
+    [file exists /mod/etc/webif.pem] 0 1
 puts "
 	</table>
 	</legend></fieldset>

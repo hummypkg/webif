@@ -29,6 +29,7 @@ if {[lindex $argv 0] eq "-d"} {
 } else {
 	set logfd [open "/mod/tmp/auto.log" "a+"]
 }
+
 proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
 	puts $::logfd "[\
@@ -58,10 +59,10 @@ foreach mod $modules {
 	set "hook_post${mod}scan" {}
 }
 
-proc register {type fn} {
+proc register {type fn {priority 50}} {
 	global "hook_$type"
 	if {[info exists "hook_$type"]} {
-		lappend "hook_$type" $fn
+		lappend "hook_$type" [list $fn $priority]
 		log "Registered $fn for $type hook." 1
 	} else {
 		log "Unknown hook hook_$type" 0
@@ -71,8 +72,10 @@ proc register {type fn} {
 proc runplugin {name {ts 0}} {
 	set var "hook_$name"
 	global $var
-	foreach p [subst $$var] {
-		if {[catch {$p $ts} msg]} {
+	foreach p [lsort -index end -integer [subst $$var]] {
+		lassign $p fn priority
+		log "Running $name plugin $fn (priority $priority)" 2
+		if {[catch {$fn $ts} msg]} {
 			log "Plugin error: $msg" 0
 		}
 	}
