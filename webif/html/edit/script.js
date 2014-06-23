@@ -1,4 +1,6 @@
 
+var forcefile = false;
+
 $(function() {
 
 var file = null;
@@ -100,8 +102,8 @@ $('#revert').click(function() {
 });
 
 $('#back').click(function() {
-		window.location = '/diag/diag.jim';
-	});
+	window.location = $(this).attr('dst');
+});
 
 function createf_submit()
 {
@@ -147,5 +149,11 @@ $('#create').click(function() {
 $('a.qfile').on('click', function() {
 	loadfile($(this).text());
 });
+
+if (forcefile)
+{
+	loadfile(forcefile);
+	$('#open,#create,#qedit').remove();
+}
 
 });

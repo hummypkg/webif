@@ -8,7 +8,12 @@ jqplugin enadis tabsupport filetree
 jscss script.js style.css
 header
 
-set file [cgi_get file "/tmp/hosts"]
+set file [cgi_get file -]
+set backdesc [cgi_get backdesc "Back to diagnostics"]
+set backlink [cgi_get backlink "/diag/diag.jim"]
+if {$file ne "-"} {
+	puts "<script type=text/javascript>forcefile = '$file';</script>"
+}
 
 puts {
 
@@ -33,10 +38,12 @@ class="ui-widget ui-corner-all"></textarea>
 </fieldset>
 
 <div class=cleft>
-	<button id=back>Back to diagnostics</button>
+}
+puts "<button id=back dst=\"$backlink\">$backdesc</button>"
+puts {
 </div>
 
-<div class=cleft style="margin-top: 1em">
+<div id=qedit class=cleft style="margin-top: 1em">
 <fieldset>
 <legend> Commonly edited files </legend>
 <ul>

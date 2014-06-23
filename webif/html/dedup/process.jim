@@ -17,8 +17,7 @@ proc dedupprocess {file} {{seen {}}} {
 	set base [file tail [file rootname $file]]
 	set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
 	# Escape special characters to create the filename.
-	regsub -all -- {[\/ &]} $syn "_" fn
-	regsub -all -- {[?]} $fn "" fn
+	set fn [system filename $syn]
 
 	set stat ok
 	if {[$ts inuse]} {

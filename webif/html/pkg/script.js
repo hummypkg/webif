@@ -6,6 +6,11 @@ $(document).ready(function() {
 	var tswitch = false;
 	var stick = true;
 
+	// Retrieve the stored selected tab from the hash portion of the URL.
+	var curtab = ~~(window.location.hash.slice(1));
+	if (curtab < 0 || curtab > 2)
+		curtab = 0;
+
 	$('#opkgupdate')
 	    .button()
 	    .click(function() { tswitch = 2; execopkg('update'); })
@@ -17,6 +22,7 @@ $(document).ready(function() {
 	    .fadeIn('slow');
 
 	$('#pkgtabs').tabs({
+		active: curtab,
 		create: function(event, ui) {
 			$(ui.panel).html("<img src=/img/loading.gif>" +
 			    "Loading data... Please wait...");
@@ -24,6 +30,7 @@ $(document).ready(function() {
 			$('#pkgtabs').tabs('disable');
 		},
 		activate: function(event, ui) {
+			window.location.hash = ui.newTab.index();
 			if (busy)
 			{
 				alert('Please wait until the current ' +

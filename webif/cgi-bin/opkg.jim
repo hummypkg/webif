@@ -10,14 +10,14 @@ cgi_input
 set cmd [cgi_get cmd update]
 
 proc opkg {cmd} {
-	puts ">>> opkg $cmd\r\n"
+	puts ">>> opkg $cmd"
 	set bcmd "|/mod/webif/lib/bin/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
-		puts "$line\r\n"
+		puts "$line"
 	}
 	close $fd
-	puts "\r\n"
+	puts ""
 }
 
 httpheader "text/plain"
@@ -26,11 +26,12 @@ if {$cmd eq "upgrade"} { opkg update }
 opkg $cmd
 
 if {$cmd eq "update" || $cmd eq "upgrade"} {
-	puts "Updating package meta information\r\n"
+	puts "Updating package meta information"
 	pkg fetchmeta
-	puts "Done.\r\n"
-	puts "Updating diagnostic meta information\r\n"
+	puts "Done."
+	puts ""
+	puts "Updating diagnostic meta information"
 	pkg fetchdiagmeta
-	puts "Done.\r\n"
+	puts "Done."
 }
 
