@@ -1,7 +1,9 @@
 
-proc ladd {var val} {
+proc ladd {var args} {
 	upvar $var v
-	if {$val ni $v} { lappend v $val }
+	foreach val $args {
+		if {$val ni $v} { lappend v $val }
+	}
 }
 
 proc lremove {var val} {

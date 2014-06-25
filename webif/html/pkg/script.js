@@ -88,8 +88,6 @@ $(document).ready(function() {
 		}
 	});
 
-	jQuery.ajaxSetup({progressInterval: 1});
-
 	function loaddata(data, status)
 	{
 		if (window.console)
@@ -130,6 +128,7 @@ $(document).ready(function() {
 			type: "GET",
 			url: opkg + arg,
 			progress: loaddata,
+			progressInterval: 500,
 			success: function(data, status) {
 				loaddata(data, status);
 			},
