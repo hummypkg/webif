@@ -66,6 +66,18 @@ proc {system fhtcpversion} {} {
 	return $ver
 }
 
+# 822272+6 - MAC address
+# 833536 - Serial number
+proc {system serialno} {} {
+	set fd [open /dev/mtd3 r]
+	
+	$fd seek 833536
+	set bytes [$fd read 14]
+	$fd close
+	return "[string range $bytes 0 1] [string range $bytes 2 8] [
+	    string range $bytes 9 end]"
+}
+
 proc {system kernelver} {} {
 	#1 SMP Sun Mar 25 18:30:38 KST 2012
 	set ver [string range [exec uname -v] 11 end]

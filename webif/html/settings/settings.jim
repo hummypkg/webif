@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require settings.class plugin system.class
+require settings.class plugin system.class spinner.class
 
 httpheader
 
@@ -129,6 +129,12 @@ if {$aclact ne "-" && $acluser ne "-"} {
 jqplugin form iphone-style-checkboxes touchpunch
 jscss settings.js
 header
+
+[spinner new {
+        text "Loading Settings..."
+        size "1.2em"
+        style "margin: 1em;"
+        }] start
 
 puts {
 <div id=accordion>

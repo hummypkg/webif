@@ -21,11 +21,6 @@
 
 $(document).ready(function () {
 	$(":submit").button();
-	//$('[type="checkbox"] :not(.yesno)').iphoneStyle();
-	$('[type="checkbox"]').iphoneStyle({
-		checkedLabel: 'YES',
-		uncheckedLabel: 'NO'
-	});
 	$('form.auto').each(function(i, el) {
 		var id = $(this).attr('id');
 		var output = '#' + id + '_output';
@@ -74,11 +69,24 @@ $(document).ready(function () {
 		    });
 	});
 
+	// Use window.name to remember the active accordion index
+	if (window.name == "")
+		window.name = "0";
+	accordionindex = ~~window.name;
+
 	$('#accordion').accordion({
+	    active: accordionindex,
 	    header: 'h4',
 	    collapsible: true,
-	    active: 0,
-	    heightStyle: 'content'
+	    heightStyle: 'content',
+	    activate: function(event, ui) {
+		window.name = $('#accordion').accordion('option', 'active');
+	    }
+	}).show();
+
+	$('[type="checkbox"]').iphoneStyle({
+		checkedLabel: 'YES',
+		uncheckedLabel: 'NO'
 	});
 
 	// For now - until plugins are updated.

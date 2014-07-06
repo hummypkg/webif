@@ -10,7 +10,8 @@ header
 
 set rfile [cgi_get file]
 set ts [ts fetch $rfile]
-set dir [file dirname $rfile]
+set dir [string map {' \\'} [file dirname $rfile]]
+set erfile [string map {' \\'} $rfile]
 
 set len [$ts duration 1]
 
@@ -18,7 +19,7 @@ puts "
 <script type=text/javascript>
 var initbookmarks = '[$ts bookmarks]';
 var len = [$ts duration 1];
-var file = '$rfile';
+var file = '$erfile';
 var dir = '$dir';
 </script>
 <fieldset class=cleft>
