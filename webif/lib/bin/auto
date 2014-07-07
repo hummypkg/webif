@@ -75,7 +75,7 @@ proc runplugin {name {ts 0}} {
 	foreach p [lsort -index end -decreasing -integer [subst $$var]] {
 		lassign $p fn priority
 		log "Running $name plugin $fn (priority $priority)" 2
-		if {[catch {$fn $ts} msg]} {
+		if {[catch {uplevel 1 $fn $ts} msg]} {
 			log "Plugin error: $msg" 0
 		}
 	}
@@ -159,7 +159,7 @@ proc dedup {dir} {
 }
 
 proc do_shrink {ts} {
-	global tmp dustbin tsgroup
+	global tmp dustbin tsgroup processed_files
 	set file [$ts get file]
 
 	if {[$ts flag "Shrunk"]} {
@@ -247,11 +247,12 @@ proc do_shrink {ts} {
 	}
 	$ts set_shrunk
 	log "Done... [endclock $size]" 0
+	lappend processed_files [$ts get file]
 	runplugin postshrink $ts
 }
 
 proc do_decrypt {ts} {
-	global tmp dustbin
+	global tmp dustbin processed_files
 
 	set file [$ts get file]
 	set rfile [file rootname $file]
@@ -364,11 +365,12 @@ proc do_decrypt {ts} {
 	}
 	log "Done... [endclock $size]" 0
 	file delete $flagfile
+	lappend processed_files [$ts get file]
 	runplugin postdecrypt $ts
 }
 
 proc do_mpg {ts} {
-	global tmp tsgroup
+	global tmp tsgroup processed_files
 
 	set file [file rootname [$ts get file]]
 
@@ -412,11 +414,12 @@ proc do_mpg {ts} {
 
 	# Move the MPG into the local directory
 	file rename $tmp/mpg.mpg $file.mpg
+	lappend processed_files [$ts get file]
 	runplugin postmpg $ts
 }
 
 proc do_mp3 {ts} {
-	global tmp tsgroup
+	global tmp tsgroup processed_files
 
 	set file [file rootname [$ts get file]]
 
@@ -471,6 +474,7 @@ proc do_mp3 {ts} {
 
 	# Move the MP3 into the local directory
 	file rename $tmp/mp3.mp3 $file.mp3
+	lappend processed_files [$ts get file]
 	runplugin postmp3 $ts
 }
 
@@ -686,14 +690,23 @@ if {[lindex $argv 0] eq "-single"} {
 	scansingle [lrange $argv 1 end]
 } elseif {[llength $argv] > 0} {
 	set loglevel 2
-	foreach arg $argv { scan $root $arg }
+	foreach arg $argv {
+		set st [clock milliseconds]
+		log "$arg scan starting."
+		set processed_files {}
+		runplugin "pre${arg}scan"
+		scan $root $arg
+		runplugin "post${arg}scan" processed_files
+		log "$arg scan completed in [elapsed $st] seconds."
+	}
 } else {
 	foreach arg $modules {
 		set st [clock milliseconds]
 		log "$arg scan starting."
+		set processed_files {}
 		runplugin "pre${arg}scan"
 		scan $root $arg
-		runplugin "post${arg}scan"
+		runplugin "post${arg}scan" processed_files
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
 }
