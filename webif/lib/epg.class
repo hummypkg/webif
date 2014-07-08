@@ -110,6 +110,10 @@ epg method type_icon {} {
 	}
 }
 
+proc {epg channeliconpath} {name} {
+	return "/img/channels/out/$name.png"
+}
+
 proc {epg channelicon} {name {width 0} {style ""}} {
 	set str "<img src=\"/img/channels/out/$name.png\"";
 	if {$width > 0} { append str " width=$width" }

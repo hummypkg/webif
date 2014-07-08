@@ -148,6 +148,18 @@ proc dorecalc {dir} {
 	set recalc 0
 }
 
+proc startop {op file} {
+	global tmp
+	set fp [open "$tmp/.op" "w"]
+	puts $fp "$op:$file"
+	$fp close
+}
+
+proc endop {} {
+	global tmp
+	file delete "$tmp/.op"
+}
+
 proc dedup {dir} {
 	log "DEDUP: \[$dir]" 2
 	loop i 0 1 {
@@ -205,6 +217,7 @@ proc do_shrink {ts} {
 	}
 	set size [$ts size]
 	dsc $size
+	startop shrink [$ts get file]
 	runplugin preshrink $ts
 	startclock
 	log "  SHRINK: $file" 0
@@ -219,6 +232,7 @@ proc do_shrink {ts} {
 	    } msg]} {
 		log "Error during shrink: $msg" 0
 		system notify "$file - auto-shrink - error $msg."
+		endop
 		return
 	}
 
@@ -249,6 +263,7 @@ proc do_shrink {ts} {
 	log "Done... [endclock $size]" 0
 	lappend processed_files [$ts get file]
 	runplugin postshrink $ts
+	endop
 }
 
 proc do_decrypt {ts} {
@@ -297,8 +312,7 @@ proc do_decrypt {ts} {
 	set size [$ts size]
 	dsc $size
 	runplugin predecrypt $ts
-	set flagfile "$tmp/decrypting.$bfile"
-	file touch $flagfile
+	startop dec $file
 	startclock
 	log "  DECRYPT: $rfile" 0
 	log "  DLNA: $url" 0
@@ -307,7 +321,7 @@ proc do_decrypt {ts} {
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
 		log "  $file - File size mismatch." 0
 		file delete "$tmp/$bfile"
-		file delete $flagfile
+		endop
 		return
 	}
 
@@ -316,7 +330,7 @@ proc do_decrypt {ts} {
 	if {[$ts inuse]} {
 		log "  $file - In use."
 		file delete "$tmp/$bfile"
-		file delete $flagfile
+		endop
 		return
 	}
 
@@ -331,7 +345,7 @@ proc do_decrypt {ts} {
 		log "  $file - File did not decrypt properly." 0
 		system notify "$file - auto-decrypt failed."
 		file delete "$tmp/$bfile"
-		file delete $flagfile
+		endop
 		return
 	}
 
@@ -364,9 +378,9 @@ proc do_decrypt {ts} {
 		file tdelete "$rfile.encrypted"
 	}
 	log "Done... [endclock $size]" 0
-	file delete $flagfile
 	lappend processed_files [$ts get file]
 	runplugin postdecrypt $ts
+	endop
 }
 
 proc do_mpg {ts} {
@@ -393,6 +407,7 @@ proc do_mpg {ts} {
 		log "  $file - In use."
 		return
 	}
+	startop mpg [$ts get file]
 	runplugin prempg $ts
 	dsc [$ts size]
 
@@ -409,6 +424,7 @@ proc do_mpg {ts} {
 	    } msg]} {
 		log "Error during mpg extract: $msg" 0
 		system notify "$file - auto-mpg - error $msg."
+		endop
 		return
 	}
 
@@ -416,6 +432,7 @@ proc do_mpg {ts} {
 	file rename $tmp/mpg.mpg $file.mpg
 	lappend processed_files [$ts get file]
 	runplugin postmpg $ts
+	endop
 }
 
 proc do_mp3 {ts} {
@@ -443,6 +460,7 @@ proc do_mp3 {ts} {
 		log "  $file - In use."
 		return
 	}
+	startop mp3 [$ts get file]
 	runplugin premp3 $ts
 	dsc [$ts size]
 
@@ -460,6 +478,7 @@ proc do_mp3 {ts} {
 	    } msg]} {
 		log "Error during mp3 extract: $msg" 0
 		system notify "$file - auto-mp3 - error $msg."
+		endop
 		return
 	}
 
@@ -476,6 +495,7 @@ proc do_mp3 {ts} {
 	file rename $tmp/mp3.mp3 $file.mp3
 	lappend processed_files [$ts get file]
 	runplugin postmp3 $ts
+	endop
 }
 
 proc entries {dir callback} {

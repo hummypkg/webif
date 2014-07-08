@@ -1,0 +1,15 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+
+header
+
+puts "<ul>"
+
+foreach f [readdir "/opt/share/images/blue"] {
+	if {![string match {*.png} $f]} continue
+	puts "<li><img src=\"/images/$f\">$f</li>"
+}
+
+puts "</ul>"
+

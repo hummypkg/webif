@@ -33,21 +33,13 @@ if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 set exts {.ts .mkv .avi .mpg .mpeg .wmv .mp3 .mp4 .mov}
 
 proc get_data {} {
-	global pid exts
+	global pid exts opfile
 
 	set ret {}
 	if {[catch {set data \
 	    [exec /mod/webif/lib/bin/lsof -X -Fns -p $pid]} msg]} {
 		set ret {}
 	} else {
-		
-		#aw
-		#s583700480
-		#n/mnt/hd2/My Video/Real Lives Reunited_20140610_1002.ts
-
-		# Unfortunately, the access flag isn't reliable for
-		# some reason. If it were, the sleep could be removed!
-
 		set size 0
 		foreach line [split $data "\n"] {
 			set typ [string index $line 0]
@@ -79,6 +71,9 @@ proc get_data {} {
 			    }
 			}
 		}
+		if {$opfile ne "" && $opfile ni $ret} {
+			set ret($opfile) [file size $opfile]
+		}
 	}
 	return $ret
 }
@@ -87,6 +82,14 @@ set play 0
 set rec 0
 set output {}
 
+set opfile ""
+if {[file exists "/mod/tmp/webif_auto/.op"} {
+	set fp [open "/mod/tmp/webif_auto/.op"]
+	lassign [split [string trim [$fp read]] ":"] op opfile
+	$fp close
+	debug "OP: $op - $opfile"
+}
+
 set data {}
 if {$type eq "full"} {
 	set data [get_data]
@@ -94,11 +97,20 @@ if {$type eq "full"} {
 if {[llength $data]} {
 	debug " DATA: ($data)"
 	if {![file exists /tmp/.rractive]} {
-		set rr 0
 		sleep 3
 		set ndata [get_data]
 		debug " NDATA: ($ndata)"
+		set rr 0
 	} else {
+		sleep 1
+		set ndata [get_data]
+		debug " NDATA: ($ndata)"
+		foreach k [array names data] {
+			if {![dict exists $ndata $k]} {
+				dict unset data $k
+			}
+		}
+
 		set rr 1
 		set recs {}
 		loop i 0 2 {
@@ -113,8 +125,8 @@ if {[llength $data]} {
 	foreach file [array names data] {
 		set bname [file rootname [file tail $file]]
 
-		if {[file exists "/mod/tmp/webif_auto/decrypting.$bname.ts"]} {
-			set mode dec
+		if {$file eq $opfile} {
+			set mode $op
 		} elseif {$data($file) == -1} {
 			set mode chase
 		} elseif {$rr} {
@@ -151,9 +163,30 @@ if {[llength $data]} {
 			}
 			dec {
 				set mode "Decrypting"
-				set icon "178_1_00_Icon_Lock.png "
+				set icon "/img/decrypt.png "
+				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+#				set icon "178_1_00_Icon_Lock.png "
+#				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+			}
+			mpg {
+				set mode "Extracting MPG"
+				set icon "/img/mpg.png "
 				append icon "style=\"padding: 0 0.2em 0 0.5em\""
 			}
+			mp3 {
+				set mode "Extracting MP3"
+				set icon "/img/mp3.png "
+				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+			}
+			shrink {
+				set mode "Shrinking"
+				set icon "/img/compress.png "
+				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+			}
+		}
+
+		if {[string first "/" $icon] == -1} {
+			set icon "/images/$icon"
 		}
 
 		set name [string map {
@@ -166,7 +199,7 @@ if {[llength $data]} {
 		if {$runmode eq "cgi"} {
 			lappend output [concat \
 			    "<span class=\"va stitem\">\n" \
-			    "  <img class=va src=/images/$icon>\n" \
+			    "  <img class=va src=$icon>\n" \
 			    "  <span>$mode&nbsp;<i>$name</i></span>\n" \
 			    "</span>\n" \
 			    ]
