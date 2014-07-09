@@ -42,7 +42,7 @@ set model [system model]
 set dustbin [system dustbin 1]
 
 proc icon {img {hover ""} {extra ""} {class "va"}} {
-	puts -nonewline "<img src=$img class=\"$class\" height=21 $extra"
+	puts -nonewline "<img src=\"$img\" class=\"$class\" height=21 $extra"
 	if {$hover ne ""} {
 		puts -nonewline " alt=\"$hover\" title=\"$hover\""
 	}
