@@ -126,7 +126,7 @@ if {$aclact ne "-" && $acluser ne "-"} {
 	exit
 }
 
-jqplugin form iphone-style-checkboxes touchpunch
+jqplugin form actual iphone-style-checkboxes touchpunch
 jscss settings.js
 header
 
@@ -137,7 +137,7 @@ header
         }] start
 
 puts {
-<div id=accordion>
+<div id=accordion class=hidden>
 }
 
 proc setting_toggle {name attr checked {invert 0} {val 0}} {

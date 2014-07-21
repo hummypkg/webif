@@ -165,8 +165,6 @@ if {[llength $data]} {
 				set mode "Decrypting"
 				set icon "/img/decrypt.png "
 				append icon "style=\"padding: 0 0.2em 0 0.5em\""
-#				set icon "178_1_00_Icon_Lock.png "
-#				append icon "style=\"padding: 0 0.2em 0 0.5em\""
 			}
 			mpg {
 				set mode "Extracting MPG"

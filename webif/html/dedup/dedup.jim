@@ -69,8 +69,8 @@ foreach file [readdir $dir] {
 		if {$doit} {
 			# Dooooo, it.
 			$ts settitle $syn
-			ts renamegroup $file $fn
 			$ts set_deduped
+			ts renamegroup $file $fn
 			puts -nonewline "Done"
 		}
 	    }
