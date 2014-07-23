@@ -36,7 +36,7 @@ $(document).ready(function () {
 		});
 	});
 
-	$('.setting_toggle').change(function() {
+	$('.setting_toggle').on('change', function() {
 		var arg = '0';
 		var urlargs;
 		if ($(this).prop('checked'))
@@ -54,7 +54,7 @@ $(document).ready(function () {
 		else
 			urlargs = attr + '=' + arg;
 
-		$(this).disable();
+		// $(this).disable();
 
 		$(output)
 		    .empty()
@@ -62,7 +62,7 @@ $(document).ready(function () {
 		    .html('<img src=/img/loading.gif> Please wait...')
 		    .load('/settings/settings.jim?' + urlargs,
 		        function() {
-				$(el).enable();
+				// $(el).enable();
 				$(output)
 				    .css('font-style', 'italic')
 				    .delay(2000).fadeOut('slow');
