@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pkg.class
+require pkg.class system.class
 
 cgi_input
 #cgi_dump
@@ -21,6 +21,14 @@ proc opkg {cmd} {
 }
 
 httpheader "text/plain"
+
+if {![system connectivity]} {
+	puts ""
+	puts "!!  ERROR - No network connectivity to package repository  !!"
+	puts ""
+	puts "Check your Internet connection and DNS service and then try again."
+	exit
+}
 
 if {$cmd eq "upgrade"} { opkg update }
 opkg $cmd

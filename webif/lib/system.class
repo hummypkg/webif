@@ -375,3 +375,10 @@ proc {system filename} {str {extra ""}} {
 	return [regsub -all "\[$chars]" $str "_"]
 }
 
+proc {system connectivity} {{site "hpkg.tv"}} {
+	if {[catch {exec /bin/ping -4 -c 2 -W 3 -w 3 -q $site >/dev/null}]} {
+		return 0
+	}
+	return 1
+}
+
