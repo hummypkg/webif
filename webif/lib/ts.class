@@ -107,6 +107,13 @@ ts method set_deduped {} {
 	return 1
 }
 
+ts method unset_deduped {} {
+	set cmd [list /mod/bin/hmt -dedup $file]
+	exec {*}$cmd
+	lremove flags "Deduped"
+	return 1
+}
+
 ts method unenc {} {
 	set cmd [list /mod/bin/hmt -protect $file]
 	exec {*}$cmd

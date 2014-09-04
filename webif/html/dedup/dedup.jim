@@ -11,6 +11,7 @@ source process.jim
 
 set dir [cgi_get dir "/media/My Video"]
 set doit [cgi_get doit 0]
+set reset [cgi_get reset 0]
 
 jscss script.js
 
@@ -30,6 +31,11 @@ set recalc 0
 foreach file [readdir $dir] {
 	set file "$dir/$file"
 	if {[file extension $file] ne ".hmt"} { continue }
+
+	if {$reset} {
+		set ts [ts fetch $file 1]
+		$ts unset_deduped
+	}
 
 	set base [file tail [file rootname $file]]
 	lassign [dedupprocess $file] stat ts syn fn
@@ -90,7 +96,11 @@ puts {
 <button id=browse>Back to media browser</button>
 }
 
-if {!$doit} { puts "<button id=dedup>Process folder</button>" }
+if {!$doit} {
+	puts "<button id=dedup>Process folder</button>"
+} else {
+	puts "<button id=reset>Force re-processing of folder.</button>"
+}
 
 puts {
 </small>
