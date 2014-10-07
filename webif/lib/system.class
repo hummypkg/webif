@@ -382,3 +382,13 @@ proc {system connectivity} {{site "hpkg.tv"}} {
 	return 1
 }
 
+proc {system strip} {str} {
+	if {[string range $str 1 2] eq "i7"} {
+		set str [string range $str 3 end]
+	}
+	if {[string first "\025" $str] == 0} {
+		set str [string range $str 1 end]
+	}
+	return $str
+}
+

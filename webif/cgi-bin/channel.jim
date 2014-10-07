@@ -3,7 +3,7 @@
 package require cgi
 package require sqlite3
 source /mod/webif/lib/setup
-require altrow progressbar epg.class
+require altrow progressbar epg.class system.class
 
 header
 
@@ -51,7 +51,7 @@ foreach tw [$db query {
 	"
 	puts "<td>[progressbar $ucLevel]</td>"
 	puts "<td>[progressbar $ucQuality]</td>"
-	puts "<td>[string range $netName 3 end]</td>"
+	puts "<td>[system strip $netName]</td>"
 
 	set channels [$db query {
 		select usLcn, szSvcName, szPrvName, aucDefaultAuthority

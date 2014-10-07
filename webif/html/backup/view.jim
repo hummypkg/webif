@@ -39,7 +39,6 @@ foreach line $data {
 	set vars {}
 	set i 0
 	foreach f $fields {
-		if {$f eq "aulEventToRecordInfo"} { continue }
 		incr i
 		lappend vars $f [lindex $vals $i]
 	}

@@ -143,7 +143,16 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 				  puts "<a class=event href=#
 				    xs=$svcmap($service_id) xe=$event_id>
 				    [clock format $start \
-				    -format {%a %d %b %Y %H:%M}]</a><br>"
+				    -format {%a %d %b %Y %H:%M}]</a>"
+				  if {$service_id != [$event get hsvc]} {
+					set ch [system strip [\
+					    get_channel_attr_byhsvc \
+					    $service_id szSvcName]]
+					puts "<img width=15 src=\"[\
+					    epg channeliconpath $ch]\""
+					puts "title=\"$ch\" alt=\"$ch\">"
+				  }
+				  puts "<br>"
 				} else {
 				  puts "[clock format $start \
 				    -format {%a %d %b %Y %H:%M}]

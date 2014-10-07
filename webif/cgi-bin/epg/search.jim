@@ -70,6 +70,7 @@ if {[llength $records] > 0} {
 		<th colspan=3>Channel</th>
 		<th>Programme</th>
 		<th>Synopsis</th>
+		<th></th>
 	</tr>
 	}
 } else {

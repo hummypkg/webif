@@ -21,6 +21,8 @@ $rsvdb query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
 # version.
 catch { $rsvdb query {alter table pending add column action int} }
 
+set binaryfields {aulEventToRecordInfo}
+
 class rsv {
 	ulslot			-1
 	ersvtype		0
@@ -55,9 +57,9 @@ class rsv {
 }
 
 require findhsvc
+if {![exists -proc binary]} { package require binary }
 
 rsv method aul {} {
-	if {![exists -proc binary]} { package require binary }
 	set aul {}
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
 		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
@@ -65,6 +67,16 @@ rsv method aul {} {
 		catch {lappend aul [list $service $start $end $event_id]}
 	}
 	return $aul
+}
+
+proc {rsv mkaul} {e} {
+	$e get_channel_info
+	return [binary format iiii \
+	    [$e get channel_hsvc] \
+	    [$e get start] \
+	    [$e end] \
+	    [$e get event_id] \
+	]
 }
 
 rsv method clear_ulslot {} {
@@ -255,7 +267,7 @@ rsv method insert {{table pending} {force 0}} {
 
 	set fields [lsort [$self vars]]
 
-	foreach field {aulEventToRecordInfo szSvcName usLcn sort} {
+	foreach field {szSvcName usLcn sort} {
 		set df [lsearch $fields $field]
 		set fields [lreplace $fields $df $df]
 	}
@@ -267,10 +279,13 @@ rsv method insert {{table pending} {force 0}} {
 
 	set vals {}
 	foreach field $fields {
-		# Escape any quotes embedded in the data.
-		regsub -all {'} [$self get $field] {''} f
-		lappend vals "'$f'"
-		#lappend vals "'[$self get $field]'"
+		# Escape any quotes and percents embedded in the data.
+		regsub -all {['%]} [$self get $field] {&&} f
+		if {$field in $::binaryfields} {
+			lappend vals "X'$f'"
+		} else {
+			lappend vals "'$f'"
+		}
 	}
 
 	set query "insert into ${table}("
@@ -486,11 +501,17 @@ proc {rsv construct} {event type} {
 		set args(ucRecKind)		4
 		set args(szCRID)		"$ccrid[$event get series_crid]"
 		set args(szFPBRecPath)		"$args(szevtname)"
-		set progs [lmap i [epg fetch dump -scrid [$event get series_crid]] {
+		set events {}
+		set progs [lmap i [\
+		    epg dbfetch dump -scrid [$event get series_crid]  \
+		    -sort start] {
 			if {[set ecrid [$i get event_crid]] eq ""} { continue }
+			binary scan [rsv mkaul $i] H* ret
+			lappend events $ret
 			list "1$::ccrid$ecrid"
 		}]
 		set args(szEventToRecord)	 "[join $progs "|"]|"
+		set args(aulEventToRecordInfo)	[join $events ""]
 	}
 
 	return [rsv new $args]
@@ -516,8 +537,11 @@ proc {rsv backup} {file} {
 		puts -nonewline $fd "event\t"
 
 		foreach f $fields {
-			if {$f eq "aulEventToRecordInfo"} { continue }
-			puts -nonewline $fd "[$event get $f]\t"
+			set ret [$event get $f]
+			if {$f in $::binaryfields} {
+				binary scan $ret H* ret
+			}
+			puts -nonewline $fd "$ret\t"
 		}
 		puts $fd ""
 	}
@@ -572,7 +596,6 @@ proc {rsv restore} {file} {
 		set vars {}
 		set i 0
 		foreach f $fields {
-			if {$f eq "aulEventToRecordInfo"} { continue }
 			incr i
 			lappend vars $f [lindex $vals $i]
 		}
