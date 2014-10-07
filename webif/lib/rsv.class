@@ -279,11 +279,15 @@ rsv method insert {{table pending} {force 0}} {
 
 	set vals {}
 	foreach field $fields {
-		# Escape any quotes and percents embedded in the data.
-		regsub -all {['%]} [$self get $field] {&&} f
-		if {$field in $::binaryfields} {
+		set f [$self get $field]
+		if {$field in $::binaryfields && [string bytelength $f] > 1} {
+			if {![regexp -nocase {^[0-9a-f]+$} $f} {
+				binary scan $f H* f
+			}
 			lappend vals "X'$f'"
 		} else {
+			# Escape any quotes and percents embedded in the data.
+			regsub -all {['%]} $f {&&} f
 			lappend vals "'$f'"
 		}
 	}
@@ -530,7 +534,8 @@ proc {rsv backup} {file} {
 
 	set fields [lsort [[rsv] vars]]
 
-	#puts $fd "# [join $fields "\t"]"
+	puts $fd "# version 2"
+	puts $fd "# [join $fields "\t"]"
 
 	foreach event $events {
 		puts "  Backing up scheduled event '[$event name]'"
@@ -590,12 +595,21 @@ proc {rsv restore} {file} {
 
 	set data [split [read $fd] "\n"]
 
+	set ver 1
+
 	foreach line $data {
+		if {[string match "# version *" $line]} {
+			set ver [lindex [split $line " "] 2]
+			puts "Backup version $ver"
+		}
 		set vals [split $line "\t"]
 		if {[lindex $vals 0] ne "event"} { continue }
 		set vars {}
 		set i 0
 		foreach f $fields {
+			if {$ver < 2 && $f eq "aulEventToRecordInfo"} {
+				continue
+			}
 			incr i
 			lappend vars $f [lindex $vals $i]
 		}

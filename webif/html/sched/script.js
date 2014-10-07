@@ -152,7 +152,8 @@ function preparemenu(el, menu)
 	else
 		$('#optmenu').disableContextMenuItems('#mkfolder');
 
-	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
+//	if ($(el).attr('table') != 'pending' && $(el).attr('reckind') == 4)
+	if ($(el).attr('reckind') == 4)
 		$('#optmenu').enableContextMenuItems('#folder');
 	else
 		$('#optmenu').disableContextMenuItems('#folder');
@@ -194,6 +195,7 @@ function menuclick(action, el, pos)
 	    case 'folder':
 		$('#fchangeslot').val(sid);
 		$('#fchangename').val($(el).find('a.schedule').text());
+		$('#fchangetable').val($(el).attr('table'));
 		$('#fchange').dialog('open');
 		break;
 

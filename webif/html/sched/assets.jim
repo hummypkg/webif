@@ -58,6 +58,7 @@ puts {
 <div id=fchange title="Change folder" style="display: none">
 	<form id=fchangeform>
 	<input type=hidden name=sid id=fchangeslot value=0>
+	<input type=hidden name=table id=fchangetable value=TBL_RESERVATION>
 	<table border=0>
 	<tr>
 	<th>
