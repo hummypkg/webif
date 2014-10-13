@@ -60,6 +60,10 @@ require findhsvc
 if {![exists -proc binary]} { package require binary }
 
 rsv method aul {} {
+	if {[regexp -nocase {^[0-9a-f]+$} $aulEventToRecordInfo} {
+		set aulEventToRecordInfo [\
+		    binary format H* $aulEventToRecordInfo]
+	}
 	set aul {}
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
 		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
@@ -77,6 +81,10 @@ proc {rsv mkaul} {e} {
 	    [$e end] \
 	    [$e get event_id] \
 	]
+}
+
+rsv method setaul {s} {
+	set aulEventToRecordInfo $s
 }
 
 rsv method clear_ulslot {} {
@@ -225,6 +233,14 @@ rsv method fix_hsvc {} {
 		set _hsvc [get_channel_attr_bylcn $usLcn]
 	}
 	set hsvc $_hsvc
+}
+
+proc {rsv find_hsvc} {lcn channel} {
+	set _hsvc [get_channel_attr $channel]
+	if {$_hsvc eq ""} {
+		set _hsvc [get_channel_attr_bylcn $lcn]
+	}
+	return $_hsvc
 }
 
 rsv method insert {{table pending} {force 0}} {
@@ -524,6 +540,8 @@ proc {rsv construct} {event type} {
 proc {rsv backup} {file} {
 	global rsvdb
 
+	require epg.class
+
 	if {[catch { set fd [open $file w] } msg]} {
 		error "Error creating backup file. - $msg"
 	}
@@ -535,6 +553,7 @@ proc {rsv backup} {file} {
 	set fields [lsort [[rsv] vars]]
 
 	puts $fd "# version 2"
+
 	puts $fd "# [join $fields "\t"]"
 
 	foreach event $events {
@@ -572,6 +591,20 @@ proc {rsv backup} {file} {
 	}
 	puts "Done."
 
+	puts "Backing up channel list..."
+
+	foreach channel [epg channellist hSvc] {
+		lassign $channel name hsvc
+		puts $fd "hsvc\t$hsvc\t$name"
+	}
+
+	foreach channel [epg channellist usLcn] {
+		lassign $channel name uslcn
+		puts $fd "lcn\t$uslcn\t$name"
+	}
+
+	puts "Done."
+
 	close $fd
 }
 
@@ -597,13 +630,27 @@ proc {rsv restore} {file} {
 
 	set ver 1
 
+	set hsvcmap {}
+	set lcnmap {}
+
+	# Check version, build maps for later.
 	foreach line $data {
 		if {[string match "# version *" $line]} {
 			set ver [lindex [split $line " "] 2]
 			puts "Backup version $ver"
 		}
+		lassign [split $line "\t"] tag hsvc name
+		if {$tag eq "hsvc"}  {
+			set hsvcmap($hsvc) $name
+		}
+		if {$tag eq "lcn"} {
+			set lcnmap($name) $hsvc
+		}
+	}
+
+	foreach line $data {
 		set vals [split $line "\t"]
-		if {[lindex $vals 0] ne "event"} { continue }
+		if {[lindex $vals 0] ne "event"} continue
 		set vars {}
 		set i 0
 		foreach f $fields {
@@ -615,14 +662,14 @@ proc {rsv restore} {file} {
 		}
 
 		# Don't restore DSO events.
-		if {$vars(ersvtype) == 11} { continue }
+		if {$vars(ersvtype) == 11} continue
 
 		set rsv [rsv new $vars]
 
 		# Need to fix up channel and CRID mappings in case something
 		# has changed during a channel scan.
 
-		puts "  Restoring [$rsv name]"
+		puts "  Restoring [$rsv name] ([$rsv get szSvcName])"
 
 		set bad 0
 		# First, the service number
@@ -638,6 +685,34 @@ proc {rsv restore} {file} {
 			} else {
 				puts "    No change in channel service."
 			}
+		}
+
+		if {!$bad} {
+			# Need to fix up the AUL table service IDs too.
+			set newaul ""
+			foreach aul [$rsv aul] {
+                		# {service start end event_id}
+				lassign $aul ohsvc start end eid
+				if {![dict exists $hsvcmap $ohsvc]} {
+					# Should not happen
+					puts "    Losing AUL entry ($ohsvc)."
+					continue
+				}
+				set lcn 0
+				set channame $hsvcmap($ohsvc)
+				if {[dict exists $lcnmap $channame]} {
+					set lcn $lcnmap($channame)
+				}
+				# Find the new hsvc if possible.
+				set _hsvc [rsv find_hsvc $lcn $channame]
+				if {$_hsvc eq ""} continue
+				if {$ohsvc != $_hsvc} {
+					puts "      AUL $channame ($ohsvc -> $_hsvc)"
+				}
+				append newaul [binary format iiii \
+					$_hsvc $start $end $eid]
+			}
+			$rsv setaul $newaul
 		}
 
 		if {!$bad} {

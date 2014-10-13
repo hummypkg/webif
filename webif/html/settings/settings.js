@@ -90,6 +90,6 @@ $(document).ready(function () {
 	});
 
 	// For now - until plugins are updated.
-	$('div.pluginsettings').find('br + br').remove();
+	//$('div.pluginsettings').find('br + br').remove();
 });
 

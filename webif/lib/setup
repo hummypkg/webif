@@ -3,8 +3,8 @@ if {![exists -proc require]} {
 	proc require {args} {{done {}}} {
 		foreach file $args {
 			if {$file ni $done} {
-				uplevel source "/mod/webif/lib/$file"
 				lappend done $file
+				uplevel source "/mod/webif/lib/$file"
 			}
 		}
 	}

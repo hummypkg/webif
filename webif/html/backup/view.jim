@@ -33,12 +33,19 @@ set fields [lsort [[rsv] vars]]
 
 set data [split [read $fd] "\n"]
 
+set ver 1
+
 foreach line $data {
+	if {[string match "# version *" $line]} {
+		set ver [lindex [split $line " "] 2]
+		puts "Backup version $ver"
+	}
 	set vals [split $line "\t"]
 	if {[lindex $vals 0] ne "event"} { continue }
 	set vars {}
 	set i 0
 	foreach f $fields {
+		if {$ver < 2 && $f eq "aulEventToRecordInfo"} continue
 		incr i
 		lappend vars $f [lindex $vals $i]
 	}
