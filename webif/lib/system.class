@@ -160,6 +160,15 @@ proc {system dustbin} {{short 0}} {
 	return "[system mediaroot]/$dustbin"
 }
 
+proc {system dustbinsize} {} {
+	set bin [system dustbin]
+	set ret 0
+	if {[file isdirectory $bin]} {
+		lassign [exec /mod/bin/busybox/du -s $bin] ret
+	}
+	return $($ret * 1024)
+}
+
 proc {system diskpart} {} {
 	switch [system model] {
 		HDR { return "/mnt/hd2" }

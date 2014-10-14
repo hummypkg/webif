@@ -60,11 +60,13 @@ require findhsvc
 if {![exists -proc binary]} { package require binary }
 
 rsv method aul {} {
-	if {[regexp -nocase {^[0-9a-f]+$} $aulEventToRecordInfo} {
-		set aulEventToRecordInfo [\
-		    binary format H* $aulEventToRecordInfo]
-	}
 	set aul {}
+	if {[regexp -nocase {^[0-9a-f]+$} $aulEventToRecordInfo} {
+		if {[catch {
+			set aulEventToRecordInfo [\
+			    binary format H* $aulEventToRecordInfo]
+		}]} return $aul
+	}
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
 		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
 		    iiii service start end event_id

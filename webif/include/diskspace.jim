@@ -26,7 +26,7 @@ if {[file exists /opt/share/images/blue/345_2_14_ST_HDD_01.png]} {
 }
 
 puts "
-	<span style=\"float: right; 
+	<span id=tbdiskpie style=\"float: right; 
 	    background:url('/images/345_1_27_ST_USB_BG.png')
 	    no-repeat\">
 		<a href=/diag/dspace/index.jim>
@@ -34,11 +34,16 @@ puts "
 		</a>
 	</span>
 
-	<span style=\"float: right\">
-		<br>
+	<span id=tbdiskspace>
 		Total space: [pretty_size $size]<br>
 		Used: [pretty_size $used] ($perc%)<br>
 		Free: [pretty_size $free] ($fperc%)
+"
+if {[system pkginst undelete]} {
+	set dbs [system dustbinsize]
+	puts "<br>Dustbin: [pretty_size $dbs]"
+}
+puts "
 	</span>
 "
 

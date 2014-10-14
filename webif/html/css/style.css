@@ -495,3 +495,9 @@ span.foldernum
 	border-bottom-left-radius: 1em;
 }
 
+#tbdiskspace
+{
+	float: right;
+	padding-top: 1.2em;
+}
+
