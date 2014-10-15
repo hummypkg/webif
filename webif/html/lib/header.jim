@@ -24,6 +24,7 @@ puts {
 <link href="/css/EXTRA.css" rel="Stylesheet" type="text/css" />
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/lib/jquery.ui/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/charts/high/highcharts.js"></script>
 }
 if {[info exists _mws_js]} {
 	foreach js $::_mws_js {

@@ -8,7 +8,8 @@ puts {
 	<div class=middle>
 <!-- Start include diskspace - above other items to work around IE feature.. -->
 }
-source /mod/webif/include/diskspace.jim
+#source /mod/webif/include/diskspace.jim
+source /mod/webif/html/diskspace/diskspace.jim
 puts {
 <!-- End include diskspace -->
 		<img border=0 src=/images/516_1_26_Freeview_Logo.png>

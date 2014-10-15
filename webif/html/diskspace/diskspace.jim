@@ -1,0 +1,71 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class pretty_size
+
+lassign [system diskspace 1] size used perc free fperc tsrbuf tsrused
+
+# Calculate the TSR reserve
+set tsrreserve $($tsrbuf - $tsrused)
+# Adjust values to account for the TSR reserve
+set free $($free - $tsrreserve)
+set used $($size - $free)
+
+set dbs 0
+if {[system pkginst undelete]} {
+	set dbs [system dustbinsize]
+	set used $($used - $dbs)
+}
+
+set uperc $($used * 100 / $size)
+set dperc $($dbs * 100 / $size)
+set fperc $(100 - $uperc - $dperc)
+
+set usedstr [pretty_size $used]
+set freestr [pretty_size $free]
+set dbsstr [pretty_size $dbs]
+
+puts "
+	<script type=text/javascript>
+diskspace_data = \[
+	{
+		name: 'Used',
+		y: $($used - $dbs),
+		sliced: false,
+		pretty: '$usedstr'
+	},
+	{
+		name: 'Dustbin',
+		y: $dbs,
+		sliced: false,
+		pretty: '$dbsstr'
+	},
+	{
+		name: 'Free',
+		y: $free,
+		sliced: false,
+		pretty: '$freestr'
+	}
+];
+	</script>
+	<span id=tbdiskpie></span>
+"
+
+puts "
+	<span id=tbdiskspace>
+		Total space: [pretty_size $size]<br>
+		<img src=/img/pie-blue.png height=10>
+		    Used: $usedstr ($uperc%)<br>
+		<img src=/img/pie-grey.png height=10>
+		    Free: $freestr ($fperc%)
+"
+if {$dbs} {
+	puts "<br>
+		<img src=/img/pie-yellow.png height=10>
+		    Dustbin: $dbsstr ($dperc%)"
+}
+puts "
+	</span>
+	<script src=/diskspace/diskspace.js type=text/javascript></script>
+"
+

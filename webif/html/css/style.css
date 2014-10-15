@@ -394,6 +394,11 @@ div.toolbar
 	padding: 6px;
 }
 
+#status
+{
+	width: 60%;
+}
+
 span.toolbarcell
 {
 	float: left;
@@ -500,4 +505,18 @@ span.foldernum
 	float: right;
 	padding-top: 1.2em;
 }
+
+#tbdiskpie
+{
+	float: right;
+	width: 150px;
+	height: 150px;
+	margin-left: 10px;
+}
+
+.tbdiskpie
+{
+	top: -10px !important;
+}
+
 
