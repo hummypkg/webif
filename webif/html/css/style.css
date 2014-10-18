@@ -504,6 +504,8 @@ span.foldernum
 {
 	float: right;
 	padding-top: 1.2em;
+	position: relative;
+	right: -10px;
 }
 
 #tbdiskpie
@@ -511,12 +513,12 @@ span.foldernum
 	float: right;
 	width: 150px;
 	height: 150px;
-	margin-left: 10px;
+	position: relative;
+	right: -10px;
 }
 
 .tbdiskpie
 {
 	top: -10px !important;
 }
-
 

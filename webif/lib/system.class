@@ -211,7 +211,7 @@ proc {system diskspace} {{raw 0}} {
 		HD { set tsrdir "/media/drive1/.tsr" }
 	}
 
-	if {[file isdirectory $tsrdir]} {
+	if {[file exists "$tsrdir/0.ts"]} {
 		set tsrbuf 21474836480
 		lassign [exec du -ks $tsrdir] tsrused
 		set tsrused $($tsrused * 1024)

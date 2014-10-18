@@ -17,6 +17,7 @@ $('#tbdiskpie')
 		}
 	    }
         },
+	// Blue #7cb5ec, Green #90ed7d
 	colors:
 	  Highcharts.map(['#7cb5ec', '#e4d354', '#cccccc'], function(color) {
 		return {
