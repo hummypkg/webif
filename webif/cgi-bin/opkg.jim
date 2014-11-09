@@ -22,7 +22,11 @@ proc opkg {cmd} {
 
 httpheader "text/plain"
 
-if {![system connectivity]} {
+set cmdargs [lassign $cmd cmd]
+
+set netcmds {install update upgrade}
+
+if {$cmd in $netcmds && ![system connectivity]} {
 	puts ""
 	puts "!!  ERROR - No network connectivity to package repository  !!"
 	puts ""
@@ -31,7 +35,7 @@ if {![system connectivity]} {
 }
 
 if {$cmd eq "upgrade"} { opkg update }
-opkg $cmd
+opkg "$cmd $cmdargs"
 
 if {$cmd eq "update" || $cmd eq "upgrade"} {
 	puts "Updating package meta information"

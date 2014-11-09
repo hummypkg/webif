@@ -30,7 +30,7 @@ puts "
 diskspace_data = \[
 	{
 		name: 'Used',
-		y: $($used - $dbs),
+		y: $used,
 		sliced: false,
 		pretty: '$usedstr'
 	},

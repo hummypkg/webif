@@ -3,7 +3,8 @@ if {![exists -proc pretty_size]} {
 	proc pretty_size {size} {
 		set units {bytes KiB MiB GiB TiB}
 
-		for {set i 0} {$size > 1023} {incr i} {
+		for {set i 0; set l [llength $units]; incr l -1} {
+		    $size > 1023 && $i < $l} {incr i} {
 			set size $($size / 1024.0)
 		}
 
