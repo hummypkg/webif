@@ -64,7 +64,7 @@ foreach tw [$db query {
 	set ehs 0
 	foreach chan $channels {
 		lassign $chan x lcn x name
-		set name [string range $name 1 end]
+		set name [system strip $name]
 		if {$lcn >= 800} { incr ehs }
 		switch $name {
 			"BBC THREE" { set mux "PSB1/BBC A" }
@@ -104,8 +104,8 @@ foreach tw [$db query {
 	altrow reset
 	foreach chan $channels {
 		lassign $chan x lcn x name x prv x auth
-		set name [string range $name 1 end]
-		set prv [string range $prv 3 end]
+		set name [system strip $name]
+		set prv [system strip $prv]
 		altrow
 		puts "
 			<td class=va>[epg channelicon $name 50]</td>

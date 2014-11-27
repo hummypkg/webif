@@ -55,10 +55,10 @@ puts {
 		<th>Time</th>
 		<th>Programme</th>
 		<th>Synopsis</th>
+		<th></th>
 	</tr>
 }
 
-set i 0
 foreach record $records {
 	altrow
 	$record get_channel_info
