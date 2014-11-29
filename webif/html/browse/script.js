@@ -1,7 +1,11 @@
 
 var plugins = {
 	menu: {},
-	dmenu: {}
+	menu_prepare: {},
+	omenu: {},
+	omenu_prepare: {},
+	dmenu: {},
+	dmenu_prepare: {}
 };
 
 var dir;
@@ -339,6 +343,18 @@ function preparemenu(el, menu)
 		$(menu).disableContextMenuItems('#new');
 	}
 
+	$.each(plugins.menu_prepare, function(k,v) {
+		plugins.menu_prepare[k](el, menu);
+	});
+}
+
+function prepareomenu(el, menu)
+{
+	$(menu).enableContextMenuItems('#delete');
+
+	$.each(plugins.omenu_prepare, function(k,v) {
+		plugins.omenu_prepare[k](el, menu);
+	});
 }
 
 function fixdmenu(el, menu, flag, tag, descr, recurse)
@@ -388,6 +404,9 @@ function preparedmenu(el, menu)
 	fixdmenu(el, menu, 'autompg', '#mpg', 'Auto-mpg', 0);
 	fixdmenu(el, menu, 'automp3', '#mp3', 'Auto-audio', 0);
 	//fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
+	$.each(plugins.dmenu_prepare, function(k,v) {
+		plugins.dmenu_prepare[k](el, menu);
+	});
 }
 
 function flagdir(file, flag, iconset, output, options)
@@ -523,6 +542,31 @@ var menuclick = function(action, el, pos)
 	    default:
 		if (plugins.menu[action])
 			plugins.menu[action](file);
+		else
+			alert('Unhandled action: ' + action);
+		break;
+	}
+};
+
+var omenuclick = function(action, el, pos)
+{
+	switch (action)
+	{
+	    case 'delete':
+	    case 'copy':
+	    case 'cut':
+	    case 'rename':
+	    case 'download':
+		menuclick(action, el, pos);
+		break;
+
+	    default:
+		if (plugins.omenu[action])
+		{
+			var file = $(el).parent().prevAll('a.bf')
+			    .last().attr('file');
+			plugins.omenu[action](file);
+		}
 		else
 			alert('Unhandled action: ' + action);
 		break;
@@ -683,9 +727,9 @@ var dmenuclick = function(action, el, pos)
 		{
 			menu: 'ooptmenu',
 			leftButton: true,
-			beforeShow: preparemenu
+			beforeShow: prepareomenu
 		},
-		menuclick
+		omenuclick
 	);
 
 	$('img.dopt').contextMenu(

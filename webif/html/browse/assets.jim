@@ -59,6 +59,15 @@ puts {
 
 	<li class=separator><a href=#rename>Rename</a></li>
 	<li><a href=#download>Download</a></li>
+}
+if {[llength $plugins(omenu)]} {
+	foreach plugin $plugins(omenu) {
+		lassign $plugin tag options
+		puts "<li class=$tag><a href=#$tag>$options(desc)</a></li>"
+	}
+}
+
+puts {
 </ul>
 
 <ul id=dooptmenu class=contextMenu style="width: 250px">

@@ -7,7 +7,8 @@
 			    .removeClass('ui-state-disabled')
 			    .removeClass('ui-button-disabled')
 			    .prop('disabled', false)
-			    .removeAttr('aria-disabled');
+			    .removeAttr('aria-disabled')
+			    .disabled = false;
 		});
 	};
 
@@ -16,7 +17,8 @@
 		return this.each(function() {
 			$(this)
 			    .addClass('ui-state-disabled')
-			    .prop('disabled', true);
+			    .prop('disabled', true)
+			    .disabled = true;
 		});
 	};
 })(jQuery);
