@@ -36,5 +36,36 @@ $('span.fileperc').easyPieChart({
 	lineCap: 'butt'
 });
 
+$('button').button();
+
+String.prototype.toNum = function() {
+	return parseInt(this, 10);
+}
+
+function alphasort(a, b)
+{
+	return $(a).attr('sind').toNum() > $(b).attr('sind').toNum() ? 1 : -1;
+}
+
+function sizesort(a, b)
+{
+	return $(a).attr('size').toNum() < $(b).attr('size').toNum() ? 1 : -1;
+}
+
+function dosort(el, fn)
+{
+	if ($(el).sortElements(fn).size())
+		dosort(el + ' > div.dir', fn);
+}
+
+$('#sorts').on('click', function() {
+	dosort('fieldset > div.dir', sizesort);
+});
+
+$('#sorta').on('click', function() {
+	dosort('fieldset > div.dir', alphasort);
+});
+
+
 });
 

@@ -17,7 +17,7 @@ set nicesplice [system pkginst nicesplice]
 set flatten [system pkginst flatten]
 
 set ignore {.nts .thm .hmi}
-set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt}
+set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v}
 
 if {![dict exists $env SCRIPT_NAME]} {
 	set env(SCRIPT_NAME) ""

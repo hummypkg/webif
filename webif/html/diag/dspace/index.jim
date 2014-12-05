@@ -4,7 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require system.class pretty_size
 
-jqplugin easy-pie-chart
+jqplugin easy-pie-chart sortelements
 jscss script.js style.css
 header
 
@@ -26,7 +26,7 @@ proc hasnew {dir} {
 
 set rsize 0
 
-proc gen {dir ddir {depth 0} {expand 0}} {
+proc gen {dir ddir {depth 0} {expand 0}} {{i 0}} {
 	global root lroot rsize
 
 	if {[catch {set dsize [exec /mod/bin/busybox/du -s "$dir/"]} msg]} {
@@ -56,10 +56,12 @@ proc gen {dir ddir {depth 0} {expand 0}} {
 	set perc $($dsize * 100 / $rsize)
 
 	puts -nonewline "
-	    <div class=\"va $class\" style=\"padding-left: ${depth}em\">
+	    <div class=\"va $class dir\" size=$dsize sind=$i
+	      style=\"padding-left: ${depth}em\">
 		<img border=0 class=\"va tlink\" src=/img/tree/$timg.png>
 		<span class=\"va fileperc\" data-percent=$perc>
-		    <img border=0 class=va src=\"$img\"></span>
+		    <img border=0 class=va src=\"$img\">
+		</span>
 		<span class=filesize>
 		    ([pretty_size $($dsize * 1024)] - $perc%)
 		</span>
@@ -71,6 +73,7 @@ proc gen {dir ddir {depth 0} {expand 0}} {
 
 	incr depth 2
 	incr expand -1
+	incr i
 
 	foreach subd $dlist { gen "$dir/$subd" $subd $depth $expand }
 
@@ -78,7 +81,7 @@ proc gen {dir ddir {depth 0} {expand 0}} {
 }
 
 puts {
-<fieldset style="display: inline">
+<fieldset class=cleft style="display: inline">
 <legend> Disk Utilisation </legend>
 }
 
@@ -86,6 +89,11 @@ gen $root "/" 0 2
 
 puts {
 </fieldset>
+<div class=left>
+	<button id=sorta>Sort Alphabetically</button>
+	<br style="padding-top: 0.5em">
+	<button id=sorts>Sort by Size</button>
+</div>
 }
 
 footer

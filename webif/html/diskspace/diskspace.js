@@ -40,7 +40,12 @@ $('#tbdiskpie')
                 },
 		shadow: false,
 		borderWidth: 0,
-		states: { hover: false }
+		states: { hover: false },
+		events: {
+			click: function(e) {
+				window.location = '/diag/dspace/index.jim';
+			}
+		}
             }
         },
 	tooltip: {
