@@ -27,32 +27,6 @@ $('#runfopkg').click(function() {
 	    });
 });
 
-$('a.log').click(function(e) {
-	e.preventDefault();
-	$('#results')
-	    .slideDown()
-	    .text('\n\nLoading log, please wait...\n\n')
-	    .load('/cgi-bin/cat.jim?file=' +
-	        encodeURIComponent($(this).attr('file')), function() {
-	    		$('#results').wrapInner('<pre>');
-		});
-});
-
-$('a.logclear').click(function(e) {
-	var t = $(this);
-	e.preventDefault();
-	if (!confirm('Delete ' + $(this).attr('file') + '?'))
-		return;
-	$('#results')
-	    .slideDown()
-	    .text('\n\nClearing log, please wait...\n\n')
-	    .load('clearlog.jim?file=' +
-	        encodeURIComponent($(this).attr('file')), function() {
-	    		$('#results').wrapInner('<pre>');
-			$(t).prev('span.lsize').html('0 bytes');
-		});
-});
-
 $('#runedit').click(function(e) {
 	e.preventDefault();
 	window.location = '/edit/edit.jim';

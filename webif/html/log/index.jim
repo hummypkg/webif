@@ -1,0 +1,90 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require pretty_size system.class pkg.class
+source _lib.jim
+
+set logf [cgi_get log -]
+
+jqplugin enadis tablesorter2 bindwithdelay highlight
+jscss script.js style.css
+header
+
+puts "
+<div class=cleft>
+Log File: <select id=log name=log>
+<option value=0>--- Select logfile ---</option>
+"
+
+foreach file [lsort -command logsort $loglist] {
+	set pf ""
+	if {[string match {/var/log/*} $file]} {
+		set pf " *"
+	}
+	puts -nonewline "<option value=\"$file\""
+	if {$logf eq $file} {
+		puts -nonewline " selected"
+	}
+	puts ">[file rootname [file tail $file]]$pf</option>"
+}
+
+
+proc pager {} {
+	set ir "/lib/jquery.plugin/tablesorter2/images/pager"
+
+	return "
+<div class=\"pager cleft\">
+	Page: <select class=gotoPage></select>
+	<img src=$ir/first.png class=first alt=First title=First page />
+	<img src=$ir/prev.png class=prev alt=Prev title=Previous page />
+	<span class=pagedisplay></span>
+	<img src=$ir/next.png class=next alt=Next title=Next page />
+	<img src=$ir/last.png class=last alt=Last title= Last page />
+	<select class=pagesize>
+		<option value=50>50</option>
+		<option value=100>100</option>
+		<option value=200>200</option>
+		<option value=500>500</option>
+	</select>
+	lines
+</div>
+"
+}
+
+puts "
+</select>
+<span id=loginfo class=blood></span>
+<span id=loading class=hidden><img src=/img/loading.gif>Loading...</span>
+</div>
+
+<div class=left id=buttons>
+<button id=reload>Reload</button>
+<button id=clear>Clear Log</button>
+</div>
+
+<div id=logarea class=\"cleft hidden\">
+[pager]
+
+<div class=left id=highlight_div>
+Highlight: 
+<input type=text placeholder=\"Enter text\" value=\"\"  size=30 id=highlight>
+</div>
+
+<table id=logtab>
+	<thead><tr>
+		<th class=\"line filter-false\">Line</th>
+		<th class=text
+		    data-sorter=\"false\"
+		    data-placeholder=\"Search log...\">Text</th>
+	</tr></thead>
+	<tbody></tbody>
+</table>
+
+[pager]
+
+</div>
+"
+
+footer
+

@@ -1,0 +1,38 @@
+
+div#logarea
+{
+	padding-top: 1em;
+}
+
+th.line
+{
+	width: 10px;
+}
+
+div.pager
+{
+	padding: 5px;
+}
+
+td
+{
+	padding: 3px !important;
+}
+
+#buttons
+{
+	padding-left: 2em;
+}
+
+#highlight_div
+{
+	padding-left: 5em;
+}
+
+#highlight
+{
+	padding: 5px 10px;
+	border-style: none;
+	box-sharow: none;
+}
+

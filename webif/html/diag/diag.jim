@@ -12,7 +12,6 @@ pkg loaddiagmeta
 
 set smv [system modversion 1]
 
-
 puts {
 <fieldset class=cleft>
 <legend>Utilities</legend>
@@ -167,17 +166,14 @@ View:
 <legend>View Log Files</legend>
 }
 
-foreach file [lsort [concat \
-    [glob -nocomplain /var/log/*.log] \
-    [glob -nocomplain /mod/tmp/*.log] \
-    [glob -nocomplain /mnt/hd3/*.log] \
-]] {
-	puts "<a href=# class=log file=\"$file\">
+source /mod/webif/html/log/_lib.jim
+foreach file [lsort -command logsort $loglist] {
+	puts "
 	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
-	    [file tail $file]</a>
+	    <a href=\"../log/?log=[cgi_quote_url $file]\">
+	    	[file tail $file]
+	    </a>
 	    (<span class=lsize>[pretty_size [file size $file]]</span>)
-	    <a class=\"va footnote logclear\" href=# file=\"$file\">
-	    <img class=va border=0 src=/img/close.png width=20>Clear</a>
 	    <br>"
 }
 

@@ -1,0 +1,12 @@
+#!/mod/bin/jimsh
+
+set loglist [concat \
+    [glob -nocomplain /var/log/*.log] \
+    [glob -nocomplain /mod/tmp/*.log] \
+    [glob -nocomplain /mnt/hd3/*.log]
+]
+
+proc logsort {a b} {
+	return [string compare [file tail $a] [file tail $b]]
+}
+

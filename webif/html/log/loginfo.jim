@@ -1,0 +1,26 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require pretty_size
+
+source _lib.jim
+
+cgi_input
+#cgi_dump
+
+set file [cgi_get file "-"]
+if {$file eq "-"} { set file "/var/log/humaxtv.log" }
+if {$file ni $loglist} { exit }
+
+httpheader "application/json"
+
+lassign [exec wc -l $file] lines
+
+puts "{
+	\"size\": \"[file size $file]\", 
+	\"pretty_size\": \"[pretty_size [file size $file]]\",
+	\"lines\": \"$lines\"
+}
+"
+
