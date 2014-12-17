@@ -10,13 +10,13 @@ puts {
 $(document).ready(function() {
 	$('input:checkbox').iphoneStyle();
 	// Don't allow turning off the web server from within the web server..
-	$('input:checkbox[name=mongoose][class=toggle]').disable();
+	$('input:checkbox[name=lighttpd][class=toggle]').disable();
 
 	$(':checkbox').change(function() {
-		if ($(this).attr('name') == 'mongoose' &&
+		if ($(this).attr('name') == 'lighttpd' &&
 		    !$(this).is(':checked'))
 			alert(
-		    'Note that mongoose is the web server service that ' +
+		    'Note that lighttpd is the web server service that ' +
 		    'provides this web interface. If you disable auto-start ' +
 		    'then the web interface will not be available when the ' +
 		    'Humax is restarted.');
