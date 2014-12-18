@@ -23,7 +23,7 @@ puts {
 <script type=text/javascript>
 $('#sysnotify_ack').button().on('click', function() {
 	$('#sysnotify').slideUp('slow');
-	$.get('/diag/clearlog.jim?file=/mod/tmp/notify.log&unlink=1');
+	$.get('/log/act.jim?file=/mod/tmp/notify.log&action=unlink');
 });
 </script>
 }

@@ -18,6 +18,11 @@ switch $action {
         puts "Cleared $file"
         exit
     }
+    unlink {
+        file delete $file
+        puts "Removed $file"
+        exit
+    }
 }
 
 puts "Unknown action."
