@@ -26,7 +26,8 @@ foreach file [lsort -command logsort $loglist] {
 	if {$logf eq $file} {
 		puts -nonewline " selected"
 	}
-	puts ">[file rootname [file tail $file]]$pf</option>"
+	puts ">[file rootname [file tail $file]] ([pretty_size \
+	    [file size $file]]) $pf</option>"
 }
 
 

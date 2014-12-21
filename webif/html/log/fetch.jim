@@ -10,6 +10,15 @@ cgi_input
 
 httpheader
 
+proc quote {s} {
+	return [string map {
+		{&} {&amp;}
+		{"} {&quot;}
+		{<} {&lt;}
+		{>} {&gt;}
+	    } $s]
+}
+
 set file [cgi_get file "-"]
 if {$file eq "-"} { set file "/var/log/humaxtv.log" }
 if {$file ni $loglist} { exit }
@@ -25,7 +34,7 @@ set l 1
 while {![$fp eof]} {
 	$fp gets line
 	if {[$fp eof]} break
-	puts "<tr><td>$l</td><td>[cgi_quote_html $line]</td></tr>"
+	puts "<tr><td>$l</td><td>[quote $line]</td></tr>"
 	incr l
 }
 $fp close

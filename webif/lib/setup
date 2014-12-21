@@ -72,6 +72,10 @@ if {![exists -proc require]} {
 		foreach css $::_mws_css { _css $css }
 	}
 
+	proc _jqplugin_sort {a b} {
+		return $([string length $a] - [string length $b])
+	}
+
 	proc jqplugin {args} {{done {}}}  {
 	    foreach name $args {
 		if {$name in $done} continue
@@ -80,11 +84,13 @@ if {![exists -proc require]} {
 		if {![file isdirectory $dir]} {
 			error "Unknown JQ Plugin - '$name'"
 		}
-		foreach file [glob -nocomplain "$dir/*.js"] {
+		foreach file [lsort -command _jqplugin_sort [\
+		    glob -nocomplain "$dir/*.js"]] {
 			set file [join [lrange [split $file /] 4 end] /]
 			_js "/$file"
 		}
-		foreach file [glob -nocomplain "$dir/*.css"] {
+		foreach file [lsort -command _jqplugin_sort [\
+		    glob -nocomplain "$dir/*.css"]] {
 			set file [join [lrange [split $file /] 4 end] /]
 			_css "/$file"
 		}

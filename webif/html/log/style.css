@@ -17,6 +17,7 @@ div.pager
 td
 {
 	padding: 3px !important;
+	white-space: pre-wrap;
 }
 
 #buttons

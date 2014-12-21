@@ -7,8 +7,13 @@ source _lib.jim
 
 cgi_input
 
+httpheader
+
 set file [cgi_get file "-"]
-if {$file ni $loglist} { exit }
+if {$file ni $loglist} {
+	puts "$file is not a log file."
+	exit
+}
 
 set action [cgi_get action -]
 

@@ -95,6 +95,21 @@ $('#runrma').click(function(e) {
 	});
 });
 
+$('a.logclear').click(function(e) {
+	var t = $(this);
+	e.preventDefault();
+	if (!confirm('Delete ' + $(this).attr('file') + '?'))
+		return;
+	$('#results')
+	    .slideDown()
+	    .text('\n\nClearing log, please wait...\n\n')
+	    .load('/log/act.jim?action=clear&file=' +
+		encodeURIComponent($(this).attr('file')), function() {
+			$('#results').wrapInner('<pre>');
+			$(t).prev('span.lsize').html('0 bytes');
+		});
+});
+
 });
 
 
