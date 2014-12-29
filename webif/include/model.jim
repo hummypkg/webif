@@ -1,7 +1,3 @@
-#!/mod/bin/jimsh
-
-source /mod/webif/lib/setup
-require system.class
 
 puts "Humax [system model] Fox T2 ([system hostname])"
 

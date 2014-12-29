@@ -1,5 +1,8 @@
 #!/mod/bin/jimsh
 
+source /mod/webif/lib/setup
+require system.class
+
 puts {
 <!doctype html>
 <html>

@@ -19,4 +19,8 @@
 .context-menu-item.icon-clock { background-image: url(/img/context/clock.png); }
 .context-menu-item.icon-thm { background-image: url(/img/context/thumb.png); }
 .context-menu-item.icon-bookmark { background-image: url(/img/context/bookmark.png); }
+.context-menu-item.icon-lock { background-image: url(/img/context/lock.png); }
+.context-menu-item.icon-download { background-image: url(/img/context/download.png); }
+.context-menu-item.icon-rename { background-image: url(/img/context/rename.png); }
+.context-menu-item.icon-new { background-image: url(/img/context/new.png); }
 

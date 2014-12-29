@@ -8,7 +8,6 @@ puts {
 	<div class=middle>
 <!-- Start include diskspace - above other items to work around IE feature.. -->
 }
-#source /mod/webif/include/diskspace.jim
 source /mod/webif/html/diskspace/diskspace.jim
 puts {
 <!-- End include diskspace -->
@@ -22,19 +21,16 @@ puts {
 		</span>
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>
+}
+if {[system model] eq "HDR" && [system usbmounts] > 0} {
+	source /mod/webif/include/usbeject.jim
+}
+puts {
 </div>
 }
 source /mod/webif/include/toolbar.jim
 puts {
-<script type=text/javascript>
-$('#topbar').hover(
-    function() { $(this).css('cursor', 'pointer'); },
-    function() { $(this).css('cursor', 'auto'); }
-);
-$('#topbar a').on('click', function(e) {
-	e.stopPropagation();
-});
-</script>
+<script type=text/javascript src=/js/topbar.js></script>
 
 <!-- end of topbar -->
 }

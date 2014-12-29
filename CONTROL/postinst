@@ -49,6 +49,11 @@ fi
 /mod/webif/lib/bin/diskattrs
 #/mod/webif/lib/bin/resetnew
 
+# Remove hook script placed by the legacy rt3070 package which does not work
+# with CFW >= 3.00
+hook=/mod/boot/xinit.d/rt3070
+[ -f $hook ] && rm -f $hook
+
 [ -f $tmpf ] && rm -f $tmpf
 
 exit 0

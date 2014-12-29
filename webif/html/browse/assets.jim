@@ -9,8 +9,8 @@ puts {
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
 
-	<li class=separator><a href=#rename>Rename</a></li>
-	<li><a href=#download>Download</a></li>
+	<li class="separator rename"><a href=#rename>Rename</a></li>
+	<li class=download><a href=#download>Download</a></li>
 
 }
 if {$model eq "HDR"} {
@@ -27,7 +27,7 @@ if {[system pkginst ffmpeg]} {
 	}
 }
 
-puts { <li><a href=#vthm>View Thumbnail</a></li> }
+puts { <li class=thm><a href=#vthm>View Thumbnail</a></li> }
 
 puts { <li class=bookmark><a href=#bmarks>Bookmarks</a></li> }
 
@@ -38,8 +38,8 @@ if $nicesplice {
 	}
 }
 puts {
-	<li class=separator><a href=#lock>Toggle Lock</a></li>
-	<li><a href=#new>Toggle New</a></li>
+	<li class="separator lock"><a href=#lock>Toggle Lock</a></li>
+	<li class=new><a href=#new>Toggle New</a></li>
 }
 
 if {[llength $plugins(menu)]} {
@@ -57,8 +57,8 @@ puts {
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
 
-	<li class=separator><a href=#rename>Rename</a></li>
-	<li><a href=#download>Download</a></li>
+	<li class="separator rename"><a href=#rename>Rename</a></li>
+	<li class="download"><a href=#download>Download</a></li>
 }
 if {[llength $plugins(omenu)]} {
 	foreach plugin $plugins(omenu) {
@@ -83,10 +83,10 @@ puts {
 	<li class=cut><a href=#cut>Cut to clipboard</a></li>
 	<li class=pwcopy><a href=#copy>Copy to clipboard</a></li>
 	<li class=pwpaste><a href=#paste>Paste to folder</a></li>
-	<li class=separator><a href=#rename>Rename</a></li>
+	<li class="separator rename"><a href=#rename>Rename</a></li>
 	<li class=separator><a href=#resetnew>Reset new flag</a></li>
 	<li class="separator compress"><a href=#shrink>Auto-Shrink</a></li>
-	<li class="compressr"><a href=#shrinkr>Recursive Auto-Shrink</a></li>
+	<li class=compressr><a href=#shrinkr>Recursive Auto-Shrink</a></li>
 	<li class=dedup><a href=#dedup>Auto-Dedup</a></li>
 }
 if {$model eq "HDR"} {

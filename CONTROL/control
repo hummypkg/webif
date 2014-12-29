@@ -1,7 +1,7 @@
 Package: webif
 Priority: optional
 Section: web
-Version: 1.0.18-3
+Version: 1.0.18-4
 Architecture: mipsel
 Maintainer: af123@hummypkg.org.uk
 Depends: webif-channelicons(>=1.1.14),lighttpd(>=1.4.35-2),jim(>=0.75-1),jim-oo,jim-sqlite3(>=0.75),jim-cgi(>=0.7),jim-binary(>=0.75),service-control(>=2.1),busybox(>=1.20.2-1),lsof(>=4.87),epg(>=1.0.14),hmt(>=1.1.21),ssmtp,anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.0.2),webif-charts(>=1.2-1),stripts(>=1.2.5-3),smartmontools,tmenu(>=1.08),ffmpeg,id3v2,multienv(>=1.6),tcpping(>=1.1),mongoose

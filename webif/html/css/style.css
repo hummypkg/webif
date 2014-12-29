@@ -68,6 +68,13 @@ div.container .middle
 	height: 116px;
 }
 
+div.container .usb
+{
+	position: absolute;
+	left: -5px;
+	top: 8px;
+}
+
 div.footer
 {
 	clear: both;
@@ -373,6 +380,7 @@ div.cut
 div.toolbarouter
 {
 	position: relative;
+	z-index: 29;
 }
 
 div.toolbar
@@ -520,5 +528,19 @@ span.foldernum
 .tbdiskpie
 {
 	top: -10px !important;
+}
+
+#usbejectinfo
+{
+	position: relative;
+	border: 1px solid #899caa;
+	box-shadow: 2px 2px 11px #666;
+	-moz-box-shadow: 2px 2px 11px #666;
+	-webkit-box-shadow: 2px 2px 11px #666;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	background: #d2e0ea;
+	padding: 6px;
+	z-index: 40;
 }
 

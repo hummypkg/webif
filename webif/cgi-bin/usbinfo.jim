@@ -1,0 +1,25 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+httpheader "application/json"
+
+puts "\["
+set flag 0
+foreach usb [system usbmounts 1] {
+	if {$flag} { puts "," } else { set flag 1 }
+	puts "  {"
+
+	set sf 0
+	foreach k [array names usb] {
+		if {$sf} { puts "," } else { set sf 1 }
+		puts -nonewline "    \"$k\": \"$usb($k)\""
+	}
+	puts ""
+
+	puts -nonewline "  }"
+}
+puts ""
+puts "]"
+

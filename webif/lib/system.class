@@ -5,7 +5,8 @@ if {![exists -proc binary]} { package require binary }
 
 class system {}
 
-proc {system model} {} {
+proc {system model} {} {{model ""}} {
+	if {$model ne ""} { return $model }
 	if {[catch {set fp [open /etc/model r]}]} {
 		set model {HD[R]}
 	} else {
@@ -32,29 +33,32 @@ proc {system ip} {} {
 	return $ip
 }
 
-proc {system modversion} {{short 0}} {
-	if {[catch {set fp [open /etc/modversion r]}]} {
-		set modver "102"
-	} else {
-		set modver [string trim [read $fp]]
-		close $fp
+proc {system modversion} {{short 0}} {{modver ""}} {
+	if {$modver eq ""} {
+		if {[catch {set fp [open /etc/modversion r]}]} {
+			set modver "102"
+		} else {
+			set modver [string trim [read $fp]]
+			close $fp
+		}
 	}
 	if {$short} { return $modver }
 	lassign [split $modver ""] a b c
 	return [format "%d.%d%d" $a $b $c]
 }
 
-proc {system modbuild} {} {
+proc {system modbuild} {} {{modbuild ""}} {
+	if {$modbuild ne ""} { return $modbuild }
 	if {[catch {set fp [open /etc/modbuild r]}]} {
-		return 0
+		set modbuild 0
 	} else {
 		set modbuild [string trim [read $fp]]
 		close $fp
 	}
-	return $modbuild
 }
 
-proc {system fhtcpversion} {} {
+proc {system fhtcpversion} {} {{ver ""}} {
+	if {$ver ne ""} { return $ver }
 	set file "/etc/fhtcpversion"
 	if {![file exists $file]} { set file "/root/fhtcpversion" }
 	if {[catch {set fp [open $file r]}]} {
@@ -68,20 +72,23 @@ proc {system fhtcpversion} {} {
 
 # 822272+6 - MAC address
 # 833536 - Serial number
-proc {system serialno} {} {
+proc {system serialno} {} {{serial ""}} {
+	if {$serial ne ""} { return $serial }
 	set fd [open /dev/mtd3 r]
 	
 	$fd seek 833536
 	set bytes [$fd read 14]
 	$fd close
-	return "[string range $bytes 0 1] [string range $bytes 2 8] [
+	set serial "[string range $bytes 0 1] [string range $bytes 2 8] [
 	    string range $bytes 9 end]"
+	return $serial
 }
 
-proc {system kernelver} {} {
+proc {system kernelver} {} {{ver ""}} {
+	if {$ver ne ""} { return $ver }
 	#1 SMP Sun Mar 25 18:30:38 KST 2012
-	set ver [string range [exec uname -v] 11 end]
-	return [switch $ver {
+	set rver [string range [exec uname -v] 11 end]
+	set ver [switch $rver {
 		# HDR
 		"Sep 16 20:17:56 KST 2010" { format "HDR_1.01.05" }
 		"Oct 11 21:11:05 KST 2010" { format "HDR_1.01.09" }
@@ -108,6 +115,7 @@ proc {system kernelver} {} {
 
 		default { format "Unknown - $ver" }
 	}]
+	return $ver
 }
 
 proc {system pkgver} {{pkg webif}} {
@@ -117,30 +125,6 @@ proc {system pkgver} {{pkg webif}} {
 proc {system pkginst} {pkg} {
 	return [file exists "/mod/var/opkg/info/$pkg.control"]
 }
-
-#proc {system pkginst} {pkg} {{cache {}} {ncache {}}} {
-#	if {$pkg in $cache} { return 1 }
-#	if {$pkg in $ncache} { return 0 }
-#
-#	# It may not be possible to get an opkg lock immediately so
-#	# try several times and throw an error if not.
-#	set status unknown
-#	loop i 0 5 {
-#		if {[catch {set status [exec opkg list-installed $pkg]}]} {
-#			sleep 1
-#		} else break
-#	}
-#	if {$status eq "unknown"} {
-#		error "Could not get opkg lock after 5 seconds."
-#	}
-#
-#	if {$status ne ""} {
-#		lappend cache $pkg
-#		return 1
-#	}
-#	lappend ncache $pkg
-#	return 0
-#}
 
 proc {system mediaroot} {} {
 	switch [system model] {
@@ -406,5 +390,53 @@ proc {system strip} {str} {
 		set str [string range $str 1 end]
 	}
 	return $str
+}
+
+proc {system usbmounts} {{full 0}} {
+	if {!$full} {
+		set num 0
+		catch {
+			set num [
+			    exec grep -cE {/media/(usb-)?drive} /proc/mounts]
+		}
+		return $num
+	}
+	set ret {}
+	if {[catch {
+		set lines [exec grep -E {media/(usb-)?drive} /proc/mounts]
+	}]} { return $ret }
+	foreach line [split $lines "\n"] {
+		lassign $line dev mp
+		set rec "DEV $dev MP $mp LABEL {NO NAME} TYPE Unknown"
+
+		lassign [exec stat -f -c {%b %S} $mp] blockc blocks
+		set rec(SIZE) $($blockc * $blocks)
+
+		# /dev/sda1: LABEL="SAN" UUID="DBC1-1CF8" TYPE="vfat"
+		catch {
+		  foreach field [
+		    split [exec /mod/sbin/blkid -c /dev/null $dev] "\n"] {
+			while {[regexp { *([A-Z]+)="?([^"]+)"?(.*)} \
+			    $field x k v field]} {
+				set rec($k) $v
+			}
+		  }
+		}
+		# Test for EXFAT
+		if {$rec(TYPE) eq "Unknown" && [
+		    file exists /mod/sbin/exfatlabel]} {
+		      catch {
+			set label [exec /mod/sbin/exfatlabel $dev 2>/dev/null]
+			if {$label ne ""} {
+				set rec(TYPE) "EXFAT"
+				set rec(LABEL) $label
+			}
+		      }
+		}
+
+		lappend ret $rec
+	}
+
+	return $ret
 }
 

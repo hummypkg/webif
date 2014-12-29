@@ -1,6 +1,5 @@
 #!/mod/bin/jimsh
 
-source /mod/webif/lib/setup
 require settings.class
 if {[[settings] notoolbar] eq "0"} {
 
@@ -52,39 +51,7 @@ puts {
  </div>
 </div>
 
-<script type=text/javascript>
-var lastupd = 0;
-if (window.location.pathname != '/' &&
-    window.location.pathname != '/index.jim')
-{
-	var down = function() {
-		$('#toolbar').stop(true, true).delay(200).slideDown(400,
-		    function() {
-			if (+new Date() - lastupd > 5000)
-			{
-				lastupd = +new Date();
-				$('#tbstatus')
-				    .empty()
-				    .html('<img src=/img/loading.gif> ' +
-					'Updating...')
-				    .load('/cgi-bin/status.jim');
-			}
-		});
-	};
-	var up = function() {
-		$('#toolbar').stop(true, true).delay(200).slideUp();
-	};
-	$('#topbar, #toolbar').hover(down, up);
-}
-
-$('span.toolbarcell').hover(
-    function() {
-	$(this).addClass('tbhover');
-    }, function() {
-	$(this).removeClass('tbhover');
-    });
-
-</script>
+<script type=text/javascript src=/js/toolbar.js> </script>
 
 <!-- end of toolbar -->
 

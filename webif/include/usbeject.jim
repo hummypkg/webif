@@ -1,0 +1,15 @@
+#!/mod/bin/jimsh
+
+puts {
+	<div id=usbeject class=usb>
+		<img height=25 src=/img/eject.png>
+		<div id=usbejectinfo class=hidden>
+			<table id=usbejecttab></table>
+			<div id=usbejectout>
+			...
+			</div>
+		</div>
+	</div>
+	<script type=text/javascript src=/js/usbeject.js></script>
+}
+

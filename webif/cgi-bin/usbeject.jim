@@ -1,0 +1,29 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require system.class
+
+httpheader "application/json"
+
+set label [cgi_get label -]
+
+foreach usb [system usbmounts 1] {
+	if {$usb(LABEL) eq $label} {
+		puts "{"
+		if {[catch {exec /bin/umount $usb(MP)} msg]} {
+			if {[string match {*resource busy*} $msg]} {
+				set msg "Failed to eject $label - in use"
+			}
+			puts "\"status\": 0,"
+			puts "\"result\": \"$msg\""
+		} else {
+			puts "\"status\": 1,"
+			puts "\"result\": \"Successfully ejected $label\""
+			file delete -force $usb(MP)
+		}
+		puts "}"
+		exit
+	}
+}
+

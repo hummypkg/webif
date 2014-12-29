@@ -74,5 +74,9 @@
 .contextMenu LI.clock A { background-image: url(/img/context/clock.png); }
 .contextMenu LI.thm A { background-image: url(/img/context/thumb.png); }
 .contextMenu LI.bookmark A { background-image: url(/img/context/bookmark.png); }
+.contextMenu LI.lock A { background-image: url(/img/context/lock.png); }
+.contextMenu LI.rename A { background-image: url(/img/context/rename.png); }
+.contextMenu LI.download A { background-image: url(/img/context/download.png); }
+.contextMenu LI.new A { background-image: url(/img/context/new.png); }
 
 
