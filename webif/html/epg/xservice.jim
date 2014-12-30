@@ -17,7 +17,7 @@ require totop
 require epg_popup
 
 set service [cgi_get service 4351]
-set records [epg fetch dump -service $service]
+set records [epg dbfetch dump -service $service]
 
 set tr [lindex $records 0]
 $tr get_channel_info
