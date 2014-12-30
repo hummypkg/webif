@@ -30,8 +30,8 @@ $('#usbeject').on('click', function(e) {
 		var num = 0;
 		$.each(data, function(k,v) {
 			num++;
-			var size = (v.SIZE / 1000000000);
-			if (size > 1000)
+			var size = v.SIZE / 1000000000;
+			if (size >= 1000)
 				size = (size / 1000).toFixed(1) + "TB";
 			else
 				size = size.toFixed(1) + "GB";
@@ -53,11 +53,23 @@ $('#usbeject').on('click', function(e) {
 			    '<td class=blood>(' + drive + '&nbsp;-&nbsp;' +
 				type + '&nbsp;' + '&nbsp;-&nbsp;' +
 				size + ')</td>' +
+			    '<td class="va pie" data-percent="' + v.USED +
+				'"></td>' +
+			    '<td style="padding-left: 10px">' + v.USED +
+				'%' + '</td>' +
 			    '<td><img class="va eject" border=0 height=20' +
 				' drive=' + v.MP +
 				' label="' + v.LABEL + '"' +
 				' src=/img/media-eject.png></td>' +
 			    '</tr>');
+			$('#usbejecttab .pie').easyPieChart({
+				size: 20,
+				barColor: '#00ff00',
+				trackColor: '#A3A3C2',
+				lineWidth: 4,
+				scaleColor: false,
+				lineCap: 'butt'
+			});
 		});
 		$('#usbejectout').empty();
 		if (!num)

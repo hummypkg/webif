@@ -20,7 +20,7 @@ foreach usb [system usbmounts 1] {
 		} else {
 			puts "\"status\": 1,"
 			puts "\"result\": \"Successfully ejected $label\""
-			file delete -force $usb(MP)
+			catch {file delete -force $usb(MP)}
 		}
 		puts "}"
 		exit

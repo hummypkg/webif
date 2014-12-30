@@ -423,8 +423,9 @@ proc {system usbmounts} {{full 0}} {
 			}
 		}
 
-		lassign [exec stat -f -c {%b %S} $mp] blockc blocks
+		lassign [exec stat -f -c {%S %b %f} $mp] blocks blockc blockf
 		set rec(SIZE) $($blockc * $blocks)
+		set rec(USED) $(100 - $blockf * 100 / $blockc)
 
 		# /dev/sda1: LABEL="SAN" UUID="DBC1-1CF8" TYPE="vfat"
 		catch {

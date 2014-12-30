@@ -1,5 +1,8 @@
 #!/mod/bin/jimsh
 
+source /mod/webif/lib/setup
+jqplugin easy-pie-chart
+
 puts {
 	<div id=usbeject class=usb>
 		<img height=25 src=/img/eject.png>

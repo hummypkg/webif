@@ -145,5 +145,28 @@ $('#log').on('change', function() {
 	loadlog($('#log').val())
 }).trigger('change');
 
+function expand(el, dir, num)
+{
+	el.show('fast').find('td').css('color', '#ff4000 !important');
+	if (!num) return;
+	switch (dir)
+	{
+	    case 'up':
+		expand(el.prev(), dir, num - 1);
+		break;
+	    case 'down':
+		expand(el.next(), dir, num - 1);
+		break;
+	}
+}
+
+$('#logtab').on('click', 'tbody > tr', function() {
+	$(this)
+	    .removeClass('odd even')
+	    .addClass('highlight');
+	expand($(this), 'up', 10);
+	expand($(this), 'down', 10);
+});
+
 });
 

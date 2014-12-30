@@ -36,6 +36,7 @@ if {[info exists _mws_js]} {
 	foreach css $::_mws_css {
 		puts "<link href=\"$css\" rel=stylesheet type=text/css />"
 	}
+	incr ::_mws_headerdone
 }
 puts {
 </head>
