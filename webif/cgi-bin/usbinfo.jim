@@ -5,9 +5,19 @@ require system.class
 
 httpheader "application/json"
 
+set fsg {File-Stor Gadget}
+
+set ignoredev {}
+if {[file isdirectory /mnt/hd2]} {
+	file stat /mnt/hd2 st
+	lappend ignoredev $st(dev)
+}
+
 puts "\["
 set flag 0
 foreach usb [system usbmounts 1] {
+	file stat $usb(MP) st
+	if {$usb(MODEL) ne $fsg && $st(dev) in $ignoredev} continue
 	if {$flag} { puts "," } else { set flag 1 }
 	puts "  {"
 

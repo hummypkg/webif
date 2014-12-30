@@ -30,7 +30,11 @@ $('#usbeject').on('click', function(e) {
 		var num = 0;
 		$.each(data, function(k,v) {
 			num++;
-			var size = (v.SIZE / 1000000000).toFixed(1);
+			var size = (v.SIZE / 1000000000);
+			if (size > 1000)
+				size = (size / 1000).toFixed(1) + "TB";
+			else
+				size = size.toFixed(1) + "GB";
 			var type = v.TYPE;
 			var drive = v.MP.split(/[/]/).pop().capitalise();
 			switch (type)
@@ -48,7 +52,7 @@ $('#usbeject').on('click', function(e) {
 			    '<td class=usblabel>' + v.LABEL + '</td>' +
 			    '<td class=blood>(' + drive + '&nbsp;-&nbsp;' +
 				type + '&nbsp;' + '&nbsp;-&nbsp;' +
-				size + 'GB)</td>' +
+				size + ')</td>' +
 			    '<td><img class="va eject" border=0 height=20' +
 				' drive=' + v.MP +
 				' label="' + v.LABEL + '"' +

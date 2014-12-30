@@ -66,12 +66,23 @@ proc {file tdelete} {target} {
 	}
 }
 
+proc {file read} {target} {
+	if {[file readable $target]} {
+		set fd [open $target]
+		set ret [$fd read]
+		$fd close
+		return $ret
+	}
+	error "Cannot read $target"
+}
+
 local proc file {cmd args} {
 	switch $cmd {
-	    "rename" { tailcall {file rename} {*}$args }
-	    "copy" { tailcall {file copy} {*}$args }
-	    "touch" { tailcall {file touch} {*}$args }
-	    "tdelete" { tailcall {file tdelete} {*}$args }
+	    rename { tailcall {file rename} {*}$args }
+	    copy { tailcall {file copy} {*}$args }
+	    touch { tailcall {file touch} {*}$args }
+	    tdelete { tailcall {file tdelete} {*}$args }
+	    read { tailcall {file read} {*}$args }
 	    default { tailcall upcall file $cmd {*}$args }
 	}
 }

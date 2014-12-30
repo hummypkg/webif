@@ -29,6 +29,7 @@ proc {system ip} {} {
 	} else {
 		set ipl [lindex [split [$fp read] "\n"] 1]
 		regsub -- {[[:space:]].*} $ipl "" ip
+		$fp close
 	}
 	return $ip
 }
@@ -49,12 +50,10 @@ proc {system modversion} {{short 0}} {{modver ""}} {
 
 proc {system modbuild} {} {{modbuild ""}} {
 	if {$modbuild ne ""} { return $modbuild }
-	if {[catch {set fp [open /etc/modbuild r]}]} {
+	if {[catch {set modbuild [string trim [file read /etc/modbuild]]}]} {
 		set modbuild 0
-	} else {
-		set modbuild [string trim [read $fp]]
-		close $fp
 	}
+	return $modbuild
 }
 
 proc {system fhtcpversion} {} {{ver ""}} {
@@ -408,6 +407,21 @@ proc {system usbmounts} {{full 0}} {
 	foreach line [split $lines "\n"] {
 		lassign $line dev mp
 		set rec "DEV $dev MP $mp LABEL {NO NAME} TYPE Unknown"
+
+		set rec(VENDOR) Unknown
+		set rec(MODEL) Unknown
+
+		if {[regexp {/dev/(sd[a-z])} $dev x rdev]} {
+			set rec(RDEV) $rdev
+			if {[file readable [
+			    set f /sys/block/$rdev/device/vendor]]} {
+				set rec(VENDOR) [string trim [file read $f]]
+			}
+			if {[file readable [
+			    set f /sys/block/$rdev/device/model]]} {
+				set rec(MODEL) [string trim [file read $f]]
+			}
+		}
 
 		lassign [exec stat -f -c {%b %S} $mp] blockc blocks
 		set rec(SIZE) $($blockc * $blocks)
