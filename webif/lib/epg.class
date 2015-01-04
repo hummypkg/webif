@@ -396,7 +396,7 @@ proc {epg dbfetch} {mode args} {
 				-scrid { append q \
 				    "and e.series_crid = '$v' " }
 				-type { append q \
-				    "and e.content_type = $v " }
+				    "and e.content_code = $v " }
 				-service { append q \
 				    "and e.service_id = $v " }
 				-event { append q \
