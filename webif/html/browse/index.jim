@@ -221,7 +221,10 @@ proc entry {file} {{i 0}} {
 
 		# Guidance
 		if {[$ts flag "Guidance"] > 0} {
-			icon "/images/174_1_26_GuidancePolicy.png"
+			icon "/img/Guidance_red.png"
+		}
+		if {[$ts flag "GGuidance"] > 0} {
+			icon "/img/Guidance_blue.png"
 		}
 
 		# Indexed

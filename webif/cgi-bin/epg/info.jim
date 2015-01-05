@@ -72,10 +72,16 @@ puts "
 "
 
 if {[$record get warning] != ""} {
+	if {[$record get warning_mode]} {
+		set gcol red
+	} else {
+		set gcol blue
+	}
 	puts "
 	<tr>
 		<th>Warning</th>
-		<td>[$record get warning]</td>
+		<td><img class=va src=/img/Guidance_$gcol.png height=21>
+		    [$record get warning]</td>
 	</tr>
 	"
 }

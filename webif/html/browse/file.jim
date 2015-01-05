@@ -38,7 +38,17 @@ if {$type eq "ts"} {
 		puts "
 			<th>Guidance</th>
 			<td><img class=va
-			    src=/images/174_1_26_GuidancePolicy.png height=21>
+			    src=/img/Guidance_red.png height=21>
+			    [$ts get guidance]
+			</td>
+			</tr><tr>
+		"
+	}
+	if {[$ts flag "GGuidance"] > 0} {
+		puts "
+			<th>General Guidance</th>
+			<td><img class=va
+			    src=/img/Guidance_blue.png height=21>
 			    [$ts get guidance]
 			</td>
 			</tr><tr>

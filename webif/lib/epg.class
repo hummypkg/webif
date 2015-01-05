@@ -23,7 +23,7 @@ if {[file exists $::epgdbpath]} {
 
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
-#  * event CRID, series CRID, rec CRID
+#  * event CRID, series CRID, rec CRID, warning mode
 
 class epg {
 	service_id 	0
@@ -34,6 +34,7 @@ class epg {
 	name		""
 	text		""
 	warning		""
+	warning_mode	0
 	content_code	0
 	content_type	""
 	event_crid	""
@@ -47,12 +48,14 @@ class epg {
 
 	sched_type	-1
 	rsv		0
+
 }
 
 epg method _parse {line} {
 	lassign [split $line "\t"] \
 	    service_id event_id start duration encrypted name text warning \
-	    content_code content_type event_crid series_crid rec_crid
+	    content_code content_type event_crid series_crid rec_crid \
+	    warning_mode
 }
 
 epg method percent {} {
@@ -216,6 +219,16 @@ epg method icon_set {{height 0}} {
 	if {$icon != ""} {
 		lappend set "<img class=genre src=$icon $height
 		    alt=\"$content_type\" title=\"$content_type\">"
+	}
+
+	if {$warning ne ""} {
+		if {$warning_mode} {
+			set icon "Guidance_red"
+		} else {
+			set icon "Guidance_blue"
+		}
+		lappend set "<img class=guidance src=/img/$icon.png $height
+		    alt=Guidance title=Guidance>"
 	}
 
 	$self process_sched
