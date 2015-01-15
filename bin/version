@@ -1,0 +1,21 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+set modver [system modversion]
+set modbuild [system modbuild]
+if {$modbuild > 0} {
+	append modver " (build $modbuild)"
+}
+catch {set fhtcpversion [system fhtcpversion]}
+catch {set kernelver [system kernelver]}
+
+puts "
+Humax [system model] Fox T2 ([system hostname])
+  Humax Version: $fhtcpversion (kernel $kernelver)
+  Custom firmware version: $modver
+  Web interface version: [system pkgver webif]
+  Serial Number: [system serialno]
+"
+

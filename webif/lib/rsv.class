@@ -21,7 +21,7 @@ $rsvdb query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
 # version.
 catch { $rsvdb query {alter table pending add column action int} }
 
-set binaryfields {aulEventToRecordInfo}
+set binaryfields aulEventToRecordInfo
 
 class rsv {
 	ulslot			-1
@@ -61,14 +61,9 @@ if {![exists -proc binary]} { package require binary }
 
 rsv method aul {} {
 	set aul {}
-	if {[regexp -nocase {^[0-9a-f]+$} $aulEventToRecordInfo} {
-		if {[catch {
-			set aulEventToRecordInfo [\
-			    binary format H* $aulEventToRecordInfo]
-		}]} return $aul
-	}
-	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {incr i 16} {
-		binary scan [string range $aulEventToRecordInfo $i $($i + 15)] \
+	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {
+	    incr i 16} {
+		binary scan [string range $aulEventToRecordInfo $i $($i + 15)]\
 		    iiii service start end event_id
 		catch {lappend aul [list $service $start $end $event_id]}
 	}
@@ -296,17 +291,16 @@ rsv method insert {{table pending} {force 0}} {
 	}
 
 	set vals {}
+	set bvals {}
 	foreach field $fields {
 		set f [$self get $field]
 		if {$field in $::binaryfields && [string bytelength $f] > 1} {
-			if {![regexp -nocase {^[0-9a-f]+$} $f} {
-				binary scan $f H* f
-			}
-			lappend vals "X'$f'"
+			binary scan $f H* fx
+			lappend bvals $fx
+			lappend vals "X'%s'"
 		} else {
-			# Escape any quotes and percents embedded in the data.
-			regsub -all {['%]} $f {&&} f
-			lappend vals "'$f'"
+			lappend bvals $f
+			lappend vals "'%s'"
 		}
 	}
 
@@ -316,7 +310,10 @@ rsv method insert {{table pending} {force 0}} {
 	append query [join $vals ","]
 	append query ");"
 
-	$rsvdb query $query
+	#puts $query
+	#puts $bvals
+
+	$rsvdb query $query {*}$bvals
 }
 
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
@@ -528,8 +525,7 @@ proc {rsv construct} {event type} {
 		    epg dbfetch dump -scrid [$event get series_crid]  \
 		    -sort start] {
 			if {[set ecrid [$i get event_crid]] eq ""} { continue }
-			binary scan [rsv mkaul $i] H* ret
-			lappend events $ret
+			lappend events [rsv mkaul $i]
 			list "1$::ccrid$ecrid"
 		}]
 		set args(szEventToRecord)	 "[join $progs "|"]|"
@@ -660,7 +656,11 @@ proc {rsv restore} {file} {
 				continue
 			}
 			incr i
-			lappend vars $f [lindex $vals $i]
+			set val [lindex $vals $i]
+			if {$f in $::binaryfields} {
+				set val [binary format H* $val]
+			}
+			lappend vars $f $val
 		}
 
 		# Don't restore DSO events.
@@ -708,9 +708,11 @@ proc {rsv restore} {file} {
 				# Find the new hsvc if possible.
 				set _hsvc [rsv find_hsvc $lcn $channame]
 				if {$_hsvc eq ""} continue
+				puts -nonewline "      AUL $channame ($ohsvc"
 				if {$ohsvc != $_hsvc} {
-					puts "      AUL $channame ($ohsvc -> $_hsvc)"
+					puts -nonewline " -> $_hsvc"
 				}
+				puts ")"
 				append newaul [binary format iiii \
 					$_hsvc $start $end $eid]
 			}
@@ -722,6 +724,7 @@ proc {rsv restore} {file} {
 				puts "    Error inserting event, $msg"
 			}
 		}
+		puts ""
 	}
 
 	$rsvdb query {commit transaction;}
