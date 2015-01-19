@@ -7,7 +7,8 @@ proc hexdump data {
 		set bytes [string byterange $data $n $($n+15)]
 		binary scan $bytes H* hex
 		set hex [regexp -all -inline .. $hex]
-		regsub -all -- {[^a-z0-9]} $bytes . ascii
+		regsub -all -- {[\x01-\x1f\x80-\xff]} [\
+		    string map {\x00 .} $bytes] . ascii
 		append dump [format "%04X: %-48s %-16s\n" $n $hex $ascii]
 		incr n 16
 	}

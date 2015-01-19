@@ -456,3 +456,15 @@ proc {system usbmounts} {{full 0}} {
 	return $ret
 }
 
+proc {system has} {comp} {
+	switch $comp {
+	    wifi_dongle {
+		if {[catch {exec /mod/bin/iwgetid}]} {
+			return 0
+		}
+		return 1
+	    }
+	}
+	return 0
+}
+

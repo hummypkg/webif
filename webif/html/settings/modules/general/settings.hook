@@ -1,0 +1,94 @@
+
+######################################################################
+# General Settings
+
+puts "
+	<h4>General Settings</h4>
+	<div><fieldset style=\"display: inline\">
+		<legend>
+			General Settings
+		</legend>
+	<table>
+"
+
+puts "
+	<tr>
+	<form class=auto id=hostname method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Hostname</th>
+		<td><input name=hostname value=\"$hostname\"
+		    class=\"text ui-widget-content ui-corner-all\"
+		    length=20 maxlength=50>
+		    <small>
+		    <input id=hostname_submit value=\"change\" type=submit>
+		    </small>
+		    <div id=hostname_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+setting_toggle "Slide-down toolbar?" "notoolbar" $(!$notoolbar) 1
+setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
+setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1
+setting_toggle "Twitter feed ticker on main page?" "notwitfeed" $(!$notwitfeed) 1
+setting_toggle "Unwatched count on folders?" "nounwatchedcount" $(!$nounwatchedcount) 1
+if {[system pkginst ir]} {
+	setting_toggle "Disable channel change confirmation?" \
+	    "chanchangenc" $chanchangenc 0
+}
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=autolog method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Auto-processing log level</th>
+		<td><select id=autolog name=autolog
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=0"
+if {$autolog == 0} { puts " selected" }
+puts ">Actions and errors only\n"
+puts "<option value=1"
+if {$autolog == 1} { puts " selected" }
+puts ">Actions, errors and scan information\n"
+puts "<option value=2"
+if {$autolog == 2} { puts " selected" }
+puts ">Debugging information\n"
+puts "
+		</select>
+		<small>
+		<input name=autolog value=\"set\" type=submit>
+		</small>
+		<div id=autolog_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=audiomp3 method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Audio extraction type</th>
+		<td><select id=audiomp3 name=audiomp3
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=0"
+if {$audiomp3 == 0} { puts " selected" }
+puts ">[$settings audiomp3descr 0] - very fast but less compatible.\n"
+puts "<option value=1"
+if {$audiomp3 == 1} { puts " selected" }
+puts ">[$settings audiomp3descr 1] - around 60 times slower.\n"
+puts "
+		</select>
+		<small>
+		<input name=audiomp3 value=\"set\" type=submit>
+		</small>
+		<div id=audiomp3_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+</table></fieldset></div>
+"
+

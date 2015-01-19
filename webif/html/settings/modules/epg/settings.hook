@@ -1,0 +1,125 @@
+
+######################################################################
+# EPG Settings
+
+puts "
+<h4>EPG Settings</h4>
+<div><fieldset style=\"display: inline\">
+	<legend>
+		EPG Settings
+	</legend>
+<table>
+"
+
+puts "
+	<tr>
+	<form class=auto id=epg_style method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Default Now/Next style</th>
+		<td><select id=epg_style name=epg_style
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=standard"
+if {$epg_style ne "grid"} { puts " selected" }
+puts ">Standard\n"
+puts "<option value=grid"
+if {$epg_style eq "grid"} { puts " selected" }
+puts ">Grid\n"
+puts "
+		</select>
+		<small>
+		<input name=epg_style value=\"set\" type=submit>
+		</small>
+		<div id=epg_style_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form class=auto id=service_style method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Default Single-channel style</th>
+		<td><select id=service_style name=service_style
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=standard"
+if {$service_style eq "standard"} { puts " selected" }
+puts ">Standard\n"
+puts "<option value=grid"
+if {$service_style ne "standard"} { puts " selected" }
+puts ">Grid\n"
+puts "
+		</select>
+		<small>
+		<input name=service_style value=\"set\" type=submit>
+		</small>
+		<div id=service_style_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form class=auto id=channel_group method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Channel Group for EPG</th>
+		<td><select id=channel_group name=channel_group
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+
+set i 0
+puts "<option value=0>-- None --"
+foreach grp [$settings channel_groups] {
+	incr i
+	puts -nonewline "<option value=$i"
+	if {$channel_group == $i} {
+		puts -nonewline " selected"
+	}
+	puts ">$grp"
+}
+
+puts "
+		</select>
+		<small>
+		<input name=channel_group value=\"set\" type=submit>
+		</small>
+		<div id=channel_group_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+	<tr>
+	<form class=auto id=xepghours method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Grid-style EPG Hours</th>
+		<td><select id=xepghours name=xepghours
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+
+foreach xehopt {2 3 4 5 6} {
+	puts -nonewline "<option value=$xehopt"
+	if {$xehopt == $xepghours} {
+		puts -nonewline " selected"
+	}
+	puts ">$xehopt hours"
+}
+
+puts "
+		</select>
+		<small>
+		<input name=xepghours value=\"set\" type=submit>
+		</small>
+		<div id=xepghours_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+setting_toggle "De-duplicate genre search results?" genrededup $genrededup
+
+puts "
+	</table>
+	</fieldset></div>
+"
+

@@ -1,0 +1,24 @@
+
+######################################################################
+# Advanced Settings
+
+puts -nonewline "
+	<h4>Advanced Settings</h4>
+	<div>
+	<fieldset style=\"display: inline\">
+	<legend> Advanced Settings </legend>
+	<table>
+"
+setting_toggle "Show development and advanced packages?" "pkgdev" $pkgdev
+
+if {[system modversion 1] >= 214} {
+	setting_toggle "Expert mode telnet server?" "xtelnet" \
+	    [file exists /mod/boot/xtelnet] 0 1
+}
+
+puts "
+	</table>
+	</fieldset>
+	</div>
+"
+

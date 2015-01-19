@@ -13,7 +13,8 @@ puts {
 	<div style="width: 100%; height: 0.7em;
 	    background: url(/img/stripes.gif) repeat-x;"></div>
 	<div style="font-size: 1.2em; width: 60%; text-align: center; padding: 0.5em">
-	A restart is required in order to complete a scheduling operation.
+	A restart is required in order to complete a scheduling operation or
+	system settings change.
 	<br>
 	<font class=blood>
 }

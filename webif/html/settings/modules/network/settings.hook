@@ -1,0 +1,174 @@
+
+######################################################################
+# Network Settings
+
+proc _ns_extractip {blob} {
+	if {[string bytelength $blob] != 4} { return "" }
+	set r {}
+	binary scan $blob c4 octets
+	foreach octet $octets {
+		lappend r [expr {$octet & 0xff}]
+	}
+	return [join $r .]
+}
+
+proc _ns_ssid {} {
+	set val [system param WLAN_CONNECTED_AP Blob]
+	if {$val ne "0"} {
+		return [string trim [string range $val 0 20]]
+	}
+	return ""
+}
+
+proc _ns_pass {} {
+	set val [system param WLAN_CONNECTED_AP Blob]
+	if {$val ne "0"} {
+		return [string trim [string range $val 120 239]]
+	}
+	return ""
+}
+
+proc _ns_iftable {if tag} {
+	if {[system param ETHERNET_CONF_${tag}] eq 1} {
+		set _static checked
+		set _dhcp ""
+	} else {
+		set _static ""
+		set _dhcp checked
+	}
+	set r "
+<form id=networksettings_$if class=auto method=post
+    action=modules/network/save.jim>
+<input type=hidden name=if value=$if />
+<input type=hidden name=tag value=$tag />
+<table>
+<tr>
+	<th class=key>Mode</th>
+	<td>
+	    <input type=radio name=mode value=static $_static>Static
+	    <br>
+	    <input type=radio name=mode value=dhcp $_dhcp>DHCP
+	</td>
+</tr><tr>
+	<th class=key>IP Address</th>
+	<td><input name=ip class=static value=\"[
+	    _ns_extractip [system param ETHERNET_CONF_${tag}_IP Blob]]\"></td>
+</tr><tr>
+	<th class=key>Network Mask</th>
+	<td><input name=mask class=static value=\"[
+	    _ns_extractip [system param ETHERNET_CONF_${tag}_NETMASK Blob]]\">
+	</td>
+</tr><tr>
+	<th class=key>Gateway</th>
+	<td><input name=gw class=static value=\"[
+	    _ns_extractip [system param ETHERNET_CONF_${tag}_GATEWAY Blob]]\">
+	</td>
+</tr><tr>
+	<th class=key>DNS Server</th>
+	<td><input name=dns class=static value=\"[
+	    _ns_extractip [system param ETHERNET_CONF_${tag}_DNS Blob]]\"></td>
+</tr><tr>
+	"
+	if {$if eq "wifi"} {
+		set authtypes {
+			0 "None"
+			1 "WEP 64-bit Hex"
+			2 "WEP 64-bit ASCII"
+			3 "WEP 128-bit Hex"
+			4 "WEP 128-bit ASCII"
+			5 "WPA PSK (TKIP)"
+			6 "WPA PSK (AES)"
+			7 "WPA2 PSK (TKIP+AES)"
+			8 "WPA2 PSK (AES)"
+		}
+
+		append r "
+		    <tr>
+			<th class=key>SSID</th>
+			<td>
+				<input name=ssid value=\"[_ns_ssid]\">
+				<small>
+				<button id=ns_ssid_scan>Scan</button>
+				</small>
+			</td>
+		    </tr>
+		    <tr id=ns_ssid_list_row class=hidden>
+			<th class=key>&nbsp;</th>
+			<td>
+				<div id=ns_ssid_loading class=blood>
+					<img src=/img/loading.gif>
+					Scanning for wireless networks...
+				</div>
+				<table id=ns_ssid_list></table>
+			</td>
+		    </tr>
+		"
+
+		append r "
+			<th class=key>Authentication Type</th>
+			<td><select name=auth>
+		"
+		set val [system param WLAN_AUTH_TYPE]
+		foreach id [array names authtypes] {
+			append r "<option value=\"$id\""
+			if {$id eq $val} { append r " selected" }
+			append r ">$authtypes($id)\n"
+		}
+		append r "</select></td></tr><tr>"
+
+		append r "
+		    <tr>
+			<th class=key>
+				Passphrase/key
+				<br>
+				<a href=# class=footnote id=ns_pp_toggle>
+					Reveal
+				</a>
+			</th>
+			<td><input type=password id=ns_pp name=pass size=40
+			    value=\"[_ns_pass]\"></td>
+		    </tr><tr>
+		"
+	}
+	append r "
+	<td></td>
+	<td align=right><small><input type=submit value=\"Save\"></small></td>
+	
+</table>
+</form>
+<div id=networksettings_${if}_output></div>
+	"
+}
+
+puts "
+<h4>Network Settings</h4>
+<div id=network_settings>
+    <fieldset style=\"display: inline; float: left\">
+	<legend>
+		Ethernet Interface
+	</legend>
+	[_ns_iftable eth 1ST]
+    </fieldset>
+    <fieldset style=\"display: inline; float: left\">
+	<legend>
+		Wireless Interface
+	</legend>
+"
+
+if {[system has wifi_dongle]} {
+	puts [_ns_iftable wifi 2ND]
+} else {
+	puts "<i>No wireless dongle detected.</i>"
+	puts "<br>"
+	puts "<img src=/images/217_1_08_WIZ_WiFi.png>"
+}
+
+puts "
+    </fieldset>
+</div>
+
+<script type=text/javascript src=/settings/modules/network/script.js>
+</script>
+"
+
+

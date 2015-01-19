@@ -1,0 +1,107 @@
+
+######################################################################
+# Web Interface Settings
+
+puts "
+	<h4>Web Interface Settings</h4>
+	<div>
+	<fieldset style=\"display: inline\">
+	<legend> Web Interface Settings </legend>
+	<table>
+"
+setting_toggle "HTTPS web server?" "https" \
+    [file exists /mod/etc/webif.pem] 0 1
+puts "
+	</table>
+	</legend></fieldset>
+	<br>
+	<fieldset style=\"display: inline\">
+	<legend> User Access Control </legend>
+	<table>
+"
+
+set aclusers [$settings aclusers]
+if {[llength $aclusers]} {
+	puts "<tr><th colspan=5 class=odd>Existing Users</th></tr>"
+	foreach user [$settings aclusers] {
+		lassign $user user
+		puts "<tr><td align=center style=\"font-weight: bold\">
+		    $user</td>"
+		puts "<th class=key>New password:
+	        <input
+		  class=\"aclpass text ui-widget-content ui-corner-all\"
+		  type=password size=20 maxlength=50><br>"
+		puts "Again:
+	        <input
+		  class=\"aclpassc text ui-widget-content ui-corner-all\"
+		  type=password size=20 maxlength=50></td>"
+		puts "<th class=key><button class=pwchange>
+		    Change</button></td>"
+		puts "<th class=key><button class=userdel>
+		    Delete User</button></td>"
+		puts "</tr>"
+	}
+	puts "<tr><td colspan=5 id=aclusermod_output>&nbsp;</td></tr>"
+	puts "<tr><td colspan=5>&nbsp;</td></tr>"
+} else {
+	puts "<tr><td colspan=5 class=blood><b>
+	    Add a user to enable authentication.</b></td></tr>"
+}
+
+puts "<tr><th colspan=5 class=odd>Add New User</th></tr>"
+puts "
+	<form id=aclnewuser method=get action=$env(SCRIPT_NAME)>
+	<tr><th class=key>New User:</th><td>
+	    <input
+		class=\"text ui-widget-content ui-corner-all\"
+		id=acluser name=acluser size=20 maxlength=50></td></tr>
+	<tr><th class=key>Password:</th><td>
+	    <input type=password
+		class=\"text ui-widget-content ui-corner-all\"
+		id=aclpass name=aclpass size=20 maxlength=50></td></tr>
+	<tr><th class=key>Password (confirm):</th><td>
+	    <input type=password
+		class=\"text ui-widget-content ui-corner-all\"
+		id=aclpassc name=aclpassc size=20 maxlength=50></td></tr>
+	<tr><td><input id=aclnewuser_submit value=\"Add User\" type=submit>
+	    </td></tr>
+	</form>
+	</table>
+	<div id=aclnewuser_output></div>
+	</fieldset>
+	</div>
+"
+
+puts {
+<script type=text/javascript>
+$('#aclnewuser').ajaxForm({
+	target: '#aclnewuser_output',
+	success: function(txt) {
+		if (txt.indexOf('Success') >= 0)
+			window.location.reload(true);
+	}
+});
+
+$('button.userdel').click(function(el) {
+	var user = $('td:first', $(this).parents('tr')).text().trim();
+	$('#aclusermod_output').load(
+	    '/settings/settings.jim?aclact=del&acluser=' +
+	    encodeURIComponent(user), function(txt) {
+		if (txt.indexOf('Success') >= 0)
+			window.location.reload(true);
+	});
+});
+
+$('button.pwchange').click(function(el) {
+	var tr = $(this).parents('tr');
+	var user = $('td:first', $(tr)).text().trim();
+	var pass = $(tr).find('input.aclpass').val();
+	var passc = $(tr).find('input.aclpassc').val();
+	$('#aclusermod_output').load('/settings/settings.jim?' +
+	    'acluser=' + encodeURIComponent(user) + '&' +
+	    'aclpass=' + encodeURIComponent(pass) + '&' +
+	    'aclpassc=' + encodeURIComponent(passc));
+});
+</script>
+}
+

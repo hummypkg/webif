@@ -1,0 +1,68 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+httpheader "application/json"
+
+if {![system has wifi_dongle]} {
+	puts "\[]"
+	exit
+}
+
+catch {exec ifconfig wlan0 up}
+if {[catch {set op [exec /mod/bin/iwlist wlan0 scan]}]} {
+	puts "\[]"
+	exit
+}
+
+set lines [split $op "\n"]
+
+puts "\["
+set cur 0
+foreach line [split $op "\n"] {
+	set extra [lassign [split $line :] key val]
+	switch -glob [string trim $key] {
+	    *Address {
+		if {$cur} {
+			puts ""
+			puts "  \},"
+		} else {
+			incr cur
+		}
+		puts "  \{"
+		set mac "$val:[join $extra :]"
+		puts -nonewline "    \"address\": \"[string trim $mac]\""
+	    }
+	    ESSID {
+		puts ","
+		puts -nonewline "    \"ssid\": \"[string trim $val \"]\""
+	    }
+	    Channel {
+		puts ","
+		puts -nonewline "    \"channel\": \"[string trim $val]\""
+	    }
+	    Quality {
+		puts ","
+		#puts "$val $extra"
+		set q [lindex [split $val /] 0]
+		set s [lindex [split [lindex $extra 0] " "] 0]
+		set n [lindex [split [lindex $extra 1] " "] 0]
+		puts "    \"quality\": \"$q\","
+		puts "    \"signal\": \"$s\","
+		puts -nonewline "    \"noise\": \"$n\""
+	    }
+	    Encryption?key {
+		puts ","
+		puts -nonewline "    \"encryption\": \"[string trim $val]\""
+	    }
+	}
+}
+
+if {$cur} {
+	puts ""
+	puts "  \}"
+}
+
+puts "\]"
+

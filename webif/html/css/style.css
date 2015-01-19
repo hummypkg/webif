@@ -235,7 +235,7 @@ pre, .pre
 
 .blood
 {
-	color: #ff4000;
+	color: #ff4000 !important;
 	background: transparent;
 }
 
@@ -254,7 +254,7 @@ pre, .pre
 
 .footnote
 {
-	color: #ff4000;
+	color: #ff4000 !important;
 }
 
 .blueshade

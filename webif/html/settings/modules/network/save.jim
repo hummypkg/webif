@@ -1,0 +1,125 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require sqlite3
+source /mod/webif/lib/setup
+require system.class hexdump
+
+httpheader
+
+set tag [cgi_get tag -]
+set if [cgi_get if -]
+if {$tag eq "-" || $if eq "-"} {
+	puts "Missing tag or interface."
+	exit
+}
+
+proc ip2x {ip {validate 0}} {
+	set octets [split $ip .]
+	if {[llength $octets] != 4} {
+		error "Invalid IP address (octets)"
+		set octets [lrange [concat $octets 0 0 0] 0 3]
+	}
+	if {$validate} {
+		foreach oct $octets {
+			if {$oct < 0 || $oct > 255} {
+				error "Invalid octet, $oct"
+			}
+		}
+	}
+	binary scan [binary format c4 $octets] H8 x
+	return $x
+ }
+
+proc valid_ip {ip} {
+	if {[catch {ip2x $ip 1} msg]} {
+		return 0
+	}
+	return 1
+}
+
+set file "/mod/boot/dbupdate/webif_network_$if"
+
+switch [cgi_get mode -] {
+    static {
+	foreach f {ip mask gw dns} {
+		set errs {}
+		set $f [cgi_get $f -]
+		if {[set $f] eq "-"} {
+			lappend errs "Missing $f"
+		} elseif {![valid_ip [set $f]]} {
+			lappend errs "Invalid $f - [set $f]"
+		}
+	}
+	if {[llength $errs]} {
+		puts [join $errs "<br>"]
+		exit
+	}
+	set fd [open $file w]
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_$tag:Value:1"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_IP:Blob:[ip2x $ip]"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_NETMASK:Blob:[ip2x $mask]"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_GATEWAY:Blob:[ip2x $gw]"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_DNS:Blob:[ip2x $dns]"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_IP:Value:1"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_NETMASK:Value:1"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_GATEWAY:Value:1"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_DNS:Value:1"
+    }
+    dhcp {
+	set fd [open $file w]
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_$tag:Value:0"
+    }
+    default {
+	puts "Unknown mode."
+	exit
+    }
+}
+
+if {$if eq "wifi"} {
+	set ssid [cgi_get ssid SSID]
+	set pass [cgi_get pass PASSPHRASE]
+	set auth [cgi_get auth 7]
+
+	set data [string repeat "\x0" 0xfc]
+	pack data $ssid -str $([string length $ssid] * 8)
+	pack data $pass -str $([string length $pass] * 8) $(8 * 0x78)
+
+	switch $auth {
+	    8 {
+			# "WPA2 PSK (AES)"
+			set bytes {3 4 4}
+	    }
+	    7 {
+			# "WPA2 PSK (TKIP+AES)"
+			set bytes {3 4 2}
+	    }
+	    6 {
+			# "WPA PSK (AES)"
+			set bytes {2 3 4}
+	    }
+	    5 {
+			# "WPA PSK (TKIP)"
+			set bytes {2 3 2}
+	    }
+	    default {
+			set bytes {0 0 0}
+	    }
+	}
+	pack data [lindex $bytes 0] -intle 8 $(8 * 0x68)
+	pack data [lindex $bytes 1] -intle 8 $(8 * 0x6c)
+	pack data [lindex $bytes 2] -intle 8 $(8 * 0x70)
+	#hexdump $data
+
+	binary scan $data H* val
+	puts $fd "setup:MENUCONFIG:WLAN_CONNECTED_AP:Value:0"
+	puts $fd "setup:MENUCONFIG:WLAN_CONNECTED_AP:Blob:$val"
+	puts $fd "setup:MENUCONFIG:WLAN_IS_CONNECTED:Value:1"
+	puts $fd "setup:MENUCONFIG:WLAN_AUTH_TYPE:Value:$auth"
+}
+
+$fd close
+
+system restartpending
+puts "Settings will take effect on next boot."
+
