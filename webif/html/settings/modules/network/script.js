@@ -52,7 +52,9 @@ if (v.encryption == 'on')
 else
 	str += '<td></td>';
 str += '<td><a class=ssid href=#>' + v.ssid + '</a></td>';
-str += '<td class=footnote>(Channel ' + v.channel + ')</td>';
+str += '<td class=blood>' + 'Channel ' + v.channel + ',</td>' +
+       '<td class=blood>' + '802.11 ' + v.protocol + ',</td>' +
+       '<td class=blood>' + v.auth + '</td>';
 str += '</tr>';
 			$('#ns_ssid_list').append(str);
 		});
@@ -68,5 +70,30 @@ $('#ns_ssid_list').on('click', 'a.ssid', function(el) {
 	$(form).find('input[name=ssid]').val($(this).text());
 });
 
+$('#ns_wifi_authmode').on('change', function() {
+	val = ~~($(this).val());
 
+	switch (val)
+	{
+	    case 0:
+		$('#ns_pp').disable().attr('size', 10);
+		break;
+	    case 1:
+		$('#ns_pp').enable().attr('size', 14).attr('maxlength', 10);
+		break;
+	    case 2:
+		$('#ns_pp').enable().attr('size', 8).attr('maxlength', 5);
+		break;
+	    case 3:
+		$('#ns_pp').enable().attr('size', 30).attr('maxlength', 26);
+		break;
+	    case 4:
+		$('#ns_pp').enable().attr('size', 16).attr('maxlength', 13);
+		break;
+	    default:
+		$('#ns_pp').enable().attr('size', 40).attr('maxlength', 128);
+		break;
+	}
+	
+}).trigger('change');
 

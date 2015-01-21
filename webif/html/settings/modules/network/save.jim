@@ -85,26 +85,21 @@ if {$if eq "wifi"} {
 	pack data $ssid -str $([string length $ssid] * 8)
 	pack data $pass -str $([string length $pass] * 8) $(8 * 0x78)
 
-	switch $auth {
-	    8 {
-			# "WPA2 PSK (AES)"
-			set bytes {3 4 4}
-	    }
-	    7 {
-			# "WPA2 PSK (TKIP+AES)"
-			set bytes {3 4 2}
-	    }
-	    6 {
-			# "WPA PSK (AES)"
-			set bytes {2 3 4}
-	    }
-	    5 {
-			# "WPA PSK (TKIP)"
-			set bytes {2 3 2}
-	    }
-	    default {
-			set bytes {0 0 0}
-	    }
+	set authmap {
+		8 {3 4 4}	# WPA2 PSK (AES)
+		7 {3 4 2}	# WPA2 PSK (TKIP+AES)
+		6 {2 3 4}	# WPA PSK (AES)
+		5 {2 3 2}	# WPA PSK (TKIP)
+		4 {1 1 2}	# WEP 128-bit ASCII 	# Guess
+		3 {1 2 2}	# WEP 128-bit Hex	# Guess
+		2 {1 1 1}	# WEP 64-bit ASCII	# Guess
+		1 {1 0 1}	# WEP 64-bit Hex
+		0 {0 0 0}	# None
+	}
+	if {[dict exists $authmap $auth]} {
+		set bytes [dict get $authmap $auth]
+	} else {
+		set bytes {0 0 0}
 	}
 	pack data [lindex $bytes 0] -intle 8 $(8 * 0x68)
 	pack data [lindex $bytes 1] -intle 8 $(8 * 0x6c)

@@ -106,7 +106,7 @@ proc _ns_iftable {if tag} {
 
 		append r "
 			<th class=key>Authentication Type</th>
-			<td><select name=auth>
+			<td><select id=ns_wifi_authmode name=auth>
 		"
 		set val [system param WLAN_AUTH_TYPE]
 		foreach id [array names authtypes] {

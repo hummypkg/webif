@@ -25,14 +25,72 @@ foreach line [split $op "\n"] {
 	switch -glob [string trim $key] {
 	    *Address {
 		if {$cur} {
-			puts ""
+			if {![llength $authtypes]} {
+				lappend authtypes "WEP"
+			}
+			puts ","
+			puts "    \"auth\": \"$authtypes\""
 			puts "  \},"
 		} else {
 			incr cur
 		}
+		set authtypes {}
 		puts "  \{"
 		set mac "$val:[join $extra :]"
 		puts -nonewline "    \"address\": \"[string trim $mac]\""
+	    }
+	    IE {
+		switch -glob [string trim $val] {
+		    "WPA Version 1" {
+			lappend authtypes "WPA/"
+		    }
+		    *WPA2* {
+			lappend authtypes "WPA2/"
+		    }
+		}
+	    }
+	    "Group Cipher" {
+		switch -glob [string trim $val] {
+		    TKIP {
+			set x [lindex $authtypes end]
+			append x "TKIP"
+			lset authtypes end $x
+		    }
+		    CCMP {
+			set x [lindex $authtypes end]
+			append x "AES"
+			lset authtypes end $x
+		    }
+		}
+	    }
+	    "Pairwise Ciphers*" {
+		switch -glob [string trim $val] {
+		    *TKIP* {
+			set x [lindex $authtypes end]
+			if {![string match *TKIP* $x]} {
+				if {![string match */ $x]} {
+					append x +
+				}
+				append x "TKIP"
+			}
+			lset authtypes end $x
+		    }
+		    *CCMP* {
+			set x [lindex $authtypes end]
+			if {![string match *AES* $x]} {
+				if {![string match */ $x]} {
+					append x +
+				}
+				append x "AES"
+			}
+			lset authtypes end $x
+		    }
+		}
+	    }
+	    Protocol {
+		puts ","
+		puts -nonewline "    \"protocol\": \"[string trim [
+		    string map {802.11 ""} $val]]\""
 	    }
 	    ESSID {
 		puts ","
@@ -60,7 +118,11 @@ foreach line [split $op "\n"] {
 }
 
 if {$cur} {
-	puts ""
+	if {![llength $authtypes]} {
+		lappend authtypes "WEP"
+	}
+	puts ","
+	puts "    \"auth\": \"$authtypes\""
 	puts "  \}"
 }
 
