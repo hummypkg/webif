@@ -1,0 +1,36 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require system.class
+
+httpheader "application/json"
+
+set dev [cgi_get device -]
+
+set disks [system usbdisks 1]
+
+puts "{"
+if {![dict exists $disks $dev]} {
+	puts "\"status\": 0,"
+	puts "\"result\": \"No such device - $dev.\""
+} else {
+	set root "/sys/bus/usb/drivers/usb-storage"
+	set id $disks($dev)
+	if {[catch {
+		set fd [open "$root/unbind" w]
+		puts -nonewline $fd $id
+		$fd close
+		set fd [open "$root/bind" w]
+		puts -nonewline $fd $id
+		$fd close
+	    } msg]} {
+		puts "\"status\": 0,"
+		puts "\"result\": \"$msg\""
+	} else {
+		puts "\"status\": 1,"
+		puts "\"result\": \"Successfully re-scanned $dev\""
+	}
+}
+puts "}"
+

@@ -392,6 +392,28 @@ proc {system strip} {str} {
 	return $str
 }
 
+proc {system usbdisks} {{full 0}} {
+	set disks [glob -nocomplain \
+	    -directory /sys/bus/usb/drivers/usb-storage *:*]
+	if {!$full} {
+		return [llength $disks]
+	}
+	if {![llength $disks]} { return {} }
+
+	# Build list of device to device ID
+	set map {}
+	foreach block [glob -nocomplain -directory /sys/block sd?] {
+		set link [file readlink /sys/block/$block/device]
+		foreach disk $disks {
+			if {[string first "/$disk/" $link] >= 0} {
+				set map($block) $disk
+			}
+		}
+		
+	}
+	return $map
+}
+
 proc {system usbmounts} {{full 0}} {
 	if {!$full} {
 		set num 0

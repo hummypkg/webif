@@ -28,7 +28,8 @@ $('#usbeject').on('click', function(e) {
 	$('#usbejectinfo').slideDown();
 	$.getJSON('/cgi-bin/usbinfo.jim', function(data) {
 		var num = 0;
-		$.each(data, function(k,v) {
+
+		$.each(data.mounts, function(k,v) {
 			num++;
 			var size = v.SIZE / 1000000000;
 			if (size >= 1000)
@@ -71,6 +72,22 @@ $('#usbeject').on('click', function(e) {
 				lineCap: 'butt'
 			});
 		});
+
+		if (data.disks)
+		    $.each(data.disks, function(k,v) {
+			num++;
+			$('#usbejecttab').append(
+			    '<tr><td><img class=va height=20 ' +
+				'src=/img/usb.png></td>' +
+			    '<td class=usblabel>' + v.device + '</td>' +
+			    '<td colspan=3 class=blood>' +
+			    '(Device not mounted)</td>' +
+			    '<td><img class="va rescan" border=0 height=20' +
+				' device=' + v.device +
+				' src=/img/media-rescan.png></td>' +
+			    '</tr>');
+		    });
+
 		$('#usbejectout').empty();
 		if (!num)
 			$('#usbejectout').html('No removable drives found.');
@@ -87,6 +104,24 @@ $('#usbeject').on('click', function(e) {
 	$.getJSON('/cgi-bin/usbeject.jim', {
 	    label: label,
 	    drive: drive
+	    }, function(data) {
+		$('#usbejectout').html(data.result);
+		if (data.status)
+			// Success
+			btn.closest('tr').slideUp('slow', function() {
+				$(this).remove();
+			});
+	    });
+}).on('click', 'img.rescan', function(e) {
+	e.stopPropagation();
+	var btn = $(this);
+	var dev = btn.attr('device');
+	if (!confirm('Rescan ' + dev + '?'))
+		return;
+	$('#usbejectout').html('<img src=/img/loading.gif> ' +
+	    '<span class=blood>Re-scanning ' + dev + '</span>');
+	$.getJSON('/cgi-bin/usbrescan.jim', {
+	    device: dev
 	    }, function(data) {
 		$('#usbejectout').html(data.result);
 		if (data.status)

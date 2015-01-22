@@ -13,23 +13,47 @@ if {[file isdirectory /mnt/hd2]} {
 	lappend ignoredev $st(dev)
 }
 
-puts "\["
+set usbdisks [system usbdisks 1]
+
+puts "{"
+puts "  \"mounts\": \["
 set flag 0
 foreach usb [system usbmounts 1] {
 	file stat $usb(MP) st
 	if {$usb(MODEL) ne $fsg && $st(dev) in $ignoredev} continue
 	if {$flag} { puts "," } else { set flag 1 }
-	puts "  {"
+	puts "    {"
 
 	set sf 0
-	foreach k [array names usb] {
+	foreach {k v} $usb {
 		if {$sf} { puts "," } else { set sf 1 }
-		puts -nonewline "    \"$k\": \"$usb($k)\""
+		puts -nonewline "      \"$k\": \"$v\""
 	}
 	puts ""
 
-	puts -nonewline "  }"
+	puts -nonewline "    }"
+
+	if {[dict exists $usbdisks $usb(RDEV)]} {
+		dict unset usbdisks $usb(RDEV)
+	}
 }
-puts ""
-puts "]"
+if {$flag} { puts "" }
+puts -nonewline "  ]"
+
+if {[llength $usbdisks] > 0} {
+	puts ","
+	puts "  \"disks\": \["
+	set flag 0
+	foreach {k v} $usbdisks {
+		if {$flag} { puts "," } else { incr flag }
+		puts "    {"
+		puts "        \"device\": \"$k\","
+		puts "        \"id\": \"$v\""
+		puts -nonewline "    }"
+	}
+	puts ""
+	puts -nonewline "]"
+}
+
+puts "}"
 

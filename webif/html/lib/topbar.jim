@@ -22,7 +22,7 @@ puts {
 	</div>
 	<div class=right><img src=/images/154_1_00_WIN_MD116_3R.png></div>
 }
-if {[system model] eq "HDR" && [system usbmounts] > 0} {
+if {[system model] eq "HDR" && [system usbdisks] > 0} {
 	source /mod/webif/include/usbeject.jim
 }
 puts {
