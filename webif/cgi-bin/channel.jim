@@ -36,13 +36,13 @@ puts "
 "
 foreach tw [$db query {
 		select tsIdx, szNetName, usTsID, ulFrequency, ucLevel,
-		ucQuality, eTransMode
+		ucQuality, eTransMode, eConstellation
 		from TBL_TS join TBL_NET using (netIdx)
 		order by ulFrequency
 	}] {
 	lassign $tw \
 	    x tsIdx x netName x usTsID x ulFrequency x ucLevel x ucQuality \
-	    x eTransMode
+	    x eTransMode x eConstellation
 
 	puts "
 		<tr class=odd>
@@ -60,7 +60,11 @@ foreach tw [$db query {
 		order by usLcn
 		} $tsIdx]
 
-	set mux "Local"
+	if {$eConstellation == 1} {
+		set mux "Local"
+	} else {
+		set mux "Unknown"
+	}
 	set ehs 0
 	foreach chan $channels {
 		lassign $chan x lcn x name

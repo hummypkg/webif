@@ -304,7 +304,8 @@ proc do_decrypt {ts} {
 	set anencd [exec /mod/bin/stripts -qE $rfile]
 	if {$anencd != "1"} {
 		log "  $file - already decrypted but the HMT flag is wrong." 0
-		system notify "$file - auto-decrypt - file is already decrypted but the HMT flag is wrong. Run the 'fixencflags' diagnostic."
+		# Fix...
+		exec /mod/webif/lib/bin/fixencflags $file
 		return
 	}
 

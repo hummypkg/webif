@@ -1,0 +1,33 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class ts.class
+
+proc fix_one {ts} {
+   set flag [$ts flag "ODEncrypted"]
+   set rfile [file rootname [$ts get file]]
+   set anencd [exec /mod/bin/stripts -qE $rfile]
+        if {$flag && $anencd != "1"} {
+        exec /mod/bin/hmt -encrypted "$rfile.hmt"
+        puts "FIXED ENC $rfile"
+   }
+        if {!$flag && $anencd == "1"} {
+        exec /mod/bin/hmt +encrypted "$rfile.hmt"
+        puts "FIXED DEC $rfile"
+   }
+}
+
+if {![llength $argv]} {
+	ts iterate [lambda {ts} {
+		fix_one $ts
+	}]
+	exit
+}
+
+foreach file $argv {
+	if {![string match {*.ts} $file]} continue
+	if {[catch {set ts [ts fetch $file]}]} continue
+	if {$ts == 0} continue
+	fix_one $ts
+}
+
