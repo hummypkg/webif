@@ -1,0 +1,24 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require ts.class system.class
+
+set file [lindex $argv 0]
+set ts [ts fetch "$file.ts"]
+set root [system mediaroot]
+
+set dir [file dirname $file]
+if {[string match "$root*" $dir]} {
+	set dir [string range $dir $([string length $root] + 1) end]
+}
+set ch [$ts get channel_name]
+set dur [$ts duration]
+set title [$ts get title]
+
+set msg "Recorded: $dir/$title ($dur minutes - $ch)"
+set logfd [open "/mod/tmp/record.log" "a+"]
+puts $logfd "[\
+    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
+    ] - $msg"
+$logfd close
+

@@ -117,7 +117,11 @@ proc entry {file} {{i 0}} {
 	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
 		set type ts
 		set ts [ts fetch $file 1]
-		set img Video_TS
+		if {[$ts get status] eq "Valid/OK"} {
+			set img Video_TS
+		} else {
+			set img Video_Failed
+		}
 		set omenu opt
 		if {[file exists "${base}.thm"]} { set thmok 1 }
 	} elseif {$ext eq ".hmt"} {

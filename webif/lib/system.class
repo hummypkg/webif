@@ -134,6 +134,14 @@ proc {system mediaroot} {} {
 	return ""
 }
 
+proc {system dlnadb} {} {
+	switch [system model] {
+		HDR { return "/mnt/hd2/dms_cds.db" }
+		HD { return "/media/drive1/dms_cds.db" }
+	}
+	return ""
+}
+
 proc {system dustbin} {{short 0}} {
 	set dustbin "\[Deleted Items\]"
 	if {![catch {set fd [open "/mod/boot/dustbin.name" r]}]} {

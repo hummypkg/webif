@@ -90,6 +90,9 @@ if {$type eq "ts"} {
 	    <font class=also>(Scheduled: [expr [$ts get scheddur] / 60])
 	    </font></td>
 </tr><tr>
+	<th>Status</th>
+	<td>[$ts get status]</td>
+</tr><tr>
 	<th>Resumes</th>
 	<td>[expr [$ts get resume] / 60] minutes into recording.
 	    [progressbar $([$ts get resume] * 100 / [$ts duration 1])]
