@@ -83,7 +83,7 @@ set rec 0
 set output {}
 
 set opfile ""
-if {[file exists "/mod/tmp/webif_auto/.op"} {
+if {[file exists "/mod/tmp/webif_auto/.op"]} {
 	set fp [open "/mod/tmp/webif_auto/.op"]
 	lassign [split [string trim [$fp read]] ":"] op opfile
 	$fp close
@@ -284,6 +284,7 @@ foreach event $events {
 		    " [clock format [$event get nsttime] -format {%H:%M}]" \
 		    "  </span>\n" \
 		    "</span>\n" \
+		]
 	} else {
 		lappend output [concat \
 		    "Will record '[$event name]' " \

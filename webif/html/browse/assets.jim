@@ -31,7 +31,7 @@ puts { <li class=thm><a href=#vthm>View Thumbnail</a></li> }
 
 puts { <li class=bookmark><a href=#bmarks>Bookmarks</a></li> }
 
-if $nicesplice {
+if {$nicesplice} {
 	puts {
 		<li class="cut"><a href=#crop>Crop</a></li>
 		<li class="cut"><a href=#chunk>Split (45m parts)</a></li>
@@ -96,7 +96,7 @@ if {$model eq "HDR"} {
 		    </a></li>
 	}
 }
-if $flatten {
+if {$flatten} {
 	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
 }
 

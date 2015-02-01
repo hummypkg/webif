@@ -62,7 +62,7 @@ proc _handle_update {class var old text} {
 		set new [string trim [dict get $_cgi $var]]
 		if {$new == $old} {
 			puts "$text unchanged."
-		} elseif [string is $class -strict $new] {
+		} elseif {[string is $class -strict $new]} {
 			$settings $var $new
 			puts "$text updated."
 		} else {

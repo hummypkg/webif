@@ -45,7 +45,7 @@ puts {
 
 	$(document).ready(function() {
 		$('#progressbar').reportprogress(0);
-		handle = setInterval("update()", 400);
+		handle = setInterval("update()" , 400);
 		$.get('/cgi-bin/restart.jim?now=yes');
 	});
 </script>

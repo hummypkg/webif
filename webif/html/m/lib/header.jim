@@ -37,7 +37,7 @@ puts {
 </head> 
 }
 
-if [dict exists $env SCRIPT_NAME] {
+if {[dict exists $env SCRIPT_NAME]} {
 	set pageid [string range $env(SCRIPT_NAME) 3 end-4]
 } else {
 	set pageid test
@@ -90,6 +90,7 @@ if {$_bare} {
     [_header]
  </div>
  <div data-role=content>
+	"
 }
 
 set renderstart [clock milliseconds]

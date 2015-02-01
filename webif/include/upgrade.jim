@@ -1,0 +1,15 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+if {[system modversion 1] < 300} {
+	puts {
+</span><br><span class=blood>
+Your custom firmware is out of date and will shortly stop receiving package updates - 
+<a href=http://hummy.tv/forum/threads/5867/>
+click for details</a>
+</span>
+	}
+}
+

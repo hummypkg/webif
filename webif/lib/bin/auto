@@ -501,7 +501,7 @@ proc do_mp3 {ts} {
 
 proc entries {dir callback} {
 	foreach entry [readdir -nocomplain $dir] {
-		if {![string match {*.ts} $entry} continue
+		if {![string match {*.ts} $entry]} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
 		$callback $ts

@@ -1,7 +1,7 @@
 
 if {![exists -proc cat]} {
 	proc cat {file} {
-		if {[catch {set fp [open $file r}]} { return }
+		if {[catch {set fp [open $file r]}]} { return }
 		puts -nonewline [read $fp]
 		close $fp
 	}

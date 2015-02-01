@@ -96,7 +96,7 @@ puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
 but "&lt&lt; -1 Week" $($stt - 3600 * 24 * 7) \
     $($stt - $now + 3600 >= 3600 * 24 * 7)
 but "&lt&lt; -1 Day" $($stt - 3600 * 24) $($stt - $now >= 3600 * 23)
-but "&lt;&lt; Earlier", $($stt - 3600 * 4) $($stt > $now)
+but "&lt;&lt; Earlier" $($stt - 3600 * 4) $($stt > $now)
 #but "&lt; Now &gt;" $now $($current == 0)
 but "&lt; Now &gt;" $now
 but "&gt;&gt; Later" $ett;

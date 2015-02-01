@@ -120,7 +120,7 @@ proc {epg channeliconpath} {name} {
 proc {epg channelicon} {name {width 0} {style ""}} {
 	set str "<img src=\"/img/channels/out/$name.png\"";
 	if {$width > 0} { append str " width=$width" }
-	if {$style ne ""} { append str " style=\"$style\" }
+	if {$style ne ""} { append str " style=\"$style\"" }
 	append str " alt=\"\">"
 	return $str
 }
@@ -128,7 +128,7 @@ proc {epg channelicon} {name {width 0} {style ""}} {
 epg method channel_icon {{width 0} {style ""}} {
 	set str "<img src=\"/img/channels/out/$channel_name.png\"";
 	if {$width > 0} { append str " width=$width" }
-	if {$style ne ""} { append str " style=\"$style\" }
+	if {$style ne ""} { append str " style=\"$style\"" }
 	append str " alt=\"\">"
 	return $str
 }

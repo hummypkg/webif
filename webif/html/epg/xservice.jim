@@ -66,9 +66,17 @@ foreach record $records {
 	if {[$record showing]} {
 	    puts "<td><img src=/images/111_1_00_Cursor_2R_Arrow.png></td>"
 	} else { puts "<td></td>" }
-	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
+	if {$ended} {
+		puts "<td nowrap class=blood>"
+	} else {
+		puts "<td nowrap>"
+	}
 	puts "[clock format [$record get start] -format "%a %d %b %Y"]</td>"
-	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>" }
+	if {$ended} {
+		puts "<td nowrap class=blood>"
+	} else {
+		puts "<td nowrap>"
+	}
 	puts "[clock format [$record get start] -format "%H:%M"]</td>"
 	puts [$record cell]
 	puts "<td>[$record get text]</td>"

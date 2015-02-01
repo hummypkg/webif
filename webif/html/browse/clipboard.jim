@@ -16,7 +16,7 @@ switch $action {
     list {
 	if {![$cb size]} {
 		puts "<i>Clipboard is empty</i>"
-		break
+		exit
 	}
 	puts "<div class=cliplist>"
 	foreach file [$cb get items] {

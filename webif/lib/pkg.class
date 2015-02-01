@@ -75,7 +75,7 @@ proc {pkg avail} {} {
 	set inst_pkgs [pkg inst]
 	set avail_pkgs {}
 	foreach pkg [split [exec /bin/opkg list] "\n"] {
-		if [regexp {^ } $pkg] { continue }
+		if {[regexp {^ } $pkg]} { continue }
 		if {[regexp {^([^ ]+)} $pkg name] == 0} { continue }
 		if {$name ni $inst_pkgs && $name ni $avail_pkgs} {
 			lappend avail_pkgs $name

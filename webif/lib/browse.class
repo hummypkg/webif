@@ -37,10 +37,10 @@ proc {dir iconset} {dir} {
 	set attrs {}
 
 	set noflat 0
-	if $::_flatten {
+	if {$::_flatten} {
 		if {[string match {\[*\]} [file tail $dir]]} { set noflat 1 }
 		if {[file exists "$dir/.noflatten"]} { set noflat 1 }
-		if $noflat { lappend icons \
+		if {$noflat} { lappend icons \
 		    [_addicon "/img/flat-tyre.png" "No-flatten"] }
 		lappend attrs "noflat=$noflat"
 	}

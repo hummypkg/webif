@@ -17,6 +17,7 @@ puts {
 		    padding: 0 0 0 2em;">
 }
 source /mod/webif/include/model.jim
+source /mod/webif/include/upgrade.jim
 puts {
 		</span>
 	</div>

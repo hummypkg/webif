@@ -227,7 +227,7 @@ foreach e $records {
 		}
 		puts "
 			<tr class=hour id=hour_$hour>
-			<th class=hour>$hour:00</th>
+			<th class=hour>${hour}:00</th>
 			<td class=dayhour>
 		"
 		set currhour $hour

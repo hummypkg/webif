@@ -13,7 +13,7 @@ httpheader
 proc quote {s} {
 	return [string map {
 		{&} {&amp;}
-		{"} {&quot;}
+		"\"" {&quot;}
 		{<} {&lt;}
 		{>} {&gt;}
 	    } $s]

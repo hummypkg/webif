@@ -111,8 +111,9 @@ rsv method name {} {
 	if {$name == ""} {
 		switch $ersvtype {
 		    1 { set name "--- Unnamed reminder ---" }
-		    2 { set name "--- Unnamed reminder ---" }
+		    2 { set name "--- Unnamed manual reminder ---" }
 		    3 { set name "--- Unnamed recording ---" }
+		    4 { set name "--- Unnamed manual recording ---" }
 		    5 { set name "--- Wake-up ---" }
 		    6 { set name "--- Sleep ---" }
 		    7 { set name "--- Auto Update ---" }
@@ -139,9 +140,10 @@ rsv method channel_name {} {
 rsv method icon {} {
 	set rsvicon ""
 	switch $ersvtype {
-		1 { set rsvicon "175_1_00_Reservation_Watch.png" }
+		1 -
 		2 { set rsvicon "175_1_00_Reservation_Watch.png" }
-		3 { set rsvicon "175_1_11_Reservation_Record.png" }
+		3 -
+		4 { set rsvicon "175_1_11_Reservation_Record.png" }
 		5 { set rsvicon "745_1_10_Video_2Live.png" }
 		6 { set rsvicon "745_1_11_Video_1REC.png" }
 		7 { set rsvicon "345_6_08_ST_Ad_Hoc.png" }

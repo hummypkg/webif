@@ -105,7 +105,11 @@ foreach record [lsort -command rsort $records] {
 
 	set ended [$record ended]
 
-	if $ended { puts "<td nowrap class=blood>" } else { puts "<td nowrap>"}
+	if {$ended} {
+		puts "<td nowrap class=blood>"
+	} else {
+		puts "<td nowrap>"
+	}
 	puts "
 	    [clock format [$record get start] -format "%a %d %b %Y"]<br>
 		[clock format [$record get start] -format "%H:%M %Z"]"

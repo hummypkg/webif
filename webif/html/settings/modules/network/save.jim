@@ -18,7 +18,7 @@ proc ip2x {ip {validate 0}} {
 	set octets [split $ip .]
 	if {[llength $octets] != 4} {
 		error "Invalid IP address (octets)"
-		set octets [lrange [concat $octets 0 0 0] 0 3]
+		#set octets [lrange [concat $octets 0 0 0] 0 3]
 	}
 	if {$validate} {
 		foreach oct $octets {
@@ -56,7 +56,7 @@ switch [cgi_get mode -] {
 		exit
 	}
 	set fd [open $file w]
-	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_$tag:Value:1"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}:Value:1"
 	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_IP:Blob:[ip2x $ip]"
 	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_NETMASK:Blob:[ip2x $mask]"
 	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}_GATEWAY:Blob:[ip2x $gw]"
@@ -68,7 +68,7 @@ switch [cgi_get mode -] {
     }
     dhcp {
 	set fd [open $file w]
-	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_$tag:Value:0"
+	puts $fd "setup:MENUCONFIG:ETHERNET_CONF_${tag}:Value:0"
     }
     default {
 	puts "Unknown mode."

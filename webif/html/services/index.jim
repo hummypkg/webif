@@ -61,17 +61,17 @@ foreach service $services {
 	if {$name eq "mongoose"} continue
 
 	puts "<tr><td class=even>$name</td>"
-	if (!$installed) {
+	if {!$installed} {
 		puts "<td colspan=2><i>Not installed</i></td></tr>"
 		continue
 	}
 
 	puts -nonewline "<td><input type=checkbox class=auto name=\"$name\""
-	if ($auto) { puts -nonewline " checked" }
+	if {$auto} { puts -nonewline " checked" }
 	puts "></td>"
 
 	puts -nonewline "<td><input type=checkbox class=toggle name=\"$name\""
-	if ($running) { puts -nonewline " checked" }
+	if {$running} { puts -nonewline " checked" }
 	puts "></td>"
 
 	puts "</tr>"

@@ -14,7 +14,7 @@ foreach service $services {
 
 	if {[string tolower $name] eq "mongoose"} continue
 
-        if (!$installed) {
+        if {!$installed} {
 		puts "<li><h3>[string totitle $name]</h3>"
                 puts "<p><i>Not installed.</i></p>"
 		puts "</li>"
@@ -42,7 +42,7 @@ foreach service $services {
 		<label class=va for=auto$i>Auto-start:</label>
 		<select class=auto act=auto data-role=slider service=$name>
 	"
-	if ($auto) {
+	if {$auto} {
 		puts "<option value=off>Off</option>"
 		puts "<option value=on selected>On</option>"
 	} else {
