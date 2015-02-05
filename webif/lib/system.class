@@ -415,7 +415,7 @@ proc {system usbdisks} {{full 0}} {
 		set link [file readlink $block/device]
 		foreach disk $disks {
 			if {[string first "/$disk/" $link] >= 0} {
-				set map($block) $disk
+				set map([file tail $block]) $disk
 			}
 		}
 		
