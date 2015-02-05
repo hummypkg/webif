@@ -97,3 +97,9 @@ $('#ns_wifi_authmode').on('change', function() {
 	
 }).trigger('change');
 
+$('#_ns_wifi_reveal').on('click', function(e) {
+	e.preventDefault();
+	$('#_ns_wifi_notfound').slideUp('slow');
+	$('#_ns_wifi_settings').slideDown('slow');
+});
+

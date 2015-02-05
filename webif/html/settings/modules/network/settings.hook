@@ -158,9 +158,18 @@ puts "
 if {[system has wifi_dongle]} {
 	puts [_ns_iftable wifi 2ND]
 } else {
-	puts "<i>No wireless dongle detected.</i>"
-	puts "<br>"
-	puts "<img src=/images/217_1_08_WIZ_WiFi.png>"
+	puts "
+		<span class=blood>No wireless dongle detected.</span>
+		<div id=_ns_wifi_notfound>
+			<img src=/images/217_1_08_WIZ_WiFi.png>
+			<small>
+			<button id=_ns_wifi_reveal>Show Settings</button>
+			</small>
+		</div>
+		<div id=_ns_wifi_settings class=hidden>
+			[_ns_iftable wifi 2ND]
+		</div>
+	"
 }
 
 puts "

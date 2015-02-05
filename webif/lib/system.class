@@ -166,6 +166,7 @@ proc {system diskpart} {} {
 		HDR { return "/mnt/hd2" }
 		HD { return "/media/drive1" }
 	}
+	return ""
 }
 
 proc {system diskdev} {} {
@@ -373,7 +374,7 @@ proc {system filename} {str {extra ""}} {
 	# Humax TV replaces these characters.
 	# "%*./:<>?\|
 	set chars "\"%*\./:<>?\\\\|$extra"
-	return [regsub -all "\[$chars]" $str "_"]
+	return [regsub -all -- "\[$chars]" $str "_"]
 }
 
 proc {system connectivity} {{site "hpkg.tv"} {port 80} {ret "0"}} {

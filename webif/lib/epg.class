@@ -455,7 +455,7 @@ proc {epg dbfetch} {mode args} {
 
 	set query "$select $from $q $sort"
 
-	if ($debug) {
+	if {$debug} {
 		puts "QUERY -$query-"
 		puts "PARAMS -$params-"
 	}

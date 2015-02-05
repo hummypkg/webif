@@ -14,7 +14,7 @@ set act [cgi_get act "update"]
 
 if {$act eq "fetch"} {
 	httpheader "application/json"
-	set data [{dir expiry} $dir]
+	set data [dir expiry $dir]
 	puts "{"
 	puts " \"days\": \"$data(days)\","
 	puts " \"keep\": \"$data(keep)\","
@@ -44,6 +44,6 @@ if {![file isdirectory $dir]} {
 	exit
 }
 
-{dir expiry} $dir $data
+dir expiry $dir $data
 puts "Ok."
 

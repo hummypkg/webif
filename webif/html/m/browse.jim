@@ -25,7 +25,7 @@ proc icon {img {hover ""} {extra ""} {class "va"}} {
 
 proc directory {file bfile tbfile {img /images/711_1_09_Media_Folder.png}} {
 	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
-	lassign [{dir iconset} $file] icons attrs
+	lassign [dir iconset $file] icons attrs
 	puts "<li><a href=\"browse.jim?dir=[cgi_quote_url $file]\"
 	    data-transition=flip>
 		<img src=$img border=0 class=va width=80 id=\"img$tbfile\">
@@ -47,7 +47,7 @@ proc entry {file {i 0}} {
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
 	}
-	if [file isdirectory "$file"] {
+	if {[file isdirectory "$file"]} {
 		directory $file $bfile $tbfile
 		return
 	}
@@ -65,7 +65,7 @@ proc entry {file {i 0}} {
 		set img Video_TS
 		set omenu opt
 	} elseif {$ext eq ".hmt"} {
-		if {[file exists "${base}.ts"]} { continue }
+		if {[file exists "${base}.ts"]} { return }
 		# Sole hmt file indicates failure to track.
 		set type bad
 		set ts 0

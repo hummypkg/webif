@@ -1,8 +1,8 @@
 
 require system.class plugin
 
-#if {![exists -proc class]} { package require oo }
-#class browse {}
+if {![exists -proc class]} { package require oo }
+class dir {}
 
 set _flatten [system pkginst flatten]
 
@@ -20,7 +20,7 @@ proc {dir expiry} {dir {data {}}} {
 		set fd [open "$dir/.autoexpire" w]
 		puts $fd "$data(days):$data(type):$data(keep):$data(keepnew):"
 		$fd close
-		return
+		return {}
 	}
 	set ret { days "" type 0 keep "" keepnew 0 }
 	catch {

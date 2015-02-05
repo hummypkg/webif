@@ -9,6 +9,6 @@ httpheader
 set file [cgi_get file]
 
 if {[file isdirectory $file]} {
-	lassign [{dir iconset} $file] icons #attrs
+	lassign [dir iconset $file] icons #attrs
 	puts [join $icons ""]
 }

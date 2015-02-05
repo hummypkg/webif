@@ -62,7 +62,7 @@ proc directory {file bfile tbfile} {
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span>"
 
-	lassign [{dir iconset} $file] icons attrs
+	lassign [dir iconset $file] icons attrs
 
 	puts "<span class=iconset>"
 	puts [join $icons ""]
@@ -100,7 +100,7 @@ proc entry {file} {{i 0}} {
 	if {[string index $bfile 0] == "\025"} {
 		set bfile [string range $bfile 1 end]
 	}
-	if [file isdirectory "$file"] {
+	if {[file isdirectory "$file"]} {
 		incr dircount
 		directory $file $bfile $tbfile
 		return
@@ -125,7 +125,7 @@ proc entry {file} {{i 0}} {
 		set omenu opt
 		if {[file exists "${base}.thm"]} { set thmok 1 }
 	} elseif {$ext eq ".hmt"} {
-		if {[file exists "${base}.ts"]} { continue }
+		if {[file exists "${base}.ts"]} { return }
 		# Sole hmt file indicates failure to track.
 		set type bad
 		set ts 0
@@ -387,7 +387,7 @@ puts {
 }
 
 # Join
-if $nicesplice {
+if {$nicesplice} {
 	puts { <button id=join>Join</button> }
 }
 
