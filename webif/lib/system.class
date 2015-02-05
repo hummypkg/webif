@@ -387,8 +387,6 @@ proc {system connectivity} {{site "hpkg.tv"} {port 80} {ret "0"}} {
 				return 0
 		}
 	}
-	set err UNKNOWN
-	return 0
 }
 
 proc {system strip} {str} {
@@ -402,8 +400,10 @@ proc {system strip} {str} {
 }
 
 proc {system usbdisks} {{full 0}} {
-	set disks [glob -nocomplain \
-	    -directory /sys/bus/usb/drivers/usb-storage *:*]
+	set disks [lmap i [glob -nocomplain \
+	    -directory /sys/bus/usb/drivers/usb-storage *:*] {
+		file tail $i
+	    }]
 	if {!$full} {
 		return [llength $disks]
 	}
@@ -412,7 +412,7 @@ proc {system usbdisks} {{full 0}} {
 	# Build list of device to device ID
 	set map {}
 	foreach block [glob -nocomplain -directory /sys/block sd?] {
-		set link [file readlink /sys/block/$block/device]
+		set link [file readlink $block/device]
 		foreach disk $disks {
 			if {[string first "/$disk/" $link] >= 0} {
 				set map($block) $disk
