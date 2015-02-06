@@ -9,31 +9,25 @@ $.tablesorter.addParser({
 });
 
 $.tablesorter.addParser({
-	id: 'date',
+	id: 'xdate',
 	is: function () { return false; },
-	format: function(s) {
-		var d = new Date(s.substring(0, s.length - 4));
+	format: function(s, table, cell, cellIndex) {
+		var dat = $(cell).find('span.ds').text();
+		//console.log('Extracted: ' + dat)
+		var d = new Date(dat);
 		return d.getTime();
 	},
 	type: 'numeric'
 });
 
-$(document).ready(function() {
+$(function() {
 
-$('table.tablesorter').tablesorter({
-    headers: {
-	1: { sorter: false },
-	3: { sorter: 'programme' },
-	4: { sorter: 'date' },
-	5: { sorter: 'date' },
-	5: { sorter: false },
-	6: { sorter: false },
-	7: { sorter: false }
-    }
-}).freezeHeader();
-
-$('table.tablesorter thead th').filter('[class!=header]')
-    .addClass('headerplain');
+$('table.tablesorter')
+    .tablesorter({
+        theme: 'webif',
+	widthFixed: true,
+	widgets: ['zebra', 'stickyHeaders']
+    });
 
 function docancel()
 {
@@ -82,11 +76,73 @@ function schedpopup(e, o)
 }
 $('a.schedule').click(function(e) { schedpopup(e, $(this)) });
 
-$('table.tablesorter tbody tr').hover(
-	function() { $(this).addClass('hover'); },
-	function() { $(this).removeClass('hover'); });
 
-$('button').button();
+$('.schedselect:checked').prop('checked', false);
+
+$('button.delselected').button({icons:{primary:"ui-icon-trash"}})
+    .button('disable')
+    .on('click', function() {
+        $(this).dojConfirmAction({
+                question: 'Delete selected?',
+                yesAnswer: 'Yes',
+                cancelAnswer: 'No'
+                }, function(el) {
+			$.blockUI({
+		message: '<h1><img src=/img/loading.gif> Deleting... </h1>'
+			});
+
+			var els = $(el).parent().find('.schedselect:checked');
+			var tab = $(els).first().closest('tr').attr('table');
+			var slots = $.map(els, function(v) {
+				return $(v).closest('tr').attr('sid');
+			});
+			$.get('cancel.jim?slot=' + slots.join(',') +
+			    '&table=' + tab, function() {
+				window.location.reload(true);
+			});
+    });
+});
+
+$('.schedselect').on('change', function() {
+	var num = $(this).closest('table').find('.schedselect:checked').size();
+	var but = $(this).closest('fieldset').find('button.delselected');
+	if (num)
+		$(but).button('enable').find('.delselcnt')
+		    .text('(' + num + ')');
+	else
+		$(but).button('disable').find('.delselcnt').empty();
+    });
+
+$('button.selall').button({icons:{primary:"ui-icon-check"}})
+    .on('click', function() {
+	$(this).parent().find('table .schedselect').prop('checked', true)
+	    .first().trigger('change');
+    });
+
+$('button.selnone').button({icons:{primary:"ui-icon-close"}})
+    .on('click', function() {
+	$(this).parent().find('table .schedselect').prop('checked', false)
+	    .first().trigger('change');
+    });
+
+$('button.selended').button({icons:{primary:"ui-icon-stop"}})
+    .on('click', function() {
+	$(this).parent().find('table .schedselect').prop('checked', false);
+	$(this).parent().find('table tr[ended="1"] .schedselect')
+	    .prop('checked', true).first().trigger('change');
+
+    });
+
+$('button.rawview').button({icons:{primary:"ui-icon-wrench"}})
+    .on('click', function() {
+	window.location = '/cgi-bin/db.jim?' + $(this).attr('path');
+    });
+
+$('button.backup').button({icons:{primary:"ui-icon-disk"}})
+    .on('click', function() {
+	window.location = '/backup/index.jim';
+    });
+
 
 // Menu
 

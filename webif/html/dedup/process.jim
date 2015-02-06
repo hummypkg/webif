@@ -2,6 +2,10 @@
 
 require system.class
 
+proc dedupsort {a b} {
+	return [expr [file mtime $a] > [file mtime $b]]
+}
+
 proc dedupprocess {file} {{seen {}}} {
 	set ts [ts fetch $file 1]
 

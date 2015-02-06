@@ -4,7 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require altrow rsv.class progressbar epg.class system.class
 
-jqplugin tablesorter contextMenu form freezeheader
+jqplugin tablesorter2 contextMenu form blockui confirmAction
 jscss script.js
 header
 
@@ -24,27 +24,37 @@ puts {
 }
 
 proc eventheader {{table TBL_RESERVATION} note} {
+	if {$table eq "pending"} {
+		set sortlist {[[6,1]]}
+	} else {
+		set sortlist {[[5,0]]}
+	}
+
 	puts {
-		<fieldset style="display: inline; padding: 1em">
+		<fieldset id=sched_fs_$table
+		    style="display: inline; padding: 1em">
 		<legend>
 	}
 	puts "<h3>$note</h3>"
-	puts {
+	puts "
 		</legend>
-		<table class="borders tablesorter">
+		<table class=tablesorter data-sortlist=\"$sortlist\">
 		<thead>
 		<tr>
-	}
+		<th data-sorter=false>&nbsp;</th>
+	"
 
-	if {$table eq "pending" } { puts "<th>Action</th>" }
+	if {$table eq "pending"} { puts "<th>Action</th>" }
 
 	puts {
-			<th></th>
-			<th>&nbsp;</th><th>Channel</th>
-			<th>Programme</th>
-			<th>Start Time</th>
+			<th>&nbsp;</th>
+			<th data-sorter=false>&nbsp;</th>
+			<th>Channel</th>
+			<th data-sorter=programme>Programme</th>
+			<th data-sorter=xdate>Start Time</th>
 			<th>Duration</th>
-			<th>Mode</th>
+			<th data-sorter=false>Mode</th>
+			<th data-sorter=false>&nbsp;</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -52,17 +62,32 @@ proc eventheader {{table TBL_RESERVATION} note} {
 }
 
 proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
-	global svcmap svckeys
+	global svcmap svckeys ended
 
 	set name [$event name]
 
+	set s [$event get nsttime]
+	set d [$event get nduration]
+	set e $($s + $d)
+	set n [clock seconds]
+
+	if {$n > $e && [$event get ersvtype] <= 3} {
+		set _ended 1
+		incr ended
+	} else {
+		set _ended 0
+	}
+
 	set attrs "table=$table sid=[$event get ulslot] \
 	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
-	    ar=[expr ! [$event padded]]"
+	    ar=[expr ! [$event padded]] ended=$_ended"
 	if {$pending} {
 		append attrs " class=\"blueshade strike\""
 	}
-	altrow $attrs
+	puts "<tr $attrs>"
+
+	# Checkbox
+	puts "<td><input type=checkbox class=schedselect></td>";
 
 	if {$table eq "pending"} {
 		puts "<td align=center>[$event pendingicon]</td>"
@@ -94,18 +119,12 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 
 	puts "</td>"
 
-	set s [$event get nsttime]
-	set d [$event get nduration]
-	set e $($s + $d)
-	set n [clock seconds]
-
-	if {$n > $e && [$event get ersvtype] <= 3} {
+	if {$ended} {
 		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
 		puts "<td nowrap class=va>
 			--- -- --- ---- --:--<br>
 			<span class=footnote>(Last: $ds)</span>"
 		puts "</td><td>--:--:--</td>"
-		incr ::ended
 	} else {
 		set elist [$event aul]
 		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
@@ -118,12 +137,12 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 			if {$start == $s && $service_id in $svckeys} {
 				puts "<a class=event href=#
 				    xs=$svcmap($service_id) xe=$event_id>
-				    $ds</a>"
+				    <span class=ds>$ds</span></a>"
 			} else {
-				puts $ds
+				puts "<span class=ds>$ds</span>"
 			}
 		} else {
-			puts $ds
+			puts "<span class=ds>$ds</span>"
 		}
 
 		if {$d > 0 && $n > $s && $n < $e} {
@@ -190,8 +209,30 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 	puts "</tr>"
 }
 
-proc eventfooter {} {
-	puts "</tbody></table></fieldset>"
+proc eventfooter {rawlink} {
+	global ended
+
+	puts "</tbody></table>"
+	puts "
+		<br>
+		<button class=selall>Select All</button>
+		<button class=selnone>Select None</button>
+	"
+	if {$ended} {
+		puts "
+		<button class=selended>Select Finished</button>
+		"
+	}
+	puts "
+		<button class=delselected>Delete Selected
+		    <span class=delselcnt></span></button>
+	"
+	puts "
+		<button class=rawview
+		    path=\"$rawlink\"
+		    >Raw Database</button>
+		</fieldset>
+	"
 }
 
 proc ekey {event} {
@@ -211,19 +252,12 @@ if {[llength $events] > 0} {
 		eventrow $event pending
 		lappend pmap [ekey $event]
 	}
-	eventfooter
-	puts {
-		<small>
-		<button onclick="window.location='/cgi-bin/db.jim?db=rsvp.db&tab=pending';">
-		Raw database view
-		</button>
-		</small>
-	}
+	eventfooter "db=rsvp.db&tab=pending"
 }
 
 set events [rsv list]
 set ended 0
-eventheader "live" "Scheduled Events"
+eventheader live "Scheduled Events"
 foreach event $events {
 	if {[ekey $event] in $pmap} {
 		eventrow $event TBL_RESERVATION 1
@@ -231,28 +265,13 @@ foreach event $events {
 		eventrow $event
 	}
 }
-eventfooter
+eventfooter "db=rsv.db&tab=TBL_RESERVATION"
 
 puts {
-	<br>
-	<small>
-	<button onclick="window.location='/backup/index.jim';">
+	<br><br>
+	<button class=backup>
 		Backup/Restore Scheduled Recordings/Events
 	</button>
-	</small>
-}
-
-if {$ended} {
-	puts { <button id=schedule_cleanup>Cleanup old recordings</button> }
-}
-
-puts {
-	<button onclick="window.location='/cgi-bin/db.jim?db=rsv.db&tab=TBL_RESERVATION';">
-		Raw database view
-	</button>
-	<script type=text/javascript>
-		$('button').button();
-	</script>
 }
 
 source assets.jim

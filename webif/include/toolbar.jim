@@ -38,7 +38,7 @@ if {[file exists "/mod/bin/ir"]} {
 	tb "/img/remote.png" "Remote" "/plugin/ir/remote.jim"
 }
 tb "/images/323_1_10_Menu_Video.png" "Browse" "/browse/index.jim"
-tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/sched.jim"
+tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/index.jim"
 tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" $epglink
 tb "/img/spanner.png" "Services" "/services/index.jim"
 tb "/img/packages.png" "Packages" "/pkg/index.jim"

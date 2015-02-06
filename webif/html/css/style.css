@@ -257,9 +257,9 @@ pre, .pre
 	color: #ff4000 !important;
 }
 
-.blueshade
+tr.blueshade > td, .blueshade
 {
-	background: #b9daff;
+	background: #b9daff !important;
 	color: black;
 }
 

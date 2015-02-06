@@ -28,10 +28,10 @@ foreach dir $dirs {
 	if {!$auto} { puts "\[$dir\]" }
 	loadseries $dir
 
-	foreach file [readdir $dir] {
-		if {[file extension $file] ne ".hmt"} { continue }
+	foreach file [lsort -command dedupsort [readdir $dir]] {
+		if {[file extension $file] ne ".nts"} { continue }
 
-		set file "$dir/$file"
+		set file "$dir/[file rootname $file].hmt"
 
 		set base [file tail [file rootname $file]]
 		lassign [dedupprocess $file] stat ts syn fn

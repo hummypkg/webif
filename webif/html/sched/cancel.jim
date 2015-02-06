@@ -6,19 +6,21 @@ require rsv.class system.class
 
 httpheader
 
-set slot [cgi_get slot 0]
+set slots [cgi_get slot 0]
 set table [cgi_get table TBL_RESERVATION] 
 
-set event [rsv slot $table $slot]
+foreach slot [split $slots ","] {
+	set event [rsv slot $table $slot]
 
-if {$table eq "pending"} {
-	$event remove_pending
-	exit
+	if {$table eq "pending"} {
+		$event remove_pending
+		continue
+	}
+
+	$event clear_ulslot
+	$event set_delete
+	$event insert
 }
-
-$event clear_ulslot
-$event set_delete
-$event insert
 
 system restartpending
 

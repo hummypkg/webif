@@ -47,7 +47,7 @@ puts {<div style="clear: both">}
 menuitem "Browse Media Files" "/images/323_1_10_Menu_Video.png" \
 	/browse/index.jim 217 228
 menuitem "Scheduled Events" "/images/321_1_00_Menu_CHList.png" \
-	/sched/sched.jim 217 228
+	/sched/index.jim 217 228
 menuitem "EPG" "/images/328_1_26_Menu_TV_Guide.png" \
 	$epglink 217 228
 
