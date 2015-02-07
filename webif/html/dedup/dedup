@@ -31,7 +31,7 @@ foreach dir $dirs {
 	foreach file [lsort -command dedupsort [readdir $dir]] {
 		if {[file extension $file] ne ".nts"} { continue }
 
-		set file "[file rootname $file].hmt"
+		set file "$dir/[file rootname $file].hmt"
 
 		set base [file tail [file rootname $file]]
 		lassign [dedupprocess $file] stat ts syn fn
