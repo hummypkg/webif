@@ -532,7 +532,7 @@ proc expire {dir} {
 	log "EXPIRE: \[$dir]" 2
 	
 	# type 0 keep {} days 2 keepnew 0
-	set ax [{dir expiry} $dir]
+	set ax [dir expiry $dir]
 	log "  $ax" 2
 	if {![string is integer -strict $ax(keep)]} { set ax(keep) 0 }
 	if {![string is integer -strict $ax(days)]} { set ax(days) 0 }
@@ -618,7 +618,7 @@ proc scan_run {dir flag callback} {
 	}
 }
 
-proc scan {dir attr {force 0} {recurse 1}} {{indent 0}} {
+proc xscan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 	global dustbin
 
 	incr indent 2
@@ -657,7 +657,7 @@ proc scan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {$recurse && [file isdirectory "$dir/$entry"]} {
-			scan "$dir/$entry" $attr $force
+			xscan "$dir/$entry" $attr $force
 		}
 	}
 
@@ -696,7 +696,7 @@ proc scansingle {dirs} {
 				log "Encountered special directory."
 				break
 			}
-			scan $dir $arg $sup 0
+			xscan $dir $arg $sup 0
 			log "$arg scan completed in [elapsed $st] seconds."
 		}
 	}
@@ -716,7 +716,7 @@ if {[lindex $argv 0] eq "-single"} {
 		log "$arg scan starting."
 		set processed_files {}
 		runplugin "pre${arg}scan"
-		scan $root $arg
+		xscan $root $arg
 		runplugin "post${arg}scan" processed_files
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
@@ -726,7 +726,7 @@ if {[lindex $argv 0] eq "-single"} {
 		log "$arg scan starting."
 		set processed_files {}
 		runplugin "pre${arg}scan"
-		scan $root $arg
+		xscan $root $arg
 		runplugin "post${arg}scan" processed_files
 		log "$arg scan completed in [elapsed $st] seconds."
 	}

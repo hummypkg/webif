@@ -3,7 +3,7 @@
 source /mod/webif/lib/setup
 require system.class ts.class
 
-proc scan {dir} {
+proc xscan {dir} {
 	puts "Resetting unwatched count on $dir..."
 	file stat "$dir/" st
 	if {$st(dev) != $::rootdev} { return }
@@ -12,7 +12,7 @@ proc scan {dir} {
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
-			scan "$dir/$entry"
+			xscan "$dir/$entry"
 		}
 	}
 }
@@ -21,5 +21,5 @@ set root [system mediaroot]
 file stat "$root/" rootstat
 set rootdev $rootstat(dev)
 
-scan $root
+xscan $root
 
