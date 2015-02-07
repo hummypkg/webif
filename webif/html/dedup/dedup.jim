@@ -32,7 +32,7 @@ foreach file [lsort -command dedupsort [readdir $dir]] {
 	set file "$dir/$file"
 	if {[file extension $file] ne ".nts"} { continue }
 
-	set file "$dir/[file rootname $file].hmt"
+	set file "[file rootname $file].hmt"
 
 	if {$reset} {
 		set ts [ts fetch $file 1]

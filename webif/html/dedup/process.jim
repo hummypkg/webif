@@ -3,7 +3,8 @@
 require system.class
 
 proc dedupsort {a b} {
-	return [expr [file mtime $a] > [file mtime $b]]
+	global dir
+	return [expr [file mtime "$dir/$a"] > [file mtime "$dir/$b"]]
 }
 
 proc dedupprocess {file} {{seen {}}} {
