@@ -25,7 +25,7 @@ $(function() {
 $('table.tablesorter')
     .tablesorter({
         theme: 'webif',
-	widthFixed: true,
+	widthFixed: false,
 	widgets: ['zebra', 'stickyHeaders']
     });
 

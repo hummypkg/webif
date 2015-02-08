@@ -25,7 +25,7 @@ puts {
 
 proc eventheader {{table TBL_RESERVATION} note} {
 	if {$table eq "pending"} {
-		set sortlist {[[6,1]]}
+		set sortlist {[[6,0]]}
 	} else {
 		set sortlist {[[5,0]]}
 	}
