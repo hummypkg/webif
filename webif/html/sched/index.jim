@@ -38,7 +38,7 @@ proc eventheader {{table TBL_RESERVATION} note} {
 	puts "<h3>$note</h3>"
 	puts "
 		</legend>
-		<table class=tablesorter data-sortlist=\"$sortlist\">
+	<table class=\"schedule tablesorter\" data-sortlist=\"$sortlist\">
 		<thead>
 		<tr>
 		<th data-sorter=false>&nbsp;</th>
@@ -62,7 +62,7 @@ proc eventheader {{table TBL_RESERVATION} note} {
 }
 
 proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
-	global svcmap svckeys ended
+	global svcmap svckeys num_ended
 
 	set name [$event name]
 
@@ -72,15 +72,15 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 	set n [clock seconds]
 
 	if {$n > $e && [$event get ersvtype] <= 3} {
-		set _ended 1
-		incr ended
+		set ended 1
+		incr num_ended
 	} else {
-		set _ended 0
+		set ended 0
 	}
 
 	set attrs "table=$table sid=[$event get ulslot] \
 	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
-	    ar=[expr ! [$event padded]] ended=$_ended"
+	    ar=[expr ! [$event padded]] ended=$ended"
 	if {$pending} {
 		append attrs " class=\"blueshade strike\""
 	}
@@ -210,7 +210,7 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 }
 
 proc eventfooter {rawlink} {
-	global ended
+	global num_ended
 
 	puts "</tbody></table>"
 	puts "
@@ -218,13 +218,13 @@ proc eventfooter {rawlink} {
 		<button class=selall>Select All</button>
 		<button class=selnone>Select None</button>
 	"
-	if {$ended} {
+	if {$num_ended} {
 		puts "
 		<button class=selended>Select Finished</button>
 		"
 	}
 	puts "
-		<button class=delselected>Delete Selected
+		<button class=\"delselected red\">Delete Selected
 		    <span class=delselcnt></span></button>
 	"
 	puts "
@@ -245,7 +245,7 @@ proc ekey {event} {
 
 set pmap {}
 set events [rsv list pending]
-set ended 0
+set num_ended 0
 if {[llength $events] > 0} {
 	eventheader pending "Pending Scheduled Events"
 	foreach event $events {
@@ -256,7 +256,7 @@ if {[llength $events] > 0} {
 }
 
 set events [rsv list]
-set ended 0
+set num_ended 0
 eventheader live "Scheduled Events"
 foreach event $events {
 	if {[ekey $event] in $pmap} {

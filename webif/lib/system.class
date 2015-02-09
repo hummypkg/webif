@@ -156,7 +156,11 @@ proc {system dustbinsize} {} {
 	set bin [system dustbin]
 	set ret 0
 	if {[file isdirectory $bin]} {
-		lassign [exec /mod/bin/busybox/du -s $bin] ret
+		if {[catch {
+			lassign [exec /mod/bin/busybox/du -s $bin] ret
+		}]} {
+			set ret 0
+		}
 	}
 	return $($ret * 1024)
 }
