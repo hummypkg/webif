@@ -1,62 +1,35 @@
 #!/mod/bin/jimsh
 
-source /mod/webif/lib/setup
-
+set class "class=hidden"
 if {[file exists /tmp/.restartpending]} {
-
-require system.class rsv.class
-
-if {[rsv count pending] > 0} {
-
-puts {
-	<center>
-	<div style="width: 100%; height: 0.7em;
-	    background: url(/img/stripes.gif) repeat-x;"></div>
-	<div style="font-size: 1.2em; width: 60%; text-align: center; padding: 0.5em">
-	A restart is required in order to complete a scheduling operation or
-	system settings change.
-	<br>
-	<font class=blood>
+	source /mod/webif/lib/setup
+	require system.class rsv.class
+	if {[rsv count pending] <= 0} {
+		system restartpending 0
+		set class ""
+	}
 }
 
+puts "<div id=restart_block $class>"
+puts {
+	<div style="width: 100%; height: 0.7em;
+	    background: url(/img/stripes.gif) repeat-x;"></div>
+	<div>
+	Restart required.
+}
 if {[system busy]} {
-	puts "Cannot restart whilst box is busy."
+	puts "<div class=blood><i>System busy...</i></div>"
 } else {
 	puts {
-		Restart via the remote control or
-		<small><button id=restart_humaxtv>Restart now</button></small>
+		<button class=red id=restart_humaxtv>Reboot now</button>
+		<script type=text/javascript src=/js/restart.js></script>
 	}
 }
 
 puts {
-	<small><button id=restart_cancel>Dismiss</button></small>
-	</font>
 	</div>
 	<div style="width: 100%; height: 0.7em;
 	    background: url(/img/stripes.gif) repeat-x;"></div>
-	</center>
-	<script type=text/javascript>
-	$('#restart_humaxtv').button()
-	    .click(function() {
-		if (confirm('Are you sure you wish to perform a restart now?'))
-		    if (confirm('Really sure?\n\nThere is a small chance the ' +
-			' Humax may not restart\n' +
-			'without physical intervention.\n\n' +
-			'i.e. pressing the standby button or using the ' +
-			'remote control'))
-				window.location = '/cgi-bin/restart.jim';
-	});
-	$('#restart_cancel').button()
-	    .click(function() {
-		$.get('/cgi-bin/restart.jim?act=cancel');
-		$('#restart_block').slideUp('slow');
-	});
-	</script>
-}
-
-} else {
-	system restartpending 0
-}
-
+	</div>
 }
 

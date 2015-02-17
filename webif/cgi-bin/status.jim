@@ -11,6 +11,7 @@ set schedtime 1200
 switch $runmode {
     cgi {
 	set type [cgi_get type "full"]
+	set schedtime [cgi_get schedtime 1200]
 	httpheader
     }
     cli {

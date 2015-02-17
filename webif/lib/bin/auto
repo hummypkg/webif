@@ -32,9 +32,7 @@ if {[lindex $argv 0] eq "-d"} {
 
 proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
-	puts $::logfd "[\
-	    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
-	    ] - $msg"
+	puts $::logfd "[system logtimestamp] - $msg"
 	flush $::logfd
 }
 
@@ -168,6 +166,7 @@ proc dedup {dir} {
 			log $line 2
 		}
 	}
+	incr ::recalc
 }
 
 proc do_shrink {ts} {
@@ -321,7 +320,7 @@ proc do_decrypt {ts} {
 
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
 		log "  $file - File size mismatch." 0
-		file delete "$tmp/$bfile"
+		file tdelete "$tmp/$bfile"
 		endop
 		return
 	}
@@ -330,7 +329,7 @@ proc do_decrypt {ts} {
 	# now being played even though it was free when decryption started.
 	if {[$ts inuse]} {
 		log "  $file - In use."
-		file delete "$tmp/$bfile"
+		file tdelete "$tmp/$bfile"
 		endop
 		return
 	}
@@ -345,7 +344,7 @@ proc do_decrypt {ts} {
 	if {$anencd != "0"} {
 		log "  $file - File did not decrypt properly." 0
 		system notify "$file - auto-decrypt failed."
-		file delete "$tmp/$bfile"
+		file tdelete "$tmp/$bfile"
 		endop
 		return
 	}

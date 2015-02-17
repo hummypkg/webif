@@ -88,7 +88,7 @@ puts {
 
 <tr>
 <td colspan=2>
-<button id=reboot style="width: 100%">Reboot System</button>
+<button id=reboot class=red style="width: 100%">Reboot System</button>
 </td>
 </tr>
 

@@ -54,6 +54,12 @@ fi
 hook=/mod/boot/xinit.d/rt3070
 [ -f $hook ] && rm -f $hook
 
+# Migrate record log to new name.
+(
+	cd /mod/tmp
+	[ -f record.log -a ! -f activity.log ] && mv record.log activity.log
+)
+
 [ -f $tmpf ] && rm -f $tmpf
 
 exit 0

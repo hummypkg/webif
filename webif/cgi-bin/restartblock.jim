@@ -1,7 +1,0 @@
-#!/mod/bin/jimsh
-
-source /mod/webif/lib/setup
-httpheader
-
-source /mod/webif/include/restart.jim
-

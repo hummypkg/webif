@@ -56,6 +56,22 @@ proc {system modbuild} {} {{modbuild ""}} {
 	return $modbuild
 }
 
+proc {system lastbootreason} {{descr 1}} {{lbr -1}} {
+	if {$lbr == -1} {
+		set lbr 0
+		if {[file readable /tmp/.lbr]} {
+			set lbr [file read /tmp/.lbr]
+		}
+	}
+	if {!$descr} { return $lbr }
+	switch $lbr {
+		1 { return "Front panel button" }
+		2 { return "Remote control handset" }
+		3 { return "Scheduled event" }
+	}
+	return "Unknown ($lbr)"
+}
+
 proc {system fhtcpversion} {} {{ver ""}} {
 	if {$ver ne ""} { return $ver }
 	set file "/etc/fhtcpversion"
@@ -268,8 +284,7 @@ proc {system dirinuse} {dir} {
 }
 
 proc {system reboot} {} {
-	exec /etc/init.d/S90settop shut
-	exec /sbin/reboot
+	exec /mod/webif/lib/bin/reboot
 }
 
 proc {system restartpending} {{mode 1}} {
@@ -351,12 +366,26 @@ proc {system is_listening} {mport} {
 	return [llength [system listening $mport]]
 }
 
-proc {system notify} {msg} {
-	set logfd [open "/mod/tmp/notify.log" "a+"]
-	puts $logfd "[\
-	    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
-	    ] - $msg"
+proc {system logtimestamp} {} {
+	return [clock format [clock seconds] -format "%d/%m/%Y %H:%M:%S"]
+}
+
+proc {system _log} {log msg} {
+	set logfd [open $log "a+"]
+	puts $logfd "[system logtimestamp] - $msg"
 	$logfd close
+}
+
+proc {system log} {log msg} {
+	system _log "/var/log/$log.log" $msg
+}
+
+proc {system plog} {log msg} {
+	system _log "/mod/tmp/$log.log" $msg
+}
+
+proc {system notify} {msg} {
+	system plog notify $msg
 }
 
 proc {system display} {hdr hd} {

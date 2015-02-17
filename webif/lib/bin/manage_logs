@@ -1,0 +1,68 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require settings.class
+
+set s [settings]
+set logsize [$s logsize]
+set logkeep [$s logkeep]
+
+puts "Rotating at $logsize, keeping $logkeep"
+
+set logdir "/mod/tmp"
+set baselogs {}
+
+puts "\n-- Rotate\n"
+
+foreach log [glob -nocomplain -tail -directory $logdir *.log] {
+
+	puts "\[$log\]"
+	set tstamp [clock format [clock seconds] -format {%Y%m%d%H%M%S}]
+
+	# Check for old-style rotated log.
+	if {[string match {*_old.log} $log]} {
+		set new "[string range $log 0 end-8].$tstamp.log"
+		puts "    -> $new"
+		file rename "$logdir/$log" "$logdir/$new"
+		continue
+	}
+
+	# Check for already rotated log.
+	if {[regexp -- {\.[0-9]{14}\.log$} $log]} {
+		puts "    already rotated."
+		continue
+	}
+
+	ladd baselogs $log
+
+	if {[file size "$logdir/$log"] > $logsize} {
+		set new "[file rootname $log].$tstamp.log"
+		puts "    -> $new"
+		file rename "$logdir/$log" "$logdir/$new"
+	}
+}
+
+puts "\n-- Purge\n"
+
+proc logsort {a b} {
+	global logdir
+	return [expr [file mtime "$logdir/$a"] - [file mtime "$logdir/$b"]]
+}
+
+foreach log $baselogs {
+	# Count the number of rotated logs
+
+	set old [glob -nocomplain -tail -directory $logdir \
+	    "[string range $log 0 end-4].*.log"]
+	set num [llength $old]
+	
+	puts "\[$log\] - $num"
+
+	if {$num <= $logkeep} continue
+
+	lmap i [lrange [lsort -command logsort $old] 0 end-$logkeep] {
+		puts "  Deleting old log $i"
+		file tdelete "$logdir/$i"
+	}
+}
+

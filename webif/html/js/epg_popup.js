@@ -7,8 +7,7 @@ $(function() {
 		    '&event=' +
 		    encodeURIComponent($('#dialogue').attr('xe')) +
 		    '&type=' + type, function() {
-			$('#restart_block')
-			    .load('/cgi-bin/restartblock.jim');
+			$('#restart_block').slideDown('slow');
 		});
 		$(":button:contains('Record')").fadeOut('slow');
 		$(":button:contains('Reminder')").fadeOut('slow');

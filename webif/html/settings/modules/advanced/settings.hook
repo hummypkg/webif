@@ -9,7 +9,49 @@ puts -nonewline "
 	<legend> Advanced Settings </legend>
 	<table>
 "
+
 setting_toggle "Show development and advanced packages?" "pkgdev" $pkgdev
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=logsize method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Rotate logs when they exceed</th>
+		<td><select name=logsize
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+set sizes { 102400 262144 524288 1048576 1572864 2097152 }
+foreach size $sizes {
+	puts -nonewline "<option value=$size"
+	if {$logsize == $size} { puts -nonewline " selected" }
+	puts ">[pretty_size $size]"
+}
+puts "
+		</select>
+		<small>
+		<input value=\"set\" type=submit>
+		</small>
+		<div id=logsize_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=logkeep method=get action=$env(SCRIPT_NAME)>
+		<th class=key>How many rotated logs to keep</th>
+		<td>
+			<input name=logkeep size=5 type=number
+			    class=\"text ui-widget-content ui-corner-all\"
+			    maxlength=10 value=\"$logkeep\">
+			<small>
+			<input value=\"set\" type=submit>
+			</small>
+			<div id=logkeep_output></div>
+		</td>
+	</form>
+	</tr>
+"
 
 if {[system modversion 1] >= 214} {
 	setting_toggle "Expert mode telnet server?" "xtelnet" \

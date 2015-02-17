@@ -37,7 +37,6 @@ set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
 set epg_style [$settings epg_style]
 set service_style [$settings service_style]
-set pkgdev [$settings pkgdev]
 set notoolbar [$settings notoolbar]
 set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
@@ -47,8 +46,11 @@ set chanchangenc [$settings chanchangenc]
 set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
 set genrededup [$settings genrededup]
-set autolog [$settings autolog]
 set audiomp3 [$settings audiomp3]
+set autolog [$settings autolog]
+set pkgdev [$settings pkgdev]
+set logsize [$settings logsize]
+set logkeep [$settings logkeep]
 
 # Handle updates
 
@@ -87,6 +89,8 @@ handle_int_update xepghours $xepghours "Grid EPG Hours"
 handle_str_update epg_style $epg_style "EPG Type"
 handle_str_update service_style $service_style "EPG Channel Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"
+handle_int_update logsize $logsize "Log rotation size"
+handle_int_update logkeep $logkeep "Logs to keep"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
 handle_int_update nomobile $nomobile "Disable mobile link"
 handle_int_update nohelplinks $nohelplinks "Disable help links"

@@ -1,0 +1,76 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require rsv.class system.class
+jqplugin progressbar blockui
+jscss script.js style.css
+
+header
+
+puts {
+
+<div class="va cleft">
+<img class=va src=/img/bluering.png height=40>
+<span class=va>Restart Humax...</span>
+</div>
+
+<fieldset class=cleft>
+<legend><span class=blood><i>
+	Box status and events for the next two hours
+</i></span></legend>
+
+<div id=restart_status>
+<span class=blood><img src=/img/loading.gif>
+	Retrieving status...
+</span>
+</div>
+</fieldset>
+}
+
+puts "
+<div class=cleft>
+<table class=keyval><tr>
+<th>Last boot reason</th>
+<td>[system lastbootreason]</td>
+</tr></table>
+"
+if {[system lastbootreason 0] == 3} {
+	puts {
+<div class="pinkshade" style="padding: 0.5em; margin: 1em 4em; width: 60%">
+<dl>
+<dt>WARNING:</dt>
+<dd>
+The last boot was for a scheduled recording/reminder event. If you reboot
+the box in this state, it may end up in standby and require manual
+intervention.
+</dd>
+</dl>
+</div>
+	}
+
+}
+
+puts "
+</div>
+
+<div class=cleft>
+"
+
+if {[system busy]} {
+	puts "<div class=blood>
+		System is busy, cannot restart at the moment.</div>"
+} else {
+	puts {
+<div class=cleft>
+<button id=restartbutton class=red>Restart the Humax now...</button>
+<div id=restarting class=hidden>
+	Please wait while the Humax restarts...<br>
+	<div id=xprogressbar></div>
+</div>
+	}
+}
+
+puts "</div>"
+
+footer
+

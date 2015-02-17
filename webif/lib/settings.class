@@ -33,6 +33,8 @@ class settings {
 	autolog		0
 	changechangenc	0
 	audiomp3	0
+	logsize		1048576
+	logkeep		2
 }
 
 settings method hostname {{name ""}} {
@@ -325,5 +327,21 @@ settings method smartdata {} {
 	"]
 
 	return $res
+}
+
+settings method logsize {{size -1}} {
+	set val [$self _nval_setting logsize $size]
+	if {$val == 0} {
+		return 1048576
+	}
+	return $val
+}
+
+settings method logkeep {{num -1}} {
+	set val [$self _nval_setting logkeep $num]
+	if {$val == 0} {
+		return 2
+	}
+	return $val
 }
 

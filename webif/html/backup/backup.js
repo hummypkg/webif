@@ -60,8 +60,7 @@ $(document).ready(function() {
 					$('#restore_working').slideUp();
 					refresh_files();
 					$('#restore_warning').slideDown();
-					$('#restart_block').load(
-					    '/cgi-bin/restartblock.jim');
+					$('#restart_block').slideDown('slow');
 				});
 			});
 		}

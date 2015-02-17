@@ -15,10 +15,5 @@ set ch [$ts get channel_name]
 set dur [$ts duration]
 set title [$ts get title]
 
-set msg "Recorded: $dir/$title ($dur minutes - $ch)"
-set logfd [open "/mod/tmp/record.log" "a+"]
-puts $logfd "[\
-    clock format [clock seconds] -format "%d/%m/%Y %H:%M"\
-    ] - $msg"
-$logfd close
+system plog activity "Recorded: $dir/$title ($dur minutes - $ch)"
 

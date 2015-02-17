@@ -17,6 +17,7 @@ catch {set fhtcpversion [system fhtcpversion]}
 catch {set kernelver [system kernelver]}
 puts "<br>Humax Version: $fhtcpversion (kernel $kernelver)"
 puts "<br>Serial Number: [system serialno]"
+puts "<br>Last Boot Reason: [system lastbootreason]"
 
 puts "</span>"
 

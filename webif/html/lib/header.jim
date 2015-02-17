@@ -44,9 +44,6 @@ puts {
 }
 
 source /mod/webif/html/lib/topbar.jim
-puts "<center><div id=restart_block>"
-source /mod/webif/include/restart.jim
-puts "</div></center>"
 source /mod/webif/include/diskcheck.jim
 source /mod/webif/include/notify.jim
 

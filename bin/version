@@ -17,5 +17,6 @@ Humax [system model] Fox T2 ([system hostname])
   Custom firmware version: $modver
   Web interface version: [system pkgver webif]
   Serial Number: [system serialno]
+  Last Boot Reason: [system lastbootreason]
 "
 

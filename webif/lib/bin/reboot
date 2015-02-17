@@ -1,0 +1,8 @@
+#!/bin/sh
+
+/etc/init.d/S90settop shut
+/mod/bin/sync
+/sbin/reboot
+
+exit 0
+
