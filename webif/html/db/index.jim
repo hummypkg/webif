@@ -5,6 +5,9 @@ package require sqlite3
 source /mod/webif/lib/setup
 require altrow
 
+jqplugin tablesorter2
+jscss script.js
+
 set databases [glob /var/lib/humaxtv/*.db]
 lappend databases {*}[glob /mod/etc/*.db]
 lappend databases "/mnt/hd2/dms_cds.db"
@@ -15,7 +18,21 @@ set ftab [cgi_get tab]
 set fdb [cgi_get db]
 
 if {$fdb != 0} {
-	puts "<h1><a href=/cgi-bin/db.jim>Remove filters</a></h1>"
+	puts "<h1><a href=/db/index.jim>Remove filters</a></h1>"
+}
+
+proc escape {data} {
+	if {[string is print $data]} { return $data }
+	set ret ""
+	foreach c [split $data ""] {
+		if {[string is print $c]} {
+			append ret $c
+		} else {
+			binary scan $c H* hex
+			append ret "\\x$hex"
+		}
+	}
+	return $ret
 }
 
 proc db_info {db_file} {
@@ -30,7 +47,7 @@ proc db_info {db_file} {
 		where type='table' order by name
 	}]
 
-	puts "<h1><a href=/cgi-bin/db.jim?db=[file tail $db_file]>
+	puts "<h1><a href=/db/index.jim?db=[file tail $db_file]>
 		$db_file</a></h1>"
 	
 	foreach table $tables {
@@ -39,22 +56,33 @@ proc db_info {db_file} {
 		set columns [$db query "pragma table_info($table)"]
 		set datas [$db query "SELECT * FROM $table order by 1"]
 		
-		puts "<h2><a href=/cgi-bin/db.jim?db=[file tail $db_file]&tab=$table>$table</a></h2>"
-		puts "<table class=borders>"
-		puts "  <tr>"
+		puts "
+<h2><a href=/db/index.jim?db=[file tail $db_file]&tab=$table>$table</a></h2>
+<table>
+	<thead>
+		<tr>
+		"
 		foreach column $columns {
 			puts "    <th>[lindex $column 3]</th>"
 		}
-		puts "  </tr>"
+puts "
+		</tr>
+	</thead>
+	<tbody>
+"
 		foreach data $datas {
 			altrow
 			
 			for {set i 1} {$i < [llength $data]} {incr i 2} {
-				puts "    <td>[lindex $data $i]</td>"
+				puts "    <td nowrap>[
+				    escape [lindex $data $i]]</td>"
 			}
 			puts "  </tr>"
 		}
-		puts "</table>"
+		puts "
+			</tbody>
+			</table>
+		"
 	}
 	
 	$db close

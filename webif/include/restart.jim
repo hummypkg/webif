@@ -6,6 +6,7 @@ if {[file exists /tmp/.restartpending]} {
 	require system.class rsv.class
 	if {[rsv count pending] <= 0} {
 		system restartpending 0
+	} else {
 		set class ""
 	}
 }

@@ -135,7 +135,7 @@ $('button.selended').button({icons:{primary:"ui-icon-stop"}})
 
 $('button.rawview').button({icons:{primary:"ui-icon-wrench"}})
     .on('click', function() {
-	window.location = '/cgi-bin/db.jim?' + $(this).attr('path');
+	window.location = '/db/index.jim?' + $(this).attr('path');
     });
 
 $('button.backup').button({icons:{primary:"ui-icon-disk"}})

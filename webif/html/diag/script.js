@@ -34,7 +34,7 @@ $('#runedit').click(function(e) {
 
 $('#dbinfo').click(function(e) {
 	e.preventDefault();
-	window.location = '/cgi-bin/db.jim';
+	window.location = '/db/index.jim';
 });
 
 $('#channelinfo').click(function(e) {
