@@ -769,7 +769,7 @@ var dmenuclick = function(action, el, pos)
 		draggable: true, resizable: true,
 		buttons: $buttons,
 		close: function(e,u) { $('#dialogue').empty().html(
-		    '<img src="/img/loading.gif" alt="loading">'); }
+		    '<img src="/img/loading.gif">Retrieving data...'); }
 	});
 
 	function doplay()

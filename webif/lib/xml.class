@@ -1,0 +1,63 @@
+# Simple XML parser
+
+if {![exists -proc class]} { package require oo }
+
+class xml {
+	xml	""
+	loc	0
+}
+
+proc {xml init} {xml} {
+	# Remove all XML comments
+	regsub -all {<!--.*?-->} $xml {} xml
+	return [xml new [list xml [string trim $xml] loc 0]]
+}
+ 
+xml method next {{peek 0}} {
+	set n [regexp -start $loc -indices {(.*?)\s*?<(/?)(.*?)(/?)>} \
+	    $xml all txt stok tok etok]
+	if {!$n} {
+		return "EOF"
+	}
+	lassign $all all0 all1
+	lassign $txt txt0 txt1
+	lassign $stok stok0 stok1
+	lassign $tok tok0 tok1
+	lassign $etok etok0 etok1
+ 
+	if {$txt1 >= $txt0} {
+		set txt [string range $xml $txt0 $txt1]
+		if {!$peek} {
+			set loc [expr {$txt1 + 1}]
+		}
+		return [list TXT $txt]
+	}
+ 
+	set token [string range $xml $tok0 $tok1]
+	if {!$peek} {
+		set loc [expr {$all1 + 1}]
+	}
+	if {[regexp {^!\[CDATA\[(.*)\]\]} $token => txt]} {
+		return [list TXT $txt]
+	}
+ 
+	# Check for Processing Instruction <?...?>
+	set type XML
+	if {[regexp {^\?(.*)\?$} $token => token]} {
+		set type PI
+	}
+	set attr ""
+	regexp {^(.*?)\s+(.*?)$} $token => token attr
+	set etype START
+	if {$etok0 <= $etok1} {
+		if {$stok0 <= $stok1} {
+			# Bad XML
+			set token "/$token"
+		}
+		set etype EMPTY
+	} elseif {$stok0 <= $stok1} {
+		set etype END
+	}
+	return [list $type $token $attr $etype]
+}
+

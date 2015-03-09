@@ -1,0 +1,39 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require ts.class
+
+foreach {sample expected} {
+	{Episode 5} 		{S0E5/0}
+	{(8/8)} 		{S0E8/8}
+	{(Episode 5/10)} 	{S0E5/10}
+	{(Ep5/10)} 		{S0E5/10}
+	{(Ep 3 of 3)} 		{S0E3/3}
+	{(Ep3)} 		{S0E3/0}
+	{(S2 Ep1)} 		{S2E1/0}
+	{S.02 Ep.002} 		{S2E2/0}
+	{S01 Ep52} 		{S1E52/0}
+	{(S4 Ep 7)} 		{S4E7/0}
+	{(S1, ep 2)} 		{S1E2/0}
+	{(S8, Ep2)} 		{S8E2/0}
+	{(S4 Ep22/24)} 		{S4E22/24}
+	{23/27.}		{S0E23/27}
+} {
+	set ts [ts new "synopsis {$sample}"]
+	$ts episode_name
+
+	set epstr [format "S%dE%d/%d" \
+	    [$ts get seriesnum] \
+	    [$ts get episodenum] \
+	    [$ts get episodetot] \
+	]
+
+	if {$epstr eq $expected} {
+		set result "OK"
+	} else {
+		set result "FAIL"
+	}
+
+	puts [format "%-20s => %-10s - %s" $sample $epstr $result]
+}
+

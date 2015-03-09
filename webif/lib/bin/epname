@@ -1,0 +1,13 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class ts.class
+
+ts iterate [lambda {ts} {
+	puts "[$ts get title] - ([$ts series_name])"
+	puts [$ts get synopsis]
+	puts [$ts episode_name]
+	puts [$ts epstr]
+	puts ""
+}] 1
+

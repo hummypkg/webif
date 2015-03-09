@@ -1,0 +1,56 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require ts.class
+jqplugin tablesorter2 highlight
+jscss script.js
+
+header
+
+puts {
+<table>
+<thead>
+<tr>
+	<th>Title</th>
+	<th>Episode</th>
+	<th>Episode Name</th>
+	<th>Synopses</th>
+</tr>
+</thead>
+<tbody>
+}
+
+ts iterate [lambda {ts} {
+	set epname [$ts episode_name]
+	set series [$ts get tvdb_series]
+	set data [$ts get tvdb_data]
+	if {[dict exists $data overview]} {
+		set overview $data(overview)
+	} else { set overview "" }
+	puts "
+
+<tr>
+	<td rowspan=3>[$ts get title]</td>
+	<td rowspan=3>[$ts epstr]</td>
+	<td rowspan=3>$epname</td>
+	<td class=synopsis>[$ts get synopsis]</td>
+</tr>
+<tr>
+	<td class=words>
+		Found by [$ts get tvdb_method]<br>
+		[$series get _phrases]
+	</td>
+</tr>
+<tr>
+	<td class=synopsis>$overview</td>
+</tr>
+	"
+}] 0
+
+puts {
+</tbody>
+</table>
+}
+
+footer
+

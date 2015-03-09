@@ -2,7 +2,7 @@
 if {![exists -proc class]} { package require oo }
 if {![exists -proc pack]} { package require pack }
 source /mod/webif/lib/setup
-require system.class
+require system.class tvdb.class classdump
 
 set dmsfile /mnt/hd2/dms_cds.db
 
@@ -27,6 +27,15 @@ class ts {
 	genre		0
 	resume		0
 	status		""
+	series		""
+
+	seriesnum	0
+	episodenum	0
+	episodetot	0
+	episodename	""
+	tvdb_method	""
+	tvdb_series	{}
+	tvdb_data	{}
 }
 
 ts method bfile {} {
@@ -458,5 +467,161 @@ proc {ts iterate} {callback {verbose 0} {dir ""}} {{rootdev 0}} {
 		if {$ts == 0} continue
                 $callback $ts
 	}
+}
+
+#
+# Attempt to extract the series/episode names using a variety of techniques
+#
+
+ts method series_name {} {
+
+	# For recorded series, use the folder name
+	set dir [file dirname $file]
+	if {[file exists "$dir/.series"]} {
+		set s [file tail $dir]
+	} else {
+		set s $title
+	}
+
+	foreach x {
+		{^new: *}
+	} {
+		regsub -nocase -all -- $x $s "" s
+	}
+
+	return $s
+}
+
+set ::ts::episode_prefixes {
+	{^new series\.* *}
+	{^cbeebies\.* *}
+	{^cbbc\.* *}
+	{^t4: *}
+	{^brand new series *[-:]* *}
+	{^\.+}
+}
+
+ts method tvdb_resolve {} {
+	# See if we can find a TVDB series for this recording.
+
+	set tvdb_series [set v [tvdb series [$self series_name]]]
+	if {[$v get seriesid] == 0} { return }
+
+	# Got one.
+
+	if {$seriesnum && $episodenum} {
+		# Easiest case - we can explicitly request the episode.
+		set tvdb_method "series and episode number"
+		return [$v episodebynum $seriesnum $episodenum]
+	}
+
+	# Now try to find the episode using the current episode name
+	set k [$v episodebyname $episodename]
+	if {[llength $k]} {
+		set tvdb_method "episode name ($episodename)"
+		return $k
+	}
+
+	if {$episodenum} {
+		# More problematic but can at least narrow the list of
+		# candidates.
+		set tvdb_method "episode number"
+		return [$v episodebyepnum $episodenum $synopsis]
+	}
+
+	# Most difficult - try and match based on synopsis alone
+	set tvdb_method "synopsis text"
+	return [$v episodebysynopsis $synopsis]
+}
+
+ts method episode_name {} {
+	set s $synopsis
+
+	######################################################################
+	# Attempt to determine the episode name from the synopsis
+
+	# Strip common prefixes
+	foreach prefix $::ts::episode_prefixes {
+		regsub -nocase -all -- $prefix $s "" s
+	}
+
+	# Strip anything following a colon.
+	regsub -all -- { *[:].*$} $s "" s
+
+	# If the resulting string is longer than 40 characters then
+	# split around . and take the left hand side if appropriate.
+	if {[string length $s] > 40} {
+		lassign [split $s "."] v w
+		set s $v
+		if {[string length $s] < 6 && [string length $w] < 6} {
+			append s "_$w"
+		}
+	}
+
+	# Shorten if too long.
+	if {[string length $s] > 40} { set s [string range $s 0 39] }
+
+	set episodename $s
+
+	######################################################################
+	# Check for embedded Series/Episode number.
+	# Thank you broadcasters for the variation!
+	# Least trustworthy first.
+
+	# Episode 5
+	regexp -nocase -- {Episode (\d+)} $synopsis x episodenum
+
+	# ^23/27.
+	regexp -nocase -- {^\s*(\d+)/(\d+)} $synopsis x episodenum episodetot
+
+	# (8/8)
+	regexp -nocase -- {\((\d+)/(\d+)\)} $synopsis x episodenum episodetot
+
+	# (Episode 5/10)
+	# (Ep5/10)
+	# (Ep 3 of 3)
+	# (Ep3)
+	regexp -nocase -- {Epi?s?o?d?e?\s*(\d+)\s*(of|/)?\s*(\d+)?} $synopsis \
+	    x episodenum x episodetot
+
+	# (S2 Ep1)
+	# S.02 Ep.002
+	# S01 Ep52
+	# (S4 Ep 7)
+	# (S1, ep 2)
+	# (S8, Ep2)
+	# (S4 Ep22/24)
+	regexp -nocase -- {S\.*(\d+),?\s*Ep\.?\s*(\d+)(/(\d+))?} $synopsis \
+	    x seriesnum episodenum x episodetot
+
+	foreach v {seriesnum episodenum episodetot} {
+		if {[set $v] eq ""} {
+			set $v 0
+		} else {
+			incr $v 0
+		}
+	}
+
+	# Now see if TVDB has anything to add
+
+	if {[system has tvdb]} {
+		set tvdb_data [$self tvdb_resolve]
+		if {[dict exists $tvdb_data name]} {
+			if {!$seriesnum} { set seriesnum $tvdb_data(series) }
+			if {!$episodenum} { set episodenum $tvdb_data(episode) }
+			return $tvdb_data(name)
+		}
+	}
+
+	return $s
+}
+
+ts method epstr {} {
+	set x s
+	if {$seriesnum eq 0} { append x "?" } else { append x $seriesnum }
+	append x e
+	if {$episodenum eq 0} { append x "??" } else { append x $episodenum }
+	if {$episodetot ne 0} { append x "/$episodetot" }
+	return $x
 }
 

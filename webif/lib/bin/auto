@@ -143,7 +143,7 @@ proc dorecalc {dir} {
 	if {!$recalc} return
 	log "Running unwatched recalculation for $dir" 2
 	ts resetnew $dir
-	set recalc 0
+	incr recalc -1 
 }
 
 proc startop {op file} {

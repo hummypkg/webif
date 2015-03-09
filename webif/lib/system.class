@@ -524,10 +524,11 @@ proc {system usbmounts} {{full 0}} {
 proc {system has} {comp} {
 	switch $comp {
 	    wifi_dongle {
-		if {[catch {exec /mod/bin/iwgetid}]} {
-			return 0
-		}
+		if {[catch {exec /mod/bin/iwgetid}]} { return 0 }
 		return 1
+	    }
+	    tvdb {
+		return [file exists /mod/webif/.tvdb]
 	    }
 	}
 	return 0

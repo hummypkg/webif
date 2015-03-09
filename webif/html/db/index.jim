@@ -11,6 +11,8 @@ jscss script.js
 set databases [glob /var/lib/humaxtv/*.db]
 lappend databases {*}[glob /mod/etc/*.db]
 lappend databases "/mnt/hd2/dms_cds.db"
+lappend databases "/mod/tmp/tvdb/series.db"
+lappend databases {*}[glob /mod/var/tvdb/*.db]
 
 header
 

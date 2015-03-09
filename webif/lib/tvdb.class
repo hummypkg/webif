@@ -1,0 +1,252 @@
+source /mod/webif/lib/setup
+
+package require cgi
+if {![exists -proc class]} { package require oo }
+if {![exists -proc sqlite3.open]} { package require sqlite3 }
+require xml.class
+
+set ::tvdb::apikey 1764335F804A5A91
+set ::tvdb::mirror "thetvdb.com"
+set ::tvdb::cache "/mod/var/tvdb"
+set ::tvdb::cacheage 86400
+set ::tvdb::debug 0
+
+if {![file isdirectory $::tvdb::cache]} {
+	file mkdir $::tvdb::cache
+}
+
+set ::tvdb::indexdb [sqlite3.open "$::tvdb::cache/series.db"]
+$::tvdb::indexdb query {
+	create table if not exists nseries(
+		[name] text primary key
+	)
+}
+
+class tvdb {
+	seriesid 0
+	imdb_id ""
+	name ""
+	overview ""
+	dat ""
+
+	_matches {}
+	_smatches {}
+	_phrases {}
+}
+
+proc ::tvdb::dlog {msg} {
+	if {$::tvdb::debug} {
+		puts $msg
+	}
+}
+
+tvdb method _fetch {url} {
+	set f [socket stream $::tvdb::mirror:80]
+	$f puts -nonewline "GET /api/$url HTTP/1.0\r\n"
+	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
+	$f puts -nonewline "Connection: close\r\n"
+	$f puts -nonewline "\r\n"
+
+	set line [string trim [$f gets]]
+	while {[string length $line]} {
+		#puts "Web Header: $line"
+		set line [string trim [$f gets]]
+	}
+	
+	# Save the body
+	set ret [$f read]
+	$f close
+	return $ret
+}
+
+tvdb method _parse {xml vars {end "XXX"}} {
+	set x [xml init $xml]
+	set cattr 0
+	while {1} {
+		lassign [$x next] type val attr etype
+		if {$type == "EOF"} break
+		switch $etype {
+			START { set cattr $val }
+			END {
+				if {$val == $end} break
+				set cattr 0
+			}
+			default {
+				if {$type == "TXT"} {
+					if {$cattr in $vars} {
+						set $cattr $val
+					}
+					::tvdb::dlog "$cattr - $val"
+				}
+			}
+		}
+	}
+}
+
+tvdb method findseries {series} {
+	set ret ""
+	catch {
+		set ret [$::tvdb::indexdb query {
+			select series_id from series where name = '%s'
+		    } $series]
+	}
+	if {[llength $ret]} {
+		lassign [lindex $ret 0] x seriesid
+		::tvdb::dlog "Cached ID for '$series' = $seriesid"
+	}
+	if {!$seriesid} {
+		# Attempt to determine series ID
+
+		::tvdb::dlog "Trying to find series in TVDB"
+		set seriesxml [$self _fetch \
+		    "/GetSeries.php?seriesname=[cgi_quote_url $series]"]
+		$self _parse $seriesxml {seriesid} Series
+	}
+
+	#puts "SERIESID: ($seriesid)"
+
+	if {!$seriesid} {
+		# Negative caching
+		$::tvdb::indexdb query {
+			replace into nseries values('%s')
+		} $series
+		return;
+	}
+
+	# Found a series
+
+	set base "$::tvdb::cache/$seriesid"
+	# Expire old files
+	if {[file exists "$base.xml"]} {
+		set age $([clock seconds] - [file mtime "$base.xml"])
+		::tvdb::dlog "$base.xml age $age"
+		if {$age > $::tvdb::cacheage} {
+			file delete "$base.xml"
+			::tvdb::dlog "Expiring $base.xml"
+		}
+	}
+
+	if {![file exists "$base.xml"]} {
+		::tvdb::dlog "Downloading"
+		# Download the series info
+		set f [open "$base.zip" w]
+		puts $f [$self _fetch \
+		    "$::tvdb::apikey/series/$seriesid/all/en.zip"]
+		$f close
+		exec unzip -o -q "$base.zip" en.xml -d $::tvdb::cache
+		if {[file exists "$::tvdb::cache/en.xml"]} {
+			file rename "$::tvdb::cache/en.xml" $base.xml
+			# Extract episode info
+			puts [exec /mod/webif/lib/bin/tvdb "$base.xml"]
+		}
+	}
+
+	set ret [$::tvdb::indexdb query {
+		select * from series where series_id = %s} $seriesid]
+	if {[llength $ret] == 1} {
+		foreach {k v} [lindex $ret 0] {
+			set $k $v
+		}
+	}
+}
+
+tvdb method dbhandle {} {
+	if {![file exists "$::tvdb::cache/$seriesid.db"]} { return {} }
+	set db [sqlite3.open "$::tvdb::cache/$seriesid.db"]
+	return $db
+}
+
+proc {tvdb tolike} {str} {
+	return "%[string map {
+		" and " "%"
+		" the " "%"
+	    } $str]%"
+}
+
+tvdb method episodebynum {series episode} {
+	if {![llength [set db [$self dbhandle]]]} return {}
+	set ret [$db query {
+		select * from episode where series = %s and episode = %s
+	    } $series $episode]
+	if {[llength $ret]} { return [lindex $ret 0] }
+	return {}
+}
+
+tvdb method episodebyname {str} {
+	if {![llength [set db [$self dbhandle]]]} return {}
+	set ret [$db query {
+		select * from episode where name like '%s'
+		order by length(name)
+	    } [tvdb tolike $str]]
+	if {[llength $ret]} { return [lindex $ret 0] }
+	return {}
+}
+
+tvdb method wordcount {db words extra} {
+	set _matches {}
+
+	loop i 5 1 -1 {
+		#puts "Trying phrases of length $i<br>"
+		set wlen $([llength $words] - $i - 1)
+		for {set a 0} {$a < $wlen} {incr a} {
+			set w [lrange $words $a $($a + $i - 1)]
+			#puts "Phrase: $w<br>"
+
+			set ret [$db query {
+				select episode_id from episode
+				where overview like '%%%s%%' %s
+			} $w $extra]
+			foreach row $ret {
+				#puts "&nbsp;&nbsp;> FOUND: ($w)<br>"
+				ladd _phrases $w
+				lassign $row x id
+				# Score is twice phrase length
+				incr _matches($id) $($i * 2)
+			}
+		}
+	}
+}
+
+tvdb method seek {synopsis {extra ""}} {
+	if {![llength [set db [$self dbhandle]]]} return {}
+
+	set words [split $synopsis " "]
+
+	# Count phrase occurence
+	$self wordcount $db $words $extra
+
+	if {![llength $_matches]} {
+		return {}
+	}
+
+	# Find best match
+	set _smatches [lsort -integer -decreasing -index end [\
+		lmap {k v} $_matches {
+			list $k $v
+		}]]
+
+	set eid [lindex [lindex $_smatches 0] 0]
+
+	set ret [$db query {
+		select * from episode where episode_id = %s
+	    } $eid]
+	if {[llength $ret]} { return [lindex $ret 0] }
+
+	return {}
+}
+
+tvdb method episodebyepnum {episode synopsis} {
+	return [$self seek $synopsis "and episode = $episode"]
+}
+
+tvdb method episodebysynopsis {synopsis} {
+	return [$self seek $synopsis]
+}
+
+proc {tvdb series} {series} {
+	set t [tvdb]
+
+	$t findseries $series
+	return $t
+}
+

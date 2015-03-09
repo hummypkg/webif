@@ -66,10 +66,14 @@ proc {file tdelete} {target} {
 	}
 }
 
-proc {file read} {target} {
+proc {file read} {target {bytes 0}} {
 	if {[file readable $target]} {
 		set fd [open $target]
-		set ret [$fd read]
+		if {$bytes} {
+			set ret [$fd read $bytes]
+		} else {
+			set ret [$fd read]
+		}
 		$fd close
 		return $ret
 	}

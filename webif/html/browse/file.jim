@@ -32,7 +32,33 @@ if {$type eq "ts"} {
 	<th>Synopsis</th>
 	<td>[$ts get synopsis]</td>
 </tr><tr>
+	<th>Episode</th>
 	"
+	# Causes other series information to be automatically populated
+	set epname [$ts episode_name]
+	set series [$ts series_name]
+	set sdata [$ts get tvdb_series]
+	set idata [$ts get tvdb_data]
+	if {[llength $sdata]} {
+		set sid [$sdata get seriesid]
+		if {$sid} {
+		    append series "/<a href=/db/index.jim?db=$sid.db>$sid</a>"
+		}
+	}
+	puts "<td>[$ts epstr] - $epname (<i>$series</i>)<td>
+</tr><tr>
+	"
+	if {[llength $sdata] && [llength $idata]} {
+		puts "</tr><tr><th class=blood>DEBUG</th><td class=footnote>
+			Found using [$ts get tvdb_method]
+			<br>
+			$idata(overview)
+			<br>
+			[$sdata get _phrases]
+			<br>
+			[lrange [$sdata get _smatches] 0 8]
+		</td></tr>"
+	}
 
 	if {[$ts flag "Guidance"] > 0} {
 		puts "
