@@ -1,0 +1,8 @@
+#!/mod/bin/jimsh
+
+set file [lindex $argv 0]
+
+set dir [file dirname $file]
+
+exec /mod/webif/lib/bin/auto -single $dir
+

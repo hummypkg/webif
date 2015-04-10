@@ -4,8 +4,6 @@ if {![exists -proc pack]} { package require pack }
 source /mod/webif/lib/setup
 require system.class tvdb.class classdump
 
-set dmsfile /mnt/hd2/dms_cds.db
-
 set tsgroup {ts nts hmt thm}
 
 class ts {
@@ -259,31 +257,8 @@ ts method setgenre {newgenre} {
 	set genre $newgenre
 }
 
-ts method dlnaloc {{urlbase 0}} {
-	set mime "video/ts"
-	if {![file exists $::dmsfile]} { return {} }
-	if {[catch {set db [sqlite3.open $::dmsfile]}]} { return {} }
-	set url ""
-	set rfile [file normalize $file]
-	if {[catch {set muri [$db query "
-	    select tblresource.mimetype, contenturi
-	    from tblresource join tblmedia using (mediaid)
-	    where localurl = '%s'" $rfile]}]} {
-		set muri ""
-	}
-	if {$muri ne ""} {
-		set rec [lindex $muri 0]
-		set xuri [lindex $rec 3]
-		set mime [lindex $rec 1]
-		if {$urlbase ne "0"} {
-			set url "http://$urlbase:9000/web/$xuri"
-		} else {
-			set url "http://[system ip]:9000/web/$xuri"
-		}
-	}
-	$db close
-
-	if {$url ne "" } { return [list $url $mime] } else { return {} }
+ts method dlnaloc {{urlbase ""}} {
+	return [system dlnaurl [file normalize $file] $urlbase]
 }
 
 ts method cleanbmp {} {

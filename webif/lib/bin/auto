@@ -282,12 +282,6 @@ proc do_decrypt {ts} {
 		return
 	}
 
-	lassign [$ts dlnaloc "127.0.0.1"] url
-	if {$url eq ""} {
-		log "  $file - Not yet indexed."
-		return
-	}
-
 	if {![system is_listening 9000]} {
 		log "  $file - DLNA Server not running." 2
 		set ::dlnaok 0
@@ -308,6 +302,20 @@ proc do_decrypt {ts} {
 		return
 	}
 
+	lassign [$ts dlnaloc "127.0.0.1"] url
+	if {$url ne ""} {
+		log "  $file - has been indexed."
+		set helper 0
+	} else {
+		log "  $file - Not yet indexed, trying helper."
+		lassign [system dlnahelper [file normalize $file]] url
+		if {$url eq ""} {
+			log "  $file - Can't use helper."
+			return
+		}
+		set helper 1
+	}
+
 	# Perform the decryption by requesting the file from the DLNA server.
 	set size [$ts size]
 	dsc $size
@@ -317,6 +325,9 @@ proc do_decrypt {ts} {
 	log "  DECRYPT: $rfile" 0
 	log "  DLNA: $url" 0
 	exec wget -O "$tmp/$bfile" $url
+
+	# Release the helper lock once finished.
+	if {$helper} { system dlnahelper -release }
 
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
 		log "  $file - File size mismatch." 0

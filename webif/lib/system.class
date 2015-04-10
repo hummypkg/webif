@@ -1,4 +1,6 @@
 
+source /mod/webif/lib/setup
+
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
 if {![exists -proc binary]} { package require binary }
@@ -157,6 +159,69 @@ proc {system dlnadb} {} {
 		HD { return "/media/drive1/dms_cds.db" }
 	}
 	return ""
+}
+
+proc {system dlnaurl} {file {urlbase ""}} {
+	set mime "video/ts"
+	if {[catch {set db [sqlite3.open [system dlnadb]]}]} { return {} }
+	set muri [$db query {
+	    select tblresource.mimetype, contenturi
+	    from tblresource join tblmedia using (mediaid)
+	    where localurl = '%s'} $file]
+	if {[llength $muri]} {
+		lassign [lindex $muri 0] x mime x xuri
+	} else {
+		# Try for partially linked entry
+		set muri [$db query {
+			select mediaid from tblmedia
+			where localurl = '%s'
+		    } $file]
+		if {![llength $muri]} { return {} }
+		lassign [lindex $muri 0] x mediaid
+		set xuri "media/$mediaid.TS"
+	}
+
+	$db close
+
+	if {$urlbase eq ""} { set urlbase [system ip] }
+	set url "http://${urlbase}:9000/web/$xuri"
+
+	return [list $url $mime]
+}
+
+proc {system dlnahelper} {file {urlbase ""}} {
+	set dir /mnt/hd2/mod/.dlnahelper
+	require lock
+
+	if {$file eq "-release"} {
+		release_lock dlnahelper
+		return {}
+	}
+
+	if {![acquire_lock dlnahelper 2]} { return {} }
+
+	if {![file isdirectory $dir]} { file mkdir $dir }
+
+	set base [file rootname $file]
+	foreach ext {hmt ts} {
+		file delete "$dir/helper.$ext"
+		file link -symbolic "$dir/helper.$ext" "$base.$ext"
+	}
+
+	set ret [system dlnaurl "$dir/helper.ts" $urlbase]
+	if {![llength $ret]} {
+		# Manually import the helper file.
+		if {![catch {set db [sqlite3.open [system dlnadb]]}]} {
+			$db query {
+				insert into tblmedia
+				(localurl,folder,mediatype,refcount)
+				values('%s','%s',0,1)
+			} "$dir/helper.ts" $dir
+			$db close
+			set ret [system dlnaurl "$dir/helper.ts" $urlbase]
+		}
+	}
+	return $ret
 }
 
 proc {system dustbin} {{short 0}} {
