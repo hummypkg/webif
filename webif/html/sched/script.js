@@ -363,12 +363,26 @@ $('#mrform input.time').timepicker({
 	step:5
 });
 
+function dayfilter(date)
+{
+	var cur = $('#mrrepeat').val();
+	if (cur < 3) return [1, ""];
+
+	var day = date.getDay();
+	if (cur == 3) // Weekdays only
+		return [(day > 0 && day < 6), ""];
+	else	// Weekends only
+		return [day == 0 || day >= 6, ""];
+}
+
 $('#mrsdate').datepicker({
+	firstDay: 1,
 	defaultDate: 0,
 	minDate: 0,
 	maxDate: "+1Y",
 	dateFormat: "D, dd/mm/yy",
 	autoclose: true,
+	beforeShowDay: dayfilter,
 	onClose: function(s) {
 		var dat = $(this).datepicker('getDate');
 		if (dat)
@@ -381,11 +395,17 @@ $('#mrsdate').datepicker({
 });
 
 $('#mredate').datepicker({
+	firstDay: 1,
 	defaultDate: 0,
 	minDate: 0,
 	maxDate: "+1Y",
 	autoclose: true,
 	dateFormat: "D, dd/mm/yy",
+	beforeShowDay: dayfilter
+});
+
+$('#mrrepeat').on('change', function() {
+	$('#mrform input.date').datepicker('refresh');
 });
 
 $('#mrform').datepair({
