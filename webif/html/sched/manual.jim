@@ -19,7 +19,7 @@ set title [cgi_get mrtitle ""]
 puts "{"
 
 if {[llength $errfields]} {
-	puts "\"status\" : 0,"
+	puts "\"status\": 0,"
 	puts "\"errfields\": \["
 	set flag 0
 	foreach e $errfields {
