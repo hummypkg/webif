@@ -76,5 +76,74 @@ puts {
 	</form>
 </div>
 
+<div id=manrsv title="Manual Event" style="display: none">
+	<form id=mrform>
+	<table border=0>
+	<tr>
+		<th>
+			<b>Create</b>
+		</th>
+		<td>
+			<select id=mrrepeat name=repeat
+			    class="ui-widget-content ui-corner-all">
+				<option value=0 selected>One-off</option>
+				<option value=1>Daily</option>
+				<option value=2>Weekly</option>
+				<option value=3>Weekday</option>
+				<option value=4>Weekend</option>
+			</select>
+			&nbsp;
+			<select id=mrtype name=type
+			    class="ui-widget-content ui-corner-all">
+				<option value=4 selected>Recording</option>
+				<option value=2>Reminder</option>
+			</select>
+		</td>
+	</tr><tr>
+		<th>
+			<b>From</b>
+		</th>
+		<td>
+		<input type=text id=mrsdate size=15
+		    placeholder="dd/mm/yyyy"
+		    class="date start text ui-widget-content ui-corner-all">
+		<input type=text id=mrstime size=10
+		    placeholder="hh:mm"
+		    class="time start text ui-widget-content ui-corner-all">
+		<b>to</b>
+		<input type=text id=mredate size=15
+		    placeholder="dd/mm/yyyy"
+		    class="date end text ui-widget-content ui-corner-all">
+		<input type=text id=mretime size=10
+		    placeholder="hh:mm"
+		    class="time end text ui-widget-content ui-corner-all">
+		</td>
+	</tr><tr>
+		<th>
+			<b>Channel</b>
+		</th>
+		<td>
+			<select id=mrlcn tabindex=1 name=lcn
+			    class="ui-widget-content ui-corner-all blood">
+			<option>Loading channel list...</option>
+			</select>
+		</td>
+	</tr><tr>
+		<th>
+			<b>Event title</b>
+		</th>
+		<td>
+			<input type=text id=mrtitle size=73 name=mrtitle
+			    placeholder="Defaults to channel name"
+			    class="text ui-widget-content ui-corner-all">
+		</td>
+	</tr><tr>
+		</td>
+	</tr>
+	</table>
+	</form>
+	<div id=mrerr class=blood></div>
+</div>
+
 }
 

@@ -537,6 +537,34 @@ proc {rsv construct} {event type} {
 	return [rsv new $args]
 }
 
+proc {rsv manual} {start end lcn type repeat {title ""}} {
+	require findhsvc
+
+	set args {}
+
+	set args(ersvtype)		$type
+	set args(erepeat)		$repeat
+	set args(nsttime)		$start
+	set args(szsttime)		[clock format $args(nsttime) \
+					    -format {%Y%m%d%H%M%S}]
+	set args(nduration)		$($end - $start)
+
+	set args(hsvc)			[get_channel_attr_bylcn $lcn]
+
+	if {$title eq ""} {
+		set title [system strip [\
+		    get_channel_attr_bylcn $lcn szSvcName]]
+	}
+
+	set args(szevtname)		$title
+
+	set args(ucRecKind)		0
+	set args(usevtid)		0
+	set args(eReady)		30
+
+	return [rsv new $args]
+}
+
 proc {rsv backup} {file} {
 	global rsvdb
 

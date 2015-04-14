@@ -1,0 +1,22 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require epg.class
+
+httpheader "application/json"
+
+puts "{"
+set flag 0
+
+lmap i [$channeldb query "
+        select usLcn, szSvcName
+        from TBL_SVC
+	order by 1
+"] {
+	if {$::flag} { puts "," } else { incr ::flag }
+	lassign $i x lcn x name
+	puts -nonewline "  \"$lcn\": \"[system strip $name]\""
+}
+
+puts "\n}"
+

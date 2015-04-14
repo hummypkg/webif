@@ -1,8 +1,17 @@
 #!/mod/bin/jimsh
 
-set file [lindex $argv 0]
+source /mod/webif/lib/setup
+require lock
 
+set file [lindex $argv 0]
 set dir [file dirname $file]
+
+# Wait up to 10 minutes for any existing auto process to finish...
+if {![acquire_lock webif_auto 600]} {
+	puts "Cannot acquire exclusive lock, terminating."
+	exit
+}
+release_lock webif_auto
 
 exec /mod/webif/lib/bin/auto -single $dir
 

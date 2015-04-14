@@ -1,0 +1,46 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require system.class rsv.class
+
+httpheader "application/json"
+
+set fields {start end lcn type repeat}
+
+set errfields {}
+foreach var $fields {
+	if {[set $var [cgi_get $var -]] eq "-"} {
+		lappend errfields $var
+	}
+}
+set title [cgi_get mrtitle ""]
+
+puts "{"
+
+if {[llength $errfields]} {
+	puts "\"status\" : 0,"
+	puts "\"errfields\": \["
+	set flag 0
+	foreach e $errfields {
+		if {$flag} { puts "," } else { incr flag }
+		puts -nonewline "\"$e\""
+	}
+	puts ""
+	puts "]"
+} else {
+	if {[catch {
+		set r [rsv manual $start $end $lcn $type $repeat $title]
+	    }  msg]} {
+		puts "\"status\": 0,"
+		puts "\"err\": \"$msg\""
+	} elseif {[catch {$r insert} msg]} {
+		puts "\"status\": 0,"
+		puts "\"err\": \"$msg\""
+	} else {
+		puts "\"status\": 1"
+		system restartpending
+	}
+}
+puts "}"
+

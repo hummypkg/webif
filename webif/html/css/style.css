@@ -280,6 +280,12 @@ tr.blueshade > td, .blueshade
 	text-decoration: line-through;
 }
 
+.error
+{
+	background: #ffcccc;
+	color: black;
+}
+
 .greenshade
 {
 	background: #e4faa8;

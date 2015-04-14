@@ -76,7 +76,6 @@ function schedpopup(e, o)
 }
 $('a.schedule').click(function(e) { schedpopup(e, $(this)) });
 
-
 $('.schedselect:checked').prop('checked', false);
 
 $('button.delselected').button({icons:{primary:"ui-icon-trash"}})
@@ -285,6 +284,121 @@ $('#schedule_cleanup').bind('click', function(e) {
 		$.get('cleanup.jim',
 		    function() { window.location.reload(true);
 		});
+});
+
+// Manual reservation
+
+$('#manrsv').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+	    "Create event": function() {
+		var data = $('#mrform').serializeArray();
+
+		var s = $('#mrstime').timepicker('getTime',
+		    $('#mrsdate').datepicker('getDate'));
+		if (s)
+			data.push({ name: "start", value: s.getTime() / 1000});
+
+		var s = $('#mretime').timepicker('getTime',
+		    $('#mredate').datepicker('getDate'));
+		if (s)
+			data.push({ name: "end", value: s.getTime() / 1000});
+
+		$('#mrerr')
+		    .html('<img src=/img/loading.gif> Creating event...');
+		
+		$.getJSON('manual.jim', data, function(d) {
+			if (d.status)
+				window.location.reload(true);
+			else if (d.errfields)
+			{
+				d.errfields.forEach(function(item) {
+					$('#mrform input[name=' + item + ']')
+					    .addClass('error');
+				});
+				$('#mrerr').html('The start and end times '
+				    + 'must be provided.');
+			}
+			else if (d.err)
+				$('#mrerr').html(d.err);
+		});
+	    },
+	    "Cancel": function() {
+		$(this).dialog('close');
+	    }
+	}
+});
+
+$('button.manual_rsv').button({icons:{primary:"ui-icon-clock"}})
+    .on('click', function() {
+	$('#mrform').get(0).reset();
+	$('#mrform input.date').datepicker('setDate', null);
+	$('#mrform input.time').timepicker('setTime', null);
+	$('#manrsv').dialog('open');
+
+//	$("#manrsv .ui-dialog-buttonpane button:contains('Create')")
+//	    .button('disable')
+
+	if ($('#mrlcn').hasClass('blood'))
+	{
+		var $s = $('#mrlcn');
+		$.getJSON('/cgi-bin/chanlist.jim', function(data) {
+			$s.find('option').remove();
+			$.each(data, function(lcn, name) {
+				$('<option>')
+				    .val(lcn)
+				    .text(lcn + ' - ' + name)
+				    .appendTo($s);
+			});
+			$('#mrlcn').removeClass('blood');
+		});
+	}
+});
+
+$('#mrform input.time').timepicker({
+	showDuration: true,
+	timeFormat: 'g:ia',
+	step:5
+});
+
+$('#mrsdate').datepicker({
+	defaultDate: 0,
+	minDate: 0,
+	maxDate: "+1Y",
+	dateFormat: "D, dd/mm/yy",
+	autoclose: true,
+	onClose: function(s) {
+		var dat = $(this).datepicker('getDate');
+		if (dat)
+			dat.setDate(dat.getDate() + 1);
+		$('#mredate')
+		    .datepicker('setDate', s)
+		    .datepicker('option', 'minDate', s)
+		    .datepicker('option', 'maxDate', dat);
+	}
+});
+
+$('#mredate').datepicker({
+	defaultDate: 0,
+	minDate: 0,
+	maxDate: "+1Y",
+	autoclose: true,
+	dateFormat: "D, dd/mm/yy",
+});
+
+$('#mrform').datepair({
+	defaultDateDelta: null,
+	defaultTimeDelta: 3600000,
+	parseDate: function (el) {
+		var utc = new Date($(el).datepicker('getDate'));
+		return utc && new Date(utc.getTime() +
+		    (utc.getTimezoneOffset() * 60000));
+	},
+	updateDate: function (el, v) {
+		$(el).datepicker('setDate', v);
+	}
 });
 
 });

@@ -4,7 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require altrow rsv.class progressbar epg.class system.class
 
-jqplugin tablesorter2 contextMenu form blockui confirmAction
+jqplugin tablesorter2 contextMenu form blockui confirmAction \
+    timepicker datepair
 jscss script.js
 header
 
@@ -84,7 +85,8 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 	if {$pending} {
 		append attrs " class=\"blueshade strike\""
 	}
-	puts "<tr $attrs>"
+	altrow $attrs
+	#puts "<tr $attrs>"
 
 	# Checkbox
 	puts "<td><input type=checkbox class=schedselect></td>";
@@ -225,9 +227,9 @@ proc eventfooter {rawlink} {
 	}
 	puts "
 		<button class=\"delselected red\">Delete Selected
-		    <span class=delselcnt></span></button>
-	"
-	puts "
+		    <span class=delselcnt></span>
+		</button>
+		<button class=\"manual_rsv blue\">Manual Event</button>
 		<button class=rawview
 		    path=\"$rawlink\"
 		    >Raw Database</button>
