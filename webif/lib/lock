@@ -14,7 +14,7 @@ proc _lock_to_port {id} {
 
 proc _lock_dummy {newsock addr port} { }
 
-proc acquire_lock {id {timeout 0}} {
+proc acquire_lock {id {timeout 0} {interval 0.2}} {
 	global _locks
 
 	set port [_lock_to_port $id]
@@ -24,7 +24,7 @@ proc acquire_lock {id {timeout 0}} {
 	while {[catch {set socket [\
 	    socket stream.server "127.0.0.1:$port"]} msg]} {
 		if {[clock seconds] > $timeout} { return 0 }
-		sleep 0.2
+		sleep $interval
 	}
 
 	set _locks($id) $socket

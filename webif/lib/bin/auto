@@ -10,29 +10,56 @@ set audiomp3 [$settings audiomp3]
 
 set modules {decrypt dedup shrink mpg mp3 expire}
 
-if {![acquire_lock webif_auto]} {
-	puts "Cannot acquire exclusive lock, terminating."
+
+set logfile "/mod/tmp/auto.log"
+
+set logfd "unset"
+set logprefix ""
+set prelocked 0
+while {[llength $argv]} {
+	switch -- [lindex $argv 0] {
+		-d {
+			set loglevel 2
+			set logfd stdout
+		}
+		-prelocked {
+			set prelocked 1
+		}
+		-logprefix {
+			set argv [lrange $argv 1 end]
+			if {[llength $argv]} {
+				set logprefix [lindex $argv 0]
+			}
+		}
+		default {
+			# Unknown option, pass to rest of script.
+			break
+		}
+	}
+	set argv [lrange $argv 1 end]
+}
+
+if {!$prelocked && ![acquire_lock webif_auto 10 1]} {
+	if {$loglevel > 1} {
+		system plog auto "Could not acquire lock."
+	}
+	puts "Could acquire exclusive lock, terminating."
 	exit
 }
 
-set logfile "/mod/tmp/auto.log"
 # Rotate log file if large enough.
 if {[file exists $logfile] && [file size $logfile] > 2097152} {
 	file copy -force $logfile "/mod/tmp/auto_old.log"
 	file delete $logfile
 }
 
-if {[lindex $argv 0] eq "-d"} {
-	set argv [lrange $argv 1 end]
-	set loglevel 2
-	set logfd stdout
-} else {
+if {$logfd eq "unset"} {
 	set logfd [open "/mod/tmp/auto.log" "a+"]
 }
 
 proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
-	puts $::logfd "[system logtimestamp] - $msg"
+	puts $::logfd "[system logtimestamp] - $::logprefix$msg"
 	flush $::logfd
 }
 
@@ -55,6 +82,8 @@ foreach mod $modules {
 	set "hook_pre$mod" {}
 	set "hook_post$mod" {}
 	set "hook_post${mod}scan" {}
+	set "hook_pre${mod}singledir" {}
+	set "hook_post${mod}singledir" {}
 }
 
 proc register {type fn {priority 50}} {
@@ -72,10 +101,14 @@ proc runplugin {name {ts 0}} {
 	global $var
 	foreach p [lsort -index end -decreasing -integer [subst $$var]] {
 		lassign $p fn priority
-		log "Running $name plugin $fn (priority $priority)" 2
-		if {[catch {uplevel 1 $fn $ts} msg]} {
+		log "Running $name plugin $fn (priority $priority) \[$ts]" 2
+		if {[catch {uplevel 1 [list $fn $ts]} msg]} {
 			log "Plugin error: $msg" 0
+			foreach {proc file line} [info stacktrace] {
+				log "  @ $file:$proc:$line" 0
+			}
 		}
+		log "Completed $name plugin $fn" 2
 	}
 }
 
@@ -308,7 +341,11 @@ proc do_decrypt {ts} {
 		set helper 0
 	} else {
 		log "  $file - Not yet indexed, trying helper."
-		lassign [system dlnahelper [file normalize $file]] url
+		if {[catch {
+		    lassign [system dlnahelper [file normalize $file]] url
+		    } msg]} {
+			log "  $file - $msg"
+		}
 		if {$url eq ""} {
 			log "  $file - Can't use helper."
 			return
@@ -706,7 +743,9 @@ proc scansingle {dirs} {
 				log "Encountered special directory."
 				break
 			}
+			runplugin "pre${arg}singledir" $dir
 			xscan $dir $arg $sup 0
+			runplugin "post${arg}singledir" $dir
 			log "$arg scan completed in [elapsed $st] seconds."
 		}
 	}
@@ -717,12 +756,16 @@ file stat "$root/" rootstat
 set rootdev $rootstat(dev)
 log "Root device: $rootdev" 2
 
-if {[lindex $argv 0] eq "-single"} {
+if {[lindex $argv 0] eq "-singledir"} {
 	scansingle [lrange $argv 1 end]
 } elseif {[llength $argv] > 0} {
 	set loglevel 2
 	foreach arg $argv {
 		set st [clock milliseconds]
+		if {$arg ni $modules} {
+			log "Unknown scan type: $arg"
+			continue
+		}
 		log "$arg scan starting."
 		set processed_files {}
 		runplugin "pre${arg}scan"

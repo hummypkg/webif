@@ -137,8 +137,6 @@ puts {
 			    placeholder="Defaults to channel name"
 			    class="text ui-widget-content ui-corner-all">
 		</td>
-	</tr><tr>
-		</td>
 	</tr>
 	</table>
 	</form>

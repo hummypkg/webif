@@ -1,17 +1,25 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require lock
+require system.class settings.class lock
+
+set loglevel [[settings] autolog]
 
 set file [lindex $argv 0]
 set dir [file dirname $file]
 
+set prefix "autotrigger\[[pid]\]"
+if {$loglevel > 0} { system plog auto "$prefix: will run for $dir" }
+
 # Wait up to 10 minutes for any existing auto process to finish...
-if {![acquire_lock webif_auto 600]} {
+if {![acquire_lock webif_auto 600 5]} {
 	puts "Cannot acquire exclusive lock, terminating."
+	system plog auto "$prefix: failed to get lock"
 	exit
 }
-release_lock webif_auto
+if {$loglevel > 0} { system plog auto "$prefix: got lock" }
 
-exec /mod/webif/lib/bin/auto -single $dir
+exec /mod/webif/lib/bin/auto -prelocked -logprefix "$prefix: " -singledir $dir
+
+if {$loglevel > 0} { system plog auto "$prefix: done" }
 

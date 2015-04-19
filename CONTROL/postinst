@@ -20,7 +20,7 @@ crontab=$PKG_ROOT/bin/crontab
 if [ -x $crontab ]; then
 	$crontab -l | grep -v webif/lib/bin/auto > $tmpf
 	cat $tmpf - << EOM | $crontab -
-*/10 * * * * /mod/webif/lib/bin/auto >/dev/null 2>&1
+5,25,45 * * * * /mod/webif/lib/bin/auto >/dev/null 2>&1
 EOM
 fi
 
@@ -53,6 +53,9 @@ fi
 # with CFW >= 3.00
 hook=/mod/boot/xinit.d/rt3070
 [ -f $hook ] && rm -f $hook
+
+# Remove legacy mongoose startup script
+[ -f /mod/etc/init.d/Z01mongoose ] && rm -f /mod/etc/init.d/Z01mongoose
 
 # Migrate record log to new name.
 (
