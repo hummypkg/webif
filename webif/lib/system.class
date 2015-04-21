@@ -161,9 +161,9 @@ proc {system dlnadb} {} {
 	return ""
 }
 
-proc {system dlnaurl} {file {urlbase ""}} {
+proc {system _dlnaurl} {file urlbase} {
 	set mime "video/ts"
-	if {[catch {set db [sqlite3.open [system dlnadb]]}]} { return {} }
+	set db [sqlite3.open [system dlnadb]]
 	set muri [$db query {
 	    select tblresource.mimetype, contenturi
 	    from tblresource join tblmedia using (mediaid)
@@ -183,10 +183,21 @@ proc {system dlnaurl} {file {urlbase ""}} {
 
 	$db close
 
-	if {$urlbase eq ""} { set urlbase [system ip] }
 	set url "http://${urlbase}:9000/web/$xuri"
 
 	return [list $url $mime]
+}
+
+proc {system dlnaurl} {file {urlbase ""}} {
+	if {$urlbase eq ""} { set urlbase [system ip] }
+	set retries 5
+	set ret {}
+	while {$retries > 0 && [\
+	    catch {set ret [system _dlnaurl $file $urlbase]}]} {
+		incr retries -1
+		sleep 1
+	}
+	return $ret
 }
 
 proc {system dlnahelper} {file {urlbase ""}} {
