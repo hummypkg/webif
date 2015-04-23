@@ -9,7 +9,10 @@ set file [lindex $argv 0]
 set dir [file dirname $file]
 
 set prefix "autotrigger\[[pid]\]"
-if {$loglevel > 0} { system plog auto "$prefix: will run for $dir" }
+if {$loglevel > 0} {
+	system plog auto "$prefix: $file"
+	system plog auto "$prefix: will run for $dir"
+}
 
 # Wait up to 10 minutes for any existing auto process to finish...
 if {![acquire_lock webif_auto 600 5]} {

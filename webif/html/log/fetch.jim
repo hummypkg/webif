@@ -5,10 +5,16 @@ source /mod/webif/lib/setup
 
 source _lib.jim
 
-cgi_input
-#cgi_dump
+set dload [cgi_get dload -]
+set file [cgi_get file "-"]
+if {$file eq "-"} { set file "/var/log/humaxtv.log" }
+if {$file ni $loglist} { exit }
 
-httpheader
+if {$dload ne "-"} {
+	httpheader "application/force-download" 0 "Content-Disposition: attachment; filename=\"[file tail $file].txt\"\r\n"
+} else {
+	httpheader
+}
 
 proc quote {s} {
 	return [string map {
@@ -19,10 +25,6 @@ proc quote {s} {
 	    } $s]
 }
 
-set file [cgi_get file "-"]
-if {$file eq "-"} { set file "/var/log/humaxtv.log" }
-if {$file ni $loglist} { exit }
-
 set lines [cgi_get lines 0]
 
 if {$lines} {
@@ -30,12 +32,20 @@ if {$lines} {
 } else {
 	set fp [open $file r]
 }
-set l 1
-while {![$fp eof]} {
-	$fp gets line
-	if {[$fp eof]} break
-	puts "<tr><td>$l</td><td>[quote $line]</td></tr>"
-	incr l
+if {$dload ne "-"} {
+	while {![$fp eof]} {
+		$fp gets line
+		if {[$fp eof]} break
+		puts $line
+	}
+} else {
+	set l 1
+	while {![$fp eof]} {
+		$fp gets line
+		if {[$fp eof]} break
+		puts "<tr><td>$l</td><td>[quote $line]</td></tr>"
+		incr l
+	}
 }
 $fp close
 

@@ -132,6 +132,12 @@ $('#clear').button({icons: { primary: "ui-icon-trash" }})
 		    });
     });
 
+$('#download').button({icons: { primary: "ui-icon-disk" }})
+    .on('click', function() {
+	window.open('fetch.jim?dload=yes&file=' +
+	    encodeURIComponent(logfile));
+    });
+
 $('#reload').button({icons: { primary: "ui-icon-refresh" }})
     .on('click', function() {
 	$('#log').trigger('change');

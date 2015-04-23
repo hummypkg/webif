@@ -63,6 +63,16 @@ proc log {msg {level 1}} {
 	flush $::logfd
 }
 
+proc inuse {ts} {
+	set retries 5
+	while {$retries > 0 && [$ts inuse]} {
+		log "inuse($retries) - [$ts get file]"
+		incr retries -1
+		sleep 1
+	}
+	return [$ts inuse]
+}
+
 proc elapsed {start} {
 	return $(([clock milliseconds] - $start) / 1000.0)
 }
@@ -90,7 +100,7 @@ proc register {type fn {priority 50}} {
 	global "hook_$type"
 	if {[info exists "hook_$type"]} {
 		lappend "hook_$type" [list $fn $priority]
-		log "Registered $fn for $type hook with priority $priority." 1
+		log "Registered $fn for $type hook with priority $priority."
 	} else {
 		log "Unknown hook hook_$type" 0
 	}
@@ -218,14 +228,14 @@ proc do_shrink {ts} {
 	if {[file exists "$dir/.autodecrypt"] || [scanup $dir decrypt] == 1} {
 		log "  $dir is also set for decryption." 2
 		if {[$ts flag "ODEncrypted"]} {
-			log "  $file - deferring shrink until decrypted." 1
+			log "  $file - deferring shrink until decrypted."
 			return
 		}
 	}
 
 	set file [file rootname [$ts get file]]
 
-	if {[$ts inuse]} {
+	if {[inuse $ts]} {
 		log "  $file - in use." 2
 		return
 	}
@@ -321,7 +331,7 @@ proc do_decrypt {ts} {
 		return
 	}
 
-	if {[$ts inuse]} {
+	if {[inuse $ts]} {
 		log "  $file - In use."
 		return
 	}
@@ -375,7 +385,7 @@ proc do_decrypt {ts} {
 
 	# Check if the file is in use. It is possible that the file is
 	# now being played even though it was free when decryption started.
-	if {[$ts inuse]} {
+	if {[inuse $ts]} {
 		log "  $file - In use."
 		file tdelete "$tmp/$bfile"
 		endop
@@ -451,7 +461,7 @@ proc do_mpg {ts} {
 		return
 	}
 
-	if {[$ts inuse]} {
+	if {[inuse $ts]} {
 		log "  $file - In use."
 		return
 	}
@@ -504,7 +514,7 @@ proc do_mp3 {ts} {
 		return
 	}
 
-	if {[$ts inuse]} {
+	if {[inuse $ts]} {
 		log "  $file - In use."
 		return
 	}
@@ -619,7 +629,7 @@ proc expire {dir} {
 			break
 		}
 		log "      [file tail $file]"
-		if {[$ts inuse]} {
+		if {[inuse $ts]} {
 			log "        In use, skipping."
 			continue
 		}

@@ -61,7 +61,8 @@ puts "
 
 <div class=left id=buttons>
 <button id=reload>Reload</button>
-<button id=clear>Clear Log</button>
+<button id=clear>Clear</button>
+<button id=download>Download</button>
 </div>
 
 <div id=logarea class=\"cleft hidden\">
