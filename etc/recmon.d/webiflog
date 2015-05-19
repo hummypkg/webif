@@ -1,9 +1,11 @@
 #!/mod/bin/jimsh
 
+if {[lindex $argv 0] ne "-stop"} exit
+
 source /mod/webif/lib/setup
 require ts.class system.class
 
-set file [lindex $argv 0]
+set file [lindex $argv 1]
 set ts [ts fetch "$file.ts"]
 set root [system mediaroot]
 

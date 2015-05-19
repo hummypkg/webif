@@ -1,11 +1,13 @@
 #!/mod/bin/jimsh
 
+if {[lindex $argv 0] ne "-stop"} exit
+
 source /mod/webif/lib/setup
 require system.class settings.class lock
 
 set loglevel [[settings] autolog]
 
-set file [lindex $argv 0]
+set file [lindex $argv 1]
 set dir [file dirname $file]
 
 set prefix "autotrigger\[[pid]\]"
