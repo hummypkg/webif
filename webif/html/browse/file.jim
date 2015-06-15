@@ -64,7 +64,7 @@ if {$type eq "ts"} {
 		puts "
 			<th>Guidance</th>
 			<td><img class=va
-			    src=/img/Guidance_red.png height=21>
+			    src=/img/Guidance_purple.png height=21>
 			    [$ts get guidance]
 			</td>
 			</tr><tr>

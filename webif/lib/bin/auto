@@ -10,7 +10,6 @@ set audiomp3 [$settings audiomp3]
 
 set modules {decrypt dedup shrink mpg mp3 expire}
 
-
 set logfile "/mod/tmp/auto.log"
 
 set logfd "unset"
@@ -201,7 +200,7 @@ proc endop {} {
 	file delete "$tmp/.op"
 }
 
-proc dedup {dir} {
+proc dedup {dir {flag ""}} {
 	log "DEDUP: \[$dir]" 2
 	loop i 0 1 {
 		foreach line [split \
@@ -556,8 +555,12 @@ proc do_mp3 {ts} {
 	endop
 }
 
-proc entries {dir callback} {
+proc entries {dir callback {flag ""}} {
 	foreach entry [readdir -nocomplain $dir] {
+		if {$flag ne "" && ![file exists $flag]} {
+			log "Flag $flag disappeared mid-run, aborting." 0
+			break
+		}
 		if {![string match {*.ts} $entry]} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
@@ -565,27 +568,27 @@ proc entries {dir callback} {
 	}
 }
 
-proc shrink {dir} {
+proc shrink {dir {flag ""}} {
 	log "SHRINK: \[$dir]" 2
-	entries $dir do_shrink
+	entries $dir do_shrink $flag
 }
 
-proc decrypt {dir} {
+proc decrypt {dir {flag ""}} {
 	log "DECRYPT: \[$dir]" 2
-	if {$::dlnaok} { entries $dir do_decrypt }
+	if {$::dlnaok} { entries $dir do_decrypt $flag }
 }
 
-proc mpg {dir} {
+proc mpg {dir {flag ""}} {
 	log "MPG: \[$dir]" 2
-	entries $dir do_mpg
+	entries $dir do_mpg $flag
 }
 
-proc mp3 {dir} {
+proc mp3 {dir {flag ""}} {
 	log "MP3: \[$dir]" 2
-	entries $dir do_mp3
+	entries $dir do_mp3 $flag
 }
 
-proc expire {dir} {
+proc expire {dir {flag ""}} {
 	log "EXPIRE: \[$dir]" 2
 	
 	# type 0 keep {} days 2 keepnew 0
@@ -675,7 +678,7 @@ proc scan_run {dir flag callback} {
 	}
 }
 
-proc xscan {dir attr {force 0} {recurse 1}} {{indent 0}} {
+proc xscan {dir attr {force 0} {recurse 1}} {{indent 0} {forceflag ""}} {
 	global dustbin
 
 	incr indent 2
@@ -698,6 +701,7 @@ proc xscan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 		}
 		if {$force} {
 			set force 0
+			set forceflag ""
 			log "Special folder, overriding recursion." 2
 		}
 	}
@@ -706,11 +710,16 @@ proc xscan {dir attr {force 0} {recurse 1}} {{indent 0}} {
 	if {!$force && [file exists "$dir/.auto${attr}r"]} {
 		log "[string repeat " " $indent]  (R)" 2
 		set force 1
+		set forceflag "$dir/.auto${attr}r"
 	}
 
 	dsc
 
-	if {$force || [file exists "$dir/.auto$attr"]} { $attr $dir }
+	if {$force} {
+		$attr $dir $forceflag
+	} elseif {[file exists "$dir/.auto$attr"]} {
+		$attr $dir "$dir/.auto$attr"
+	}
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {$recurse && [file isdirectory "$dir/$entry"]} {

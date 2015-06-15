@@ -117,8 +117,11 @@ proc entry {file} {{i 0}} {
 	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
 		set type ts
 		set ts [ts fetch $file 1]
-		if {[$ts get status] eq "Valid/OK"} {
+		set rstat [$ts get status]
+		if {$rstat eq "Valid/OK"} {
 			set img Video_TS
+		} elseif {$rstat eq "Loss of power/OK" && $bfile in $dinuse} {
+			set img Video_Rec
 		} else {
 			set img Video_Failed
 		}
@@ -225,7 +228,7 @@ proc entry {file} {{i 0}} {
 
 		# Guidance
 		if {[$ts flag "Guidance"] > 0} {
-			icon "/img/Guidance_red.png"
+			icon "/img/Guidance_purple.png"
 		}
 		if {[$ts flag "GGuidance"] > 0} {
 			icon "/img/Guidance_blue.png"
