@@ -389,15 +389,6 @@ function fixdmenu(el, menu, flag, tag, descr, recurse)
 
 function preparedmenu(el, menu)
 {
-	if (el.attr('noflat') != undefined)
-	{
-		if (el.attr('noflat') > 0)
-			$(menu).changeContextMenuItem('#flat', 'Allow Flatten');
-		else
-			$(menu).changeContextMenuItem('#flat',
-			    'Prevent Flatten');
-	}
-
 	fixdmenu(el, menu, 'autoshrink', '#shrink', 'Auto-shrink', 1);
 	fixdmenu(el, menu, 'autodedup', '#dedup', 'Auto-dedup', 0);
 	fixdmenu(el, menu, 'autodecrypt', '#decrypt', 'Auto-decrypt', 1);
@@ -664,10 +655,6 @@ var dmenuclick = function(action, el, pos)
 		});
 
 		$('#aexpiry').dialog('open');
-		break;
-
-	    case 'flat':
-		flagdir(file, 'noflatten', iconset, results, el);
 		break;
 
 	    case 'dedup':

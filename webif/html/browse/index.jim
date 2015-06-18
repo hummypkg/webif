@@ -14,7 +14,6 @@ eval_plugins browse
 header
 
 set nicesplice [system pkginst nicesplice]
-set flatten [system pkginst flatten]
 
 set ignore {.nts .thm .hmi}
 set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v}

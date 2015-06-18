@@ -4,8 +4,6 @@ require system.class plugin
 if {![exists -proc class]} { package require oo }
 class dir {}
 
-set _flatten [system pkginst flatten]
-
 proc _addicon {img {hover ""} {class va}} {
 	set icon "<img src=$img class=\"$class\" height=21"
 	if {$hover ne ""} {
@@ -35,15 +33,6 @@ proc {dir expiry} {dir {data {}}} {
 proc {dir iconset} {dir} {
 	set icons {}
 	set attrs {}
-
-	set noflat 0
-	if {$::_flatten} {
-		if {[string match {\[*\]} [file tail $dir]]} { set noflat 1 }
-		if {[file exists "$dir/.noflatten"]} { set noflat 1 }
-		if {$noflat} { lappend icons \
-		    [_addicon "/img/flat-tyre.png" "No-flatten"] }
-		lappend attrs "noflat=$noflat"
-	}
 
 	set autoshrinkr 0
 	if {[file exists "$dir/.autoshrinkr"]} {

@@ -96,9 +96,6 @@ if {$model eq "HDR"} {
 		    </a></li>
 	}
 }
-if {$flatten} {
-	puts { <li class="separator"><a href=#flat>No-Flatten</a></li> }
-}
 
 puts {
 	<li class=clock><a href=#expire>Auto-Expire Options</a></li>

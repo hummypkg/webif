@@ -10,6 +10,8 @@ set audiomp3 [$settings audiomp3]
 
 set modules {decrypt dedup shrink mpg mp3 expire}
 
+set root [system mediaroot]
+
 set logfile "/mod/tmp/auto.log"
 
 set logfd "unset"
@@ -72,6 +74,13 @@ proc inuse {ts} {
 	return [$ts inuse]
 }
 
+proc specialdir {dir} {
+	if {[string match {\[*} [string trimleft [file tail $dir]]]} {
+		return 1
+	}
+	return 0
+}
+
 proc elapsed {start} {
 	return $(([clock milliseconds] - $start) / 1000.0)
 }
@@ -121,7 +130,7 @@ proc runplugin {name {ts 0}} {
 	}
 }
 
-eval_plugins auto
+eval_plugins auto 1
 
 set scanstart [clock milliseconds]
 log "-------------------------------------------------------"
@@ -667,7 +676,7 @@ proc scan_run {dir flag callback} {
 
 	if {$dir eq $dustbin} return
 
-	if {[string match {\[*} [file tail $dir]]} return
+	if {[specialdir $dir]} return
 
 	if {[file exists "$dir/.$flag"]} { $callback $dir }
 
@@ -691,7 +700,7 @@ proc xscan {dir attr {force 0} {recurse 1}} {{indent 0} {forceflag ""}} {
 		return
 	}
 
-	if {[string match {\[*} [file tail $dir]]} {
+	if {[specialdir $dir]} {
 		# Special folder
 		file stat "$dir/" st
 		if {$st(dev) != $::rootdev} {
@@ -737,7 +746,7 @@ proc scanup {dir flag} {
 
 	set rl [string length $root]
 	while {[string length $dir] >= $rl} {
-		if {[string match {\[*} [file tail $dir]]} {
+		if {[specialdir $dir]} {
 			return -1
 		}
 		if {[file exists "$dir/.auto${flag}r"]} {
@@ -770,7 +779,6 @@ proc scansingle {dirs} {
 	}
 }
 
-set root [system mediaroot]
 file stat "$root/" rootstat
 set rootdev $rootstat(dev)
 log "Root device: $rootdev" 2

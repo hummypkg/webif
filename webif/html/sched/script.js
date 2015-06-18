@@ -301,10 +301,16 @@ $('#manrsv').dialog({
 		if (s)
 			data.push({ name: "start", value: s.getTime() / 1000});
 
-		var s = $('#mretime').timepicker('getTime',
+		var e = $('#mretime').timepicker('getTime',
 		    $('#mredate').datepicker('getDate'));
-		if (s)
-			data.push({ name: "end", value: s.getTime() / 1000});
+		if (e)
+			data.push({ name: "end", value: e.getTime() / 1000});
+
+		if (s.getTime() >= e.getTime())
+		{
+			$('#mrerr').html('Invalid time range...');
+			return;
+		}
 
 		$('#mrerr')
 		    .html('<img src=/img/loading.gif> Creating event...');
