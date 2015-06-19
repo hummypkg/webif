@@ -19,7 +19,15 @@ function loadfile(f)
 	$('#editor').disable().val('');
 	$('#msg').text('Loading ' + f);
 	$.get('get.jim?file=' + encodeURIComponent(f), function(data) {
-		if (data.match('^>>>'))
+		if (data.match('>>>.*does not exist'))
+		{
+			$('#msg').text(data);
+			$('#editor').val('').enable();
+			$('button.editactive').enable();
+			file = f;
+			changed = false;
+		}
+		else if (data.match('^>>>'))
 		{
 			$('#msg').text(data);
 			file = null;
