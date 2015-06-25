@@ -39,7 +39,7 @@ $('#dbinfo').click(function(e) {
 
 $('#channelinfo').click(function(e) {
 	e.preventDefault();
-	window.location = '/cgi-bin/channel.jim';
+	window.location = '/diag/channel.jim';
 });
 
 $('#diskdiag').click(function(e) {

@@ -70,15 +70,24 @@ foreach tw [$db query {
 		lassign $chan x lcn x name
 		set name [system strip $name]
 		if {$lcn >= 800} { incr ehs }
-		switch $name {
+		switch -glob -- $name {
+			"BBC TWO" -
 			"BBC THREE" { set mux "PSB1/BBC A" }
-			"ITV1" { set mux "PSB2/D3&amp;4" }
-			"ITV" { set mux "PSB2/D3&amp;4" }
+			"Channel 5" -
+			"ITV2" { set mux "PSB2/D3&amp;4" }
+			"Channel 4 HD" -
 			"BBC ONE HD" { set mux "PSB3/BBC B" }
+			"5 USA" -
+			"CITV" -
 			"ITV3" { set mux "COM4/SDN" }
+			"Really" -
 			"Dave" { set mux "COM5/ARQ A" }
+			"4Music" -
+			"Yesterday" -
 			"ITV4" { set mux "COM6/ARQ B" }
+			"BBC FOUR HD" -
 			"BBC NEWS HD" { set mux "COM7/ARQ C" }
+			"Made In *" -
 			"Movies4Men" { set mux "Local" }
 			"QVC + 1 HD" { set mux "COM8/ARQ D" }
 		}

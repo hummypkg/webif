@@ -21,6 +21,8 @@ proc dedupprocess {file} {{seen {}}} {
 	set dir [file dirname $file]
 	set base [file tail [file rootname $file]]
 	set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
+#	set epname [$ts episode_name]
+#	set syn "[$ts epstr] - $epname"
 	# Escape special characters to create the filename.
 	set fn [system filename $syn]
 
