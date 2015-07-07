@@ -10,10 +10,14 @@ set file [cgi_get file]
 if {$file == 0} exit
 set ts [ts fetch $file]
 
+proc esc {str} {
+	return [string map {"\n" " "} $str]
+}
+
 puts "{"
-puts "\"title\" : \"[$ts get title]\","
-puts "\"synopsis\" : \"[$ts get synopsis]\","
-puts "\"guidance\" : \"[$ts get guidance]\","
-puts "\"genre\" : [$ts get genre]"
+puts "\"title\" : \"[esc [$ts get title]]\","
+puts "\"synopsis\" : \"[esc [$ts get synopsis]]\","
+puts "\"guidance\" : \"[esc [$ts get guidance]]\","
+puts "\"genre\" : [esc [$ts get genre]]"
 puts "}"
 

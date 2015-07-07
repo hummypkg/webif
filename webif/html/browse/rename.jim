@@ -23,7 +23,8 @@ if {[file isdirectory $file]} {
 
 	foreach attr {title synopsis guidance genre} {
 		if {[catch {
-			set new [string trim [cgi_get "rename_$attr"]]
+			set new [string map {"\n" ""} [
+			    string trim [cgi_get "rename_$attr"]]]
 			set old [$ts get $attr]
 			if {$new ne $old} {
 				if {$attr eq "guidance" ||

@@ -177,7 +177,9 @@ foreach plugin [lsort [glob -nocomplain /mod/webif/plugin/*]] {
 	if {[file isfile "$plugin/$hook.hook"]} {
 		puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
 		puts "<div class=pluginsettings>"
-		catch {source "$plugin/$hook.hook"}
+		if {[catch {source "$plugin/$hook.hook"} msg]} {
+			puts "ERROR: $msg"
+		}
 		puts "</div>"
 	} 
 }

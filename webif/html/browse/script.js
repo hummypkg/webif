@@ -419,6 +419,10 @@ function flagdir(file, flag, iconset, output, options)
 
 $(function() {
 
+$('textarea').keydown(function(e) {
+	return e.keyCode != 13;
+});
+
 dir = $('#dir').text();
 
 var menuclick = function(action, el, pos)
