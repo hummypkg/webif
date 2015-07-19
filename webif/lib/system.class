@@ -232,6 +232,9 @@ proc {system dlnahelper} {file {urlbase ""}} {
 			set ret [system dlnaurl "$dir/helper.ts" $urlbase]
 		}
 	}
+	if {![llength $ret]} {
+		release_lock dlnahelper
+	}
 	return $ret
 }
 

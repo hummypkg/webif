@@ -35,7 +35,7 @@ proc release_lock {id} {
 	global _locks
 
 	if {[catch {close $_locks($id)} msg]} {
-		puts "Error releasing lock: $msg"
+		#puts "Error releasing lock: $msg"
 		return 0
 	}
 	unset _locks($id)
