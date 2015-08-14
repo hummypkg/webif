@@ -13,11 +13,11 @@ if {[catch {$ts get file}]} {
 	exit
 }
 
-if {![$ts flag "ODEncrypted"]} {
-	set url $rfile
-} else {
-	lassign [$ts dlnaloc] url
-	if {$url eq ""} {
+lassign [$ts dlnaloc] url
+if {$url eq ""} {
+	if {![$ts flag "ODEncrypted"]} {
+		set url $rfile
+	} else {
 		puts "Media is encrypted and not indexed by the DLNA Server."
 		exit
 	}

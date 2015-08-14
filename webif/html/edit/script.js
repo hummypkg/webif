@@ -4,11 +4,18 @@ var forcefile = false;
 $(function() {
 
 var file = null;
+var perms = 0;
 var changed = false;
 
 $('button').button();
 $('button.editactive').disable();
 $('#editor').tabsupport().disable();
+
+$('#open').button({icons: {primary: "ui-icon-folder-open"}});
+$('#revert').button({icons: {primary: "ui-icon-refresh"}});
+$('#save').button({icons: {primary: "ui-icon-disk"}});
+$('#create').button({icons: {primary: "ui-icon-plus"}});
+$('#executable').button({icons: {primary: "ui-icon-gear"}});
 
 function loadfile(f)
 {
@@ -18,7 +25,7 @@ function loadfile(f)
 	$('button.editactive').disable();
 	$('#editor').disable().val('');
 	$('#msg').text('Loading ' + f);
-	$.get('get.jim?file=' + encodeURIComponent(f), function(data) {
+	$.get('get.jim', { file: f }, function(data) {
 		if (data.match('>>>.*does not exist'))
 		{
 			$('#msg').text(data);
@@ -40,6 +47,15 @@ function loadfile(f)
 			$('#msg').html('Editing <i>' + f + '</i>');
 			file = f;
 			changed = false;
+
+			$.get('perms.jim', { file: f }, function(data) {
+				perms = data;
+				if (data & 0x49)
+				{
+					$('#msg').append(' - Executable');
+					$('#executable').disable();
+				}
+			});
 		}
 	});
 }
@@ -119,7 +135,7 @@ function createf_submit()
 	console.log('Creating: ' + f);
 
 	$('#createf').dialog('close');
-	$.get('create.jim?file=' + encodeURIComponent(f), function(data) {
+	$.get('create.jim', { file: f }, function(data) {
 		if (data.match('^>>>'))
 		{
 			$('#msg').text(data);
@@ -156,6 +172,19 @@ $('#create').click(function() {
 
 $('a.qfile').on('click', function() {
 	loadfile($(this).text());
+});
+
+$('#executable').on('click', function() {
+	if (!confirm('Make ' + file + ' executable?'))
+		return;
+	$.get('perms.jim', { file: file, op: 'x' }, function(data) {
+		perms = data;
+		if (data & 0x49)
+		{
+			$('#executable').disable();
+			$('#msg').append(' - Executable');
+		}
+	});
 });
 
 if (forcefile)

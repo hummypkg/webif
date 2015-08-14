@@ -3,14 +3,26 @@ $(function() {
 
 $('button').button();
 
+$('#rundiag').button({icons: {primary: "ui-icon-play"}});
+$('#runfopkg').button({icons: {primary: "ui-icon-play"}});
+$('#runedit').button({icons: {primary: "ui-icon-folder-open"}});
+$('#dbinfo').button({icons: {primary: "ui-icon-wrench"}});
+$('#channelinfo').button({icons: {primary: "ui-icon-script"}});
+$('#diskdiag').button({icons: {primary: "ui-icon-disk"}});
+$('#dlna').button({icons: {primary: "ui-icon-video"}});
+$('#dspace').button({icons: {primary: "ui-icon-search"}});
+$('#reboot').button({icons: {primary: "ui-icon-power"}});
+//$('#runreset').button({icons: {primary: "ui-icon-radio-on"}});
+//$('#runrma').button({icons: {primary: "ui-icon-radio-on"}});
+
 $('#rundiag').click(function() {
 	var val = $('#diagsel').val();
 	if (val == '0')
 		val = $('#seq').val();
 	$('#results')
 	    .slideDown()
-	    .html('<br><br><img src=/img/loading.gif> ' +
-		'Running diagnostic, please wait...')
+	    .html('<span class=blood><img src=/img/loading.gif> ' +
+		'Running diagnostic, please wait...</span>')
 	    .load('rundiag.jim?diag=' + encodeURIComponent(val), function() {
 		$('#results').wrapInner('<pre>');
 	    });
@@ -57,7 +69,7 @@ $('#dspace').click(function(e) {
 	window.location = 'dspace/index.jim';
 });
 
-$('#reboot').button({icons:{primary:"ui-icon-power"}}).click(function(e) {
+$('#reboot').click(function(e) {
 	e.preventDefault();
 	window.location = '/restart/index.jim';
 });

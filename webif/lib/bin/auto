@@ -135,13 +135,13 @@ eval_plugins auto 1
 set scanstart [clock milliseconds]
 log "-------------------------------------------------------"
 
-# is_listening is relatively expensive so it is checked once globally at
+# dlnastatus is relatively expensive so it is checked once globally at
 # the start and then if the server is not listening then no decrypt
 # operations will be attempted for this run, even if the server starts
 # up halfway through. Otherwise the server is checked for every decryption
 # and if it goes away then decryption will not be attempted for the rest
 # of the run.
-if {[system is_listening 9000]} {
+if {[system dlnastatus]} {
 	set dlnaok 1
 	log "DLNA Server is running." 2
 } else {
@@ -333,7 +333,7 @@ proc do_decrypt {ts} {
 		return
 	}
 
-	if {![system is_listening 9000]} {
+	if {![system dlnastatus]} {
 		log "  $file - DLNA Server not running." 2
 		set ::dlnaok 0
 		return
@@ -445,6 +445,7 @@ proc do_decrypt {ts} {
 	}
 	log "Done... [endclock $size]" 0
 	lappend processed_files [$ts get file]
+	$ts unflag "ODEncrypted"
 	runplugin postdecrypt $ts
 	endop
 }

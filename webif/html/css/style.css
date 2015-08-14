@@ -75,6 +75,15 @@ div.container .usb
 	top: 8px;
 }
 
+#idletime
+{
+	position: absolute;
+	left: 50px;
+	top: 45px;
+	font-style: italic;
+	font-size: 12px;
+}
+
 div.footer
 {
 	clear: both;
@@ -237,6 +246,12 @@ pre, .pre
 {
 	color: #ff4000 !important;
 	background: transparent;
+}
+
+.idletime
+{
+	font-size: 70%;
+	font-style: italic;
 }
 
 .filesize

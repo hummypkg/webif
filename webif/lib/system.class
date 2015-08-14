@@ -74,6 +74,13 @@ proc {system lastbootreason} {{descr 1}} {{lbr -1}} {
 	return "Unknown ($lbr)"
 }
 
+proc {system idletime} {} {
+	if {[file exists "/tmp/.lastir"]} {
+		return $([clock seconds] - [file mtime "/tmp/.lastir"])
+	}
+	return 0
+}
+
 proc {system fhtcpversion} {} {{ver ""}} {
 	if {$ver ne ""} { return $ver }
 	set file "/etc/fhtcpversion"
@@ -153,6 +160,10 @@ proc {system mediaroot} {} {
 	return ""
 }
 
+proc {system dlnastatus} {} {
+	return [system is_listening 9000]
+}
+
 proc {system dlnadb} {} {
 	switch [system model] {
 		HDR { return "/mnt/hd2/dms_cds.db" }
@@ -163,7 +174,9 @@ proc {system dlnadb} {} {
 
 proc {system _dlnaurl} {file urlbase} {
 	set mime "video/ts"
-	set db [sqlite3.open [system dlnadb]]
+	if {[catch {set db [sqlite3.open [system dlnadb]]}]} {
+		return {}
+	}
 	set muri [$db query {
 	    select tblresource.mimetype, contenturi
 	    from tblresource join tblmedia using (mediaid)
@@ -300,11 +313,17 @@ proc {system diskspace} {{raw 0}} {
 	set fperc $(100 - $perc)
 
 	switch [system model] {
-		HDR { set tsrdir "/mnt/hd2/Tsr" }
-		HD { set tsrdir "/media/drive1/.tsr" }
+		HDR {
+			set tsrdir "/mnt/hd2/Tsr"
+			set tsrok [file isdirectory $tsrdir]
+		}
+		HD {
+			set tsrdir "/media/drive1/.tsr"
+			set tsrok [file exists "$tsrdir/0.ts"]
+		}
 	}
 
-	if {[file exists "$tsrdir/0.ts"]} {
+	if {$tsrok} {
 		set tsrbuf 21474836480
 		lassign [exec du -ks $tsrdir] tsrused
 		set tsrused $($tsrused * 1024)

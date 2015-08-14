@@ -1,0 +1,25 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require pretty_size
+
+cgi_input
+#cgi_dump
+
+set file [cgi_get file "/tmp/hosts"]
+if {$file eq "-"} { exit }
+
+httpheader "text/plain" 0
+
+if {[cgi_get op "-"] eq "x"} {
+	exec chmod +x $file
+}
+
+if {![file exists $file]} {
+	puts 0
+} else {
+	set stat [file stat $file]
+	puts $($stat(mode) & 0x1ff)
+}
+

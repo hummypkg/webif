@@ -87,6 +87,10 @@ ts method flag {f} {
 	if {$f in $flags} {return 1} else {return 0}
 }
 
+ts method unflag {f} {
+	lremove flags $f
+}
+
 ts method unlock {} {
 	set cmd [list /mod/bin/hmt -lock $file]
 	exec {*}$cmd

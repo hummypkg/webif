@@ -75,7 +75,7 @@ proc get_data {} {
 			    }
 			}
 		}
-		if {$opfile ne "" && $opfile ni $ret} {
+		if {$opfile ne "" && $opfile ni $ret && [file exists $opfile]} {
 			set ret($opfile) [file size $opfile]
 		}
 	}
@@ -241,15 +241,17 @@ if {![system instandby] && $play < 1} {
 		}
 
 		if {$runmode eq "cgi"} {
-			lappend output [concat \
-			    "<span class=\"va stitem\">\n" \
-			    "  [epg channelicon $name 30 \
-			    {vertical-align: middle; padding: 0 4px 0 2px}]\n" \
-			    "  <span>Watching <i>$lcn: $name $prog</i></span>\n" \
-			    "</span>\n" \
-			    ]
+			set s "
+			    <span class=\"va stitem\">
+			     [epg channelicon $name 30 \
+			        {vertical-align: middle; padding: 0 4px 0 2px}]
+			    <span>Watching <i>$lcn: $name $prog</i></span>
+			"
+			append s "</span>"
+			lappend output $s
 		} else {
-			lappend output "Watching $lcn: $name $prog"
+			set s "Watching $lcn: $name $prog"
+			lappend output $s
 		}
 	}
 }
@@ -296,6 +298,13 @@ foreach event $events {
 		    "[clock format [$event get nsttime] -format {%H:%M}]" \
 		]
 	}
+}
+
+######################################################################
+# Idle Time
+
+if {$runmode ne "cgi"} {
+	lappend output "Idle: [clock format [system idletime] -format %T]"
 }
 
 ######################################################################

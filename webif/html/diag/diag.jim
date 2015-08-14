@@ -51,6 +51,8 @@ puts {
 </td>
 </tr>
 
+<tr><td colspan=2 id=results class=hidden></td></tr>
+
 <tr><td colspan=2 style="height: 10px"></td></tr>
 
 <tr>
@@ -181,10 +183,6 @@ foreach file [lsort -command logsort $loglist] {
 
 puts {
 </fieldset>
-
-<div style="margin-top: 2em; display: none; float: left; clear: left"
-    id=results></div>
-
 }
 
 footer

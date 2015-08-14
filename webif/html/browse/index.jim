@@ -40,6 +40,8 @@ set nofcount [$config nounwatchedcount]
 set model [system model]
 set dustbin [system dustbin 1]
 
+set dlnaok [system dlnastatus]
+
 proc icon {img {hover ""} {extra ""} {class "va"}} {
 	puts -nonewline "<img src=\"$img\" class=\"$class\" height=21 $extra"
 	if {$hover ne ""} {
@@ -233,12 +235,6 @@ proc entry {file} {{i 0}} {
 			icon "/img/Guidance_blue.png"
 		}
 
-		# Indexed
-		if {$::model eq "HDR" && [llength [$ts dlnaloc]]} {
-			icon "/img/dlna.png" "Indexed by DLNA Server"
-			set dlna 1
-		}
-
 		# Shrunk
 		if {[$ts flag Shrunk]} {
 			icon "/img/compress.png" "Shrunk"
@@ -246,6 +242,13 @@ proc entry {file} {{i 0}} {
 		}
 
 		set bx [$ts get bookmarks]
+	}
+
+	# Indexed
+	if {$::dlnaok && $::model eq "HDR" && [llength [
+	    system dlnaurl [file normalize $file]]]} {
+		icon "/img/dlna.png" "Indexed by DLNA Server"
+		set dlna 1
 	}
 
 	# Opt+ button
@@ -270,6 +273,14 @@ set dir [cgi_get dir $mroot]
 # Render web page
 
 source assets.jim
+
+if {!$dlnaok} {
+	puts {
+	<span class="blood dlnawarning cleft">
+		Note: Content Sharing is disabled on this system.
+	</span>
+	}
+}
 
 puts "
 	<span style=\"display:none\" id=dir>$dir</span>

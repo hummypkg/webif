@@ -32,6 +32,7 @@ class="ui-widget ui-corner-all"></textarea>
 <button class=editactive id=save>Save</button>
 <button class=editactive id=revert>Revert</button>
 <button class=xeditactive id=create>Create File</button>
+<button class=editactive id=executable>Make Executable</button>
 
 <div id=result class="blood hidden" />
 

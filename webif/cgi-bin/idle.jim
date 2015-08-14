@@ -1,0 +1,28 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class
+
+httpheader
+
+set idle [system idletime]
+if {$idle > 0} {
+	lassign [clock format $idle -format {%H %M}] h m
+	set s "Idle: "
+#	switch $h {
+#		1 { append s "1 hour, " }
+#		0 {}
+#		default { append s "$($h + 0) hours, " }
+#	}
+#	switch $m {
+#		1 { append s "1 min" }
+#		default { append s "$($m + 0) mins" }
+#	}
+
+	if {$h > 0} { append s "$($h + 0)h, " }
+	append s "$($m + 0)m"
+	puts $s
+} else {
+	puts ""
+}
+
