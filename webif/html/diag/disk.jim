@@ -53,10 +53,9 @@ puts {
 	<th class=odd>Raw Value</th>
 	<th class=odd>Value</th>
 	<th class=odd>Worst</th>
-	<th class=odd>Thresh</th>
-	<th class=odd>Type</th>
-	<th class=odd>Updated</th>
-	<th class=odd>When Failed</th>
+	<th class=odd>Threshold</th>
+	<th class=odd>Life Left</th>
+	<th class=odd>Notes</th>
 </tr>
 }
 
@@ -92,6 +91,10 @@ proc flags {val} {
 	return "<span title=\"$fx\">$f</span>"
 }
 
+set nolife {184 187 188 189 191 197 198}
+
+set derive {4 "" 5 sectors 9 hours 12 cycles 192 "" 193 "cycles"}
+
 set i 0
 foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 	regsub -all -- {[[:space:]]+} $line " " line
@@ -107,7 +110,7 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 		}
 		10 {
 			$settings _nval_setting "SMART_spinretry" $rval
-			if {$rval > 0} { set class orangeshade }
+			#if {$rval > 0} { set class orangeshade }
 		}
 		197 {
 			$settings _nval_setting "SMART_pending" $rval
@@ -118,8 +121,32 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 			if {$rval > 0} { set class redshade }
 		}
 	}
-	puts "<tr class=$class>"
-	puts "
+	if {$val <= $thresh} {
+		set class redshade
+	}
+	set left ""
+	if {$id ni $nolife &&
+	    [expr $flags & 0x18] == 0x10 && $val == $worst && $val <= 100} {
+		# Event counter which is not a rate and has not regressed.
+		set notes ""
+		set left [expr 100 - 100 * (100 - $val) / (100 - $thresh)]
+		if {$left < 10} { set class orangeshade }
+		if {$rval > 0 && [dict exists $derive $id]} {
+			set total [expr \
+			    round(($rval / (100 - $left) * 100) \
+				/ 10000) * 10000 \
+			]
+			set remain $($total - $rval)
+			set notes "$remain of approximately $total $derive($id)"
+		}
+		set left "<span title=\"$notes\">$left%</span>"
+	}
+	if {[string match "*Temperature_Cel*" $name]} {
+		append val " ([expr 100 - $val]&deg;C)"
+		append worst " ([expr 100 - $worst]&deg;C)"
+		append thresh " ([expr 100 - $thresh]&deg;C)"
+	}
+	puts "<tr class=$class>
 		<td>$id</td>
 		<td>$name</td>
 		<td>[flags $flags]</td>
@@ -127,8 +154,7 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 		<td>$val</td>
 		<td>$worst</td>
 		<td>$thresh</td>
-		<td>$type</td>
-		<td>$updated</td>
+		<td>$left</td>
 		<td>$when</td>
 	</tr>"
 }
@@ -173,7 +199,6 @@ foreach line [split $msg "\n"] {
 puts {
 </table>
 </fieldset>
-
 
 <div class=cleft style="padding-top: 2em">
 <button id=diskack>Acknowledge any current disk faults.</button>
