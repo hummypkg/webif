@@ -126,22 +126,26 @@ foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
 	}
 	set left ""
 	if {$id ni $nolife &&
-	    [expr $flags & 0x18] == 0x10 && $val == $worst && $val <= 100} {
+	    [expr $flags & 0x18] == 0x10 && $val == $worst && $val <= 100 &&
+	    $thresh < 100} {
 		# Event counter which is not a rate and has not regressed.
 		set notes ""
 		set left [expr 100 - 100 * (100 - $val) / (100 - $thresh)]
 		if {$left < 10} { set class orangeshade }
 		if {$rval > 0 && [dict exists $derive $id]} {
-			set total [expr \
-			    round(($rval / (100 - $left) * 100) \
-				/ 10000) * 10000 \
-			]
-			set remain $($total - $rval)
-			set notes "$remain of approximately $total $derive($id)"
+			if {$left < 100} {
+				set total [expr \
+				    round(($rval / (100 - $left) * 100) \
+					/ 10000) * 10000 \
+				]
+				set remain $($total - $rval)
+				set notes "$remain of approximately"
+				append notes " $total $derive($id)"
+			}
 		}
 		set left "<span title=\"$notes\">$left%</span>"
 	}
-	if {[string match "*Temperature_Cel*" $name]} {
+	if {$id == 190} {
 		append val " ([expr 100 - $val]&deg;C)"
 		append worst " ([expr 100 - $worst]&deg;C)"
 		append thresh " ([expr 100 - $thresh]&deg;C)"

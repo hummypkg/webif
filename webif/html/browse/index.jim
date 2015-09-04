@@ -5,10 +5,13 @@ source /mod/webif/lib/setup
 require ts.class pretty_size system.class settings.class escape browse.class \
     plugin epg.class
 
+set mroot [system mediaroot]
+set dir [cgi_get dir $mroot]
+
 jqplugin contextMenu bar enadis
 jscss script.js style.css
 
-set plugins { dmenu {} menu {} omenu {} }
+set plugins { dmenu {} menu {} omenu {} buttons {} }
 eval_plugins browse
 
 header
@@ -266,9 +269,6 @@ proc entry {file} {{i 0}} {
 	puts "</div>"
 }
 
-set mroot [system mediaroot]
-set dir [cgi_get dir $mroot]
-
 ######################################################################
 # Render web page
 
@@ -404,8 +404,6 @@ if {$nicesplice} {
 	puts { <button id=join>Join</button> }
 }
 
-puts "</div><div class=brow style=\"margin-top: 3px\">"
-
 # De-duplicate
 
 puts {
@@ -417,9 +415,21 @@ puts {
 if {[file exists /mnt/hd3/Streamer_down_file]} {
 		puts {
 	<button id=save_stream file=/mnt/hd3/Streamer_down_file>
-		Save last streamed content (e.g. iPlayer/YouTube)
-		<div id=streamstatus></div>
+		Save last streamed content
+		<span id=streamstatus></span>
 	</button>
+	}
+}
+
+# Plugin buttons
+
+if {[llength $plugins(buttons)]} {
+	puts "</div><div class=brow style=\"margin-top: 3px\">"
+        foreach plugin $plugins(buttons) {
+                lassign $plugin tag options
+		puts "
+<button class=plugin act=\"$options(link)\">$options(desc)</button>
+		"
 	}
 }
 

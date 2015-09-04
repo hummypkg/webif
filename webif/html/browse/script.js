@@ -1010,6 +1010,11 @@ var dmenuclick = function(action, el, pos)
 		});
 	});
 
+	$('button.plugin').button().on('click', function() {
+		window.location.href = $(this).attr('act');
+		return false;
+	});
+
 	$('input.fs').change(function() {
 		var num = $('input.fs:checked').size();
 		if (num > 0)
