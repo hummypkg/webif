@@ -105,6 +105,26 @@ ts method lock {} {
 	return 1
 }
 
+ts method setflag {flag} {
+	set cmd [list /mod/bin/hmt +$flag $file]
+	if {[catch {exec {*}$cmd}]} {
+		throw 20 "Unknown flag."
+	}
+	ladd flags $flag
+	return 1
+
+}
+
+ts method unsetflag {flag} {
+	set cmd [list /mod/bin/hmt -$flag $file]
+	if {[catch {exec {*}$cmd}]} {
+		throw 20 "Unknown flag."
+	}
+	lremove flags $flag
+	return 1
+
+}
+
 ts method set_shrunk {} {
 	set cmd [list /mod/bin/hmt +shrunk $file]
 	exec {*}$cmd
