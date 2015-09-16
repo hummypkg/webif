@@ -49,7 +49,6 @@ proc {dir iconset} {dir} {
 		lappend attrs "autoshrink=1"
 	}
 
-
 	set autodedup 0
 	if {[file exists "$dir/.autodedup"]} {
 		set autodedup 1
@@ -94,6 +93,70 @@ proc {dir iconset} {dir} {
 	}
 
 	eval_plugins diriconset
+
+	return [list $icons $attrs]
+}
+
+proc {ts iconset} {ts} {
+	set icons {}
+	set attrs {}
+
+	# HD / SD
+	if {[$ts get definition] eq "HD"} {
+		set def HD
+		set img "172_1_00_HD"
+	} else {
+		set def SD
+		set img "172_1_26_SD"
+	}
+	lappend icons [_addicon "/images/$img.png"]
+	lappend attrs "def=$def"
+
+	# Locked
+	set locked 0
+	if {[$ts flag "Locked"] > 0} {
+		set locked 1
+		lappend icons [_addicon "/images/178_1_00_Icon_Lock.png"
+		    "Locked"]
+	}
+	lappend attrs "locked=$locked"
+
+	# Encrypted
+	set encd 0
+	if {[$ts flag "Encrypted"] > 0} {
+		set encd 1
+		lappend icons [_addicon "/images/749_1_26_Video_Encryption.png"
+		    ""]
+	}
+	lappend attrs "encd=$encd"
+
+	# Encrypted on disk
+	set odencd 1
+	if {![$ts flag "ODEncrypted"]} {
+		set odencd 0
+		lappend icons [_addicon "/img/Decrypted.png" "Decrypted"]
+	}
+	lappend attrs "odencd=$odencd"
+
+	# Guidance
+	if {[$ts flag "Guidance"] > 0} {
+		lappend icons [_addicon "/img/Guidance_purple.png"]
+	}
+	if {[$ts flag "GGuidance"] > 0} {
+		lappend icons [_addicon "/img/Guidance_blue.png"]
+	}
+
+	# Shrunk
+	set shrunk 0
+	if {[$ts flag Shrunk]} {
+		set shrunk 1
+		lappend icons [_addicon "/img/compress.png" "Shrunk"]
+	}
+	lappend attrs "shrunk=$shrunk"
+
+	lappend attrs "bx=[$ts get bookmarks]"
+
+	eval_plugins tsiconset
 
 	return [list $icons $attrs]
 }

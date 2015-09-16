@@ -105,12 +105,21 @@ ts method lock {} {
 	return 1
 }
 
+set ::ts::flagmap {
+	detectads	Addetection
+	dedup		Deduped
+}
+
 ts method setflag {flag} {
 	set cmd [list /mod/bin/hmt +$flag $file]
 	if {[catch {exec {*}$cmd}]} {
 		throw 20 "Unknown flag."
 	}
-	ladd flags $flag
+	if {[dict exists $::ts::flagmap $flag]} {
+		ladd flags $::ts::flagmap($flag)
+	} else {
+		ladd flags [string totitle $flag]
+	}
 	return 1
 
 }
@@ -120,7 +129,11 @@ ts method unsetflag {flag} {
 	if {[catch {exec {*}$cmd}]} {
 		throw 20 "Unknown flag."
 	}
-	lremove flags $flag
+	if {[dict exists $::ts::flagmap $flag]} {
+		lremove flags $::ts::flagmap($flag)
+	} else {
+		lremove flags [string totitle $flag]
+	}
 	return 1
 
 }

@@ -177,13 +177,7 @@ proc entry {file} {{i 0}} {
 
 	# Icons
 
-	set locked 0
-	set encd 0
-	set odencd 1
-	set def unknown
-	set bx 0
-	set dlna 0
-	set shrunk 0
+	set attrs {}
 	if {$type eq "ts"} {
 		if {$bfile in $dinuse} {
 			icon "/img/inuse.png"
@@ -204,47 +198,9 @@ proc entry {file} {{i 0}} {
 			icon "/images/173_3_00_G3_$img.png" $txt "" "va genre"
 		}
 
-		# HD / SD
-		if {[$ts get definition] eq "HD"} {
-			set def HD
-			set img "172_1_00_HD"
-		} else {
-			set def SD
-			set img "172_1_26_SD"
-		}
-		icon "/images/$img.png"
+		lassign [ts iconset $ts] icons attrs
 
-		# Locked
-		if {[$ts flag "Locked"] > 0} {
-			set locked 1
-			icon "/images/178_1_00_Icon_Lock.png" "Locked"
-		}
-
-		# Encrypted
-		if {[$ts flag "Encrypted"] > 0} {
-			set encd 1
-			icon "/images/749_1_26_Video_Encryption.png" ""
-		}
-		if {![$ts flag "ODEncrypted"]} {
-			set odencd 0
-			icon "/img/Decrypted.png" "Decrypted"
-		}
-
-		# Guidance
-		if {[$ts flag "Guidance"] > 0} {
-			icon "/img/Guidance_purple.png"
-		}
-		if {[$ts flag "GGuidance"] > 0} {
-			icon "/img/Guidance_blue.png"
-		}
-
-		# Shrunk
-		if {[$ts flag Shrunk]} {
-			icon "/img/compress.png" "Shrunk"
-			set shrunk 1
-		}
-
-		set bx [$ts get bookmarks]
+		puts [join $icons ""]
 	}
 
 	# Indexed
@@ -259,9 +215,8 @@ proc entry {file} {{i 0}} {
 	puts "
 	      <a href=#>
 		<img class=\"$omenu va\" border=0 width=45 type=$type did=$i
-		    locked=$locked encd=$encd def=$def new=$new bx=$bx
-		    shrunk=$shrunk rsize=$rsz
-		    odencd=$odencd dlna=$dlna thmok=$thmok
+		    [join $attrs " "]
+		    new=$new rsize=$rsz dlna=$dlna thmok=$thmok
 		    src=/images/181_1_00_Help5_OPT_Plus.png>
 	      </a>
 	    <div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
@@ -274,7 +229,7 @@ proc entry {file} {{i 0}} {
 
 source assets.jim
 
-if {!$dlnaok} {
+if {!$dlnaok && ![system instandby]} {
 	puts {
 	<span class="blood dlnawarning cleft">
 		Note: Content Sharing is disabled on this system.
