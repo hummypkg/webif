@@ -204,6 +204,7 @@ proc entry {file} {{i 0}} {
 	}
 
 	# Indexed
+	set dlna 0
 	if {$::dlnaok && $::model eq "HDR" && [llength [
 	    system dlnaurl [file normalize $file]]]} {
 		icon "/img/dlna.png" "Indexed by DLNA Server"

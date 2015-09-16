@@ -75,6 +75,9 @@ if {![exists -proc _del_bindir]} {
 
 		if {$dustbin} {
 			set nfile "[_del_bindir $file $px]/[file tail $file]"
+			while {[file exists $nfile]} {
+				append nfile "_"
+			}
 			file rename $file $nfile
 			_del_touch $nfile
 		} else {
