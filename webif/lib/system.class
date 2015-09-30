@@ -364,12 +364,13 @@ proc {system busy} {} {
 }
 
 proc {system inuse} {file} {
+	if {![file exists $file]} { return 0 }
 	set op [exec /mod/webif/lib/bin/lsof -X -Fn $file]
-	if {$op eq ""} {
-		return 0
-	} else {
-		return 1
+	switch -glob -- $op {
+		"" -
+		"*status error*" { return 0 }
 	}
+	return 1
 }
 
 proc {system dirinuse} {dir} {
