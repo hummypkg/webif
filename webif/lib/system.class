@@ -427,23 +427,36 @@ proc {system mkdir_p} {dir} {
 	exec /mod/bin/busybox/mkdir -p $dir
 }
 
-proc {system rmdir_if_empty} {dir {why 0}} {
+proc {system dirblockers} {dir {permitted {".*"}}} {
 	set fl {}
 	foreach e [readdir -nocomplain $dir] {
-		if {$e eq "." || $e eq ".."} continue
+		if {$e in {. ..}} continue
 		if {[file isdirectory "$dir/$e"]} {
-			if {!$why} { return 0 }
 			lappend fl $e
-		} elseif {[string index $e 0] ne "."} {
-			if {!$why} { return 0 }
+			continue
+		}
+		set flag 1
+		foreach p $permitted {
+			if {[string match -nocase $p $e]} {
+				set flag 0
+				break
+			}
+		}
+		if {$flag} {
 			lappend fl $e
 		}
 	}
-	if {!$why} {
+	return $fl
+}
+
+proc {system rmdir_if_empty} {dir {permitted {".*"}}} {
+	set fl [system dirblockers $dir $permitted]
+
+	if {![llength $fl]} {
 		file delete -force $dir
 		return 1
 	}
-	return $fl
+	return 0
 }
 
 proc {system listening} {{mport 0}} {
