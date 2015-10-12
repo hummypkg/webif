@@ -1,0 +1,33 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require tvdb.class classdump
+
+set dir [cgi_get dir -]
+set sid [cgi_get sid -]
+set series [cgi_get series 0]
+
+httpheader
+
+if {$dir eq "-" || $sid eq "-"} exit
+
+if {$sid == 0} {
+	file delete "$dir/.tvdbseriesid"
+	file delete "$dir/.tvdbseries"
+	puts -nonewline 0
+	exit
+}
+
+set v [tvdb series "" $sid]
+if {[$v get seriesid] == 0} exit
+
+file write "$dir/.tvdbseriesid" $sid
+if {$series > 0} {
+	file write "$dir/.tvdbseries" $series
+} else {
+	file delete "$dir/.tvdbseries"
+}
+
+puts -nonewline [$v series_count]
+

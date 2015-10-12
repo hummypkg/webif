@@ -10,6 +10,15 @@ var plugins = {
 
 var dir;
 
+function blockpage(msg)
+{
+	if (!msg)
+		msg = 'Refreshing page...';
+	$.blockUI({
+		message: '<h1><img src=/img/loading.gif> ' + msg + '</h1>'
+	});
+}
+
 function disableall()
 {
 	$('button,a,input').disable();
@@ -67,10 +76,12 @@ $('#paste').button()
     .click(function() {
 	disableall();
 	pastedialogue();
-	$('#pwfeedback').load(
-	    '/browse/clipboard.jim?act=paste&dir='
-	    + encodeURIComponent(dir), function() {
+	$('#pwfeedback').load('/browse/clipboard.jim', {
+		act: 'paste',
+		dir: dir
+	    }, function() {
 		$('#pwdialogue').dialog('close');
+		blockpage();
 		window.location.reload(true);
 	});
 });
@@ -160,19 +171,19 @@ function delete_callback(file, dir, id)
 function lock_callback(file, type, id)
 {
 	var url = '/browse/lock.jim?file=' + file;
-	$.get(url, function() { window.location.reload(true); });
+	$.get(url, function() { blockpage(); window.location.reload(true); });
 }
 
 function enc_callback(file, type, id)
 {
 	var url = '/browse/enc.jim?file=' + file;
-	$.get(url, function() { window.location.reload(true); });
+	$.get(url, function() { blockpage(); window.location.reload(true); });
 }
 
 function new_callback(file, type, id)
 {
 	var url = '/browse/new.jim?file=' + file;
-	$.get(url, function() { window.location.reload(true); });
+	$.get(url, function() { blockpage(); window.location.reload(true); });
 }
 
 function thumbnail_callback(file, type, id)
@@ -193,14 +204,14 @@ function rename_submit()
 {
 	var s = $('#renameform_form').serialize();
 	$.post('/browse/rename.jim', s,
-	    function() { window.location.reload(true); });
+	    function() { blockpage(); window.location.reload(true); });
 }
 
 function drename_submit()
 {
 	var s = $('#drenameform_form').serialize();
 	$.get('/browse/rename.jim?' + s,
-	    function() { window.location.reload(true); });
+	    function() { blockpage(); window.location.reload(true); });
 }
 
 function aexpiry_submit()
@@ -208,7 +219,7 @@ function aexpiry_submit()
 	$('#aexpiry_working').slideDown('slow');
 	var s = $('#aexpiry_form').serialize();
 	$.get('/browse/aexpiry.jim?' + s,
-	    function() { window.location.reload(true); });
+	    function() { blockpage(); window.location.reload(true); });
 }
 
 function aexpiry_remove()
@@ -216,14 +227,14 @@ function aexpiry_remove()
 	$('#aexpiry_working').slideDown('slow');
 	var s = $('#aexpiry_form').serialize();
 	$.get('/browse/aexpiry.jim?act=remove&' + s,
-	    function() { window.location.reload(true); });
+	    function() { blockpage(); window.location.reload(true); });
 }
 
 function newdir_submit()
 {
 	var s = $('#newdirform_form').serialize();
 	$.get('/browse/mknewdir.jim?' + s,
-	    function() { window.location.reload(true); });
+	    function() { blockpage(); window.location.reload(true); });
 }
 
 function savestream_submit()
@@ -235,6 +246,7 @@ function savestream_submit()
 	$.get('/browse/savestream.jim?sfile=' +
 	    encodeURIComponent(sf) + '&' + s,
 	    function() {
+		blockpage();
 		window.location.reload(true);
 	    });
 }
@@ -691,6 +703,7 @@ var dmenuclick = function(action, el, pos)
 
 	    case 'resetnew':
 		var url = '/browse/resetnew.jim?dir=' + file;
+		blockpage();
 		$.get(url, function() { window.location.reload(true); });
 		break;
 
@@ -877,12 +890,10 @@ var dmenuclick = function(action, el, pos)
 	});
 
 	// Load folder sizes
-	$.getJSON('/browse/sizes.jim?dir=' + encodeURIComponent(dir),
-		folder_size_callback);
+	$.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
 
 	// Flag folders with unwatched items
-	$.getJSON('/browse/newdir.jim?dir=' + encodeURIComponent(dir),
-		new_folder_callback);
+	$.getJSON('/browse/newdir.jim', {dir: dir}, new_folder_callback);
 
 	// Load clipboard
 	reloadclipboard();
@@ -967,6 +978,7 @@ var dmenuclick = function(action, el, pos)
 				'files': files
 				}, function() {
 				$('#pwdialogue').dialog('close');
+				blockpage();
 				window.location.reload(true);
 			});
 		}

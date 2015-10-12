@@ -1,0 +1,30 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require tvdb.class
+
+set term [cgi_get term -]
+if {$term eq "-"} exit
+
+httpheader
+
+foreach series [[tvdb] searchseries $term] {
+	puts "
+<div>
+	<div class=tvdbseries>
+		<img class=tvdbbanner src=\"[tvdb bannerurl $series(banner)]\">
+		<span title=\"Series ID: $series(seriesid)\">
+			$series(seriesname)
+		</span>
+		<button class=tvdbselect sid=\"$series(seriesid)\">
+			Select
+		</button>
+	</div>
+	<div class=tvdbsynopsis>
+		$series(overview)
+	</div>
+</div>
+	"
+}
+

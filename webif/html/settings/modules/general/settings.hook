@@ -27,6 +27,7 @@ puts "
 	</tr>
 "
 
+setting_toggle "theTVDB.com integration?" "tvdb" $($tvdb)
 setting_toggle "Slide-down toolbar?" "notoolbar" $(!$notoolbar) 1
 setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
 setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1

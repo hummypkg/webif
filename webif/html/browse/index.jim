@@ -3,13 +3,15 @@
 package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size system.class settings.class escape browse.class \
-    plugin epg.class
+    plugin epg.class classdump
 
 set mroot [system mediaroot]
 set dir [cgi_get dir $mroot]
 
-jqplugin contextMenu bar enadis
+jqplugin contextMenu bar enadis blockui
 jscss script.js style.css
+
+if {[system has tvdb]} { jscss tvdb/script.js tvdb/style.css }
 
 set plugins { dmenu {} menu {} omenu {} buttons {} }
 eval_plugins browse
@@ -229,6 +231,7 @@ proc entry {file} {{i 0}} {
 # Render web page
 
 source assets.jim
+if {[system has tvdb]} { source tvdb/assets.jim }
 
 if {!$dlnaok && ![system instandby]} {
 	puts {
@@ -254,6 +257,10 @@ foreach part [split $dir /] {
 }
 puts "<span class=filesize id=dirsize></span>"
 puts "</legend>"
+
+if {[system has tvdb] && [string length $dir] > [string length $mroot]} {
+	source tvdb/banner.jim
+}
 
 # Parent directory
 set parent [join [lrange [split $dir /] 0 end-1] /]

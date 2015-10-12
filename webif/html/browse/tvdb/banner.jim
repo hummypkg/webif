@@ -1,0 +1,35 @@
+#!/mod/bin/jimsh
+
+require classdump
+
+if {[file exists "$dir/.tvdbseriesid"]} {
+	set seriesid [string trim [file read "$dir/.tvdbseriesid"]]
+	set tvdb_series [set v [tvdb series [file tail $dir] $seriesid]]
+	puts "<div>"
+	if {[set banner [$v get banner]] ne ""} {
+                puts "
+		    <img class=tvdbbannertop src=\"[tvdb bannerurl $banner]\">
+		"
+	}
+	puts "
+	    <span id=tvdbseriesname title=\"Series ID: $seriesid\">
+		<a target=_blank href=\"/db/?db=$seriesid.db\">
+			[cgi_quote_html [$v get name]]
+		</a>
+	    </span>
+	"
+	if {[file exists "$dir/.tvdbseries"]} {
+		set n [string trim [file read "$dir/.tvdbseries"]]
+		puts "(S$n)"
+	}
+	puts "<button id=tvdbsetseries>Change</button>"
+	puts "</div>"
+} else {
+	puts {
+	    <span id=tvdbinfo class="va right">
+		<img class=tvdblogo src=/img/tvdb.png>
+		<button id=tvdbsetseries>Select Series</button>
+	    </span>
+	}
+}
+

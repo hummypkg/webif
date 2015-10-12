@@ -453,21 +453,21 @@ span.toolbarcell
 
 button.blue
 {
-	background: url(/img/gloss_wave_blue.png) repeat-x center;
+	background: url(/img/gloss_wave_blue.png) repeat-x center !important;
 	border: 1px solid blue;
 	color: #ffffff;
 }
 
 button.green
 {
-	background: url(/img/gloss_wave_green.png) repeat-x center;
+	background: url(/img/gloss_wave_green.png) repeat-x center !important;
 	border: 1px solid green;
 	color: #ffffff;
 }
 
 button.red
 {
-	background: url(/img/gloss_wave_red.png) repeat-x center;
+	background: url(/img/gloss_wave_red.png) repeat-x center !important;
 	border: 1px solid green;
 	color: #ffffff;
 }

@@ -38,6 +38,7 @@ set channel_group [$settings channel_group]
 set epg_style [$settings epg_style]
 set service_style [$settings service_style]
 set notoolbar [$settings notoolbar]
+set tvdb [$settings tvdb]
 set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
 set notwitfeed [$settings notwitfeed]
@@ -92,6 +93,7 @@ handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update logsize $logsize "Log rotation size"
 handle_int_update logkeep $logkeep "Logs to keep"
 handle_int_update notoolbar $notoolbar "Disable toolbar"
+handle_int_update tvdb $tvdb "Enable tvdb"
 handle_int_update nomobile $nomobile "Disable mobile link"
 handle_int_update nohelplinks $nohelplinks "Disable help links"
 handle_int_update notwitfeed $notwitfeed "Disable twitter feed ticker"

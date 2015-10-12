@@ -28,6 +28,7 @@ class tvdb {
 	name ""
 	overview ""
 	dat ""
+	banner ""
 
 	_matches {}
 	_smatches {}
@@ -38,6 +39,10 @@ proc ::tvdb::dlog {msg} {
 	if {$::tvdb::debug} {
 		puts $msg
 	}
+}
+
+tvdb method setseries {sid} {
+	set seriesid $sid
 }
 
 tvdb method _fetch {url} {
@@ -83,6 +88,97 @@ tvdb method _parse {xml vars {end "XXX"}} {
 	}
 }
 
+#<Series>
+#<seriesid>261451</seriesid>
+#<language>en</language>
+#<SeriesName>Teenage Mutant Ninja Turtles (2012)</SeriesName>
+#<banner>graphical/261451-g2.jpg</banner>
+#<Overview>Four ninja turtles, mutated by a mysterious alien substance, must rise up out of the sewers and defend their city against evil forces from both the past and present.</Overview>
+#<FirstAired>2012-09-29</FirstAired>
+#<Network>Nickelodeon</Network>
+#<id>261451</id>
+#</Series>
+
+tvdb method _extract {xml end vars} {
+	set x [xml init $xml]
+	set cattr 0
+	set ret {}
+	set attrs {}
+	while {1} {
+		lassign [$x next] type val attr etype
+		if {$type == "EOF"} break
+		switch $etype {
+			START {
+				set cattr $val
+			}
+			END {
+				if {$val == $end} {
+					lappend ret $attrs
+					set attrs {}
+				}
+				set cattr 0
+			}
+			default {
+				if {$type == "TXT"} {
+					if {$cattr in $vars} {
+						set attrs([\
+						    string tolower $cattr]) $val
+					}
+				}
+			}
+		}
+	}
+	return $ret
+}
+
+tvdb method fetchseries {} {
+	if {!$seriesid} return
+	set base "$::tvdb::cache/$seriesid"
+	# Expire old files
+	if {[file exists "$base.xml"]} {
+		set age $([clock seconds] - [file mtime "$base.xml"])
+		::tvdb::dlog "$base.xml age $age"
+		if {$age > $::tvdb::cacheage} {
+			file delete "$base.xml"
+			::tvdb::dlog "Expiring $base.xml"
+		}
+	}
+
+	if {![file exists "$base.xml"]} {
+		::tvdb::dlog "Downloading"
+		# Download the series info
+		set f [open "$base.zip" w]
+		puts $f [$self _fetch \
+		    "$::tvdb::apikey/series/$seriesid/all/en.zip"]
+		$f close
+		catch {exec unzip -o -q "$base.zip" en.xml -d $::tvdb::cache}
+		if {[file exists "$::tvdb::cache/en.xml"]} {
+			file rename "$::tvdb::cache/en.xml" $base.xml
+			# Extract episode info
+			puts [exec /mod/webif/lib/bin/tvdb "$base.xml"]
+		}
+	}
+}
+
+tvdb method loadseries {} {
+	if {!$seriesid} return
+	set ret [$::tvdb::indexdb query {
+		select * from series where series_id = %s} $seriesid]
+	if {[llength $ret] == 1} {
+		foreach {k v} [lindex $ret 0] {
+			set $k $v
+		}
+	}
+}
+
+tvdb method searchseries {series} {
+	::tvdb::dlog "Searching TVDB for $series"
+	set seriesxml [$self _fetch \
+	    "/GetSeries.php?seriesname=[cgi_quote_url $series]"]
+	return [$self _extract $seriesxml Series \
+	    {seriesid SeriesName banner Overview}]
+}
+
 tvdb method findseries {series} {
 	set ret ""
 	catch {
@@ -103,50 +199,11 @@ tvdb method findseries {series} {
 		$self _parse $seriesxml {seriesid} Series
 	}
 
-	#puts "SERIESID: ($seriesid)"
-
 	if {!$seriesid} {
 		# Negative caching
 		$::tvdb::indexdb query {
 			replace into nseries values('%s')
 		} $series
-		return;
-	}
-
-	# Found a series
-
-	set base "$::tvdb::cache/$seriesid"
-	# Expire old files
-	if {[file exists "$base.xml"]} {
-		set age $([clock seconds] - [file mtime "$base.xml"])
-		::tvdb::dlog "$base.xml age $age"
-		if {$age > $::tvdb::cacheage} {
-			file delete "$base.xml"
-			::tvdb::dlog "Expiring $base.xml"
-		}
-	}
-
-	if {![file exists "$base.xml"]} {
-		::tvdb::dlog "Downloading"
-		# Download the series info
-		set f [open "$base.zip" w]
-		puts $f [$self _fetch \
-		    "$::tvdb::apikey/series/$seriesid/all/en.zip"]
-		$f close
-		exec unzip -o -q "$base.zip" en.xml -d $::tvdb::cache
-		if {[file exists "$::tvdb::cache/en.xml"]} {
-			file rename "$::tvdb::cache/en.xml" $base.xml
-			# Extract episode info
-			puts [exec /mod/webif/lib/bin/tvdb "$base.xml"]
-		}
-	}
-
-	set ret [$::tvdb::indexdb query {
-		select * from series where series_id = %s} $seriesid]
-	if {[llength $ret] == 1} {
-		foreach {k v} [lindex $ret 0] {
-			set $k $v
-		}
 	}
 }
 
@@ -172,12 +229,13 @@ tvdb method episodebynum {series episode} {
 	return {}
 }
 
-tvdb method episodebyname {str} {
+tvdb method episodebyname {str {series 0} {episode 0}} {
 	if {![llength [set db [$self dbhandle]]]} return {}
-	set ret [$db query {
-		select * from episode where name like '%s'
-		order by length(name)
-	    } [tvdb tolike $str]]
+	set q "select * from episode where name like '%s'"
+	if {$series} { append q " and series = $series" }
+	if {$episode} { append q " and episode = $episode" }
+	append q " order by length(name)"
+	set ret [$db query $q [tvdb tolike $str]]
 	if {[llength $ret]} { return [lindex $ret 0] }
 	return {}
 }
@@ -239,14 +297,46 @@ tvdb method episodebyepnum {episode synopsis} {
 	return [$self seek $synopsis "and episode = $episode"]
 }
 
+tvdb method episodebyseries {series synopsis} {
+	return [$self seek $synopsis "and series = $series"]
+}
+
 tvdb method episodebysynopsis {synopsis} {
 	return [$self seek $synopsis]
 }
 
-proc {tvdb series} {series} {
+tvdb method series_count {} {
+	if {![llength [set db [$self dbhandle]]]} { return 0 }
+
+	set ret [$db query {
+		select max(series) from episode
+	}]
+	set num 0
+	if {[llength $ret]} {
+		lassign [lindex $ret 0] x num
+	}
+	return $num
+}
+
+proc {tvdb series} {series {sid 0}} {
 	set t [tvdb]
 
-	$t findseries $series
+	if {$sid} {
+		$t setseries $sid
+	} else {
+		$t findseries $series
+	}
+	if {[$t get seriesid] ne "0"} {
+		$t fetchseries
+		$t loadseries
+		if {[$t get name] eq ""} {
+			$t setseries 0
+		}
+	}
 	return $t
+}
+
+proc {tvdb bannerurl} {banner} {
+	return "http://$::tvdb::mirror/banners/$banner"
 }
 

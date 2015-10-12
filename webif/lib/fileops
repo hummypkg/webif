@@ -80,6 +80,15 @@ proc {file read} {target {bytes 0}} {
 	error "Cannot read $target"
 }
 
+proc {file write} {target content} {
+	if {[catch {set fd [open $target w]} msg]} {
+		error "Open failed, $msg"
+	} else {
+		$fd puts -nonewline $content
+		$fd close
+	}
+}
+
 local proc file {cmd args} {
 	switch $cmd {
 	    rename { tailcall {file rename} {*}$args }
@@ -87,6 +96,7 @@ local proc file {cmd args} {
 	    touch { tailcall {file touch} {*}$args }
 	    tdelete { tailcall {file tdelete} {*}$args }
 	    read { tailcall {file read} {*}$args }
+	    write { tailcall {file write} {*}$args }
 	    default { tailcall upcall file $cmd {*}$args }
 	}
 }

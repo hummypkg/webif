@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require ts.class
+require ts.class settings.class
 
 source /mod/webif/html/dedup/normalise.jim
 source /mod/webif/html/dedup/process.jim

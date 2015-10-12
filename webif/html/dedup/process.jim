@@ -20,9 +20,21 @@ proc dedupprocess {file} {{seen {}}} {
 
 	set dir [file dirname $file]
 	set base [file tail [file rootname $file]]
-	set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
-#	set epname [$ts episode_name]
-#	set syn "[$ts epstr] - $epname"
+
+	set syn ""
+	if {[system has tvdb]} {
+		set epname [$ts episode_name]
+		
+		if {[$ts get tvdb_method] ne "" && [$ts get episodenum] > 0} {
+			set syn "[$ts epstr] - $epname"
+		} else {
+			set syn $epname
+		}
+	}
+	if {$syn eq ""} {
+		set syn [dedupnormalise [$ts get synopsis] [$ts get title]]
+	}
+
 	# Escape special characters to create the filename.
 	set fn [system filename $syn]
 
@@ -32,7 +44,8 @@ proc dedupprocess {file} {{seen {}}} {
 	} elseif {$fn in $seen} {
 		set stat dup
 	} elseif {[string length $syn] > 40} {
-		set stat error
+		set syn [string range $syn 0 39]
+		#set stat error
 	} elseif {$base eq $fn} {
 		set stat nothing
 		$ts set_deduped

@@ -361,7 +361,9 @@ puts {
 <div id=dialogue>
 <img src=/img/loading.gif>Retrieving data...
 </div>
+
 <div id=confirm title="Confirmation Required"></div>
+
 <div id=pwdialogue style="display: none">
 <center>
 <img src=/img/loading.gif>

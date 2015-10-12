@@ -1,0 +1,57 @@
+#!/mod/bin/jimsh
+
+puts {
+
+<div id=tvdbdialogue title="Select Series" class=hidden>
+	<table>
+	<tr>
+	<th>
+		<label for="tvdbsearch">
+			<b>Search For</b>
+		</label>
+	</th>
+	<td>
+		<input type=text name="tvdbsearch" id="tvdbsearch"
+		    value="" size=70 maxlength=255
+		    class="text ui-widget-content ui-corner-all">
+	</td>
+	</tr>
+	</table>
+</div>
+
+<div id=tvdbresults title="Choose Series" class=hidden>
+    <div class=tvdbresults id=tvdbresults_loading>
+	<img src=/img/loading.gif>
+	Searching theTVDB.com database, please wait...
+    </div>
+    <div class=tvdbresults id=tvdbresults_saving>
+	<img src=/img/loading.gif>
+	Retrieving episode details from theTVDB.com, please wait...
+    </div>
+    <div class=tvdbresults id=tvdbresults_force>
+	You can optionally force a particular series number for this folder.<br>
+	This is useful when the broadcasters do not set good synopses or<br>
+	if episode names are re-used across series. Leave it set to zero<br>
+	if you do not wish to do this.<br>
+	<table>
+	<tr>
+	    <th>
+		Force series number:<br>
+		<span class=footnote>(Optional)</span>
+	    </th>
+	    <td>
+		<input id=tvdb_forceseries type=number value="" min=0>
+	    </td>
+	</tr><tr>
+	    <td></td>
+	    <td>
+		<button id=tvdbresults_forcesave>Save</button>
+	    </td>
+	</tr>
+	</table>
+    </div>
+    <div class=tvdbresults id=tvdbresults_inner></div>
+</div>
+
+}
+

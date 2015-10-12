@@ -49,16 +49,21 @@ if {$type eq "ts"} {
 </tr><tr>
 	"
 	if {[llength $sdata] && [llength $idata]} {
-		puts "</tr><tr><th class=blood>DEBUG</th><td class=footnote>
+		puts "</tr><tr><th class=blood>TVDB</th><td class=footnote>
+			<img class=collapser id=xtvdb x=tvdb_extra class=va
+			    src=/img/tree/plusonly.png>
 			Found using [$ts get tvdb_method]
-			<br>
-			$idata(overview)
-			<br>
-			[$sdata get _phrases]
-			<br>
-			[lrange [$sdata get _smatches] 0 8]
-		</td></tr>"
+			<div id=tvdb_extra class=hidden>
+				$idata(overview)
+			</div>
+		      </td></tr>"
 	}
+
+#			$idata(overview)
+#			<br>
+#			[$sdata get _phrases]
+#			<br>
+#			[lrange [$sdata get _smatches] 0 8]
 
 	if {[$ts flag "Guidance"] > 0} {
 		puts "
@@ -139,7 +144,8 @@ puts "
 "
 
 set fileset [$ts fileset]
-puts -nonewline "<img id=xfileset class=va src=/img/tree/plusonly.png>"
+puts -nonewline "<img class=collapser x=fileset id=xfileset class=va
+	src=/img/tree/plusonly.png>"
 puts -nonewline "[llength $fileset] file"
 if {[llength $fileset] != 1} { puts -nonewline "s" }
 puts -nonewline " in set."
@@ -165,12 +171,15 @@ if {[$ts get bookmarks]} {
 	puts "</table>"
 	puts {
 <script type=text/javascript>
-$('#xfileset').click(function() {
-	$('#fileset').slideToggle('slow', function() {
-		if ($('#fileset').is(':visible'))
-			$('#xfileset').attr('src', '/img/tree/minustop.png');
+$('.collapser').on('click', function() {
+	target = $(this).attr('x');
+	var $icon = $(this);
+	$('#' + target).slideToggle('slow', function() {
+		if ($(this).is(':visible'))
+			$icon.attr('src', '/img/tree/minustop.png');
 		else
-			$('#xfileset').attr('src', '/img/tree/plusonly.png');
+			$icon.attr('src', '/img/tree/plusonly.png');
+			
 	});
 });
 </script>

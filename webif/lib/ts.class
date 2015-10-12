@@ -511,34 +511,55 @@ set ::ts::episode_prefixes {
 	{^t4: *}
 	{^brand new series *[-:]* *}
 	{^\.+}
+	{ *\(Part [0-9] of [0-9]\) *}
+	{, Part [0-9]}
 }
 
 ts method tvdb_resolve {} {
 	# See if we can find a TVDB series for this recording.
 
-	set tvdb_series [set v [tvdb series [$self series_name]]]
+	set dir [file dirname $file]
+
+	set seriesid 0
+	if {[file exists "$dir/.tvdbseriesid"]} {
+		set seriesid [string trim [file read "$dir/.tvdbseriesid"]]
+	} else {
+		return
+	}
+	if {!$seriesnum && [file exists "$dir/.tvdbseries"]} {
+		set seriesnum [string trim [file read "$dir/.tvdbseries"]]
+	}
+
+	set tvdb_series [set v [tvdb series [$self series_name] $seriesid]]
 	if {[$v get seriesid] == 0} { return }
 
 	# Got one.
 
+	# Easiest case - we can explicitly request the episode.
 	if {$seriesnum && $episodenum} {
-		# Easiest case - we can explicitly request the episode.
 		set tvdb_method "series and episode number"
 		return [$v episodebynum $seriesnum $episodenum]
 	}
 
 	# Now try to find the episode using the current episode name
-	set k [$v episodebyname $episodename]
+	# (using series or episode number if available)
+	set k [$v episodebyname $episodename $seriesnum $episodenum]
 	if {[llength $k]} {
 		set tvdb_method "episode name ($episodename)"
 		return $k
 	}
 
+	# More problematic but can at least narrow the list of candidates
+	# using the episode or series numbers if we have them.
+
 	if {$episodenum} {
-		# More problematic but can at least narrow the list of
-		# candidates.
 		set tvdb_method "episode number"
 		return [$v episodebyepnum $episodenum $synopsis]
+	}
+
+	if {$seriesnum} {
+		set tvdb_method "series and synopsis"
+		return [$v episodebyseries $seriesnum $synopsis]
 	}
 
 	# Most difficult - try and match based on synopsis alone

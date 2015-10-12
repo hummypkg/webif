@@ -640,7 +640,8 @@ proc {system has} {comp} {
 		return 1
 	    }
 	    tvdb {
-		return [file exists /mod/webif/.tvdb]
+		require settings.class
+		return [[settings] _nval_setting tvdb]
 	    }
 	}
 	return 0

@@ -24,6 +24,7 @@ class settings {
 	smtp_server	""
 	pkgdev		0
 	notoolbar	0
+	tvdb		0
 	nomobile	0
 	nohelplinks	0
 	notwitfeed	0
@@ -166,6 +167,10 @@ settings method pkgdev {{val -1}} {
 
 settings method notoolbar {{val -1}} {
 	return [$self _nval_setting notoolbar $val]
+}
+
+settings method tvdb {{val -1}} {
+	return [$self _nval_setting tvdb $val]
 }
 
 settings method genrededup {{val -1}} {
