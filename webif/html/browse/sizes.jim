@@ -5,16 +5,18 @@ source /mod/webif/lib/setup
 
 httpheader "application/json"
 
-set dir [cgi_get dir]
+set dir [cgi_get dir "/media/My Video"]
 set dlen [string length "$dir/"]
 
 #9.4G	/media/My Video/Archive
 #1.4G	/media/My Video/CSI_ Crime Scene Investigation
 puts "{"
-foreach line [split [exec /mod/bin/busybox/du -h -d 1 "$dir/"] "\n"] {
+foreach line [split [exec /mod/bin/busybox/du -h -l -d 1 "$dir/"] "\n"] {
 	lassign [split $line "\t"] size node
 	set node [string range $node $dlen end]
-	puts "\"$node\" : \"$size\","
+	if {[string length $node]} {
+		puts "\"$node\": \"$size\","
+	}
 }
 
 # Handle symbolic links.
@@ -35,6 +37,8 @@ foreach file [readdir $dir] {
 	}
 }
 
-puts "\"dummy\" : \"\""
+lassign [split [exec /mod/bin/busybox/du -hs "$dir/"]] total
+puts "\"\": \"$total\""
+
 puts "}"
 
