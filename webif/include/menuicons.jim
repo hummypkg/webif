@@ -75,7 +75,7 @@ if {[$settings notwitfeed] == 0} {
 
 puts {
 <script type="text/javascript" async=true
-    src='http://twitcker.com/ticker/HummyPkg.js?open=true&container=own-container&own-container=twitfeed&speed=3&count=5&background=cccccc'>
+    src='http://twitcker.com/ticker/HummyPkg.js?open=true&container=own-container&own-container=twitfeed&speed=10&count=6&background=cccccc'>
 </script>
 
 <div id=twitfeed

@@ -19,6 +19,18 @@ if {$line ne ""} {
 	$settings _tval_setting "SMART_status" $smart
 }
 
+# Extract disk model.
+foreach line [split [exec /mod/bin/smartctl -i $disk] "\n"] {
+	if {[string match "*Not in smartctl database*" $line]} continue
+	if {[string match "*: *" $line]} {
+		regsub -all -- {[[:space:]]+} $line " " line
+		lassign [split $line ":"] key val
+		if {$key ne "Device Model"} continue
+		$settings _tval_setting "SMART_model" [string trim $val]
+	}
+}
+
+# Extract disk attributes.
 foreach line [split [exec /mod/bin/smartctl -A -f brief $disk] "\n"] {
 	regsub -all -- {[[:space:]]+} $line " " line
 	regsub -all -- {^[[:space:]]+} $line "" line
@@ -31,7 +43,9 @@ foreach line [split [exec /mod/bin/smartctl -A -f brief $disk] "\n"] {
 puts "SMART: ($smart)"
 
 foreach a {
+    {4 "startstop"}
     {5 "realloc"}
+    {9 "hours"}
     {10 "spinretry"}
     {197 "pending"}
     {198 "offline"}
