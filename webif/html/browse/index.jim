@@ -8,7 +8,7 @@ require ts.class pretty_size system.class settings.class escape browse.class \
 set mroot [system mediaroot]
 set dir [cgi_get dir $mroot]
 
-jqplugin contextMenu bar enadis blockui
+jqplugin contextMenu bar enadis blockui dialogue
 jscss script.js style.css
 
 if {[system has tvdb]} { jscss tvdb/script.js tvdb/style.css }

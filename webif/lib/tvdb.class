@@ -252,8 +252,10 @@ tvdb method wordcount {db words extra} {
 
 			set ret [$db query {
 				select episode_id from episode
-				where overview like '%%%s%%' %s
-			} $w $extra]
+				where overview like '%%%s%%'
+				or name like '%%%s%%'
+				%s
+			} $w $w $extra]
 			foreach row $ret {
 				#puts "&nbsp;&nbsp;> FOUND: ($w)<br>"
 				ladd _phrases $w
@@ -338,5 +340,9 @@ proc {tvdb series} {series {sid 0}} {
 
 proc {tvdb bannerurl} {banner} {
 	return "http://$::tvdb::mirror/banners/$banner"
+}
+
+proc {tvdb seriesurl} {seriesid} {
+	return "http://$::tvdb::mirror/?tab=series&id=$seriesid"
 }
 

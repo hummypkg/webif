@@ -7,8 +7,7 @@ function select_episode()
 
 	$('.tvdbresults').hide();
 	$('#tvdbresults_saving').show();
-	$('#tvdbresults').dialog('option', 'position', {
-	    my: "center", at: "center", of: window });
+	$('#tvdbresults').diagrefresh();
 
 	$.get('tvdb/store.jim', { dir: dir, sid: sid }, function(data) {
 		if (data <= 0)
@@ -24,8 +23,7 @@ function select_episode()
 		    .on('click', function() {
 			$('.tvdbresults').hide();
 			$('#tvdbresults_saving').show();
-			$('#tvdbresults').dialog('option', 'position', {
-			    my: "center", at: "center", of: window });
+			$('#tvdbresults').diagrefresh();
 			$.get('tvdb/store.jim', {
 				dir: dir,
 				sid: sid,
@@ -37,7 +35,8 @@ function select_episode()
 	});
 }
 
-$('#tvdbsetseries').button().on('click', function() {
+$('#tvdbsetseries').button().on('click', function(e) {
+	e.stopPropagation();
 	val = $('#tvdbseriesname').text();
 	if (!val)
 		val = dir.split(/[\\/]/).pop();
@@ -78,9 +77,10 @@ $('#tvdbsetseries').button().on('click', function() {
 				    .on('click', select_episode);
 				$('#tvdbresults_loading').slideUp('slow');
 				$('#tvdbresults_inner').show();
-				$('#tvdbresults').dialog('option',
-				    'position', {
-				    my: "center", at: "center", of: window });
+				$('#tvdbresults').diagrefresh({
+				    width: $(window).width() - 100,
+				    height: $(window).height() - 100
+				});
 			});
 		    }
 		  },
@@ -106,6 +106,14 @@ $('#tvdbsetseries').button().on('click', function() {
 		  }
 		]
 	});
+});
+
+$('img.tvdbbannertop').hover(
+    function() { $(this).css('cursor', 'pointer'); },
+    function() { $(this).css('cursor', 'auto'); }
+).on('click', function() {
+	var sid = $(this).closest('div').attr('sid');
+	window.open('http://thetvdb.com/?tab=series&id=' + sid, '_blank');
 });
 
 });

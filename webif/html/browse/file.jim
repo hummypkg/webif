@@ -42,7 +42,9 @@ if {$type eq "ts"} {
 	if {[llength $sdata]} {
 		set sid [$sdata get seriesid]
 		if {$sid} {
-		    append series "/<a href=/db/index.jim?db=$sid.db>$sid</a>"
+		    append series " / <a target=_blank href=[\
+			tvdb seriesurl $sid]><img height=20 src=/img/tvdb.png></a>"
+		    append series " / <a href=/db/index.jim?db=$sid.db>DB:$sid</a>"
 		}
 	}
 	puts "<td>[$ts epstr] - $epname (<i>$series</i>)<td>

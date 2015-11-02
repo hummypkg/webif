@@ -5,7 +5,7 @@ require classdump
 if {[file exists "$dir/.tvdbseriesid"]} {
 	set seriesid [string trim [file read "$dir/.tvdbseriesid"]]
 	set tvdb_series [set v [tvdb series [file tail $dir] $seriesid]]
-	puts "<div>"
+	puts "<div class=tvdbbanner sid=$seriesid>"
 	if {[set banner [$v get banner]] ne ""} {
                 puts "
 		    <img class=tvdbbannertop src=\"[tvdb bannerurl $banner]\">

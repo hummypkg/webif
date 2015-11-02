@@ -13,7 +13,9 @@ foreach series [[tvdb] searchseries $term] {
 	puts "
 <div>
 	<div class=tvdbseries>
+		<a target=_blank href=[tvdb seriesurl $series(seriesid)]>
 		<img class=tvdbbanner src=\"[tvdb bannerurl $series(banner)]\">
+		</a>
 		<span title=\"Series ID: $series(seriesid)\">
 			$series(seriesname)
 		</span>
