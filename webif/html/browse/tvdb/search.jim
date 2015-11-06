@@ -9,7 +9,9 @@ if {$term eq "-"} exit
 
 httpheader
 
-foreach series [[tvdb] searchseries $term] {
+set slist [[tvdb] searchseries $term]
+if {[llength $slist]} {
+	foreach series $slist {
 	puts "
 <div>
 	<div class=tvdbseries>
@@ -24,9 +26,16 @@ foreach series [[tvdb] searchseries $term] {
 		</button>
 	</div>
 	<div class=tvdbsynopsis>
-		$series(overview)
+	"
+	if {[dict exists $series overview]} {
+		puts $series(overview)
+	}
+	puts "
 	</div>
 </div>
 	"
+	}
+} else {
+	puts "No matches found."
 }
 

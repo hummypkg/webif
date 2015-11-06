@@ -18,9 +18,9 @@ function select_episode()
 		$('.tvdbresults').hide();
 		$('#tvdbresults_force').show();
 		$('#tvdb_forceseries').attr('max', data).val(0);
-		$('#tvdbresults_forcesave')
-		    .button()
-		    .on('click', function() {
+
+		$('#tvdbresults').dialog('option', 'buttons', {
+		    "Save": function() {
 			$('.tvdbresults').hide();
 			$('#tvdbresults_saving').show();
 			$('#tvdbresults').diagrefresh();
@@ -31,7 +31,8 @@ function select_episode()
 			    }, function() {
 				window.location.reload(true);
 			    });
-		    });
+		    }
+		});
 	});
 }
 

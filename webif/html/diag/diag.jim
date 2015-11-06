@@ -156,12 +156,6 @@ puts {
 </tr>
 
 </table>
-<span class=also style="padding-left: 5px">
-View:
-<a href=/jim/ref.html target=_blank>Jim Reference Manual</a> |
-<a href=/jim/oo.html target=_blank>OO</a> |
-<a href=/jim/sqlite.html target=_blank>Sqlite</a>
-</span>
 </fieldset>
 
 <fieldset class=left>

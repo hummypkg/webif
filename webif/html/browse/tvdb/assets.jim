@@ -22,11 +22,11 @@ puts {
 <div id=tvdbresults title="Choose Series" class=hidden>
     <div class=tvdbresults id=tvdbresults_loading>
 	<img src=/img/loading.gif>
-	Searching theTVDB.com database, please wait...
+	Searching TheTVDB.com database, please wait...
     </div>
     <div class=tvdbresults id=tvdbresults_saving>
 	<img src=/img/loading.gif>
-	Retrieving episode details from theTVDB.com, please wait...
+	Retrieving episode details from TheTVDB.com, please wait...
     </div>
     <div class=tvdbresults id=tvdbresults_force>
 	You can optionally force a particular series number for this folder.<br>
@@ -41,11 +41,6 @@ puts {
 	    </th>
 	    <td>
 		<input id=tvdb_forceseries type=number value="" min=0>
-	    </td>
-	</tr><tr>
-	    <td></td>
-	    <td>
-		<button id=tvdbresults_forcesave>Save</button>
 	    </td>
 	</tr>
 	</table>

@@ -213,11 +213,10 @@ tvdb method dbhandle {} {
 	return $db
 }
 
-proc {tvdb tolike} {str} {
-	return "%[string map {
-		" and " "%"
-		" the " "%"
-	    } $str]%"
+proc {tvdb tolike} {str {extra ""}} {
+	set map {" and " "%" " the " "%"}
+	if {[llength $extra]} { lappend map {*}$extra }
+	return "%[string map $map $str]%"
 }
 
 tvdb method episodebynum {series episode} {
@@ -231,12 +230,22 @@ tvdb method episodebynum {series episode} {
 
 tvdb method episodebyname {str {series 0} {episode 0}} {
 	if {![llength [set db [$self dbhandle]]]} return {}
+
 	set q "select * from episode where name like '%s'"
 	if {$series} { append q " and series = $series" }
 	if {$episode} { append q " and episode = $episode" }
-	append q " order by length(name)"
+	append q " order by length(name) desc"
 	set ret [$db query $q [tvdb tolike $str]]
 	if {[llength $ret]} { return [lindex $ret 0] }
+
+	# Try a match with all spaces removed
+	set q "select * from episode where replace(name, ' ', '') like '%s'"
+	if {$series} { append q " and series = $series" }
+	if {$episode} { append q " and episode = $episode" }
+	append q " order by length(name) desc"
+	set ret [$db query $q [tvdb tolike $str {" " ""}]]
+	if {[llength $ret]} { return [lindex $ret 0] }
+
 	return {}
 }
 

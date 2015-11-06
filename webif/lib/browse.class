@@ -92,6 +92,13 @@ proc {dir iconset} {dir} {
 		lappend attrs "autoexpire=1"
 	}
 
+	set tvdb 0
+	if {[file exists "$dir/.tvdbseriesid"]} {
+		set tvdb 1
+		lappend icons [_addicon "/img/tvdb-sm.png" "TheTVDB"]
+		lappend attrs "tvdb=1"
+	}
+
 	eval_plugins diriconset
 
 	return [list $icons $attrs]

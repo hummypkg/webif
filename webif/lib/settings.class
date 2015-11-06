@@ -25,6 +25,7 @@ class settings {
 	pkgdev		0
 	notoolbar	0
 	tvdb		0
+	tvdb_debug	0
 	nomobile	0
 	nohelplinks	0
 	notwitfeed	0
@@ -113,7 +114,7 @@ settings method _nval_setting {name {val -1}} {
 settings method _tval_setting {name {val -1}} {
 	global settingsdb
 
-	if {$val == -1} {
+	if {$val eq "-1"} {
 		# Get
 		set res [$settingsdb query "
 			select tval from settings
@@ -171,6 +172,10 @@ settings method notoolbar {{val -1}} {
 
 settings method tvdb {{val -1}} {
 	return [$self _nval_setting tvdb $val]
+}
+
+settings method tvdb_debug {{val -1}} {
+	return [$self _nval_setting tvdb_debug $val]
 }
 
 settings method genrededup {{val -1}} {
@@ -347,6 +352,12 @@ settings method logkeep {{num -1}} {
 	if {$val == 0} {
 		return 2
 	}
+	return $val
+}
+
+settings method dedup_template {{pattern -1}} {
+	set val [$self _tval_setting dedup_template $pattern]
+	if {$val eq "0"} { set val "s%se%e - " }
 	return $val
 }
 

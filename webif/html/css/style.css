@@ -260,7 +260,7 @@ pre, .pre
 	background: transparent;
 }
 
-.footnote, .bfootnote
+.footnote, .bfootnote, .bluefootnote
 {
 	background: transparent;
 	font-size: 70%;
@@ -270,6 +270,11 @@ pre, .pre
 .footnote
 {
 	color: #ff4000 !important;
+}
+
+.bluefootnote
+{
+	color: #0000ff !important;
 }
 
 tr.blueshade > td, .blueshade
@@ -567,5 +572,16 @@ span.foldernum
 	background: #d2e0ea;
 	padding: 6px;
 	z-index: 40;
+}
+
+#rollimg
+{
+	position: absolute;
+}
+
+img.rollimg
+{
+	height: 78px;
+	width: 140px;
 }
 

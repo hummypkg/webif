@@ -26,7 +26,8 @@ proc dedupprocess {file} {{seen {}}} {
 		set epname [$ts episode_name]
 		
 		if {[$ts get tvdb_method] ne "" && [$ts get episodenum] > 0} {
-			set syn "[$ts epstr] - $epname"
+			set syn [$ts epstr [[settings] dedup_template]]
+			append syn $epname
 		} else {
 			set syn $epname
 		}

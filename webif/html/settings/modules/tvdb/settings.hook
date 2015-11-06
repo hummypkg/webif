@@ -1,0 +1,44 @@
+
+######################################################################
+# TheTVDB Settings
+
+puts "
+	<h4>TheTVDB Integration Settings</h4>
+	<div><fieldset style=\"display: inline\">
+		<legend>
+			TheTVDB Integration Settings
+		</legend>
+	<table>
+"
+
+setting_toggle "Enable integration?" "tvdb" $tvdb
+setting_toggle "Additional diagnostic output?" "tvdb_debug" $tvdb_debug
+
+puts "
+	<tr>
+	<form class=auto id=dedup method=get action=$env(SCRIPT_NAME)>
+		<th class=key>
+			Dedup Episode Prefix<br>
+			<span class=footnote>
+			%s - series number<br>
+			%e - episode number<br>
+			%E - number of episodes
+			</span>
+		</th>
+		<td>
+		<input name=dedup_template value=\"$dedup_template\"
+		    class=\"text ui-widget-content ui-corner-all\"
+		    length=20 maxlength=50>
+		    <small>
+		    <input id=dedup_submit value=\"change\" type=submit>
+		    </small>
+		    <div id=dedup_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+</table></fieldset></div>
+"
+
