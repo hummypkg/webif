@@ -128,6 +128,7 @@ proc {system kernelver} {} {{ver ""}} {
 		"Feb 7 14:15:02 KST 2014"  { format "HDR_1.03.12" }
 		"May 19 22:39:27 BST 2014" { format "HDR_CFW_3.00" }
 		"Feb 19 20:58:57 GMT 2015" { format "HDR_CFW_3.03" }
+		"Nov 18 19:16:42 GMT 2015" { format "HDR_CFW_3.10" }
 
 		# HD
 		"Oct 11 21:14:31 KST 2010" { format "HD_1.01.12" }

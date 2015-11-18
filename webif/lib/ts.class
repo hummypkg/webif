@@ -27,6 +27,7 @@ class ts {
 	status		""
 	series		""
 
+	seriescached	1
 	seriesnum	0
 	episodenum	0
 	episodetot	0
@@ -60,7 +61,7 @@ ts method _parse {line} {
 	lassign [split $line "\t"] \
 	    title synopsis definition channel_num channel_name \
 	    start end flags_list guidance bookmarks schedstart scheddur \
-	    genre resume status
+	    genre resume status seriesnum episodenum episodetot
 
 	set flags [split [string range $flags_list 0 end-1] ,]
 }
@@ -81,6 +82,21 @@ ts method bookmarks {{aslist 0}} {
 
 ts method setbookmarks {marks} {
 	exec /mod/bin/hmt +setbookmarks=[join $marks :] $file
+}
+
+ts method storeepisode {{data {}}} {
+	if {[llength $data]} {
+		set d [join $data ","]
+	} else {
+		set d "$seriesnum,$episodenum,$episodetot"
+	}
+	exec /mod/bin/hmt +setseries=$d $file
+}
+
+ts method clearepdata {} {
+	set seriesnum 0
+	set episodenum 0
+	set episodetot 0
 }
 
 ts method flag {f} {
@@ -520,14 +536,18 @@ ts method _tvdb_resolve {seriesid} {
 
 	set dir [file dirname $file]
 
-	set tvdb_series [set v [tvdb series [$self series_name] $seriesid]]
+	set tvdb_series [set v [tvdb series "" $seriesid]]
 	if {[$v get seriesid] == 0} { return }
 
 	# Got one.
 
 	# Easiest case - we can explicitly request the episode.
 	if {$seriesnum && $episodenum} {
-		set tvdb_method "series and episode number"
+		if {$seriescached} {
+			set tvdb_method "cached values"
+		} else {
+			set tvdb_method "series and episode number"
+		}
 		return [$v episodebynum $seriesnum $episodenum]
 	}
 
@@ -557,34 +577,15 @@ ts method _tvdb_resolve {seriesid} {
 	return [$v episodebysynopsis $synopsis]
 }
 
-ts method episode_name {} {
-	set s $synopsis
+proc {ts serieslist} {dir} {
+	set idfile "$dir/.tvdbseriesid"
+	if {![file exists $idfile]} { return {} }
+	return [lmap i [split [file read $idfile] "\n"] {
+		string trim $i
+	}]
+}
 
-	######################################################################
-	# Attempt to determine the episode name from the synopsis
-
-	# Strip common prefixes
-	foreach prefix $::ts::episode_prefixes {
-		regsub -nocase -all -- $prefix $s "" s
-	}
-
-	# Strip anything following a colon.
-	regsub -all -- { *[:].*$} $s "" s
-
-	# If the resulting string is longer than 40 characters then
-	# split around . and take the left hand side if appropriate.
-	if {[string length $s] > 40} {
-		lassign [split $s "."] v w
-		set s $v
-		if {[string length $s] < 6 && [string length $w] < 6} {
-			append s "_$w"
-		}
-	}
-
-	# Shorten if too long.
-	if {[string length $s] > 40} { set s [string range $s 0 39] }
-
-	set episodename $s
+ts method extract_numbers {} {
 
 	######################################################################
 	# Check for embedded Series/Episode number.
@@ -625,6 +626,42 @@ ts method episode_name {} {
 		}
 	}
 
+}
+
+ts method episode_name {} {
+	set s $synopsis
+
+	######################################################################
+	# Attempt to determine the episode name from the synopsis
+
+	# Strip common prefixes
+	foreach prefix $::ts::episode_prefixes {
+		regsub -nocase -all -- $prefix $s "" s
+	}
+
+	# Strip anything following a colon.
+	regsub -all -- { *[:].*$} $s "" s
+
+	# If the resulting string is longer than 40 characters then
+	# split around . and take the left hand side if appropriate.
+	if {[string length $s] > 40} {
+		lassign [split $s "."] v w
+		set s $v
+		if {[string length $s] < 6 && [string length $w] < 6} {
+			append s "_$w"
+		}
+	}
+
+	# Shorten if too long.
+	if {[string length $s] > 40} { set s [string range $s 0 39] }
+
+	set episodename $s
+
+	if {$episodenum == 0} {
+		$self extract_numbers
+		set seriescached 0
+	}
+
 	# Now see if TVDB has anything to add
 
 	set fbase "[file dirname $file]/.tvdb"
@@ -636,12 +673,20 @@ ts method episode_name {} {
 	if {!$seriesnum && [file exists "${fbase}series"]} {
 		set seriesnum [string trim [file read "${fbase}series"]]
 	}
-	foreach seriesid [\
-	    string trim [split [file read "${fbase}seriesid"] "\n"]] {
+	foreach seriesid [ts serieslist [$self dir]] {
 		set tvdb_data [$self _tvdb_resolve $seriesid]
 		if {![dict exists $tvdb_data name]} continue
-		if {!$seriesnum} { set seriesnum $tvdb_data(series) }
-		if {!$episodenum} { set episodenum $tvdb_data(episode) }
+		set flag 0
+		if {!$seriesnum} {
+			set seriesnum $tvdb_data(series)
+			incr flag
+		}
+		if {!$episodenum} {
+			set episodenum $tvdb_data(episode)
+			incr flag
+		}
+		if {$flag} { $self storeepisode }
+	
 		return $tvdb_data(name)
 	}
 

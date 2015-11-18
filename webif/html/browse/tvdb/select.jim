@@ -1,0 +1,22 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require tvdb.class ts.class
+
+set file [cgi_get file -]
+set episode [cgi_get episode -]
+set s [cgi_get s -]
+set e [cgi_get e -]
+
+httpheader
+
+if {$file eq "-" || $episode eq "-"} exit
+
+if {[catch {set ts [ts fetch $file]}] || $ts eq "0"} {
+	puts "Unable to load recording data."
+	exit
+}
+
+$ts storeepisode [list $s $e 0]
+

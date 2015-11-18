@@ -16,7 +16,15 @@ if {[llength $slist]} {
 <div>
 	<div class=tvdbseries>
 		<a target=_blank href=[tvdb seriesurl $series(seriesid)]>
+	"
+	if {[dict exists $series banner]} {
+		puts "
 		<img class=tvdbbanner src=\"[tvdb bannerurl $series(banner)]\">
+		"
+	} else {
+		puts "View on TheTVDB"
+	}
+	puts "
 		</a>
 		<span title=\"Series ID: $series(seriesid)\">
 			$series(seriesname)

@@ -3,11 +3,12 @@ source /mod/webif/lib/setup
 package require cgi
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
-require xml.class
+require system.class xml.class
 
 set ::tvdb::apikey 1764335F804A5A91
 set ::tvdb::mirror "thetvdb.com"
 set ::tvdb::cache "/mod/var/tvdb"
+set ::tvdb::icache "/mod/webif/cache/tvdb/img"
 set ::tvdb::cacheage 86400
 set ::tvdb::debug 0
 
@@ -15,7 +16,12 @@ if {![file isdirectory $::tvdb::cache]} {
 	file mkdir $::tvdb::cache
 }
 
+if {![file isdirectory $::tvdb::icache]} {
+	system mkdir_p $::tvdb::icache
+}
+
 set ::tvdb::indexdb [sqlite3.open "$::tvdb::cache/series.db"]
+
 $::tvdb::indexdb query {
 	create table if not exists nseries(
 		[name] text primary key
@@ -46,8 +52,8 @@ tvdb method setseries {sid} {
 }
 
 tvdb method _fetch {url} {
-	set f [socket stream $::tvdb::mirror:80]
-	$f puts -nonewline "GET /api/$url HTTP/1.0\r\n"
+	set f [socket stream "${::tvdb::mirror}:80"]
+	$f puts -nonewline "GET $url HTTP/1.0\r\n"
 	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
 	$f puts -nonewline "Connection: close\r\n"
 	$f puts -nonewline "\r\n"
@@ -149,7 +155,7 @@ tvdb method fetchseries {} {
 		# Download the series info
 		set f [open "$base.zip" w]
 		puts $f [$self _fetch \
-		    "$::tvdb::apikey/series/$seriesid/all/en.zip"]
+		    "/api/$::tvdb::apikey/series/$seriesid/all/en.zip"]
 		$f close
 		catch {exec unzip -o -q "$base.zip" en.xml -d $::tvdb::cache}
 		if {[file exists "$::tvdb::cache/en.xml"]} {
@@ -174,7 +180,7 @@ tvdb method loadseries {} {
 tvdb method searchseries {series} {
 	::tvdb::dlog "Searching TVDB for $series"
 	set seriesxml [$self _fetch \
-	    "/GetSeries.php?seriesname=[cgi_quote_url $series]"]
+	    "/api/GetSeries.php?seriesname=[cgi_quote_url $series]"]
 	return [$self _extract $seriesxml Series \
 	    {seriesid SeriesName banner Overview}]
 }
@@ -195,7 +201,7 @@ tvdb method findseries {series} {
 
 		::tvdb::dlog "Trying to find series in TVDB"
 		set seriesxml [$self _fetch \
-		    "/GetSeries.php?seriesname=[cgi_quote_url $series]"]
+		    "/api/GetSeries.php?seriesname=[cgi_quote_url $series]"]
 		$self _parse $seriesxml {seriesid} Series
 	}
 
@@ -260,17 +266,28 @@ tvdb method wordcount {db words extra} {
 			#puts "Phrase: $w<br>"
 
 			set ret [$db query {
-				select episode_id from episode
+				select episode_id,
+				case
+				    when name like '%%%s%%' then 1
+				    else 0
+				end as inname
+				from episode
 				where overview like '%%%s%%'
 				or name like '%%%s%%'
 				%s
-			} $w $w $extra]
+			} $w $w $w $extra]
 			foreach row $ret {
 				#puts "&nbsp;&nbsp;> FOUND: ($w)<br>"
 				ladd _phrases $w
-				lassign $row x id
-				# Score is twice phrase length
-				incr _matches($id) $($i * 2)
+				lassign $row x id x inname
+				if {$inname eq "1"} {
+					# If found in name then score is 10x
+					# phrase length
+					incr _matches($id) $($i * 10)
+				} else {
+					# Score is twice phrase length
+					incr _matches($id) $($i * 2)
+				}
 			}
 		}
 	}
@@ -304,6 +321,15 @@ tvdb method seek {synopsis {extra ""}} {
 	return {}
 }
 
+tvdb method episodebyid {episode_id} {
+	if {![llength [set db [$self dbhandle]]]} return {}
+	set ret [$db query {
+		select * from episode where episode_id = %s
+	    } $episode_id]
+	if {[llength $ret]} { return [lindex $ret 0] }
+	return {}
+}
+
 tvdb method episodebyepnum {episode synopsis} {
 	return [$self seek $synopsis "and episode = $episode"]
 }
@@ -314,6 +340,21 @@ tvdb method episodebyseries {series synopsis} {
 
 tvdb method episodebysynopsis {synopsis} {
 	return [$self seek $synopsis]
+}
+
+tvdb method episodesearch {search} {
+	if {![llength [set db [$self dbhandle]]]} return {}
+	set ret [$db query {
+		select episode_id,
+		case
+		    when name like '%%%s%%' then 1
+		    else 0
+		end as inname
+		from episode
+		where overview like '%%%s%%'
+		or name like '%%%s%%'
+	} $search $search $search]
+	return $ret
 }
 
 tvdb method series_count {} {
@@ -347,8 +388,39 @@ proc {tvdb series} {series {sid 0}} {
 	return $t
 }
 
+proc {tvdb fetchfile} {url} {
+	set f [socket stream "${::tvdb::mirror}:80"]
+	$f puts -nonewline "GET $url HTTP/1.0\r\n"
+	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
+	$f puts -nonewline "Connection: close\r\n"
+	$f puts -nonewline "\r\n"
+
+        # Skip headers in the response.
+        set line [string trim [$f gets]]
+        while {[string length $line]} {
+                #puts "Web Header: $line"
+                set line [string trim [$f gets]]
+        }
+
+        # Save the body
+        set ret [$f read]
+        $f close
+        return $ret
+}
+
+proc {tvdb cachebanner} {banner} {
+	if {![file exists "$::tvdb::icache/$banner"]} {
+		set ret [tvdb fetchfile \
+		    "http://$::tvdb::mirror/banners/$banner"]
+		if {[string length $ret] > 50} {
+			system mkdir_p "$::tvdb::icache/[file dirname $banner]"
+			file write "$::tvdb::icache/$banner" $ret
+		}
+	}
+}
+
 proc {tvdb bannerurl} {banner} {
-	return "http://$::tvdb::mirror/banners/$banner"
+	return "/cgi-bin/tvdbimg.jim?file=[cgi_quote_url $banner]"
 }
 
 proc {tvdb seriesurl} {seriesid} {

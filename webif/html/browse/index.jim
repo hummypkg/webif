@@ -248,13 +248,7 @@ puts "
       <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
 "
 
-# Breadcrumb path
-set stub ""
-foreach part [split $dir /] {
-	if {$stub eq "/"} { set name $part } else { set name "/$part" }
-	append stub $name
-	puts "<a href=\"$env(SCRIPT_NAME)?dir=[cgi_quote_url $stub]\">$name</a>"
-}
+browse breadcrumb $dir
 puts "<span class=filesize id=dirsize></span>"
 puts "</legend>"
 

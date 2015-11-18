@@ -2,8 +2,9 @@
 
 require classdump
 
-if {[file exists "$dir/.tvdbseriesid"]} {
-	set seriesid [string trim [file read "$dir/.tvdbseriesid"]]
+set seriescount 0
+foreach seriesid [ts serieslist $dir] {
+	incr seriescount
 	set tvdb_series [set v [tvdb series [file tail $dir] $seriesid]]
 	puts "<div class=tvdbbanner sid=$seriesid>"
 	if {[set banner [$v get banner]] ne ""} {
@@ -24,7 +25,8 @@ if {[file exists "$dir/.tvdbseriesid"]} {
 	}
 	puts "<button id=tvdbsetseries>Change</button>"
 	puts "</div>"
-} else {
+}
+if {!$seriescount} {
 	puts {
 	    <span id=tvdbinfo class="va right">
 		<img class=tvdblogo src=/img/tvdb.png>

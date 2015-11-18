@@ -9,6 +9,13 @@ if {![exists -proc require]} {
 		}
 	}
 
+	proc httpredirect {url} {
+		puts -nonewline "Location: $url\r\n"
+		puts -nonewline "\r\n"
+		puts "Redirecting to $url"
+		exit
+	}
+
 	proc httpheader {{type "text/html"} {cache 0} {extra ""}} {{done 0}} {
 		if {$done} return
 		if {!$cache} {

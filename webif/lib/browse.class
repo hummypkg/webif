@@ -3,6 +3,7 @@ require system.class plugin
 
 if {![exists -proc class]} { package require oo }
 class dir {}
+class browse {}
 
 proc _addicon {img {hover ""} {class va}} {
 	set icon "<img src=$img class=\"$class\" height=21"
@@ -166,5 +167,15 @@ proc {ts iconset} {ts} {
 	eval_plugins tsiconset
 
 	return [list $icons $attrs]
+}
+
+# Breadcrumb path
+proc {browse breadcrumb} {dir} {
+	set stub ""
+	foreach part [split $dir /] {
+		if {$stub eq "/"} { set name $part } else { set name "/$part" }
+		append stub $name
+		puts "<a href=\"/browse/?dir=[cgi_quote_url $stub]\">$name</a>"
+	}
 }
 

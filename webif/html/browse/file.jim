@@ -21,7 +21,7 @@ if {$type eq "ts"} {
 	# Causes other series information to be automatically populated
 	set epname [$ts episode_name]
 	set series [$ts series_name]
-	set sdata [$ts get tvdb_series]
+	set tvdb [$ts get tvdb_series]
 	set idata [$ts get tvdb_data]
 
 	puts "
@@ -48,19 +48,26 @@ if {$type eq "ts"} {
 </tr><tr>
 	<th>Episode</th>
 	"
-	if {[llength $sdata]} {
-		set sid [$sdata get seriesid]
-		if {$sid} {
-		    append series " / <a target=_blank href=[\
-			tvdb seriesurl $sid]><img height=20 src=/img/tvdb.png></a>"
-		    append series " / <a href=/db/index.jim?db=$sid.db>DB:$sid</a>"
-		}
+	puts "<td>[$ts epstr] - $epname (<i>$series</i>)"
+	if {[llength $tvdb]} {
+		puts "<button class=tvdbchoose>Change</button>"
 	}
-	puts "<td>[$ts epstr] - $epname (<i>$series</i>)<td>
+	puts "</td>
 </tr><tr>
 	"
-	if {[llength $sdata] && [llength $idata]} {
-		puts "</tr><tr><th>TheTVDB</th><td>
+	if {[llength $tvdb] && [llength $idata]} {
+		puts "</tr><tr><th>TheTVDB</th><td class=va>"
+		set sid [$tvdb get seriesid]
+		puts "<a target=_blank href=[\
+		    tvdb seriesurl $sid]>View on
+		    <img class=va height=20 src=/img/tvdb-sm.png></a>"
+		if {[[settings] tvdb_debug]} {
+			puts " | "
+			puts "<a href=/db/index.jim?db=$sid.db target=_blank>
+			    <span class=footnote>View database($sid)</span></a>"
+		}
+		puts "
+			<br>
 			<img class=collapser id=xtvdb x=tvdb_extra
 			    class=va src=/img/tree/plusonly.png>
 			Found episode using [$ts get tvdb_method]
@@ -72,10 +79,10 @@ if {$type eq "ts"} {
 		if {[[settings] tvdb_debug]} {
 			puts "
 				<div class=bluefootnote>
-					[$sdata get _phrases]
+					[$tvdb get _phrases]
 				</div>
 				<div class=footnote>
-					[lrange [$sdata get _smatches] 0 8]
+					[lrange [$tvdb get _smatches] 0 8]
 				</div>
 			"
 		}
@@ -199,8 +206,16 @@ if {[$ts get bookmarks]} {
 puts "
 	</table>
 "
-puts {
+puts "
 <script type=text/javascript>
+var file = '$file';
+"
+puts {
+$('button').button();
+$('.tvdbchoose').on('click', function() {
+	window.location.href = '/browse/tvdb/episode.jim?file=' +
+	    encodeURIComponent(file);
+});
 $('.collapser').on('click', function() {
 	target = $(this).attr('x');
 	var $icon = $(this);
