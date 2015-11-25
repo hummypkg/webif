@@ -19,20 +19,26 @@ puts "
 	<form class=auto id=dedup method=get action=$env(SCRIPT_NAME)>
 		<th class=key>
 			Dedup Episode Prefix<br>
-			<span class=footnote>
-			%s - series number<br>
-			%e - episode number<br>
-			%E - number of episodes
-			</span>
 		</th>
 		<td>
 		<input name=dedup_template value=\"$dedup_template\"
 		    class=\"text ui-widget-content ui-corner-all\"
 		    length=20 maxlength=50>
+		    <br>
 		    <small>
 		    <input id=dedup_submit value=\"change\" type=submit>
 		    </small>
 		    <div id=dedup_output></div>
+		</td>
+		<td>
+		<span class=blood>
+			%s - series number<br>
+			%S - series number (two digits)<br>
+			%e - episode number<br>
+			%E - episode number (two digits)<br>
+			%n - number of episodes<br>
+			%N - number of episodes (two digits)
+		</span>
 		</td>
 	</form>
 	</tr>

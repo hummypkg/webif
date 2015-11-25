@@ -693,22 +693,28 @@ ts method episode_name {} {
 	return $s
 }
 
-ts method epstr {{format "s%se%e/%E"}} {
+ts method epstr {{format "s%se%E/%n"}} {
 	set map {}
 	if {$seriesnum eq 0} {
-		set map(%s) "??"
+		set map(%s) "?"
+		set map(%S) "??"
 	} else {
-		set map(%s) [format "%02d" $seriesnum]
+		set map(%s) $seriesnum
+		set map(%S) [format "%02d" $seriesnum]
 	}
 	if {$episodenum eq 0} {
-		set map(%e) "??"
+		set map(%e) "?"
+		set map(%E) "??"
 	} else {
-		set map(%e) [format "%02d" $episodenum]
+		set map(%e) $episodenum
+		set map(%E) [format "%02d" $episodenum]
 	}
 	if {$episodetot eq 0} {
-		set map(%E) "?"
+		set map(%n) "?"
+		set map(%N) "??"
 	} else {
-		set map(%E) $episodetot
+		set map(%n) $episodetot
+		set map(%N) [format "%02d" $episodetot]
 	}
 	return [string map $map $format]
 }

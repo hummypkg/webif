@@ -357,7 +357,7 @@ settings method logkeep {{num -1}} {
 
 settings method dedup_template {{pattern -1}} {
 	set val [$self _tval_setting dedup_template $pattern]
-	if {$val eq "0"} { set val "s%se%e - " }
+	if {$val eq "0"} { set val "s%se%E - " }
 	return $val
 }
 
