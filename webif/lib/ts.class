@@ -126,10 +126,12 @@ set ::ts::flagmap {
 	dedup		Deduped
 }
 
-ts method setflag {flag} {
-	set cmd [list /mod/bin/hmt +$flag $file]
-	if {[catch {exec {*}$cmd}]} {
-		throw 20 "Unknown flag."
+ts method setflag {flag {dummy 0}} {
+	if {!$dummy} {
+		set cmd [list /mod/bin/hmt +$flag $file]
+		if {[catch {exec {*}$cmd}]} {
+			throw 20 "Unknown flag."
+		}
 	}
 	if {[dict exists $::ts::flagmap $flag]} {
 		ladd flags $::ts::flagmap($flag)
@@ -140,10 +142,12 @@ ts method setflag {flag} {
 
 }
 
-ts method unsetflag {flag} {
-	set cmd [list /mod/bin/hmt -$flag $file]
-	if {[catch {exec {*}$cmd}]} {
-		throw 20 "Unknown flag."
+ts method unsetflag {flag {dummy 0}} {
+	if {!$dummy} {
+		set cmd [list /mod/bin/hmt -$flag $file]
+		if {[catch {exec {*}$cmd}]} {
+			throw 20 "Unknown flag."
+		}
 	}
 	if {[dict exists $::ts::flagmap $flag]} {
 		lremove flags $::ts::flagmap($flag)
