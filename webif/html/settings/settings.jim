@@ -59,12 +59,15 @@ set dedup_template [$settings dedup_template]
 
 if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 
-proc _handle_update {class var old text} {
+proc _handle_update {class var old text {trim 1}} {
 	global _cgi
 	global settings
 
 	if {[dict exists $_cgi $var]} {
-		set new [string trim [dict get $_cgi $var]]
+		set new [dict get $_cgi $var]
+		if {$trim} {
+			set new [string trim $new]
+		}
 		if {$new == $old} {
 			puts "$text unchanged."
 		} elseif {[string is $class -strict $new]} {
@@ -77,12 +80,12 @@ proc _handle_update {class var old text} {
 	}
 }
 
-proc handle_int_update {var old {text "Value"}} {
-	_handle_update digit $var $old $text
+proc handle_int_update {var old {text "Value"} {trim 1}} {
+	_handle_update digit $var $old $text $trim
 }
 
-proc handle_str_update {var old {text "Value"} {class alnum}} {
-	_handle_update $class $var $old $text
+proc handle_str_update {var old {text "Value"} {class alnum} {trim 1}} {
+	_handle_update $class $var $old $text $trim
 }
 
 handle_str_update hostname $hostname Hostname
@@ -106,7 +109,7 @@ handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
 handle_int_update genrededup $genrededup "Genre search dedup"
 handle_int_update autolog $autolog "Auto-processing log level"
 handle_int_update audiomp3 $audiomp3 "MP3 type"
-handle_str_update dedup_template $dedup_template "Dedup Template" print
+handle_str_update dedup_template $dedup_template "Dedup Template" print 0
 
 set acluser [cgi_get acluser "-"]
 set aclpass [cgi_get aclpass "-"]
