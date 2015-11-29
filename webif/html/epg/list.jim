@@ -37,7 +37,7 @@ if {$::qepg} {
 set got [clock milliseconds]
 
 if {[$s chanchangenc]} {
-	jscss /js/chanchangeenc.js
+	jscss /js/chanchangenc.js
 } else {
 	jqplugin confirmAction
 	jscss /js/chanchange.js

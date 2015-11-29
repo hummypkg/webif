@@ -233,13 +233,20 @@ proc entry {file} {{i 0}} {
 source assets.jim
 if {[system has tvdb]} { source tvdb/assets.jim }
 
-if {!$dlnaok && ![system instandby]} {
+if {[system model] eq "HDR" && ![system param DMS_START_ON]} {
 	puts {
 	<span class="blood dlnawarning cleft">
 		Note: Content Sharing is disabled on this system.
 	</span>
 	}
 }
+# elseif {!$dlnaok && ![system instandby]} {
+#	puts {
+#	<span class="blood dlnawarning cleft">
+#		Note: Content Sharing not yet active on this system.
+#	</span>
+#	}
+#}
 
 puts "
 	<span style=\"display:none\" id=dir>$dir</span>
