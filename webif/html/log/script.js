@@ -84,6 +84,7 @@ function loadlog(file, ajax)
 		    (data.lines == 1 ? "" : "s") + ')');
 		logfile = file;
 		logdata = data;
+		$('#xinfo').html('Log last modified: ' + data.time);
 		if (ajax)
 			loadlog_ajax(data);
 		else

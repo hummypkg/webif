@@ -78,7 +78,8 @@ Highlight:
 		<th class=\"line filter-false\">Line</th>
 		<th class=text
 		    data-sorter=\"false\"
-		    data-placeholder=\"Search log...\">Text</th>
+		    data-placeholder=\"Search log...\">Text
+			<span id=xinfo></span></th>
 	</tr></thead>
 	<tbody></tbody>
 </table>

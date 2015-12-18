@@ -19,6 +19,7 @@ lassign [exec wc -l $file] lines
 
 puts "{
 	\"size\": \"[file size $file]\", 
+	\"time\": \"[clock format [file mtime $file] -format {%c}]\",
 	\"pretty_size\": \"[pretty_size [file size $file]]\",
 	\"lines\": \"$lines\"
 }

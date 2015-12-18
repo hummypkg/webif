@@ -34,6 +34,14 @@ td
 {
 	padding: 5px 10px;
 	border-style: none;
-	box-sharow: none;
+	box-shadow: none;
+}
+
+#xinfo
+{
+	color: #ff4000 !important;
+	font-weight: normal;
+	font-style: italic;
+	padding-left: 6em;
 }
 

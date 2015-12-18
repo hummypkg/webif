@@ -21,7 +21,7 @@ header
 set nicesplice [system pkginst nicesplice]
 
 set ignore {.nts .thm .hmi}
-set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v}
+set include {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v .m4a}
 
 if {![dict exists $env SCRIPT_NAME]} {
 	set env(SCRIPT_NAME) ""
