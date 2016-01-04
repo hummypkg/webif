@@ -30,7 +30,7 @@ if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 	exit
 }
 
-set exts {.ts .mkv .avi .mpg .mpeg .wmv .mp3 .mp4 .mov}
+set exts {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v .m4a}
 
 proc get_data {} {
 	global pid exts opfile
@@ -91,6 +91,9 @@ if {[file exists "/mod/tmp/webif_auto/.op"]} {
 	set fp [open "/mod/tmp/webif_auto/.op"]
 	lassign [split [string trim [$fp read]] ":"] op opfile
 	$fp close
+	if {[system model] eq "HDR"} {
+		set opfile [string map {/media/ /mnt/hd2/} $opfile]
+	}
 	debug "OP: $op - $opfile"
 }
 
