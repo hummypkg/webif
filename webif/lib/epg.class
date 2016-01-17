@@ -259,7 +259,7 @@ epg method icon_set {{height 0}} {
 
 	if {$content_mgmt eq "1"} {
 		lappend set \
-		    "<img src=/images/749_1_26_Video_Encryption.png $height>"
+		    "<img class=epgenc src=/images/749_1_26_Video_Encryption.png $height>"
 	}
 
 	return $set
