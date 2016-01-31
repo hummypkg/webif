@@ -116,10 +116,14 @@ if {$type eq "ts"} {
 	<th>Definition</th>
 	<td>
 	"
-	if {[$ts get definition] eq "HD"} {
-		puts "<img class=va src=/images/172_1_00_HD.png height=21>"
+	if {[$ts flag Radio]} {
+		puts "<img class=va src=/img/radio.png height=21>"
 	} else {
-		puts "<img class=va src=/images/172_1_26_SD.png height=21>"
+		if {[$ts get definition] eq "HD"} {
+			puts "<img class=va src=/images/172_1_00_HD.png height=21>"
+		} else {
+			puts "<img class=va src=/images/172_1_26_SD.png height=21>"
+		}
 	}
 	puts "</td>
 </tr><tr>

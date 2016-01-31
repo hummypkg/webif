@@ -4,7 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class
 
-heepheader
+httpheader
 
 set file [cgi_get file]
 set part [cgi_get part]

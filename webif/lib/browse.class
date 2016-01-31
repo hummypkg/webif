@@ -110,15 +110,19 @@ proc {ts iconset} {ts} {
 	set attrs {}
 
 	# HD / SD
-	if {[$ts get definition] eq "HD"} {
-		set def HD
-		set img "172_1_00_HD"
+	if {[$ts flag Radio]} {
+		lappend icons [_addicon "/img/radio.png" "Radio Programme"]
 	} else {
-		set def SD
-		set img "172_1_26_SD"
+		if {[$ts get definition] eq "HD"} {
+			set def HD
+			set img "172_1_00_HD"
+		} else {
+			set def SD
+			set img "172_1_26_SD"
+		}
+		lappend icons [_addicon "/images/$img.png"]
+		lappend attrs "def=$def"
 	}
-	lappend icons [_addicon "/images/$img.png"]
-	lappend attrs "def=$def"
 
 	# Locked
 	set locked 0
