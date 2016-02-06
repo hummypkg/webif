@@ -27,12 +27,13 @@ $('#analysis').load('analyse.jim?file=' + $('#params').attr('file'),
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '../index.jim?dir=' + $('#params').attr('dir');
+	window.location = '/go/browse?dir=' + $('#params').attr('dir');
 });
 
 $('#stripit').button().click(function() {
 	$('#stripdiv').hide('slow');
 	$('#progressdiv').show('slow');
+	$('#back').hide();
 	handle = setInterval("update()", 1000);
 	$('#output').text('Please do not interrupt...')
 	    .load('execute.jim?file=' + $('#params').attr('file'),

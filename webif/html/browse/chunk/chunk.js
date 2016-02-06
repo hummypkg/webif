@@ -48,7 +48,7 @@ function xpart(part)
 	else
 	{
 		clearInterval(handle);
-		$('#findiv').show('slow');
+		$('#back').show('slow');
 	}
 }
 
@@ -60,6 +60,7 @@ $('#chunkit').button().click(function(e) {
 	e.preventDefault();
 	$('#chunkdiv').hide('slow');
 	$('tr.part').show('slow');
+	$('#back').hide();
 
 	handle = setInterval("xprogress()", 1000);
 	xpart(0);
@@ -69,7 +70,7 @@ $('#back').button().click(function(e) {
 	e.preventDefault();
 	var dir = $(this).attr('dir');
 
-	window.location = '../index.jim?dir=' + dir;
+	window.location = '/go/browse?dir=' + dir;
 });
 
 });

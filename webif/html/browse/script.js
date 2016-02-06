@@ -1,4 +1,6 @@
 
+var dir;
+
 var plugins = {
 	menu: {},
 	menu_prepare: {},
@@ -7,8 +9,6 @@ var plugins = {
 	dmenu: {},
 	dmenu_prepare: {}
 };
-
-var dir;
 
 function blockpage(msg)
 {
@@ -429,14 +429,6 @@ function flagdir(file, flag, iconset, output, options)
 	}).delay(3000).slideUp();
 }
 
-$(function() {
-
-$('textarea').keydown(function(e) {
-	return e.keyCode != 13;
-});
-
-dir = $('#dir').text();
-
 var menuclick = function(action, el, pos)
 {
 	var file = $(el).parent().prevAll('a.bf').last().attr('file');
@@ -652,7 +644,8 @@ var dmenuclick = function(action, el, pos)
 		$('#aexpiry_working').hide('fast');
 		$('#aexpiry_loading').show('fast');
 
-		$.getJSON('aexpiry.jim?act=fetch&dir=' + file, function(data) {
+		$.getJSON('/browse/aexpiry.jim?act=fetch&dir=' + file,
+		    function(data) {
 			$.each(data, function(key, val) {
 				if (key == 'days')
 					$('#aexpiry_days').val(val);
@@ -716,356 +709,362 @@ var dmenuclick = function(action, el, pos)
 	}
 };
 
-	// Bind context menu to opt+ image
-	$('img.opt').contextMenu(
-		{
-			menu: 'optmenu',
-			leftButton: true,
-			beforeShow: preparemenu
-		},
-		menuclick
-	);
+$(function() {
 
-	// Bind context menu to opt+ image
-	$('img.oopt').contextMenu(
-		{
-			menu: 'ooptmenu',
-			leftButton: true,
-			beforeShow: prepareomenu
-		},
-		omenuclick
-	);
+$('textarea').keydown(function(e) {
+	return e.keyCode != 13;
+});
 
-	$('img.dopt').contextMenu(
-		{
-			menu: 'doptmenu',
-			leftButton: true,
-			beforeShow: preparedmenu
-		},
-		dmenuclick
-	);
-
-	$('img.doopt').contextMenu(
-		{
-			menu: 'dooptmenu',
-			leftButton: true,
-			beforeShow: preparedmenu
-		},
-		dmenuclick
-	);
-
-	// Disable items which are not yet implemented.
-	$('#optmenu').disableContextMenuItems('#title');
-
-	var $buttons = {
-	    "Close" : function() {$(this).dialog('close');}
-	};
-	var $buttonsp = $.extend(
-	    {"Play" : function() { doplay(); }},
-	    $buttons);
-
-	// Create reusable dialogue.
-	var $dialog = $('#dialogue').dialog({
-		title: "Media Details",
-		modal: false, autoOpen: false,
-		height: 600, width: 700,
-		show: 'scale', hide: 'fade',
-		draggable: true, resizable: true,
-		buttons: $buttons,
-		close: function(e,u) { $('#dialogue').empty().html(
-		    '<img src="/img/loading.gif">Retrieving data...'); }
-	});
-
-	function doplay()
+// Bind context menu to opt+ image
+$('img.opt').contextMenu(
 	{
-		var file = $dialog.attr('file');
-		var type = $dialog.attr('type');
+		menu: 'optmenu',
+		leftButton: true,
+		beforeShow: preparemenu
+	},
+	menuclick
+);
 
+// Bind context menu to opt+ image
+$('img.oopt').contextMenu(
+	{
+		menu: 'ooptmenu',
+		leftButton: true,
+		beforeShow: prepareomenu
+	},
+	omenuclick
+);
+
+$('img.dopt').contextMenu(
+	{
+		menu: 'doptmenu',
+		leftButton: true,
+		beforeShow: preparedmenu
+	},
+	dmenuclick
+);
+
+$('img.doopt').contextMenu(
+	{
+		menu: 'dooptmenu',
+		leftButton: true,
+		beforeShow: preparedmenu
+	},
+	dmenuclick
+);
+
+// Disable items which are not yet implemented.
+$('#optmenu').disableContextMenuItems('#title');
+
+var $buttons = {
+    "Close" : function() {$(this).dialog('close');}
+};
+var $buttonsp = $.extend(
+    {"Play" : function() { doplay(); }},
+    $buttons);
+
+// Create reusable dialogue.
+var $dialog = $('#dialogue').dialog({
+	title: "Media Details",
+	modal: false, autoOpen: false,
+	height: 600, width: 700,
+	show: 'scale', hide: 'fade',
+	draggable: true, resizable: true,
+	buttons: $buttons,
+	close: function(e,u) { $('#dialogue').empty().html(
+	    '<img src="/img/loading.gif">Retrieving data...'); }
+});
+
+function doplay()
+{
+	var file = $dialog.attr('file');
+	var type = $dialog.attr('type');
+
+	disableall();
+
+	window.location = '/play/play.jim?' +
+	    'dir=' + encodeURIComponent(dir) +
+	    '&file=' + file;
+}
+
+// Bind dialogue open to filenames.
+$('a.bf').click(function(e) {
+	e.preventDefault();
+
+	var file = $(this).attr('file');
+	var type = $(this).attr('type');
+	var opt = $(this).nextAll('a').find('img.opt');
+
+	var url = '/browse/file.jim?file=' + file
+	    + '&type=' + type;
+	$dialog.load(url);
+
+	$dialog.attr('file', file);
+	$dialog.attr('type', type);
+
+	if (type == 'ts' &&
+	    (opt.attr('odencd') == 0 || opt.attr('dlna') == 1))
+		$dialog.dialog("option", "buttons", $buttonsp);
+	else
+		$dialog.dialog("option", "buttons", $buttons);
+	$dialog.dialog('open');
+});
+
+$('#renameform').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Update": rename_submit,
+		"Close": function() {
+			$(this).dialog('close');
+		}
+	},
+	close: function() { $('#rename').val(''); }
+});
+
+$('#drenameform').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Update": drename_submit,
+		"Close": function() {
+			$(this).dialog('close');
+		}
+	},
+	close: function() { $('#drename').val(''); }
+});
+
+$('#aexpiry').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Update": aexpiry_submit,
+		"Remove Settings": aexpiry_remove,
+		"Close": function() {
+			$(this).dialog('close');
+		}
+	},
+	close: function() { $('#aexpiry_days').val('0'); }
+});
+
+$('#savestreamform').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Save": savestream_submit,
+		"Cancel": function() {
+			$(this).dialog('close');
+		}
+	},
+	close: function() { $('#savestream_name').val(''); }
+});
+
+$('#savestream_name').keyup(function(e) {
+	if (e.keyCode == $.ui.keyCode.ENTER)
+		savestream_submit();
+});
+
+$('#bmpdialogue').dialog({
+	autoOpen: false,
+	height: 'auto', width: 'auto',
+	modal: true,
+	buttons: {
+		"Close": function() {
+			$(this).dialog('close');
+		}
+	},
+	close: function() { $('#thmbmp').attr('src', 'about:blank'); }
+});
+
+// Create re-usable confirmation dialogue.
+$confirm = $('#confirm').dialog({
+	modal: true, autoOpen: false,
+	height: 160, width: 500,
+	show: 'fade', hide: 'fade',
+	draggable: false, resizable: false
+});
+
+// Load folder sizes
+$.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
+
+// Flag folders with unwatched items
+$.getJSON('/browse/newdir.jim', {dir: dir}, new_folder_callback);
+
+// Load clipboard
+reloadclipboard();
+
+// Uncheck everything
+$('input.fs:checked').prop('checked', false);
+
+// Buttons
+
+$('#dedup').button().click(function() {
+	window.location = '/dedup/dedup.jim?dir='
+	    + encodeURIComponent(dir);
+});
+
+$('#save_stream').button().click(function() {
+	$('#savestream_retrieving').show();
+	$('#savestream_detail').text('').hide();
+	$('#savestream_spin').hide();
+	$('#savestream_name').val('').enable();
+
+	$('#savestreamform').dialog('open');
+	$('#savestream_detail').load(
+	    '/browse/ffmpeg.jim?file=' +
+	    encodeURIComponent($('#save_stream').attr('file')),
+	    function() {
+		$('#savestream_retrieving').hide();
+		$('#savestream_detail').show();
+		$('#savestream_form').show();
+	    });
+});
+
+$('#selectall').click(function(e) {
+	e.preventDefault();
+	$('input.fs').prop('checked', true).trigger('change');
+});
+$('#deselectall').click(function(e) {
+	e.preventDefault();
+	$('input.fs:checked').prop('checked', false).trigger('change');
+});
+
+$('#join').button().disable()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fsts:checked + a').each(function() {
+		files.push($(this).attr('file'));
+	});
+	//console.log("%o", files);
+	window.location.href = '/browse/join/join.jim?files=' +
+	    files.join();
+    });
+
+$('#delete').button().disable()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fs:checked + a').each(function() {
+		files.push(decodeURIComponent($(this).attr('file')));
+	});
+	//console.log("%o", files);
+	var str = 'Are you sure you want to delete ' + files.length +
+	    ' file';
+	if (files.length != 1) str += 's';
+	str += '?';
+	if (confirm(str))
+	{
 		disableall();
+		$('#deletewait').slideDown('slow');
 
-		window.location = '/play/play.jim?' +
-		    'dir=' + encodeURIComponent(dir) +
-		    '&file=' + file;
+		$('#pwdialogue').dialog({
+			title: "Deleting",
+			modal: true, autoOpen: true,
+			height: 'auto', width: 'auto',
+			show: 'scale', hide: 'fade',
+			draggable: false, resizable: false,
+			closeOnEscape: false,
+			open: function() {
+			    $('.ui-dialog-titlebar-close').hide();
+			}
+		});
+		$('#pwfeedback').load(
+		    '/browse/delete.jim', {
+			'dir': dir,
+			'files': files
+			}, function() {
+			$('#pwdialogue').dialog('close');
+			blockpage();
+			window.location.reload(true);
+		});
 	}
+    });
 
-	// Bind dialogue open to filenames.
-	$('a.bf').click(function(e) {
-		e.preventDefault();
-
-		var file = $(this).attr('file');
-		var type = $(this).attr('type');
-		var opt = $(this).nextAll('a').find('img.opt');
-
-		var url = '/browse/file.jim?file=' + file
-		    + '&type=' + type;
-		$dialog.load(url);
-
-		$dialog.attr('file', file);
-		$dialog.attr('type', type);
-
-		if (type == 'ts' &&
-		    (opt.attr('odencd') == 0 || opt.attr('dlna') == 1))
-			$dialog.dialog("option", "buttons", $buttonsp);
-		else
-			$dialog.dialog("option", "buttons", $buttons);
-		$dialog.dialog('open');
+$('#copy,#cut').button().disable()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fs:checked + a').each(function() {
+		files.push(decodeURIComponent($(this).attr('file')));
 	});
+	//console.log("%o", files);
+	var action = $(this).attr('id');
+	if (action == 'copy' && !confirm('Are you sure? ' +
+	    'Copying recordings can take a very long time!'))
+		return;
 
-	$('#renameform').dialog({
-		autoOpen: false,
+	$.post('/browse/clipboard.jim', {
+	    'act': 'add',
+	    'dir': dir,
+	    'mode': action,
+	    'path': files
+	    }, function() {
+		reloadclipboard();
+		$('input.fs:checked').prop('checked', false);
+	    });
+    });
+
+$('#newdir').button().click(function() {
+	$('#newdirform').dialog({
+		autoOpen: true,
 		height: 'auto', width: 'auto',
 		modal: true,
 		buttons: {
-			"Update": rename_submit,
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() { $('#rename').val(''); }
-	});
-
-	$('#drenameform').dialog({
-		autoOpen: false,
-		height: 'auto', width: 'auto',
-		modal: true,
-		buttons: {
-			"Update": drename_submit,
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() { $('#drename').val(''); }
-	});
-
-	$('#aexpiry').dialog({
-		autoOpen: false,
-		height: 'auto', width: 'auto',
-		modal: true,
-		buttons: {
-			"Update": aexpiry_submit,
-			"Remove Settings": aexpiry_remove,
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() { $('#aexpiry_days').val('0'); }
-	});
-
-	$('#savestreamform').dialog({
-		autoOpen: false,
-		height: 'auto', width: 'auto',
-		modal: true,
-		buttons: {
-			"Save": savestream_submit,
+			"Create": newdir_submit,
 			"Cancel": function() {
 				$(this).dialog('close');
 			}
 		},
-		close: function() { $('#savestream_name').val(''); }
+		close: function() { $('#newdirname').val(''); }
 	});
+});
 
-	$('#savestream_name').keyup(function(e) {
-		if (e.keyCode == $.ui.keyCode.ENTER)
-			savestream_submit();
-	});
+$('button.plugin').button().on('click', function() {
+	window.location.href = $(this).attr('act');
+	return false;
+});
 
-	$('#bmpdialogue').dialog({
-		autoOpen: false,
-		height: 'auto', width: 'auto',
-		modal: true,
-		buttons: {
-			"Close": function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() { $('#thmbmp').attr('src', 'about:blank'); }
-	});
+$('input.fs').change(function() {
+	var num = $('input.fs:checked').size();
+	if (num > 0)
+		$('#delete,#cut,#copy').enable();
+	else
+		$('#delete,#cut,#copy').disable();
 
-	// Create re-usable confirmation dialogue.
-	$confirm = $('#confirm').dialog({
-		modal: true, autoOpen: false,
-		height: 160, width: 500,
-		show: 'fade', hide: 'fade',
-		draggable: false, resizable: false
-	});
+	var num = $('input.fsts:checked').size();
+	if (num > 1)
+		$('#join').enable();
+	else
+		$('#join').disable();
 
-	// Load folder sizes
-	$.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
+});
 
-	// Flag folders with unwatched items
-	$.getJSON('/browse/newdir.jim', {dir: dir}, new_folder_callback);
+var streamsize = 0;
 
-	// Load clipboard
-	reloadclipboard();
-
-	// Uncheck everything
-	$('input.fs:checked').prop('checked', false);
-
-	// Buttons
-
-	$('#dedup').button().click(function() {
-		window.location = '/dedup/dedup.jim?dir='
-		    + encodeURIComponent(dir);
-	});
-
-	$('#save_stream').button().click(function() {
-		$('#savestream_retrieving').show();
-		$('#savestream_detail').text('').hide();
-		$('#savestream_spin').hide();
-		$('#savestream_name').val('').enable();
-
-		$('#savestreamform').dialog('open');
-		$('#savestream_detail').load(
-		    '/browse/ffmpeg.jim?file=' +
-		    encodeURIComponent($('#save_stream').attr('file')),
-		    function() {
-			$('#savestream_retrieving').hide();
-			$('#savestream_detail').show();
-			$('#savestream_form').show();
-		    });
-	});
-
-	$('#selectall').click(function(e) {
-		e.preventDefault();
-		$('input.fs').prop('checked', true).trigger('change');
-	});
-	$('#deselectall').click(function(e) {
-		e.preventDefault();
-		$('input.fs:checked').prop('checked', false).trigger('change');
-	});
-
-	$('#join').button().disable()
-	    .click(function() {
-		var files = new Array();
-		var els = $('input.fsts:checked + a').each(function() {
-			files.push($(this).attr('file'));
-		});
-		//console.log("%o", files);
-		window.location.href = '/browse/join/join.jim?files=' +
-		    files.join();
-	    });
-
-	$('#delete').button().disable()
-	    .click(function() {
-		var files = new Array();
-		var els = $('input.fs:checked + a').each(function() {
-			files.push(decodeURIComponent($(this).attr('file')));
-		});
-		//console.log("%o", files);
-		var str = 'Are you sure you want to delete ' + files.length +
-		    ' file';
-		if (files.length != 1) str += 's';
-		str += '?';
-		if (confirm(str))
+function checkstream()
+{
+	$.get('/browse/streamsize.jim', function(size) {
+		//console.log('Stream size: %o', size);
+		var mb = size / (1024 * 1024);
+		mb = mb|0;
+		if (streamsize && size > streamsize)
 		{
-			disableall();
-			$('#deletewait').slideDown('slow');
-
-			$('#pwdialogue').dialog({
-				title: "Deleting",
-				modal: true, autoOpen: true,
-				height: 'auto', width: 'auto',
-				show: 'scale', hide: 'fade',
-				draggable: false, resizable: false,
-				closeOnEscape: false,
-				open: function() {
-				    $('.ui-dialog-titlebar-close').hide();
-				}
-			});
-			$('#pwfeedback').load(
-			    '/browse/delete.jim', {
-				'dir': dir,
-				'files': files
-				}, function() {
-				$('#pwdialogue').dialog('close');
-				blockpage();
-				window.location.reload(true);
-			});
+			rate = (size - streamsize) * 8.0 /
+			    (3 * 1048576);
+			$('#streamstatus').text(mb +
+			    ' MiB (growing @' + rate.toFixed(2) +
+			    ' Mib/s)');
 		}
-	    });
-
-	$('#copy,#cut').button().disable()
-	    .click(function() {
-		var files = new Array();
-		var els = $('input.fs:checked + a').each(function() {
-			files.push(decodeURIComponent($(this).attr('file')));
-		});
-		//console.log("%o", files);
-		var action = $(this).attr('id');
-		if (action == 'copy' && !confirm('Are you sure? ' +
-		    'Copying recordings can take a very long time!'))
-			return;
-
-		$.post('/browse/clipboard.jim', {
-		    'act': 'add',
-		    'dir': dir,
-		    'mode': action,
-		    'path': files
-		    }, function() {
-			reloadclipboard();
-			$('input.fs:checked').prop('checked', false);
-		    });
-	    });
-
-	$('#newdir').button().click(function() {
-		$('#newdirform').dialog({
-			autoOpen: true,
-			height: 'auto', width: 'auto',
-			modal: true,
-			buttons: {
-				"Create": newdir_submit,
-				"Cancel": function() {
-					$(this).dialog('close');
-				}
-			},
-			close: function() { $('#newdirname').val(''); }
-		});
-	});
-
-	$('button.plugin').button().on('click', function() {
-		window.location.href = $(this).attr('act');
-		return false;
-	});
-
-	$('input.fs').change(function() {
-		var num = $('input.fs:checked').size();
-		if (num > 0)
-			$('#delete,#cut,#copy').enable();
 		else
-			$('#delete,#cut,#copy').disable();
-
-		var num = $('input.fsts:checked').size();
-		if (num > 1)
-			$('#join').enable();
-		else
-			$('#join').disable();
-
+			$('#streamstatus').text(mb + ' MiB');
+		streamsize = size;
 	});
+}
 
-	var streamsize = 0;
-
-	function checkstream()
-	{
-		$.get('/browse/streamsize.jim', function(size) {
-			//console.log('Stream size: %o', size);
-			var mb = size / (1024 * 1024);
-			mb = mb|0;
-			if (streamsize && size > streamsize)
-			{
-				rate = (size - streamsize) * 8.0 /
-				    (3 * 1048576);
-				$('#streamstatus').text(mb +
-				    ' MiB (growing @' + rate.toFixed(2) +
-				    ' Mib/s)');
-			}
-			else
-				$('#streamstatus').text(mb + ' MiB');
-			streamsize = size;
-		});
-	}
-
-	if ($('#streamstatus').length)
-		setInterval(checkstream, 3000);
+if ($('#streamstatus').length)
+	setInterval(checkstream, 3000);
 
 });
 

@@ -249,10 +249,12 @@ if {[system model] eq "HDR" && ![system param DMS_START_ON]} {
 #}
 
 puts "
-	<span style=\"display:none\" id=dir>$dir</span>
-	<span style=\"display:none\" id=mediaroot>$mroot</span>
-      <fieldset class=cleft style=\"margin: 0 1em 1em 1em\">
-      <legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
+	<script type=text/javascript>
+		var dir = '[string map {' {\'}} $dir]';
+		var mediaroot = '$mroot';
+	</script>
+	<fieldset class=cleft style=\"margin: 0 1em 1em 1em\">
+	<legend style=\"font-size: 1.5em; padding: 0 0.5em 0.5em 0.5em;\">
 "
 
 browse breadcrumb $dir

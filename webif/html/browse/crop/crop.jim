@@ -101,12 +101,11 @@ puts "
 <button id=invert invert=$invert>Invert selection</button>
 <button id=cropit>Perform crop operation</button>
 </div>
+<button id=back>Back to media list</button>
 
 <div id=progressdiv class=hidden>
 Cropping: <div id=progressbar></div>
 </div>
-
-<button id=back>Back to media list</button>
 
 <div id=output class=\"hidden pre\" style=\"margin-top: 10px\"></div>
 </fieldset>

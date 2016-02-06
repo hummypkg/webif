@@ -299,6 +299,17 @@ proc {system disk} {} {
 	return [string range [system diskdev] 0 end-1]
 }
 
+proc {system disktemp} {} {
+	if {[catch {
+		set smart [exec /mod/bin/smartctl -f brief -A [system disk] \
+		    | grep ^194]
+		regexp {K *([0-9]+)} $smart x temp
+	}]} {
+		set temp 0
+	}
+	return $($temp + 0)
+}
+
 require pretty_size
 
 proc {system diskspace} {{raw 0}} {

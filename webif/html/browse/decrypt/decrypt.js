@@ -15,12 +15,13 @@ $(document).ready(function() {
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '../index.jim?dir=' + $('#params').attr('dir');
+	window.location = '/go/browse?dir=' + $('#params').attr('dir');
 });
 
 $('#decryptit').button().click(function() {
 	$('#decryptdiv').hide('slow');
 	$('#progressdiv').show('slow');
+	$('#back').hide();
 	handle = setInterval("update()", 1000);
 	$('#output').load('execute.jim?file=' + $('#params').attr('file'),
 	    function() {

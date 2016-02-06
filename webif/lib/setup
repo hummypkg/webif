@@ -9,8 +9,11 @@ if {![exists -proc require]} {
 		}
 	}
 
-	proc httpredirect {url} {
+	proc httpredirect {url {extra ""}} {
 		puts -nonewline "Location: $url\r\n"
+		if {$extra ne ""} {
+			puts -nonewline "$extra\r\n"
+		}
 		puts -nonewline "\r\n"
 		puts "Redirecting to $url"
 		exit

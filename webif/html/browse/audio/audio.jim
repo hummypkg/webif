@@ -35,12 +35,11 @@ puts "
 <div id=audiodiv style=\"padding: 1em\">
 <button id=audioit>Perform audio extraction - $type</button>
 </div>
+<button id=back>Back to media list</button>
 
 <div id=progressdiv class=hidden>
 Extracting audio: <div id=progressbar></div>
 </div>
-
-<button id=back class=hidden>Back to media list</button>
 
 <div id=output class=pre style=\"margin-top: 10px\"></div>
 </fieldset>

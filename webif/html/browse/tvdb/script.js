@@ -9,7 +9,7 @@ function select_episode()
 	$('#tvdbresults_saving').show();
 	$('#tvdbresults').diagrefresh();
 
-	$.get('tvdb/store.jim', { dir: dir, sid: sid }, function(data) {
+	$.get('/browse/tvdb/store.jim', { dir: dir, sid: sid }, function(data) {
 		if (data <= 0)
 		{
 			window.location.reload(true);
@@ -24,7 +24,7 @@ function select_episode()
 			$('.tvdbresults').hide();
 			$('#tvdbresults_saving').show();
 			$('#tvdbresults').diagrefresh();
-			$.get('tvdb/store.jim', {
+			$.get('/browse/tvdb/store.jim', {
 				dir: dir,
 				sid: sid,
 				series: $('#tvdb_forceseries').val()
@@ -70,7 +70,7 @@ $('#tvdbsetseries').button().on('click', function(e) {
 				    }
 				}
 			});
-			$('#tvdbresults_inner').load('tvdb/search.jim',
+			$('#tvdbresults_inner').load('/browse/tvdb/search.jim',
 			    { term: $('#tvdbsearch').val() }, function() {
 				$('#tvdbresults_inner')
 				    .find('.tvdbselect')
@@ -93,7 +93,7 @@ $('#tvdbsetseries').button().on('click', function(e) {
 				    'this folder?'))
 					return;
 				blockpage('Clearing Series Information...');
-				$.get('tvdb/store.jim', {dir: dir, sid: 0},
+				$.get('/browse/tvdb/store.jim', {dir: dir, sid: 0},
 				    function() {
 					window.location.reload(true);
 				});

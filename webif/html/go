@@ -1,0 +1,91 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class settings.class plugin
+
+set module [file tail $env(PATH_INFO)]
+set lastmodule ""
+if {[dict exists $env HTTP_COOKIE]} {
+	regexp {webif_lastmod=([a-z_]+)} $env(HTTP_COOKIE) x lastmodule
+}
+
+set settings [settings]
+
+if {[$settings epg_style] eq "grid"} {
+        set epglink "/cgi-bin/xepg.jim"
+} else {
+        set epglink "/epg/list.jim"
+}
+
+set pages {
+	"browse" "/browse/"
+	"schedule" "/sched/"
+	"mobile" "/m/"
+	"service" "/services/"
+	"pkg" "/pkg/"
+	"diag" "/diag/diag.jim"
+	"settings" "/settings/settings.jim"
+}
+set pages(epg) $epglink
+
+set modules {}
+foreach {page link} $pages {
+	set modules($page) [list $link 50]
+	set modules(mm_$page) [list $link 50]
+}
+
+proc register_module {module url {priority 75}} {
+	global modules
+
+	if {$module ni $modules} {
+		# New module
+		set modules($module) [list $url $priority]
+		return
+	}
+	lassign $modules($module) x pri
+	if {$priority > $pri} {
+		set modules($module) [list $url $priority]
+	}
+}
+
+proc override_module {module} {
+	set ::module $module
+}
+
+if {$module eq "debug"} {
+	httpheader
+	puts "<h3>Parameters</h3>"
+	puts "<pre>"
+	puts "MODULE: $module"
+	puts "LASTMOD: $lastmodule"
+	puts "</pre>"
+	puts "<h3>Modules</h3>"
+	puts "<pre>"
+	parray modules
+	puts "</pre>"
+}
+
+eval_plugins go 1
+
+if {$module eq "debug"} {
+	puts "<h3>After plugins</h3>"
+	puts "<pre>"
+	parray modules
+	parray env
+	puts "</pre>"
+	exit
+}
+
+if {$module ni $modules} {
+	httpheader
+	puts "Error, module '$module' not found."
+	exit
+}
+
+lassign $modules($module) url
+if [dict exists $env QUERY_STRING] {
+	append url "?$env(QUERY_STRING)"
+}
+
+httpredirect $url "Set-Cookie: webif_lastmod=$module"
+

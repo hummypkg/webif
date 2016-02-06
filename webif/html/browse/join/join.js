@@ -22,7 +22,7 @@ $(document).ready(function() {
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '../index.jim?dir=' + $(this).attr('dir');
+	window.location = '/go/browse?dir=' + $(this).attr('dir');
 });
 
 $('#filelist').sortable().disableSelection();
@@ -36,6 +36,7 @@ $('#dojoin').button().attr('disabled', true).addClass('ui-state-disabled')
 
 	$('#joindiv').hide('slow');
 	$('#progressdiv').show('slow');
+	$('#back').hide();
 	handle = setInterval("update()", 1000);
 
 	$('#output').text('Please do not interrupt...')

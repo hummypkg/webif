@@ -36,38 +36,32 @@ proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
 
 set settings [settings]
 
-if {[$settings epg_style] eq "grid"} {
-	set epglink "/cgi-bin/xepg.jim"
-} else {
-	set epglink "/epg/list.jim"
-}
-
 puts {<div style="clear: both">}
 
 menuitem "Browse Media Files" "/images/323_1_10_Menu_Video.png" \
-	/browse/index.jim 217 228
+	/go/mm_browse
 menuitem "Scheduled Events" "/images/321_1_00_Menu_CHList.png" \
-	/sched/index.jim 217 228
+	/go/mm_schedule
 menuitem "EPG" "/images/328_1_26_Menu_TV_Guide.png" \
-	$epglink 217 228
+	/go/mm_epg 217 228
 
 if {[file exists "/mod/bin/ir"]} {
 	menuitem "Remote" "/img/remote.png" /plugin/ir/remote.jim 217 228
 }
 
-if {[[settings] nomobile] eq "0"} {
-	menuitem "Mobile Version" "/img/mobile.png" /m/ 217 228
+if {[$settings nomobile] eq "0"} {
+	menuitem "Mobile Version" "/img/mobile.png" /go/mm_mobile 217 228
 }
 
 menuitem "Service Management" "/img/spanner.png" \
-	/services/index.jim 217 228
+	/go/mm_service 217 228
 menuitem "Package Management" "/img/packages.png" \
-	/pkg/index.jim 217 228
+	/go/mm_pkg 217 228
 menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
-	/settings/settings.jim 217 228
+	/go/mm_settings 217 228
 
 menuitem "Diagnostics" "/img/diagnostics.png" \
-	/diag/diag.jim 217 228
+	/go/mm_diag 217 228
 
 eval_plugins menu
 
@@ -84,7 +78,6 @@ puts {
 }
 
 }
-
 
 if {[$settings nohelplinks] == 0} {
 

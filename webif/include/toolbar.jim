@@ -1,15 +1,10 @@
 #!/mod/bin/jimsh
 
 require settings.class
+
 if {[[settings] notoolbar] eq "0"} {
 
 require plugin system.class
-
-if {[[settings] epg_style] eq "grid"} {
-	set epglink "/cgi-bin/xepg.jim"
-} else {
-	set epglink "/epg/list.jim"
-}
 
 proc tb {icon txt link {height 50} {width 0}} {
 	if {$width > 0} {
@@ -37,13 +32,13 @@ puts {
 if {[file exists "/mod/bin/ir"]} {
 	tb "/img/remote.png" "Remote" "/plugin/ir/remote.jim"
 }
-tb "/images/323_1_10_Menu_Video.png" "Browse" "/browse/index.jim"
-tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/sched/index.jim"
-tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" $epglink
-tb "/img/spanner.png" "Services" "/services/index.jim"
-tb "/img/packages.png" "Packages" "/pkg/index.jim"
-tb "/images/326_1_00_Menu_Settings.png" "Settings" "/settings/settings.jim"
-tb "/img/diagnostics.png" "Diag" "/diag/diag.jim"
+tb "/images/323_1_10_Menu_Video.png" "Browse" "/go/mm_browse"
+tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/go/mm_schedule"
+tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" "/go/mm_epg"
+tb "/img/spanner.png" "Services" "/go/mm_service"
+tb "/img/packages.png" "Packages" "/go/mm_pkg"
+tb "/images/326_1_00_Menu_Settings.png" "Settings" "/go/mm_settings"
+tb "/img/diagnostics.png" "Diag" "/go/mm_diag"
 eval_plugins toolbar
 
 puts {

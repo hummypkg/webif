@@ -18,14 +18,14 @@ $('button.select').button().on('click', function() {
 	    s: $tr.attr('s'),
 	    e: $tr.attr('e')
 	}, function() {
-		window.location.href = '/browse/?dir=' + 
+		window.location.href = '/go/browse/?dir=' + 
 		    encodeURIComponent(dir);
 	});
 });
 
 $('#tvdbepsearch').button({icons:{primary:"ui-icon-search"}})
     .on('click', function() {
-	window.location.href = 'episode.jim?file=' +
+	window.location.href = '/browse/tvdb/episode.jim?file=' +
 	    encodeURIComponent(file) + '&search=' +
 	    encodeURIComponent($('#searchterm').val());
 });

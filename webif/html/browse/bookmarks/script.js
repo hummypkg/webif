@@ -119,7 +119,7 @@ $('#save').button({icons: {primary: "ui-icon-disk"}})
 
 $('#back').button({icons: {primary: "ui-icon-arrowreturnthick-1-w"}})
     .on('click', function() {
-	window.location = '../index.jim?dir=' + dir;
+	window.location = '/go/browse?dir=' + dir;
 });
 
 $('#update').button()

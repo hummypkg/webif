@@ -57,12 +57,7 @@ cts 10 "Leisure" "Leisure"
 
 puts "</td><td>"
 
-if {[[settings] epg_style] eq "grid"} {
-	puts "<a href=/cgi-bin/xepg.jim>"
-} else {
-	puts "<a href=/epg/list.jim>"
-}
-puts "Now/Next</a>"
+puts "<a href=/go/epg>Now/Next</a>"
 
 puts "</td></tr><tr><td>"
 

@@ -52,12 +52,12 @@ puts "
 <div id=decryptdiv style=\"padding: 1em\">
 <button id=decryptit>Perform decryption</button>
 </div>
+<button id=back>Back to media list</button>
 
 <div id=progressdiv class=hidden>
 Decrypting: <div id=progressbar></div>
 </div>
 
-<button id=back class=hidden>Back to media list</button>
 
 <div id=output class=pre style=\"margin-top: 10px\"></div>
 </fieldset>

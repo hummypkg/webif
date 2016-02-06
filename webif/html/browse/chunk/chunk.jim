@@ -53,12 +53,9 @@ puts "
 <div id=chunkdiv style=\"padding: 1em\">
 <button id=chunkit>Split recording into $part parts</button>
 </div>
-
-<div id=findiv style=\"padding: 1em\" class=hidden>
 <button id=back dir=\"[cgi_quote_url [file dirname $rfile]]\">
 Back to Media Browser
 </button>
-</div>
 
 </fieldset>
 "

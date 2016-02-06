@@ -179,7 +179,7 @@ proc {browse breadcrumb} {dir} {
 	foreach part [split $dir /] {
 		if {$stub eq "/"} { set name $part } else { set name "/$part" }
 		append stub $name
-		puts "<a href=\"/browse/?dir=[cgi_quote_url $stub]\">$name</a>"
+		puts "<a href=\"/go/browse?dir=[cgi_quote_url $stub]\">$name</a>"
 	}
 }
 

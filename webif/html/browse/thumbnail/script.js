@@ -8,7 +8,7 @@ $('button').button();
 
 function go(pos)
 {
-	window.location.href = 'index.jim?file=' +
+	window.location.href = '/browse/thumbnail/?file=' +
 	    encodeURIComponent(file) + '&pos=' + pos;
 }
 
@@ -26,7 +26,7 @@ $('#repos').disable().on('click', function(e) {
 
 $('#back').on('click', function(e) {
 	e.preventDefault();
-	window.location.href = '/browse/index.jim?dir=' +
+	window.location.href = '/go/browse?dir=' +
 	    encodeURIComponent(dir);
 });
 
@@ -34,22 +34,23 @@ $('button.usethm').disable().on('click', function(e) {
 	e.preventDefault();
 	var pos = $(this).attr('pos');
 	$('button,input').disable();
-	$.get('set.jim?file=' + encodeURIComponent(file) + '&pos=' + pos,
+	$.get('/browse/thumbnail/set.jim?file=' +
+	    encodeURIComponent(file) + '&pos=' + pos,
 	    function() {
-		window.location.href = '/browse/index.jim?dir=' +
+		window.location.href = '/go/browse?dir=' +
 		    encodeURIComponent(dir);
 	});;
 });
 
 var start = $('#start').text();
 var end = $('#end').text();
-$.get('mkrange.jim?file=' + encodeURIComponent(file) +
+$.get('/browse/thumbnail/mkrange.jim?file=' + encodeURIComponent(file) +
     '&s=' + start + '&e=' + end, function() {
 	$('img.bmp').each(function(i) {
 		var pos = $(this).attr('pos');
 		$(this).attr('src',
-		    'fetch.jim?file=' + encodeURIComponent(file) +
-		    '&pos=' + pos);
+		    '/browse/thumbnail/fetch.jim?file=' +
+		    encodeURIComponent(file) + '&pos=' + pos);
 	});
 	$('button').enable();
 });
