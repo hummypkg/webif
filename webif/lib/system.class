@@ -301,9 +301,9 @@ proc {system disk} {} {
 
 proc {system disktemp} {} {
 	if {[catch {
-		set smart [exec /mod/bin/smartctl -f brief -A [system disk] \
-		    | grep ^194]
-		regexp {K *([0-9]+)} $smart x temp
+		set smart [exec /mod/bin/smartctl -A [system disk] | grep ^194]
+		regsub -all -- {[[:space:]]+} $smart " " smart
+		set temp [lindex [split $smart] 9]
 	}]} {
 		set temp 0
 	}
