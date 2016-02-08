@@ -1,0 +1,36 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+
+set act [cgi_get act "getall"]
+set opt [cgi_get opt]
+
+set files {
+	safe	"/var/lib/humaxtv/mod/safemode"
+	reset	"/var/lib/humaxtv/mod/_RESET_CUSTOM_FIRMWARE_ENVIRONMENT"
+	rma	"/var/lib/humaxtv_backup/.rma"
+}
+
+if {$act eq "getall"} {
+	httpheader "application/json"
+	set ret {}
+	foreach {k v} $files {
+		lappend ret "\"$k\":\"[file exists $v]\""
+	}
+	puts [concat "{\n" [join $ret ",\n"] "\n}"]
+	exit
+}
+
+httpheader
+
+if {$opt ni $files} {
+	puts 0
+}
+
+switch $act {
+    set { file touch $files($opt) }
+    unset { file delete $files($opt) }
+    get { puts -nonewline [file exists $files($opt)] }
+}
+

@@ -45,7 +45,11 @@ if {[system is_listening 9000]} {
 jscss script.js
 puts "
 <fieldset class=cleft>
-<legend>DLNA Server Information</legend>
+<legend class=va>
+<img class=va src=/img/dlna_large.png height=50>
+&nbsp;
+DLNA Server Information
+</legend>
 
 <table class=keyval cellpadding=5>
 <tr>

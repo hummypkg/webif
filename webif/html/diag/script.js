@@ -5,17 +5,8 @@ $('button').button();
 
 $('#rundiag').button({icons: {primary: "ui-icon-play"}});
 $('#runfopkg').button({icons: {primary: "ui-icon-play"}});
-$('#runedit').button({icons: {primary: "ui-icon-folder-open"}});
-$('#dbinfo').button({icons: {primary: "ui-icon-wrench"}});
-$('#channelinfo').button({icons: {primary: "ui-icon-script"}});
-$('#diskdiag').button({icons: {primary: "ui-icon-disk"}});
-$('#dlna').button({icons: {primary: "ui-icon-video"}});
-$('#dspace').button({icons: {primary: "ui-icon-search"}});
-$('#reboot').button({icons: {primary: "ui-icon-power"}});
-//$('#runreset').button({icons: {primary: "ui-icon-radio-on"}});
-//$('#runrma').button({icons: {primary: "ui-icon-radio-on"}});
 
-$('#rundiag').click(function() {
+$('#rundiag').on('click', function() {
 	var val = $('#diagsel').val();
 	if (val == '0')
 		val = $('#seq').val();
@@ -28,7 +19,7 @@ $('#rundiag').click(function() {
 	    });
 });
 
-$('#runfopkg').click(function() {
+$('#runfopkg').on('click', function() {
 	$('#results')
 	    .slideDown()
 	    .text('\n\nForcibly re-installing package, please wait...\n\n')
@@ -39,70 +30,7 @@ $('#runfopkg').click(function() {
 	    });
 });
 
-$('#runedit').click(function(e) {
-	e.preventDefault();
-	window.location = '/edit/edit.jim';
-});
-
-$('#dbinfo').click(function(e) {
-	e.preventDefault();
-	window.location = '/db/index.jim';
-});
-
-$('#channelinfo').click(function(e) {
-	e.preventDefault();
-	window.location = '/diag/channel.jim';
-});
-
-$('#diskdiag').click(function(e) {
-	e.preventDefault();
-	window.location = 'disk.jim';
-});
-
-$('#dlna').click(function(e) {
-	e.preventDefault();
-	window.location = '/dlna/dlna.jim';
-});
-
-$('#dspace').click(function(e) {
-	e.preventDefault();
-	window.location = 'dspace/index.jim';
-});
-
-$('#reboot').click(function(e) {
-	e.preventDefault();
-	window.location = '/restart/index.jim';
-});
-
-$('#runreset').click(function(e) {
-	e.preventDefault();
-	if (!confirm('Are you sure? This will completely remove all packages and settings.'))
-		return;
-	if (!confirm('Are you really sure?'))
-		return;
-	if (!confirm('One last time, are you sure?'))
-		return;
-	$.get('/cgi-bin/cfwreset.cgi', function() {
-		$('button').disable();
-		$('#resetdone').slideDown();
-	});
-});
-
-$('#runrma').click(function(e) {
-	e.preventDefault();
-	if (!confirm('Are you sure? This will completely remove all packages and settings and return the unit to state where you can re-install official firmware ready to return a faulty box to Humax for repair.'))
-		return;
-	if (!confirm('Are you really sure?'))
-		return;
-	if (!confirm('One last time, are you sure?'))
-		return;
-	$.get('/cgi-bin/cfwreset.cgi?rma=1', function() {
-		$('button').disable();
-		$('#resetdone').slideDown();
-	});
-});
-
-$('a.logclear').click(function(e) {
+$('a.logclear').on('click', function(e) {
 	var t = $(this);
 	e.preventDefault();
 	if (!confirm('Delete ' + $(this).attr('file') + '?'))
@@ -117,6 +45,71 @@ $('a.logclear').click(function(e) {
 		});
 });
 
+$.getJSON('/diag/rpc.jim?act=getall', function(data) {
+	$.each(data, function(k, v) {
+		if (v == '1')
+			$('#' + k + 'result').text('(Enabled)');
+		else
+			$('#' + k + 'result').text('');
+	});
 });
 
+
+$('#safe,#reset,#rma').on('click', function(e) {
+	e.preventDefault();
+
+	opt = $(this).attr('id');
+
+	$d = $('#' + opt + 'confirm');
+	title = $d.attr('xtitle');
+	$.get('/diag/rpc.jim?act=get&opt=' + opt, function(data) {
+		if (data == "1")
+		{
+			act = 'unset';
+			tact = 'Disable';
+			cur = 'enabled';
+		}
+		else
+		{
+			act = 'set';
+			tact = 'Enable';
+			cur = 'disabled';
+		}
+
+		$d.find('span.cur').text(cur);
+		$d.dialog({
+			height: 'auto',
+			width: 500,
+			modal: true,
+			title: title,
+			buttons: [
+			    {
+				text: tact + ' ' + title,
+				icons: {
+					primary: "ui-icon-check"
+				},
+				click: function() {
+					$.get('/diag/rpc.jim?act=' + act +
+					    '&opt=' + opt, function() {
+						$d.dialog('close');
+						$('#' + opt + 'result')
+						  .text('(Now ' + tact + 'd)');
+					});
+				}
+			    },
+			    {
+				text: "Cancel",
+				icons: {
+					primary: "ui-icon-close"
+				},
+				click: function() {
+					$d.dialog('close');
+				}
+			    }
+			]
+		});
+	});
+});
+
+});
 

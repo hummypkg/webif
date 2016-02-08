@@ -1,1 +1,26 @@
 button.half { width: 48%; }
+
+table.button td
+{
+	text-align: center;
+	vertical-align: top;
+}
+
+img.button
+{
+	height: 80px;
+	padding: 0 2em;
+	border: 0;
+}
+
+span.label
+{
+	font-weight: bold;
+}
+
+#saferesult, #rmaresult, #resetresult
+{
+	font-style: italic;
+	color: #ff4000;
+}
+

@@ -18,6 +18,11 @@ if {[catch {set db [sqlite3.open /var/lib/humaxtv/channel.db]} msg]} {
 }
 
 puts "
+	<div class=va>
+		<img class=va src=/img/aerials.png height=50>
+		&nbsp;
+		Tuned Multiplex Information
+	</div>
 	<button id=expandall>Expand All</button>
 	<button id=collapseall>Collapse All</button>
 	<br><br>

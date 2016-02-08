@@ -1,5 +1,6 @@
 
 if {![exists -proc require]} {
+
 	proc require {args} {{done {}}} {
 		foreach file $args {
 			if {$file ni $done} {
@@ -8,6 +9,18 @@ if {![exists -proc require]} {
 			}
 		}
 	}
+
+	require system.class
+	set ::mws::headerdone 0
+	set ::mws::js {}
+	set ::mws::css {}
+	set ::mws::q "[system pkgver]"
+
+	require fileops overrides utils
+
+	# Jim 0.75 removes legacy 'case'; some plugins still use it.
+	# This will fix the simple cases.
+	alias case switch
 
 	proc httpredirect {url {extra ""}} {
 		puts -nonewline "Location: $url\r\n"
@@ -35,18 +48,15 @@ if {![exists -proc require]} {
 		set done 1
 	}
 
-	set ::_mws_headerdone 0
-	set ::_mws_js {}
-	set ::_mws_css {}
 	proc header {{type "text/html"} {cache 0}} {
 		httpheader $type $cache
 		uplevel source /mod/webif/html/lib/header.jim
-		incr ::_mws_headerdone
+		incr ::mws::headerdone
 	}
 
 	proc noheader {} {
-		emit_jscss
-		incr ::_mws_headerdone
+		incr ::mws::headerdone
+		::mws::emit_jscss
 	}
 
 	proc footer {} {
@@ -61,28 +71,28 @@ if {![exists -proc require]} {
 		uplevel source /mod/webif/html/m/lib/footer.jim
 	}
 
-	proc _css {file} {
-		if {$::_mws_headerdone} {
-		  puts "<link href=\"$file\" rel=stylesheet type=text/css />"
+	proc ::mws::_css {file} {
+		if {$::mws::headerdone} {
+		  puts "<link href=\"$file?$::mws::q\" rel=stylesheet type=text/css />"
 		} else {
-			lappend ::_mws_css $file
+			lappend ::mws::css $file
 		}
 	}
 
-	proc _js {file} {
-		if {$::_mws_headerdone} {
-		  puts "<script type=text/javascript src=\"$file\"></script>"
+	proc ::mws::_js {file} {
+		if {$::mws::headerdone} {
+		  puts "<script type=text/javascript src=\"$file?$::mws::q\"></script>"
 		} else {
-			lappend ::_mws_js $file
+			lappend ::mws::js $file
 		}
 	}
 
-	proc emit_jscss {} {
-		foreach js $::_mws_js { _js $js }
-		foreach css $::_mws_css { _css $css }
+	proc ::mws::emit_jscss {} {
+		foreach js $::mws::js { ::mws::_js $js }
+		foreach css $::mws::css { ::mws::_css $css }
 	}
 
-	proc _jqplugin_sort {a b} {
+	proc ::mws::_jqplugin_sort {a b} {
 		return $([string length $a] - [string length $b])
 	}
 
@@ -94,27 +104,22 @@ if {![exists -proc require]} {
 		if {![file isdirectory $dir]} {
 			error "Unknown JQ Plugin - '$name'"
 		}
-		foreach file [lsort -command _jqplugin_sort [\
+		foreach file [lsort -command ::mws::_jqplugin_sort [\
 		    glob -nocomplain "$dir/*.js"]] {
 			set file [join [lrange [split $file /] 4 end] /]
-			_js "/$file"
+			::mws::_js "/$file"
 		}
-		foreach file [lsort -command _jqplugin_sort [\
+		foreach file [lsort -command ::mws::_jqplugin_sort [\
 		    glob -nocomplain "$dir/*.css"]] {
 			set file [join [lrange [split $file /] 4 end] /]
-			_css "/$file"
+			::mws::_css "/$file"
 		}
 	    }
 	}
 
 	proc jscss {{js ""} {css ""}} {
-		foreach j $js { _js $j }
-		foreach c $css { _css $c }
+		foreach j $js { ::mws::_js $j }
+		foreach c $css { ::mws::_css $c }
 	}
-
-	require fileops overrides utils
-
-	# Jim 0.75 removes legacy 'case'
-	alias case switch
 }
 

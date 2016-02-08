@@ -15,11 +15,19 @@ lappend databases {*}[glob /mod/var/tvdb/*.db]
 
 header
 
+puts {
+<div class=va>
+	<img class=va src=/img/db.png height=50>
+	&nbsp;
+	Database Browser
+</div>
+}
+
 set ftab [cgi_get tab]
 set fdb [cgi_get db]
 
 if {$fdb != 0} {
-	puts "<h1><a href=/db/index.jim>Remove filters</a></h1>"
+	puts "<h3><a href=/db/index.jim>Remove filters</a></h3>"
 }
 
 proc escape {data} {
@@ -48,8 +56,8 @@ proc db_info {db_file} {
 		where type='table' order by name
 	}]
 
-	puts "<h1><a href=/db/index.jim?db=[file tail $db_file]>
-		$db_file</a></h1>"
+	puts "<h3><a href=/db/index.jim?db=[file tail $db_file]>
+		$db_file</a></h3>"
 	
 	foreach table $tables {
 		set table [lindex $table 1]

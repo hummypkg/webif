@@ -145,8 +145,25 @@ proc {system kernelver} {} {{ver ""}} {
 	return $ver
 }
 
+# Newer version below is over 100 times faster
+#proc {system pkgver} {{pkg webif}} {
+#	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
+#}
+
 proc {system pkgver} {{pkg webif}} {
-	return [lrange [split [exec opkg list-installed $pkg] " "] 2 end]
+	if {[catch {set fp [open /mod/var/opkg/info/$pkg.control r]}]} {
+		return 0
+	}
+
+	set v 0
+	foreach line [split [$fp read] "\n"] {
+		if {[string equal -length 9 $line "Version: "]} {
+			lassign $line x v
+			break
+		}
+	}
+	$fp close
+	return $v
 }
 
 proc {system pkginst} {pkg} {

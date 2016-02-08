@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require pretty_size system.class pkg.class
+require pretty_size system.class pkg.class plugin
 
 jqplugin enadis
 jscss script.js style.css
@@ -10,13 +10,14 @@ header
 
 pkg loaddiagmeta
 
+set model [system model]
 set smv [system modversion 1]
 
 puts {
-<fieldset class=cleft>
-<legend>Utilities</legend>
+<div class=cleft>
+<fieldset>
+<legend>Diagnostics</legend>
 <table>
-
 <tr>
 <td>Run Diagnostic:</td>
 <td class=va><span class=cleft>
@@ -50,115 +51,75 @@ puts {
 <button id=runfopkg>Force re-install</button>
 </td>
 </tr>
-
-<tr><td colspan=2 id=results class=hidden></td></tr>
-
-<tr><td colspan=2 style="height: 10px"></td></tr>
-
-<tr>
-<td colspan=2 align=center>
-<button id=runedit class=half>File Editor</button>
-<button id=dbinfo class=half>Database Browser</button>
-</td>
-</tr>
-
-<tr>
-<td colspan=2 align=center>
-}
-if {[system model] eq "HDR"} {
-	puts { <button id=diskdiag class=half>Hard Disk</button> }
-}
-puts {
-<button id=channelinfo class=half>Channel Information</button>
-</td>
-</tr>
-
-<tr>
-<td colspan=2 align=center>
-<button id=dspace class=half>Disk Space</button>
+</table>
+</fieldset>
 }
 
-if {[system model] eq "HDR"} {
-	puts { <button id=dlna class=half>DLNA Server</button> }
-}
+######################################################################
+# Utilities
 
-puts {
-</td>
-</tr>
-
-<tr><td colspan=2 style="height: 10px"></td></tr>
-
-<tr>
-<td colspan=2>
-<button id=reboot class=red style="width: 100%">Reboot System</button>
-</td>
-</tr>
-
-<tr>
-<td colspan=2>
-<button id=runreset style="width: 100%"
-}
-
-if {$smv < 200} {
-	puts -nonewline " disabled class=ui-state-disabled"
-}
-
-puts {
->
-Remove all custom firmware packages and settings 
-</button>
-}
-
-if {$smv < 200} {
-	puts {
-<div class=footnote style="text-align: center">
-(Install custom firmware v2.00 to enable this option)
-</div>
+proc util {icon id text {link "#"} {extra ""}} {{col 0}} {
+	if {[incr col] > 3} {
+		puts "</tr><tr>"
+		set col 1
 	}
-}
-
-puts {
-
-<div id=resetdone class="hidden blood">
-Restart your Humax with the remote control.<br>
-Allow it to turn off completely before restarting.<br>
-</div>
-
-</td>
-</tr>
-
-<tr>
-<td colspan=2>
-<button id=runrma style="width: 100%"
-}
-
-if {$smv < 213} {
-	puts -nonewline " disabled class=ui-state-disabled"
-}
-
-puts {
->
-Set Return-to-manufacturer (RMA) Mode
-</button>
-}
-
-if {$smv < 213} {
-	puts {
-<div class=footnote style="text-align: center">
-(Install custom firmware v2.13 to enable this option)
-</div>
+	if {![string match "*/*" $icon]} {
+		set icon "/img/$icon.png"
 	}
+	puts "
+<td>
+	<a href=$link id=$id>
+		<img class=button src=$icon>
+		<br>
+		<span class=label>$text</span>$extra
+	</a>
+</td>
+"
 }
 
 puts {
+<fieldset>
+<legend>Utilities</legend>
+<table class=button>
+<tr>
+}
 
-</td>
+util "editor" "editor" "File Editor" "/edit/edit.jim"
+util "db" "dbinfo" "Database Browser" "/db/"
+util "aerials" "muxinfo" "Mux Info" "/diag/mux.jim"
+
+if {$model eq "HDR"} {
+	util "disc" "disk" "Disk Diagnostics" "/diag/disk.jim"
+	util "dspace" "diskspace" "Disk Space" "/diag/dspace/"
+	util "dlna_large" "dlna" "DLNA Reset" "/dlna/dlna.jim"
+}
+
+if {$smv >= 310} {
+	util "safe" "safe" "Safe Mode" "#" "<br><span id=saferesult></span>"
+}
+util "reset" "reset" "CFW Reset" "#" "<br><span id=resetresult></span>"
+util "shredder" "rma" "RMA" "#" "<br><span id=rmaresult></span>"
+
+util "bluering" "reboot" "Reboot System" "/restart/"
+
+eval_plugins diag
+
+puts {
 </tr>
-
 </table>
 </fieldset>
 
-<fieldset class=left>
+}
+
+######################################################################
+# Second column
+puts "</div><div class=left>"
+
+######################################################################
+# Log Files
+
+puts {
+<fieldset>
 <legend>View Log Files</legend>
 }
 
@@ -177,6 +138,74 @@ foreach file [lsort -command logsort $loglist] {
 
 puts {
 </fieldset>
+</div>
+}
+
+######################################################################
+# Confirmation dialogues
+
+puts {
+<div id=safeconfirm class=hidden xtitle="Safe Mode">
+	<div class=va>
+		<img class=va src=/img/safe.png height=50>
+		<span class="va blood">
+			<i>Safe mode on next boot is currently
+			<b><span class=cur></span></b></i>
+		</span>
+	</div><div>
+		Safe Mode allows you to start up your Humax without
+		any of the custom firmware packages in order to run
+		diagnostics or troubleshoot the system.
+		<br><br>
+		If enabled, Safe Mode will be entered the
+		next time that the system starts up and this will be
+		indicated by the word <i>SAFE</i> appearing on the front
+		panel after the Custom Firmware version message.
+		<br><br>
+		Safe Mode can be disabled again via a simple web
+		interface which is available in safe mode or via the
+		telnet menu.
+	</div>
+</div>
+
+<div id=resetconfirm class=hidden xtitle="CFW Reset">
+	<div class=va>
+		<img class=va src=/img/reset.png height=50>
+		<span class="va blood">
+			<i>CFW Reset on next boot is currently
+			<b><span class=cur></span></b></i>
+		</span>
+	</div><div>
+		When the CFW Reset option is enabled, all custom firmware
+		packages and settings will be removed on the next system
+		startup and a blank custom firmware environment will be
+		initialised.
+		<br><br>
+		The initial bootstrap web interface will be running to allow
+		the installation of the full web interface and supporting
+		packages.
+	</div>
+</div>
+
+<div id=rmaconfirm class=hidden xtitle="Return to Manufacturer">
+	<div class=va>
+		<img class=va src=/img/shredder.png height=50>
+		<span class="va blood">
+			<i>RMA Clear on next boot is currently
+			<b><span class=cur></span></b></i>
+		</span>
+	</div><div>
+		When the RMA Clear option is enabled, all custom firmware
+		packages and settings will be removed on the next system
+		startup and the custom firmware environment will <b>not</b> be
+		re-initialised.
+		<br><br>
+		Once in this state, the installation of an official Humax
+		firmware file followed by the System Flush update image
+		will return this unit to a factory state with no remaining
+		traces of the Custom Firmware remaining.
+	</div>
+</div>
 }
 
 footer

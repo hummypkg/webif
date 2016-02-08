@@ -11,33 +11,27 @@ puts {
 <title>
 }
 source /mod/webif/include/model.jim
+incr ::mws::headerdone
 puts {
 </title>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 64x64"
-    type="image/vnd.microsoft.icon" />
-<link rel="apple-touch-icon" href="/img/fav/57.png" />
-<link rel="apple-touch-icon" sizes="57x57" href="/img/fav/57.png" />
-<link rel="apple-touch-icon" sizes="72x72" href="/img/fav/72.png" />
-<link rel="apple-touch-icon" sizes="114x114" href="/img/fav/114.png" />
-<link rel="apple-touch-icon" sizes="144x144" href="/img/fav/144.png" />
-<link type="text/css" href="/lib/jquery.ui/jquery-ui.min.css"
-    rel="Stylesheet" />     
-<link href="/css/style.css" rel="Stylesheet" type="text/css" />
-<link href="/css/EXTRA.css" rel="Stylesheet" type="text/css" />
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/lib/jquery.ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="/charts/high/highcharts.js"></script>
+<meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1" />
+<link rel=icon href=/favicon.ico sizes="16x16 32x32 64x64"
+    type=image/vnd.microsoft.icon />
+<link rel=apple-touch-icon href=/img/fav/57.png />
+<link rel=apple-touch-icon sizes=57x57 href=/img/fav/57.png />
+<link rel=apple-touch-icon sizes=72x72 href=/img/fav/72.png />
+<link rel=apple-touch-icon sizes=114x114 href=/img/fav/114.png />
+<link rel=apple-touch-icon sizes=144x144 href=/img/fav/144.png />
 }
-if {[info exists _mws_js]} {
-	foreach js $::_mws_js {
-		puts "<script type=text/javascript src=\"$js\"></script>"
-	}
-	foreach css $::_mws_css {
-		puts "<link href=\"$css\" rel=stylesheet type=text/css />"
-	}
-	incr ::_mws_headerdone
-}
+
+::mws::_css /lib/jquery.ui/jquery-ui.min.css
+::mws::_css /css/style.css
+::mws::_css /css/EXTRA.css
+::mws::_js /js/jquery.js
+::mws::_js /lib/jquery.ui/jquery-ui.min.js
+::mws::_js /charts/high/highcharts.js
+::mws::emit_jscss
+
 puts {
 </head>
 <body>
