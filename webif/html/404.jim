@@ -1,0 +1,29 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+
+set delay 5
+
+httpheader "text/html" 0 "Refresh: $delay; url=/\r\n"
+header
+
+puts {
+
+<div width=100%>
+<center>
+	<div>
+		<h1>Page Not found</h1>
+	</div>
+	<div>
+		<img src=/img/404.png>
+	</div>
+	<div>
+		Redirecting to main menu in $delay seconds...
+	</div>
+</center>
+</div>
+
+}
+
+footer
+

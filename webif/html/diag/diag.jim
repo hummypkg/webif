@@ -202,7 +202,7 @@ puts {
 		<br><br>
 		Once in this state, the installation of an official Humax
 		firmware file followed by the System Flush update image
-		will return this unit to a factory state with no remaining
+		will return this unit to a factory state with no
 		traces of the Custom Firmware remaining.
 	</div>
 </div>
