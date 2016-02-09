@@ -20,7 +20,7 @@ span.label
 	font-weight: bold;
 }
 
-#saferesult, #rmaresult, #resetresult
+#saferesult, #rmaresult, #resetresult, #maintresult
 {
 	font-style: italic;
 	color: #ff4000;

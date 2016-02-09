@@ -531,7 +531,10 @@ proc {rsv construct} {event type} {
 			if {[set ecrid [$i get event_crid]] eq ""} continue
 			if {$ecrid in $seen} continue
 			lappend seen $ecrid
-			if {[$i get start] < [$event get start]} continue
+			if {[$i get start] < [$event get start]} {
+				set args(usLastRecordedEvtId) [$i get event_id]
+				continue
+			}
 			lappend events [rsv mkaul $i]
 			list "1$::ccrid$ecrid"
 		}]

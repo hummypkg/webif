@@ -10,6 +10,7 @@ set files {
 	safe	"/var/lib/humaxtv/mod/safemode"
 	reset	"/var/lib/humaxtv/mod/_RESET_CUSTOM_FIRMWARE_ENVIRONMENT"
 	rma	"/var/lib/humaxtv_backup/.rma"
+	maint	"/var/lib/humaxtv/mod/maintenance.boot"
 }
 
 if {$act eq "getall"} {
@@ -29,7 +30,13 @@ if {$opt ni $files} {
 }
 
 switch $act {
-    set { file touch $files($opt) }
+    set {
+	if {$opt eq "maint"} {
+		file write $files($opt) "2"
+	} else {
+		file touch $files($opt)
+	}
+    }
     unset { file delete $files($opt) }
     get { puts -nonewline [file exists $files($opt)] }
 }

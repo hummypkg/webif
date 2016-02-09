@@ -41,5 +41,12 @@ $('#restart_status').load('/cgi-bin/status.jim?schedtime=7200', function() {
 
 $('#restart_humaxtv').button('disable').hide();
 
+$.getJSON('/diag/rpc.jim?act=getall', function(data) {
+	$.each(data, function(k, v) {
+		if (v == '1')
+			$('#warn_' + k).show();
+	});
+});
+
 });
 

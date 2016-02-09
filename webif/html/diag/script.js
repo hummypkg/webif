@@ -55,7 +55,7 @@ $.getJSON('/diag/rpc.jim?act=getall', function(data) {
 });
 
 
-$('#safe,#reset,#rma').on('click', function(e) {
+$('#safe,#reset,#rma,#maint').on('click', function(e) {
 	e.preventDefault();
 
 	opt = $(this).attr('id');

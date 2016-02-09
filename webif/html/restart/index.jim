@@ -50,11 +50,27 @@ intervention.
 
 }
 
-puts "
+puts {
 </div>
 
 <div class=cleft>
-"
+<div id=warn_safe class="hidden va">
+<h3><img class=xicon src=/img/safe.png>
+System will start in safe mode on next boot.</h3>
+</div>
+<div id=warn_reset class="hidden va">
+<h3><img class=xicon src=/img/reset.png>
+All custom firmware packages and settings will be removed on next boot.</h3>
+</div>
+<div id=warn_rma class="hidden va">
+<h3><img class=xicon src=/img/rma.png>
+RMA Mode will be entered on next boot.</h3>
+</div>
+<div id=warn_maint class="hidden va">
+<h3><img class=xicon src=/img/maint.png>
+Maintenance mode will be entered on next boot.</h3>
+</div>
+}
 
 if {[system busy]} {
 	puts "<div class=blood>

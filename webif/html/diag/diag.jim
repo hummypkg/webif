@@ -101,6 +101,7 @@ util "reset" "reset" "CFW Reset" "#" "<br><span id=resetresult></span>"
 util "shredder" "rma" "RMA" "#" "<br><span id=rmaresult></span>"
 
 util "bluering" "reboot" "Reboot System" "/restart/"
+util "maint" "maint" "Maintenance Mode" "#" "<br><span id=maintresult></span>"
 
 eval_plugins diag
 
@@ -204,6 +205,24 @@ puts {
 		firmware file followed by the System Flush update image
 		will return this unit to a factory state with no
 		traces of the Custom Firmware remaining.
+	</div>
+</div>
+
+<div id=maintconfirm class=hidden xtitle="Maintenance Mode">
+	<div class=va>
+		<img class=va src=/img/maint.png height=50>
+		<span class="va blood">
+			<i>Maintenance Mode on next boot is currently
+			<b><span class=cur></span></b></i>
+		</span>
+	</div><div>
+		Maintenance Mode allows you to start up your Humax
+		into a mode where the neither the standard Humax software
+		nor the custom firmware packages are running. 
+		<br><br>
+		This mode is primarily intended to be used for checking
+		and repairing the hard disk or for modifying files which
+		are locked in normal operation.
 	</div>
 </div>
 }

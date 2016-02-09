@@ -10,3 +10,10 @@ div.cleft
 	margin: 0 0 1em 0;
 }
 
+.xicon
+{
+	vertical-align: middle;
+	height: 80px;
+	border: 0;
+}
+
