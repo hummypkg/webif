@@ -500,6 +500,7 @@ proc {rsv construct} {event type} {
 		if {$ecrid ne ""} {
 			set args(szCRID)	  "$ccrid$ecrid"
 			set args(szEventToRecord) "1$args(szCRID)|"
+			set args(aulEventToRecordInfo) [rsv mkaul $event]
 			# Handle split events
 			if {[string match {*#?} $args(szCRID)]} {
 				set args(ucRecKind)	2
@@ -523,10 +524,14 @@ proc {rsv construct} {event type} {
 		set args(szCRID)		"$ccrid[$event get series_crid]"
 		set args(szFPBRecPath)		"$args(szevtname)"
 		set events {}
+		set seen {}
 		set progs [lmap i [\
 		    epg dbfetch dump -scrid [$event get series_crid]  \
 		    -sort start] {
-			if {[set ecrid [$i get event_crid]] eq ""} { continue }
+			if {[set ecrid [$i get event_crid]] eq ""} continue
+			if {$ecrid in $seen} continue
+			lappend seen $ecrid
+			if {[$i get start] < [$event get start]} continue
 			lappend events [rsv mkaul $i]
 			list "1$::ccrid$ecrid"
 		}]

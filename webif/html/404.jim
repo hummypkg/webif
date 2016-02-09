@@ -7,13 +7,10 @@ set delay 5
 httpheader "text/html" 0 "Refresh: $delay; url=/\r\n"
 header
 
-puts {
+puts "
 
 <div width=100%>
 <center>
-	<div>
-		<h1>Page Not found</h1>
-	</div>
 	<div>
 		<img src=/img/404.png>
 	</div>
@@ -23,7 +20,7 @@ puts {
 </center>
 </div>
 
-}
+"
 
 footer
 

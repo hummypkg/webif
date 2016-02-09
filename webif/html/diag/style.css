@@ -11,6 +11,8 @@ img.button
 	height: 80px;
 	padding: 0 2em;
 	border: 0;
+	outline: none;
+	border: none;
 }
 
 span.label

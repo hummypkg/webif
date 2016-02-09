@@ -89,6 +89,11 @@ $('#safe,#reset,#rma').on('click', function(e) {
 					primary: "ui-icon-check"
 				},
 				click: function() {
+					if (!confirm('Are you sure?'))
+					{
+						$d.dialog('close');
+						return;
+					}
 					$.get('/diag/rpc.jim?act=' + act +
 					    '&opt=' + opt, function() {
 						$d.dialog('close');
