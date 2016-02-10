@@ -6,43 +6,60 @@ $('button').button();
 $('#rundiag').button({icons: {primary: "ui-icon-play"}});
 $('#runfopkg').button({icons: {primary: "ui-icon-play"}});
 
+var $dialog = $('#d_results').dialog({
+	title: "Results",
+	modal: true, autoOpen: false,
+	height: 600, width: 900,
+	show: 'scale', hide: 'fade',
+	draggable: true, resizable: true,
+	buttons: { "Close":
+	    function() {$(this).dialog('close');}},
+});
+
 $('#rundiag').on('click', function() {
 	var val = $('#diagsel').val();
 	if (val == '0')
 		val = $('#seq').val();
 	$('#results')
-	    .slideDown()
-	    .html('<span class=blood><img src=/img/loading.gif> ' +
-		'Running diagnostic, please wait...</span>')
-	    .load('rundiag.jim?diag=' + encodeURIComponent(val), function() {
+	    .html('<img src=/img/loading.gif> Running diagnostic ' +
+		'<i>' + val + '</i>')
+	    .load('rundiag.jim', { diag: val }, function() {
 		$('#results').wrapInner('<pre>');
 	    });
+	$('#d_results').dialog('open');
 });
 
 $('#runfopkg').on('click', function() {
+	var pkg = $('#fopkg').val();
 	$('#results')
-	    .slideDown()
-	    .text('\n\nForcibly re-installing package, please wait...\n\n')
-	    .load('/cgi-bin/opkg.jim?cmd=install+--force-reinstall+' +
-	    encodeURIComponent($('#fopkg').val()), function() {
+	    .html('<img src=/img/loading.gif> ' +
+		'Forcibly re-installing package <i>' + pkg + '</i>')
+	    .load('/cgi-bin/opkg.jim', {
+		cmd: 'install --force-reinstall ' + pkg
+	    }, function() {
 		$('#results').wrapInner('<pre>');
-		$('#fopkg').val('');
 	    });
+	$('#d_results').dialog('open');
 });
 
 $('a.logclear').on('click', function(e) {
-	var t = $(this);
 	e.preventDefault();
-	if (!confirm('Delete ' + $(this).attr('file') + '?'))
+
+	var $t = $(this);
+	var file = $t.attr('file');
+
+	if (!confirm('Delete ' + file + '?'))
 		return;
 	$('#results')
-	    .slideDown()
-	    .text('\n\nClearing log, please wait...\n\n')
-	    .load('/log/act.jim?action=clear&file=' +
-		encodeURIComponent($(this).attr('file')), function() {
-			$('#results').wrapInner('<pre>');
-			$(t).prev('span.lsize').html('0 bytes');
-		});
+	    .html('<img src=/img/loading.gif> Clearing log ' +
+		'<i>' + file + '</i>')
+	    .load('/log/act.jim', {
+		action: 'clear',
+		file: file
+	    }, function() {
+		$('#results').wrapInner('<pre>');
+	    });
+	$('#d_results').dialog('open');
 });
 
 $.getJSON('/diag/rpc.jim?act=getall', function(data) {
