@@ -3,17 +3,17 @@ if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
 
 if {![file exists /mod/etc/webif.db]} {
-	set settingsdb [sqlite3.open /mod/etc/webif.db]
+	set ::settingsdb [sqlite3.open /mod/etc/webif.db]
 	catch {
-		$settingsdb query {
+		$::settingsdb query {
 			CREATE TABLE settings(name text, nval int, tval text);
 		}
-		$settingsdb query {
+		$::settingsdb query {
 			CREATE UNIQUE INDEX key on settings(name);
 		}
 	}
 } else {
-	set settingsdb [sqlite3.open /mod/etc/webif.db]
+	set ::settingsdb [sqlite3.open /mod/etc/webif.db]
 }
 
 class settings {

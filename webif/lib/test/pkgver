@@ -1,0 +1,26 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require pkg.class
+
+set verlist {
+	1.0.0 1.0.1 -1
+	1.0.1 1.0.0 1
+	1.0.2 1.0.2 0
+	1.0 1.0.1 -1
+	1.0.1 1.0 1
+	1.0-1 1.0 1
+	1.0 1.0-1 -1
+	2 1.0.1 1
+}
+
+foreach {a b e} $verlist {
+	set ret [pkg vercompare $a $b]
+	if {$ret eq $e} {
+		puts " OK $a $b ($e)"
+	} else {
+		puts "BAD $a $b ($e)"
+	}
+}
+
+

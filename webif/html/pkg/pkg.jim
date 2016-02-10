@@ -8,8 +8,9 @@ if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
 
 httpheader
 
-proc pkgrow {pkg} {
-	set name [$pkg get name]
+set pkgdata [pkg getall]
+
+proc pkgrow {name pkg} {
 	altrow "pkg=\"$name\""
 	puts "<td nowrap>$name"
 	if {$::type eq "inst"} {
@@ -21,29 +22,30 @@ proc pkgrow {pkg} {
 	puts "</td>"
 
 	if {$::type eq "avail"} {
-		puts "<td nowrap>[$pkg get latest]</td>"
+		puts "<td nowrap>$pkg(version)</td>"
 	} else {
-		puts "<td nowrap>[$pkg get installed]</td>"
+		puts "<td nowrap>$pkg(installed)</td>"
 	}
 
 	if {$::type eq "upgr"} {
-		puts "<td nowrap>[$pkg get latest]</td>"
+		puts "<td nowrap>$pkg(version)</td>"
 	}
 
 	puts "<td>"
+	set descr $pkg(description)
+	set changes ""
+	regexp {(.*) \[(.*)\]} $descr x descr changes
 	if {[dict exists $::pkgmeta $name]} {
-		puts "$::pkgmeta($name)"
+		puts $::pkgmeta($name)
 	} else {
-		puts "[$pkg get descr]"
+		puts $descr
 	}
 	if {$::type eq "upgr"} {
-		$pkg loadraw
-		set url [$pkg get url]
-		set changes [$pkg get changes]
 		if {$changes ne ""} {
 			puts "<br>&nbsp;&nbsp;-&nbsp;<i>$changes</i>"
 		}
-		if {$url ne ""} {
+		if {[dict exists $pkg tags]} {
+			set url $pkg(tags)
 			puts "
 	<br>
 	<a class=va href=\"$url\" target=_blank style=\"color: darkblue\">
@@ -53,17 +55,27 @@ proc pkgrow {pkg} {
 	}
 	puts "</td>"
 
-	if {![$pkg is installed]} {
+	if {$pkg(installed) eq "0"} {
 		set type Install
-	} elseif {$::type eq "upgr" && [$pkg is upgradable]} {
-		set type Upgrade
+	} elseif {$::type eq "upgr" && $pkg(installed) ne $pkg(version)} {
+		if {[pkg vercompare $pkg(version) $pkg(installed)] == 1} {
+			set type Upgrade
+		} else {
+			set type ""
+		}
 	} else {
 		set type Remove
 	}
 
-	puts "<td align=center><small><button id=\"$name\"
-	    action=[string tolower $type]
-	    class=\"va [string tolower $type]\">$type</button></small></td>"
+	puts "<td align=center>"
+	if {$type ne ""} {
+		puts "<small><button id=\"$name\"
+		    action=[string tolower $type]
+		    class=\"va [string tolower $type]\">$type</button></small>"
+	} else {
+		puts "<i>Newer</i>"
+	}
+	puts "</td>"
 
 	puts "</tr>"
 }
@@ -72,7 +84,29 @@ pkg loadmeta
 
 set type [cgi_get type "avail"]
 
-set pkgs [pkg $type]
+set pkgs {}
+foreach {pkg data} $pkgdata {
+	switch $type {
+		avail {
+			if {$data(installed) eq "0"} {
+				lappend pkgs $pkg
+			}
+		}
+		inst {
+			if {$data(installed) ne "0"} {
+				lappend pkgs $pkg
+			}
+		}
+		upgr {
+			if {$data(installed) ne "0" && \
+			    $data(installed) ne $data(version)} {
+				lappend pkgs $pkg
+			}
+		    }
+	}
+}
+
+#set pkgs [pkg $type]
 
 if {[llength $pkgs] > 0} {
 	puts "<table><tr><th>Package</th>"
@@ -95,8 +129,9 @@ if {[llength $pkgs] > 0} {
 
 	foreach pkg $pkgs {
 		if {$type ne "upgr" && $filter && \
-		    ![dict exists $::pkgmeta $pkg]} { continue }
-		pkgrow [pkg load $pkg]
+		    ![dict exists $::pkgmeta $pkg]} continue
+		if {![dict exists $pkgdata $pkg]} continue
+		pkgrow $pkg $pkgdata($pkg)
 	}
 	puts "</table>"
 	if {$type ne "upgr" && $filter} {

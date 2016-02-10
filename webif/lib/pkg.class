@@ -31,6 +31,59 @@ pkg method _load {nm} {
 	return $self
 }
 
+proc {pkg getall} {{repo base}} {
+	set pkglist {}
+
+	# Fetch details of installed packages
+	foreach line [split [exec /bin/opkg list-installed] "\n"] {
+		lassign $line pkg x ver
+		#regexp {^([^ ]+) - ([^ ]+)$} $line pkg x ver
+		set installed($pkg) $ver
+	}
+
+	# Now build list of all packages
+
+	if {[catch { set fp [open "/mod/var/opkg/$repo" r] } msg]} {
+		error "Error opening repository, $msg"
+	}
+	set cur ""
+	set pkg {}
+	foreach line [split [$fp read] "\n"] {
+		if {![regexp {^([^:]+): (.*)$} $line x tag val]} {
+			if {[string equal -length 1 $line " "]} {
+				# Continuation
+				if {$lasttag ne ""} {
+					append pkg($lasttag) " \
+					    [string trim $line]"
+				}
+			}
+			continue
+		}
+		set tag [string tolower $tag]
+		if {$tag eq "package"} {
+			if {$pkg ne ""} {
+				set pkglist($name) $pkg
+			}
+			set name $val
+			if {[dict exists $installed $val]} {
+				set pkg "installed $installed($val)"
+			} else {
+				set pkg {installed 0}
+			}
+			set lasttag ""
+			continue
+		}
+		set lasttag $tag
+		set pkg($tag) $val
+	}
+	$fp close
+	if {$pkg ne ""} {
+		set pkglist($name) $pkg
+	}
+
+	return $pkglist
+}
+
 pkg method loadraw {} {
 	set tag ""
 	set txt ""
@@ -173,5 +226,20 @@ proc {pkg update} {} {
 
 proc {pkg upgrade} {nm} {
 	exec /bin/opkg upgrade $nm
+}
+
+proc {pkg vercompare} {v1 v2} {
+	if {$v1 eq $v2} { return 0 }
+
+	lassign [split $v1 -] v1 r1
+	lassign [split $v2 -] v2 r2
+
+	foreach a [split $v1 .] b [split $v2 .] {
+		if {$b eq "" || $a > $b} { return 1 }
+		if {$a eq "" || $a < $b} { return -1 }
+	}
+	if {$r2 eq "" || $r1 > $r2} { return 1 }
+	if {$r1 eq "" || $r2 > $r1} { return -1 }
+	return 0
 }
 
