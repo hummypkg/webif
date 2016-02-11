@@ -3,7 +3,7 @@
 source /mod/webif/lib/setup
 require system.class settings.class plugin
 
-set module [file tail $env(PATH_INFO)]
+set module [file tail [string trimright $env(PATH_INFO) /]]
 set lastmodule ""
 if {[dict exists $env HTTP_COOKIE]} {
 	regexp {webif_lastmod=([a-z_]+)} $env(HTTP_COOKIE) x lastmodule

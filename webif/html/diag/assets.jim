@@ -77,7 +77,7 @@ puts {
 		</span>
 	</div><div>
 		Maintenance Mode allows you to start up your Humax
-		into a mode where the neither the standard Humax software
+		in a mode where neither the standard Humax software
 		nor the custom firmware packages are running. 
 		<br><br>
 		This mode is primarily intended to be used for checking

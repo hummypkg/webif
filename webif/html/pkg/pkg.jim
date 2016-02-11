@@ -8,8 +8,6 @@ if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
 
 httpheader
 
-set pkgdata [pkg getall]
-
 proc pkgrow {name pkg} {
 	altrow "pkg=\"$name\""
 	puts "<td nowrap>$name"
@@ -80,13 +78,12 @@ proc pkgrow {name pkg} {
 	puts "</tr>"
 }
 
+set pkgdata [pkg getall]
 pkg loadmeta
-
 set type [cgi_get type "avail"]
 
 set pkgs {}
-foreach pkg [lsort -nocase [dict keys $pkgdata]] {
-	set data $pkgdata($pkg)
+foreach {pkg data} $pkgdata {
 	switch $type {
 		avail {
 			if {$data(installed) eq "0"} {
@@ -107,8 +104,6 @@ foreach pkg [lsort -nocase [dict keys $pkgdata]] {
 	}
 }
 
-#set pkgs [pkg $type]
-
 if {[llength $pkgs] > 0} {
 	puts "<table><tr><th>Package</th>"
 
@@ -128,7 +123,7 @@ if {[llength $pkgs] > 0} {
 		</tr>
 	"
 
-	foreach pkg $pkgs {
+	foreach pkg [lsort $pkgs] {
 		if {$type ne "upgr" && $filter && \
 		    ![dict exists $::pkgmeta $pkg]} continue
 		if {![dict exists $pkgdata $pkg]} continue
