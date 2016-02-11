@@ -85,7 +85,8 @@ pkg loadmeta
 set type [cgi_get type "avail"]
 
 set pkgs {}
-foreach {pkg data} $pkgdata {
+foreach pkg [lsort -nocase [dict keys $pkgdata]] {
+	set data $pkgdata($pkg)
 	switch $type {
 		avail {
 			if {$data(installed) eq "0"} {
