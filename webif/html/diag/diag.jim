@@ -88,15 +88,17 @@ util "editor" "editor" "File Editor" "/edit/edit.jim"
 util "db" "dbinfo" "Database Browser" "/db/"
 util "aerials" "muxinfo" "Mux Info" "/diag/mux.jim"
 
+util "disc" "disk" "Disk Diagnostics" "/diag/disk.jim"
+util "dspace" "diskspace" "Disk Space" "/diag/dspace/"
+
 if {$model eq "HDR"} {
-	util "disc" "disk" "Disk Diagnostics" "/diag/disk.jim"
-	util "dspace" "diskspace" "Disk Space" "/diag/dspace/"
 	util "dlna_large" "dlna" "DLNA Reset" "/dlna/dlna.jim"
 }
 
 if {$smv >= 310} {
 	util "safe" "safe" "Safe Mode" "#" "<br><span id=saferesult></span>"
 }
+
 util "reset" "reset" "CFW Reset" "#" "<br><span id=resetresult></span>"
 util "shredder" "rma" "RMA" "#" "<br><span id=rmaresult></span>"
 

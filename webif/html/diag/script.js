@@ -12,34 +12,68 @@ var $dialog = $('#d_results').dialog({
 	height: 600, width: 900,
 	show: 'scale', hide: 'fade',
 	draggable: true, resizable: true,
-	buttons: { "Close":
-	    function() {$(this).dialog('close');}},
+	buttons: { "Close": function() { $(this).dialog('close'); }}
 });
+
+function loaddata(data, status)
+{
+	$('#results').text(data).wrapInner('<pre>');
+	if (status) // Request completed
+	{
+		$('#resultscomplete').slideDown('slow');
+		$('#resultsheader').slideUp('slow', function() {
+		    $(this).empty();
+		});
+	}
+//	$('#d_results').animate({
+//	    scrollTop: $('#d_results').scrollTop() + ('#d_results').height()
+//	}, 'slow');
+}
+
+function chunked_request(placeholder, url, data)
+{
+	$('#resultsheader').html('<img src=/img/loading.gif> ' + placeholder)
+	    .slideDown('slow');
+	$('#resultscomplete').hide();
+	$('#results').empty();
+	$('#d_results').dialog('open');
+
+	$.ajax({
+		type: "GET",
+		url: url,
+		data: data,
+		xhrFields: {
+			onprogress: function(x) {
+				if (x.target)
+					loaddata(x.target.responseText);
+			}
+		},
+		progressInterval: 500,
+		success: function(data, status) {
+			loaddata(data, status);
+		},
+		error: function(_, _, e) {
+			if (window.console)
+				console.log("ajax error");
+			alert(e);
+		}
+	});
+}
 
 $('#rundiag').on('click', function() {
 	var val = $('#diagsel').val();
 	if (val == '0')
 		val = $('#seq').val();
-	$('#results')
-	    .html('<img src=/img/loading.gif> Running diagnostic ' +
-		'<i>' + val + '</i>')
-	    .load('rundiag.jim', { diag: val }, function() {
-		$('#results').wrapInner('<pre>');
-	    });
-	$('#d_results').dialog('open');
+
+	chunked_request('Running diagnostic <i>' + val + '</i>',
+	    'rundiag.jim', { diag: val });
 });
 
 $('#runfopkg').on('click', function() {
 	var pkg = $('#fopkg').val();
-	$('#results')
-	    .html('<img src=/img/loading.gif> ' +
-		'Forcibly re-installing package <i>' + pkg + '</i>')
-	    .load('/cgi-bin/opkg.jim', {
-		cmd: 'install --force-reinstall ' + pkg
-	    }, function() {
-		$('#results').wrapInner('<pre>');
-	    });
-	$('#d_results').dialog('open');
+
+	chunked_request('Re-installing package <i>' + pkg + '</i>',
+	    '/cgi-bin/opkg.jim', { cmd: 'install --force-reinstall ' + pkg });
 });
 
 $('a.logclear').on('click', function(e) {
@@ -50,16 +84,9 @@ $('a.logclear').on('click', function(e) {
 
 	if (!confirm('Delete ' + file + '?'))
 		return;
-	$('#results')
-	    .html('<img src=/img/loading.gif> Clearing log ' +
-		'<i>' + file + '</i>')
-	    .load('/log/act.jim', {
-		action: 'clear',
-		file: file
-	    }, function() {
-		$('#results').wrapInner('<pre>');
-	    });
-	$('#d_results').dialog('open');
+
+	chunked_request('Clearing log <i>' + file + '</i>',
+	    '/log/act.jim', { action: 'clear', file: file });
 });
 
 $.getJSON('/diag/rpc.jim?act=getall', function(data) {
@@ -70,7 +97,6 @@ $.getJSON('/diag/rpc.jim?act=getall', function(data) {
 			$('#' + k + 'result').text('');
 	});
 });
-
 
 $('#safe,#reset,#rma,#maint').on('click', function(e) {
 	e.preventDefault();

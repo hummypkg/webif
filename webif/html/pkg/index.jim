@@ -30,7 +30,7 @@ puts {
 </div>
 
 <div id=dialogue class=hidden style="align: center">
-	<pre id=dresults></pre>
+	<div id=dresults></div>
 	<div id=dspinner>
 		<img border=0 src=/img/loading.gif>
 		Processing request...

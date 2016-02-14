@@ -9,28 +9,31 @@ cgi_input
 
 set cmd [cgi_get cmd update]
 
+proc putsf {str} {
+	puts $str
+	flush stdout
+}
+
 proc opkg {cmd} {
-	puts ">>> opkg $cmd"
+	putsf ">>> opkg $cmd"
 	set bcmd "|/mod/webif/lib/bin/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
-		puts "$line"
+		putsf "$line"
 	}
 	close $fd
-	puts ""
+	putsf ""
 }
 
-httpheader "text/plain"
+httpheader "text/plain" 0 "Transfer-Encoding: chunked\r\n"
 
 set cmdargs [lassign $cmd cmd]
 
 set netcmds {install update upgrade}
 
 if {$cmd in $netcmds && ![system connectivity]} {
-	puts ""
-	puts "!!  ERROR - No network connectivity to package repository  !!"
-	puts ""
-	puts "Check your Internet connection and DNS service and then try again."
+	putsf "!!  ERROR - No network connectivity to package repository  !!"
+	putsf "Check your Internet connection and DNS service and then try again."
 	exit
 }
 
@@ -38,12 +41,13 @@ if {$cmd eq "upgrade"} { opkg update }
 opkg "$cmd $cmdargs"
 
 if {$cmd eq "update" || $cmd eq "upgrade"} {
-	puts "Updating package meta information"
+	putsf "Updating package meta information"
 	pkg fetchmeta
-	puts "Done."
-	puts ""
-	puts "Updating diagnostic meta information"
+	putsf "Done."
+	putsf ""
+	putsf "Updating diagnostic meta information"
 	pkg fetchdiagmeta
-	puts "Done."
 }
+
+putsf "Done."
 

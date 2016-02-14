@@ -7,11 +7,12 @@ proc chunk {chk} {
 
 proc chunk_pad {{len 256}} {
 	incr len
-	chunk [string range [format "%${len}d" 0] 1 end-1]
+	chunk [string repeat " " $len]
 }
 
 proc start_chunked {{type "text/html"}} {
 	httpheader $type 0 "Transfer-Encoding: chunked\r\n"
+	#chunk_pad
 }
 
 proc end_chunked {} {

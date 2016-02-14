@@ -3,7 +3,11 @@
 puts {
 
 <div id=d_results class=hidden title="Results">
-<div id=results></div>
+	<div id=resultsheader></div>
+	<div id=results></div>
+	<div class=hidden id=resultscomplete>
+		<img border=0 src=/images/167_2_00_Check_W2_SUB.png> Completed.
+	</div>
 </div>
 
 <div id=safeconfirm class=hidden xtitle="Safe Mode">
