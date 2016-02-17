@@ -99,6 +99,9 @@ function loaddata(data, status)
 			$('#dialogue').dialog('close');
 		//stick = false;
 	}
+	$('#dialogue').animate({
+            scrollTop: $('#dialogue').prop('scrollHeight')
+        }, 'slow');
 }
 
 function execopkg(arg, pkg)

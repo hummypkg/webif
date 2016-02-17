@@ -25,9 +25,12 @@ function loaddata(data, status)
 		    $(this).empty();
 		});
 	}
-//	$('#d_results').animate({
-//	    scrollTop: $('#d_results').scrollTop() + ('#d_results').height()
-//	}, 'slow');
+	else
+		$('#results').append('<br><img src=/img/loading.gif> ' +
+		    'Still working...');
+	$('#d_results').animate({
+	    scrollTop: $('#d_results').prop('scrollHeight')
+	}, 'slow');
 }
 
 function chunked_request(placeholder, url, data)
