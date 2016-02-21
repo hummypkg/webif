@@ -13,7 +13,7 @@ set settings [settings]
 set smart Unknown
 set line ""
 # smartctl uses non-zero exit status to indicate health hence catch.
-catch { set line [exec /mod/bin/smartctl -H $device | sed -n 5p] } msg
+catch { set line [exec /bin/smartctl -H $device | sed -n 5p] } msg
 if {$msg ne "" && $line eq ""} { set line $msg }
 if {$line ne ""} {
 	set smart [string range [lindex [split $line :] 1] 1 end]
@@ -30,7 +30,7 @@ puts "
 <table>
 <tr><th class=key>SMART Status</th><td>$smart<td></tr>
 "
-foreach line [split [exec /mod/bin/smartctl -i $device] "\n"] {
+foreach line [split [exec /bin/smartctl -i $device] "\n"] {
 	if {[string match "*Not in smartctl database*" $line]} continue
 	if {[string match "*: *" $line]} {
 		regsub -all -- {[[:space:]]+} $line " " line
@@ -96,7 +96,7 @@ set nolife {184 187 188 189 191 197 198}
 set derive {4 "" 5 sectors 9 hours 12 cycles 192 "" 193 "cycles"}
 
 set i 0
-foreach line [split [exec /mod/bin/smartctl -A $device] "\n"] {
+foreach line [split [exec /bin/smartctl -A $device] "\n"] {
 	regsub -all -- {[[:space:]]+} $line " " line
 	regsub -all -- {^[[:space:]]+} $line "" line
 	if {[incr i] < 8} continue
@@ -180,7 +180,7 @@ puts {
 </tr>
 }
 
-if {[catch {set msg [exec /mod/bin/smartctl -l selftest $device]} xmsg]} {
+if {[catch {set msg [exec /bin/smartctl -l selftest $device]} xmsg]} {
 	set msg $xmsg
 }
 

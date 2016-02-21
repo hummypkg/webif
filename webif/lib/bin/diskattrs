@@ -12,7 +12,7 @@ set settings [settings]
 set smart ""
 set line ""
 # smartctl uses non-zero exit status to indicate health hence catch.
-catch { set line [exec /mod/bin/smartctl -H $disk | sed -n 5p] } msg
+catch { set line [exec /bin/smartctl -H $disk | sed -n 5p] } msg
 if {$msg ne "" && $line eq ""} { set line $msg }
 if {$line ne ""} {
 	set smart [string range [lindex [split $line :] 1] 1 end]
@@ -20,7 +20,7 @@ if {$line ne ""} {
 }
 
 # Extract disk model.
-foreach line [split [exec /mod/bin/smartctl -i $disk] "\n"] {
+foreach line [split [exec /bin/smartctl -i $disk] "\n"] {
 	if {[string match "*Not in smartctl database*" $line]} continue
 	if {[string match "*: *" $line]} {
 		regsub -all -- {[[:space:]]+} $line " " line
@@ -31,7 +31,7 @@ foreach line [split [exec /mod/bin/smartctl -i $disk] "\n"] {
 }
 
 # Extract disk attributes.
-foreach line [split [exec /mod/bin/smartctl -A -f brief $disk] "\n"] {
+foreach line [split [exec /bin/smartctl -A -f brief $disk] "\n"] {
 	regsub -all -- {[[:space:]]+} $line " " line
 	regsub -all -- {^[[:space:]]+} $line "" line
 	lassign [split $line] id name flags val worst thresh when rval
