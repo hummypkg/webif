@@ -603,13 +603,14 @@ proc {system usbmounts} {{full 0}} {
 		set num 0
 		catch {
 			set num [
-			    exec grep -cE {/media/(usb-)?drive} /proc/mounts]
+			    exec grep -cE {/media/(usb-|gpt-)?drive} \
+				/proc/mounts]
 		}
 		return $num
 	}
 	set ret {}
 	if {[catch {
-		set lines [exec grep -E {media/(usb-)?drive} /proc/mounts]
+		set lines [exec grep -E {media/(usb-|gpt-)?drive} /proc/mounts]
 	}]} { return $ret }
 	foreach line [split $lines "\n"] {
 		lassign $line dev mp

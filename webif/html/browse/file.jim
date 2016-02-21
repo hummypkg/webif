@@ -210,11 +210,10 @@ if {[$ts get bookmarks]} {
 puts "
 	</table>
 "
-puts "
-<script type=text/javascript>
-var file = '$file';
-"
+puts "<div class=hidden id=file>$file</div>"
 puts {
+<script type=text/javascript>
+var file = $('#file').text();
 $('button').button();
 $('.tvdbchoose').on('click', function() {
 	window.location.href = '/browse/tvdb/episode.jim?file=' +
