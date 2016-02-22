@@ -603,14 +603,14 @@ proc {system usbmounts} {{full 0}} {
 		set num 0
 		catch {
 			set num [
-			    exec grep -cE {/media/(usb-|gpt-|exfat-)?drive} \
+			    exec grep -cE {/media/([a-z-]+-)?drive} \
 				/proc/mounts]
 		}
 		return $num
 	}
 	set ret {}
 	if {[catch {
-		set lines [exec grep -E {media/(usb-|gpt-|exfat-)?drive} \
+		set lines [exec grep -E {media/([a-z-]+-)?drive} \
 		    /proc/mounts]
 	}]} { return $ret }
 	foreach line [split $lines "\n"] {
