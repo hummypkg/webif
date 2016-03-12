@@ -94,18 +94,52 @@ proc {system fhtcpversion} {} {{ver ""}} {
 	return $ver
 }
 
-# 822272+6 - MAC address
-# 833536 - Serial number
+# c0400           System ID
+# c8c00           MAC address
+# cb800           Serial Number
+
+proc {system systemid} {} {{id ""}} {
+	if {$id ne ""} { return $id }
+	set fd [open /dev/mtd3 r]
+	
+	$fd seek 0xc0400
+	set bytes [$fd read 4]
+	$fd close
+	binary scan $bytes H* hex
+	set id [format "%s.%s" [string range $hex 0 3] [string range $hex 4 end]]
+	return $id
+}
+
 proc {system serialno} {} {{serial ""}} {
 	if {$serial ne ""} { return $serial }
 	set fd [open /dev/mtd3 r]
 	
-	$fd seek 833536
+	$fd seek 0xcb800
 	set bytes [$fd read 14]
 	$fd close
 	set serial "[string range $bytes 0 1] [string range $bytes 2 8] [
 	    string range $bytes 9 end]"
 	return $serial
+}
+
+proc {system loaderver} {} {{ver ""}} {
+	if {$ver ne ""} { return $ver }
+	set fd [open /dev/mtd3 r]
+	$fd seek 0x20006
+	set bytes [$fd read 2]
+	$fd close
+	set ver [switch $bytes {
+		"\x04\x5f" { format "a7.30" }
+		"\xec\xe5" { format "a7.31" }
+		"\x59\x9d" { format "a7.33" }
+		"\x72\x5c" { format "a7.34" }
+		"\x8f\x7c" { format "L7.27" }
+		default {
+			binary scan $bytes H* hex
+			format "Unknown - $hex"
+		}
+	}]
+	return $ver
 }
 
 proc {system kernelver} {} {{ver ""}} {
@@ -128,7 +162,8 @@ proc {system kernelver} {} {{ver ""}} {
 		"Feb 7 14:15:02 KST 2014"  { format "HDR_1.03.12" }
 		"May 19 22:39:27 BST 2014" { format "HDR_CFW_3.00" }
 		"Feb 19 20:58:57 GMT 2015" { format "HDR_CFW_3.03" }
-		"Nov 18 19:16:42 GMT 2015" { format "HDR_CFW_3.10" }
+		"Mar 11 23:34:27 GMT 2016" { format "HDR_CFW_3.10" }
+		"Mar 11 23:37:22 GMT 2016" { format "HDR_CFW_3.10d" }
 
 		# HD
 		"Oct 11 21:14:31 KST 2010" { format "HD_1.01.12" }
@@ -535,6 +570,14 @@ proc {system display} {hdr hd} {
 		exec /sbin/display $hdr
 	} else {
 		exec /sbin/display "\$$hd"
+	}
+}
+
+proc {system tuners} {} {
+	if {[system model] eq "HDR"} {
+		return 2
+	} else {
+		return 1
 	}
 }
 

@@ -585,3 +585,12 @@ img.rollimg
 	width: 140px;
 }
 
+.versions
+{
+	color: #ff4000 !important;
+	background: transparent;
+	font-size: 0.9em;
+	float: right;
+	clear: right;
+}
+

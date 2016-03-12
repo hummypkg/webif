@@ -819,3 +819,31 @@ proc {rsv restore} {file} {
 	close $fd
 }
 
+# Check for scheduled events at the same time
+proc {rsv conflicts} {s d} {
+	global rsvdb
+	set query "
+		select count(*) as num
+		from TBL_RESERVATION
+		where ersvtype <= 3
+		and (
+		(
+			nsttime >= $s
+		    and nsttime < $s + $d
+		) or (
+			nsttime + nduration > $s
+		    and nsttime + nduration <= $s + $d
+		) or (
+			nsttime <= $s
+		    and nsttime + nduration >= $s + $d
+		))
+	"
+	set ret [$rsvdb query $query]
+
+	set num 0
+	if {[llength $ret] > 0} {
+		lassign [lindex $ret 0] x num
+	}
+	return $num
+}
+

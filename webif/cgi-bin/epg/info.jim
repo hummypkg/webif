@@ -23,6 +23,19 @@ if {[[settings] chanchangenc]} {
 	puts { <script type=text/javascript src=/js/chanchange.js></script> }
 }
 
+$record process_sched
+if {[$record get sched_type] < 1} {
+	set tuners [system tuners]
+	set conflicts [rsv conflicts [$record get start] [$record get duration]]
+        if {$conflicts >= $tuners} {
+		puts {
+<div class=warningbox style="width: 100%; margin: 0.2em"><div>
+This event conflicts with items in your scheduled recording list.
+</div></div>
+		}
+	}
+}
+
 puts "
 	<table class=keyval>
 	<tr>

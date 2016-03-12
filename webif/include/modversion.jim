@@ -9,13 +9,15 @@ if {$modbuild > 0} {
 	append modver " (build $modbuild)"
 }
 
-puts "<span class=blood style=\"font-size: 0.9em; float: right; clear: right\">
+puts "<span class=versions>
 	Web interface version: [system pkgver webif]<br>
 	Custom firmware version: $modver
 "
 catch {set fhtcpversion [system fhtcpversion]}
 catch {set kernelver [system kernelver]}
 puts "<br>Humax Version: $fhtcpversion (kernel $kernelver)"
+puts "<br>Loader Version: [system loaderver]"
+puts "<br>System ID: [system systemid]"
 puts "<br>Serial Number: [system serialno]"
 puts "<br>Last Boot Reason: [system lastbootreason]"
 

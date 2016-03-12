@@ -112,7 +112,13 @@ puts {
 </table>
 </fieldset>
 
+<fieldset>
+<legend>System Information</legend>
 }
+
+source /mod/webif/include/modversion.jim
+
+puts "</fieldset>"
 
 ######################################################################
 # Second column

@@ -493,7 +493,7 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'vthm':
-		$('#thmbmp').attr('src', 'bmp.jim?file=' + file);
+		$('#thmbmp').attr('src', '/browse/bmp.jim?file=' + file);
 		$('#bmpdialogue').dialog('open');
 		break;
 

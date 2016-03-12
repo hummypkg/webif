@@ -2,7 +2,7 @@
 $(function() {
 
 $('#browse').button().click(function() {
-	window.location = '/browse/index.jim?dir=' +
+	window.location = '/go/browse?dir=' +
 	    encodeURIComponent($('#dir').text());
 });
 
