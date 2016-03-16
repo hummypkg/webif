@@ -132,7 +132,9 @@ foreach line [split [exec /bin/smartctl -A $device] "\n"] {
 		set notes ""
 		set left [expr 100 - 100 * (100 - $val) / (100 - $thresh)]
 		if {$left < 10} { set class orangeshade }
-		if {$rval > 0 && [dict exists $derive $id]} {
+		# rval can be non-numeric (e.g. 6078h+41m+22.260s)
+		if {[regexp {^\d+$} $rval] && $rval > 0 && [\
+		    dict exists $derive $id]} {
 			if {$left < 100} {
 				set total [expr \
 				    round(($rval / (100 - $left) * 100) \
