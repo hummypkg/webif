@@ -249,7 +249,7 @@ set pmap {}
 set events [rsv list pending]
 set num_ended 0
 if {[llength $events] > 0} {
-	eventheader pending "Pending Scheduled Events"
+	eventheader pending "Pending Actions"
 	foreach event $events {
 		eventrow $event pending
 		lappend pmap [ekey $event]

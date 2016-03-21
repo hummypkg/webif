@@ -175,6 +175,7 @@ rsv method pendingicon {{width 30}} {
 	    2 { set icon "ar" }
 	    3 { set icon "pad" }
 	    4 { set icon "folder" }
+	    5 { set icon "skip" }
 	}
 	return "<img class=va width=$width src=/img/$icon.png>"
 }
@@ -220,6 +221,19 @@ rsv method set_pad {{pre 60} {post 60}} {
 	set action 3
 	set ulPreOffset $pre
 	set ulPostOffset $post
+}
+
+rsv method set_skip {event} {
+	set action 5
+
+	$event get_channel_info
+
+	set crid "[$event get channel_crid][$event get event_crid]"
+	set szRecordedProgCrid "1$crid|$szRecordedProgCrid"
+	set szEventToRecord [string map "1$crid| {}" $szEventToRecord]
+	set aulEventToRecordInfo ""
+	set nsttime [$event get start]
+	set nduration [$event get duration]
 }
 
 rsv method remove_pending {} {
@@ -315,7 +329,10 @@ rsv method insert {{table pending} {force 0}} {
 	#puts $query
 	#puts $bvals
 
+	$rsvdb query "begin transaction;"
+	$rsvdb query "delete from ${table} where ulslot = $ulslot;"
 	$rsvdb query $query {*}$bvals
+	$rsvdb query "commit transaction;"
 }
 
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
@@ -429,8 +446,7 @@ proc {rsv fetch} {{table TBL_RESERVATION} ersvtype hsvc nsttime usevtid events} 
 		and $table.hsvc = '%s'
 		and $table.nsttime = '%s'
 		and $table.usevtid = '%s'
-		and $table.szEventToRecord = '%s'
-	" $ersvtype $hsvc $nsttime $usevtid $events]
+	" $ersvtype $hsvc $nsttime $usevtid]
 
 	if {[llength $res] > 0} {
 		return [rsv new [lindex $res 0]]
