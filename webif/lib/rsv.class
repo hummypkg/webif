@@ -329,10 +329,8 @@ rsv method insert {{table pending} {force 0}} {
 	#puts $query
 	#puts $bvals
 
-	$rsvdb query "begin transaction;"
 	$rsvdb query "delete from ${table} where ulslot = $ulslot;"
 	$rsvdb query $query {*}$bvals
-	$rsvdb query "commit transaction;"
 }
 
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
@@ -435,8 +433,8 @@ proc {rsv entry} {{table TBL_RESERVATION} crid svc} {
 	return 0
 }
 
-proc {rsv fetch} {{table TBL_RESERVATION} ersvtype hsvc nsttime usevtid events} {
-	set res [$::rsvdb query "
+proc {rsv fetch} {table ersvtype hsvc nsttime usevtid {crid ""} {extra ""}} {
+	set q "
 		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn
 		from $table
@@ -444,9 +442,23 @@ proc {rsv fetch} {{table TBL_RESERVATION} ersvtype hsvc nsttime usevtid events} 
 		on $table.hSvc = channel.TBL_SVC.hSvc
 		where $table.ersvtype = '%s'
 		and $table.hsvc = '%s'
-		and $table.nsttime = '%s'
 		and $table.usevtid = '%s'
-	" $ersvtype $hsvc $nsttime $usevtid]
+	"
+	set params "$ersvtype $hsvc $usevtid"
+
+	if {$nsttime > 0} {
+		append q " and $table.nsttime = '%s' "
+		lappend params $nsttime
+	}
+	if {$crid ne ""} {
+		append q " and szCRID = '%s' "
+		lappend params $crid
+	}
+	if {$extra ne ""} {
+		append q " $extra "
+	}
+
+	set res [$::rsvdb query $q {*}$params]
 
 	if {[llength $res] > 0} {
 		return [rsv new [lindex $res 0]]
