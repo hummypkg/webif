@@ -40,7 +40,7 @@ puts "</td>
 		<th>Start</th>
 "
 
-set s [$event get nsttime]
+set s [$event start]
 set d [$event get nduration]
 set e $($s + $d)
 set n [clock seconds]

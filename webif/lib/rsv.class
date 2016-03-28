@@ -137,6 +137,25 @@ rsv method channel_name {} {
 	return [string range $szSvcName 1 end]
 }
 
+rsv method szsttime_stamp {} {
+	set spaced [regsub {^(....)(..)(..)(..)(..)(..).*} \
+	    $szsttime {\1 \2 \3 \4 \5 \6}]
+	
+	if {[catch {
+		set stamp [clock scan $spaced -format "%Y %m %d %H %M %S"]
+	}]} {
+		return 0
+	}
+	return $stamp
+}
+
+rsv method start {} {
+	if {[string range $szsttime 0 3] eq "0000"} { return $nsttime }
+	set tm [$self szsttime_stamp]
+	if {$tm > 0} { return $tm }
+	return $nsttime
+}
+
 rsv method icon {} {
 	set rsvicon ""
 	switch $ersvtype {

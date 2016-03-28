@@ -67,7 +67,7 @@ proc eventrow {event {table TBL_RESERVATION} {pending 0}} {
 
 	set name [$event name]
 
-	set s [$event get nsttime]
+	set s [$event start]
 	set d [$event get nduration]
 	set e $($s + $d)
 	set n [clock seconds]
