@@ -195,6 +195,7 @@ rsv method pendingicon {{width 30}} {
 	    3 { set icon "pad" }
 	    4 { set icon "folder" }
 	    5 { set icon "skip" }
+	    6 { set icon "refresh" }
 	}
 	return "<img class=va width=$width src=/img/$icon.png>"
 }
@@ -240,6 +241,11 @@ rsv method set_pad {{pre 60} {post 60}} {
 	set action 3
 	set ulPreOffset $pre
 	set ulPostOffset $post
+}
+
+rsv method set_refresh {} {
+	set action 6
+	set aulEventToRecordInfo ""
 }
 
 rsv method set_skip {event} {

@@ -389,8 +389,14 @@ proc {system diskspace} {{raw 0}} {
 
 	if {$tsrok} {
 		set tsrbuf 21474836480
-		lassign [exec du -ks $tsrdir] tsrused
-		set tsrused $($tsrused * 1024)
+		if {[catch {
+			lassign [exec du -ks $tsrdir] tsrused
+		}]} {
+			set tsrused 0
+			set tsrbuf 0
+		} else {
+			set tsrused $($tsrused * 1024)
+		}
 	} else {
 		set tsrbuf 0
 		set tsrused 0
