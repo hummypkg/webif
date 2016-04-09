@@ -1,6 +1,10 @@
 #!/mod/bin/jimsh
 
-proc _lock_to_port {id} {
+set ::_lock::locks {}
+
+# For testing, 'ababab' collides with 'b'
+
+proc ::_lock::hash {id} {{hashes {}}} {
 	set len [string length $id]
 	set hash $len
 
@@ -9,16 +13,19 @@ proc _lock_to_port {id} {
 		set hash [expr (($hash<<5)^($hash>>27))^$asc];
 	}
 
-	return [expr (65535 - ($hash % 101))]
+	set hash [expr (65535 - ($hash % 101))]
+
+	while {[dict exists $hashes $hash] && $hashes($hash) ne $id} {
+		#puts "Hash collision."
+		if {[incr hash] > 65535} { set hash 32768 }
+	}
+	set hashes($hash) $id
+
+	return $hash
 }
 
-proc _lock_dummy {newsock addr port} { }
-
 proc acquire_lock {id {timeout 0} {interval 0.2}} {
-	global _locks
-
-	set port [_lock_to_port $id]
-
+	set port [::_lock::hash $id]
 	incr timeout [clock seconds]
 
 	while {[catch {set socket [\
@@ -27,18 +34,17 @@ proc acquire_lock {id {timeout 0} {interval 0.2}} {
 		sleep $interval
 	}
 
-	set _locks($id) $socket
+	set ::_lock::locks($id) $socket
 	return 1
 }
 
 proc release_lock {id} {
-	global _locks
-
-	if {[catch {close $_locks($id)} msg]} {
+	if {![dict exists $::_lock::locks $id]} { return 0 }
+	if {[catch {close $::_lock::locks($id)} msg]} {
 		#puts "Error releasing lock: $msg"
 		return 0
 	}
-	unset _locks($id)
+	unset ::_lock::locks($id)
 	return 1
 }
 

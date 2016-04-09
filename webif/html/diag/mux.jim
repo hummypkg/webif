@@ -76,8 +76,8 @@ foreach tw [$db query {
 		set name [system strip $name]
 		if {$lcn >= 800} { incr ehs }
 		switch -glob -- $name {
-			"BBC TWO" -
-			"BBC THREE" { set mux "PSB1/BBC A" }
+			"BBC NEWS" -
+			"BBC FOUR" { set mux "PSB1/BBC A" }
 			"Channel 5" -
 			"ITV2" { set mux "PSB2/D3&amp;4" }
 			"Channel 4 HD" -
