@@ -1,50 +1,47 @@
 #!/mod/bin/jimsh
 
-set ::_lock::locks {}
-
-# For testing, 'ababab' collides with 'b'
-
-proc ::_lock::hash {id} {{hashes {}}} {
-	set len [string length $id]
-	set hash $len
-
-	for {set i 0} {$i < $len} {incr i} {
-		scan [string index $id $i] "%c" asc
-		set hash [expr (($hash<<5)^($hash>>27))^$asc];
-	}
-
-	set hash [expr (65535 - ($hash % 101))]
-
-	while {[dict exists $hashes $hash] && $hashes($hash) ne $id} {
-		#puts "Hash collision."
-		if {[incr hash] > 65535} { set hash 32768 }
-	}
-	set hashes($hash) $id
-
-	return $hash
-}
+set ::lock::locks {}
 
 proc acquire_lock {id {timeout 0} {interval 0.2}} {
-	set port [::_lock::hash $id]
-	incr timeout [clock seconds]
+	try {
+		if {[dict exists $::lock::locks $id]} {
+			#error "Lock already held"
+			set lock $::lock::locks($id)
+		} else {
+			set file "/var/lock/.webiflock_[system filename $id]"
+			set fh [open $file w]
+			set lock [list file $file fh $fh]
+			set ::lock::locks($id) $lock
+		}
 
-	while {[catch {set socket [\
-	    socket stream.server "127.0.0.1:$port"]} msg]} {
-		if {[clock seconds] > $timeout} { return 0 }
-		sleep $interval
+		incr timeout [clock seconds]
+
+		while {[$lock(fh) lock] != 1} {
+			if {[clock seconds] > $timeout} { return 0 }
+			sleep $interval
+		}
+
+		return 1
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
-
-	set ::_lock::locks($id) $socket
-	return 1
 }
 
 proc release_lock {id} {
-	if {![dict exists $::_lock::locks $id]} { return 0 }
-	if {[catch {close $::_lock::locks($id)} msg]} {
-		#puts "Error releasing lock: $msg"
-		return 0
+	try {
+		if {![dict exists $::lock::locks $id]} {
+			error "Lock not held."
+		}
+		set lock $::lock::locks($id)
+
+		set ret [$lock(fh) unlock]
+		$lock(fh) close
+		dict unset ::lock::locks $id
+		return $ret
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
-	unset ::_lock::locks($id)
-	return 1
 }
 

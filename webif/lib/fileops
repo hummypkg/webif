@@ -56,67 +56,97 @@ proc {file touch} {target {ref ""}} {
 }
 
 proc {file tdelete} {target} {
-	if {[file isdirectory $target]} {
-		foreach f [readdir -nocomplain $target] {
-			file tdelete "$target/$f"
+	try {
+		if {[file isdirectory $target]} {
+			foreach f [readdir -nocomplain $target] {
+				file tdelete "$target/$f"
+			}
+			exec /mod/bin/busybox/rm -rf $target
+		} else {
+			exec /mod/bin/trm $target
 		}
-		exec /mod/bin/busybox/rm -rf $target
-	} else {
-		exec /mod/bin/trm $target
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
 }
 
 proc {file read} {target {bytes 0}} {
-	if {[file readable $target]} {
-		set fd [open $target]
-		if {$bytes} {
-			set ret [$fd read $bytes]
-		} else {
-			set ret [$fd read]
+	try {
+		if {[file readable $target]} {
+			set fd [open $target]
+			if {$bytes} {
+				set ret [$fd read $bytes]
+			} else {
+				set ret [$fd read]
+			}
+			$fd close
+			return $ret
 		}
-		$fd close
-		return $ret
+		error "Cannot read $target"
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
-	error "Cannot read $target"
 }
 
 proc {file write} {target content} {
-	if {[catch {set fd [open $target w]} msg]} {
-		error "Open failed, $msg"
-	} else {
-		$fd puts -nonewline $content
-		$fd close
+	try {
+		if {[catch {set fd [open $target w]} msg]} {
+			error "Open failed, $msg"
+		} else {
+			$fd puts -nonewline $content
+			$fd close
+		}
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
 }
 
 set ::fileops::locks {}
 
-proc {file lock} {target} {
-	if {[dict exists $::fileops::locks $target]} {
-		return 0
-	}
-	if {[catch {set fd [open $target w]} msg]} {
-		error "open '$target' failed, $msg"
-	} else {
-		set ret [$fd lock]
-		if {$ret == 1} {
-			set ::fileops::locks($target) $fd
-		} else {
-			$fd close
+proc {file lock} {{create {}} target} {
+	try {
+		if {$create ni {{} -create}} {
+			error "bad option \"$create\": should be -create"
 		}
-		return $ret
+		if {[dict exists $::fileops::locks $target]} {
+			return 0
+		}
+		if {$create eq "" && ![file exists $target]} {
+			error "'$target' does not exist"
+		} elseif {[catch {set fd [open $target w]} msg]} {
+			error "open '$target' failed, $msg"
+		} else {
+			set ret [$fd lock]
+			if {$ret == 1} {
+				set ::fileops::locks($target) $fd
+			} else {
+				$fd close
+			}
+			return $ret
+		}
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
 }
 
 proc {file unlock} {target} {
-	if {[dict exists $::fileops::locks $target]} {
-		set fd $::fileops::locks($target)
-		dict unset ::fileops::locks $target
-		set ret [$fd unlock]
-		$fd close
-		return $ret
+	try {
+		if {[dict exists $::fileops::locks $target]} {
+			set fd $::fileops::locks($target)
+			dict unset ::fileops::locks $target
+			set ret [$fd unlock]
+			$fd close
+			return $ret
+		}
+		error "$target was not locked."
+	} on error {msg opts} {
+		incr opts(-level)
+		return {*}$opts $msg
 	}
-	error "$target was not locked."
 }
 
 local proc file {cmd args} {
