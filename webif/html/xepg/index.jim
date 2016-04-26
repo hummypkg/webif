@@ -5,7 +5,7 @@ source /mod/webif/lib/setup
 require settings.class
 
 jqplugin enadis qtip
-jscss script.js style.css
+jscss {} style.css
 header
 
 require epg.class spinner.class altrow epg_search totop system.class
@@ -90,9 +90,9 @@ set got [clock milliseconds]
 proc but {label time {active 1}} {
 	puts -nonewline "<button style=\"margin-right: 2em\" tt=$time"
 	if {$active} {
-		puts -nonewline " class=\"nav delayshow\""
+		puts -nonewline " class=\"nav\""
 	} else {
-		puts -nonewline " disabled class=\"nav delayshow ui-state-disabled\""
+		puts -nonewline " disabled class=\"nav ui-state-disabled\""
 	}
 	puts " active=$active>$label</button>"
 }
@@ -170,7 +170,7 @@ for {set i 0} {$i < 8} {incr i} {
 }
 
 puts "</div>"
-puts "<span class=\"footnote delayshow\">&nbsp;
+puts "<span class=\"footnote\">&nbsp;
     (Right-Click to select end hour)</span>"
 puts "</div>"
 
@@ -197,6 +197,13 @@ puts "</div>"
 ######################################################################
 # Events
  
+puts "
+<script type=text/javascript>
+var hours = $hours;
+var stt = [expr $stt + 0];
+</script>
+"
+jscss script.js
 puts "
 <div id=xepgnow></div>
 <div id=xepg style=\"min-width: ${contwidth}px;\">
@@ -295,10 +302,6 @@ puts "
 	Switch to standard now/next display.
 </button></small>
 </div>
-<script type=text/javascript>
-var hours = $hours;
-var stt = [expr $stt + 0];
-</script>
 "
 
 if {$current} {

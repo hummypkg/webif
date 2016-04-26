@@ -29,7 +29,7 @@ if {[catch { set fd [open $ffile r] } msg]} {
 
 puts "Listing scheduled events from <i>$file</i>..."
 
-set fields [lsort [[rsv] vars]]
+set fields [[rsv] cleanvars]
 
 set data [split [read $fd] "\n"]
 
@@ -52,8 +52,9 @@ foreach line $data {
 
 	set rsv [rsv new $vars]
 
-	puts "  [$rsv name] ([$rsv channel_name] [\
-	    clock format [$rsv start]] - [clock format [$rsv end]])"
+	puts "  [$rsv name] ([$rsv channel_name] - [\
+	    clock format [$rsv start]] - [\
+	    clock format [$rsv end] -format {%H:%M}]"
 }
 
 close $fd

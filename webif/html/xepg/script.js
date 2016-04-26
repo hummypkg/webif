@@ -1,24 +1,3 @@
-$(function() {
-
-$('#epgswitch').button().click(function() {
-	window.location = '/epg/list.jim';
-});
-
-$('button.nav').button().click(function() {
-	window.location = '/xepg/?stt=' + $(this).attr('tt') +
-	    '&pos=' + $('#xegrid').scrollTop();
-});
-
-$('div.xeprog').qtip({
-	position: {
-		my: 'bottom center',
-		at: 'top center',
-		viewport: $(window)
-	},
-	style: {
-		classes: 'qtip-rounded qtip-shadow'
-	}
-});
 
 $('.timejump').hover(
     function() {
@@ -72,7 +51,28 @@ $('.dayjump').hover(
 	    '&pos=' + $('#xegrid').scrollTop();
 });
 
-$('.delayshow').show();
+$('button.nav').button().click(function() {
+	window.location = '/xepg/?stt=' + $(this).attr('tt') +
+	    '&pos=' + $('#xegrid').scrollTop();
+});
+
+$(function() {
+
+$('#epgswitch').button().click(function() {
+	window.location = '/epg/list.jim';
+});
+
+$('div.xeprog').qtip({
+	position: {
+		my: 'bottom center',
+		at: 'top center',
+		viewport: $(window)
+	},
+	style: {
+		classes: 'qtip-rounded qtip-shadow'
+	}
+});
+
 
 });
 

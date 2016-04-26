@@ -4,7 +4,7 @@ var spinner = '<div class=spinner><img border=0 src=/img/loading.gif>' +
 
 var LIST_INDEX = 0;
 var VISUAL_INDEX = 1;
-var BACKUP_INDEX = 3;
+var BACKUP_INDEX = 2;
 
 var list_reload_required = true;
 var visual_reload_required = true;

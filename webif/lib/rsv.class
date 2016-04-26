@@ -290,6 +290,13 @@ proc {rsv find_hsvc} {lcn channel} {
 	return $_hsvc
 }
 
+rsv method cleanvars {} {
+	return [lsort [lmap i [$self vars] {
+		if {[string index $i 0] eq "_"} continue
+		concat "" $i
+	    }]]
+}
+
 rsv method insert {{table pending} {force 0}} {
 	global rsvdb
 
@@ -328,10 +335,7 @@ rsv method insert {{table pending} {force 0}} {
 		if {$ulslot < 0} { set ulslot 0 }
 	}
 
-	set fields [lsort [lmap i [$self vars] {
-		if {[string index $i 0] eq "_"} continue
-		concat "" $i
-	    }]]
+	set fields [$self cleanvars]
 
 	foreach field {szSvcName usLcn sort} {
 		set df [lsearch $fields $field]
@@ -652,7 +656,7 @@ proc {rsv backup} {file} {
 
 	set events [rsv list]
 
-	set fields [lsort [[rsv] vars]]
+	set fields [[rsv] cleanvars]
 
 	puts $fd "# version 2"
 
@@ -726,7 +730,7 @@ proc {rsv restore} {file} {
 	$rsvdb query {begin transaction;}
 	$rsvdb query {delete from TBL_RESERVATION;}
 
-	set fields [lsort [[rsv] vars]]
+	set fields [[rsv] cleanvars]
 
 	set data [split [read $fd] "\n"]
 
