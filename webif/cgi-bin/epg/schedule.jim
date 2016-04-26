@@ -27,7 +27,7 @@ if {[$event percent] > 0} {
 }
 
 set r [rsv construct $event $type]
-if {[catch {$r insert} msg]} {
+if {[catch {$r insert pending 1} msg]} {
 	puts "Error encountered while scheduling: <i>$msg</i>"
 } else {
 	puts "Successfully scheduled <i>[$event get name]</i>"

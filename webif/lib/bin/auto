@@ -813,7 +813,7 @@ if {[lindex $argv 0] eq "-singledir"} {
 	}
 }
 
-release_lock webif_auto
+if {!$prelocked} { release_lock webif_auto }
 
 log "Media scan completed in [elapsed $scanstart] seconds."
 

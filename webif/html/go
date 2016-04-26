@@ -12,7 +12,7 @@ if {[dict exists $env HTTP_COOKIE]} {
 set settings [settings]
 
 if {[$settings epg_style] eq "grid"} {
-        set epglink "/cgi-bin/xepg.jim"
+        set epglink "/xepg/"
 } else {
         set epglink "/epg/list.jim"
 }

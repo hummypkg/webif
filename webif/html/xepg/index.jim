@@ -4,8 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require settings.class
 
-jqplugin enadis
-jscss xepg.js /css/xepg.css
+jqplugin enadis qtip
+jscss script.js style.css
 header
 
 require epg.class spinner.class altrow epg_search totop system.class
@@ -46,8 +46,15 @@ if {$stt <= $now} {
 
 set favgroup [$s channel_group]
 
-set hours [expr 1.0 * [[settings] xepghours]]
+set hours [cgi_get hours -]
+if {$hours eq "-"} {
+	set hours [expr 1.0 * [[settings] xepghours]]
+}
+
 if {$hours == 0} { set hours 4.0 }
+if {$hours < 1} { set hours 1.0 }
+if {$hours > 8} { set hours 8.0 }
+
 set seconds $($hours * 3600)
 
 set ostt $stt
@@ -83,48 +90,118 @@ set got [clock milliseconds]
 proc but {label time {active 1}} {
 	puts -nonewline "<button style=\"margin-right: 2em\" tt=$time"
 	if {$active} {
-		puts -nonewline " class=nav"
+		puts -nonewline " class=\"nav delayshow\""
 	} else {
-		puts -nonewline " disabled class=\"nav ui-state-disabled\""
+		puts -nonewline " disabled class=\"nav delayshow ui-state-disabled\""
 	}
 	puts " active=$active>$label</button>"
 }
 
 puts "<!-- Hours $hours ($seconds) -->"
-puts "<div id=buttons style=\"width: $eventpx; margin-left: ${chanpx}px;\">"
 
-but "&lt&lt; -1 Week" $($stt - 3600 * 24 * 7) \
-    $($stt - $now + 3600 >= 3600 * 24 * 7)
-but "&lt&lt; -1 Day" $($stt - 3600 * 24) $($stt - $now >= 3600 * 23)
-but "&lt;&lt; Earlier" $($stt - 3600 * 4) $($stt > $now)
-#but "&lt; Now &gt;" $now $($current == 0)
-but "&lt; Now &gt;" $now
-but "&gt;&gt; Later" $ett;
-but "&gt;&gt; +1 Day" $($stt + 3600 * 24) $($stt < $now + 8 * 3600 * 24)
-but "&gt;&gt; +1 Week" $($stt + 3600 * 24 * 7) $($stt < $now + 8 * 3600 * 24)
+puts "<div id=timeline style=\"min-width: ${contwidth}px;\">"
 
-puts "</div>"
+######################################################################
+# Time-jump bar
 
-puts "
-<script type=text/javascript>
-\$('button.nav').button();
-</script>
-<div id=xepg style=\"min-width: ${contwidth}px; overflow: auto\">
-<div id=xepgnow></div>
-<div id=xegrid>
+puts "<div class=timejump_outer>
+<div class=timejump_label style=\"width: ${chanpx}px;\">
+	Jump to:&nbsp;
+</div>
+<div class=timejump_bar>
 "
 
-puts "<div id=epgdate style=\"width: ${eventpx}px; margin-left: ${chanpx}px;\">"
-puts [clock format $stt -format {%a %d/%m/%Y}]
-puts "<input type=hidden id=xepg_dp stt=$stt>"
+set starthour [clock format $stt -format "%H"]
+for {set i 0} {$i < 24} {incr i} {
+	if {$i < 13} { set disp $i } else { set disp $($i - 12) }
+	if {!$disp} { set disp 12 }
+
+	set xclass ""
+
+	if {$i == $starthour} {
+		append xclass " tjstart"
+	} elseif {$i > $starthour && $i < [expr $starthour + $hours]} {
+		append xclass " tjother"
+	}
+
+	set tt [expr $starthour + $stt + 3600 * ($i - $starthour)]
+	# Back to start of hour (no floor() in Humax Jim)
+	set tt $(3600 * round(1 + $tt / 3600))
+
+	if {$xclass ne "" || $i == 0 || $i == 12} {
+		append disp "<br>[clock format $tt -format %p]"
+	}
+
+	puts "<div tt=$tt class=\"timejump$xclass\">$disp</div>\n"
+}
+
+puts "</div>&nbsp;"
+but "Now" $now
 puts "</div>"
 
-puts "<div class=xechan style=\"width: ${chanpx}px;\">&nbsp;</div>"
+######################################################################
+# Day-jump bar
+
+puts "<div class=dayjump_outer>
+<div class=dayjump_label style=\"width: ${chanpx}px;\"></div>
+<div class=dayjump_bar>
+"
+
+set stt_time [clock format $stt -format "%H:%M"]
+for {set i 0} {$i < 8} {incr i} {
+	set day $($now + $i * 86400)
+	if {!$i} {
+		set s "Today"
+	} else {
+		set s [clock format $day -format "%A"]
+	}
+	set xclass ""
+	if {[clock format $day -format "%j"] == \
+	    [clock format $stt -format "%j"]} {
+		append xclass " dayjump_current"
+	}
+
+	set tt [clock scan \
+	    [clock format $day -format "%Y:%m:%d:$stt_time"] \
+	    -format "%Y:%m:%d:%H:%M"]
+	set alt [clock format $tt -format "%e %B"]
+
+	puts "<div tt=$tt title=\"$alt\" class=\"dayjump$xclass\">$s</div>\n"
+}
+
+puts "</div>"
+puts "<span class=\"footnote delayshow\">&nbsp;
+    (Right-Click to select end hour)</span>"
+puts "</div>"
+
+######################################################################
+# Time-line bar
+
+# Displays the top border above the timeline.
+puts "
+    <div id=epgdate style=\"width: ${eventpx}px; margin-left: ${chanpx}px;\">
+    </div>
+<div class=xedate style=\"width: ${chanpx}px;\">
+    [clock format $stt -format "%A %e %B"]&nbsp;&nbsp;</div>
+"
+
 for {set i 0} {$i < $hours * 2} {incr i} {
 	puts "<div class=xetime id=xe$i
 	    style=\"width: [expr $minpx * 30]px\">"
 	puts "[clock format $($stt + 1800 * $i) -format "%H:%M"]</div>"
 }
+
+# Close timeline div
+puts "</div>"
+
+######################################################################
+# Events
+ 
+puts "
+<div id=xepgnow></div>
+<div id=xepg style=\"min-width: ${contwidth}px;\">
+<div id=xegrid>
+"
 
 set lim 0
 set lcn 0
@@ -218,6 +295,10 @@ puts "
 	Switch to standard now/next display.
 </button></small>
 </div>
+<script type=text/javascript>
+var hours = $hours;
+var stt = [expr $stt + 0];
+</script>
 "
 
 if {$current} {
@@ -231,13 +312,14 @@ var kt = $('#xe0');
 var ktpos = kt.position();
 
 var height = $('#keypos').position().top - ktpos.top;
+var top = ktpos.top - 25;
 
 	}
 	puts "var nowpos = ktpos.left + (kt.width() * $offset);"
 	puts {
 $('#xepgnow')
 	.css('left', nowpos + 'px')
-	.css('top', ktpos.top)
+	.css('top', top)
 	.height(height)
 	.show('slow');
 	}

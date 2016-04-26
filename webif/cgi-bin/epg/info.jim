@@ -25,14 +25,20 @@ if {[[settings] chanchangenc]} {
 
 $record process_sched
 if {[$record get sched_type] < 1} {
-	set tuners [system tuners]
-	set conflicts [rsv conflicts [$record get start] [$record get duration]]
-        if {$conflicts >= $tuners} {
+	set conflicts [rsv checkconflict \
+	    [$record get start] [$record get duration] \
+	    [system tuners]]
+	if {[llength $conflicts]} {
 		puts {
 <div class=warningbox style="width: 100%; margin: 0.2em"><div>
-This event conflicts with items in your scheduled recording list.
-</div></div>
+This event conflicts with the following items in your scheduled recording list.
+<ul>
 		}
+		foreach x $conflicts {
+			puts "<li>$x</li>\n"
+		}
+
+		puts "</div></div>"
 	}
 }
 

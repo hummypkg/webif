@@ -54,9 +54,10 @@ if {![exists -proc require]} {
 		incr ::mws::headerdone
 	}
 
-	proc noheader {} {
+	proc noheader {{type "text/html"} {cache 0}} {
+		httpheader $type $cache
+		uplevel source /mod/webif/html/lib/noheader.jim
 		incr ::mws::headerdone
-		::mws::emit_jscss
 	}
 
 	proc footer {} {

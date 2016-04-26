@@ -1,0 +1,10 @@
+#!/mod/bin/jimsh
+
+puts {
+<div id=epgpopup></div>
+
+<ul id=optmenu class=contextMenu style="width: 200px">
+        <li class=separator><a href=#refresh>Refresh Events</a></li>
+</ul>
+}
+

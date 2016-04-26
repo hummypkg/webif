@@ -53,7 +53,7 @@ puts {
 	<small><button id=switch>Switch to grid-style Now/Next</button></small>
 	<script type=text/javascript>
 		$('#switch').button().click(function() {
-			window.location = '/cgi-bin/xepg.jim'; });
+			window.location = '/xepg/'; });
 	</script>
 	<table class=borders>
 	<tr>

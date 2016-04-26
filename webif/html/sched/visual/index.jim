@@ -1,0 +1,456 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require rsv.class epg.class system.class classdump
+
+set debug 0
+
+noheader
+set renderstart [clock milliseconds]
+
+set events [rsv allevents]
+set pending [rsv list pending]
+
+# hSvc -> usSvcId map
+lmap i \
+    [$::channeldb query {select hSvc, usSvcid from TBL_SVC}] \
+    {
+	set hmap([lindex $i 1]) [lindex $i 3]
+    }
+
+# usSvcId -> hSvc map
+#set svcmap [lreverse $hmap]
+
+proc pop_event {{debug 0}} {
+	uplevel {
+		lassign [lindex $events $eindex] \
+		    start end hsvc eid slotid kind sclass
+		incr eindex
+		if {$debug} {
+			puts "
+			--------------------------------------------------
+			EVENT$eindex
+			START:  $start [clock format $start]
+			END:    $end [clock format $end]
+			HSVC:   $hsvc
+			EID:    $eid
+			SID:    $slotid
+			KIND:   $kind
+			SCLASS: $sclass
+			"
+		}
+	}
+}
+
+set pendingclasses {
+	1    "pending-unschedule"
+	2    "pending-ar"
+	3    "pending-ar"
+	4    "pending-folder"
+	5    "pending-skip"
+	6    "pending-refresh"
+}
+
+foreach p $pending {
+	set action [$p get action]
+
+	# Add - already handled.
+	if {$action eq "0"} continue
+
+	set s [rsv fetch "TBL_RESERVATION" \
+	    [$p get ersvtype] [$p get hsvc] 0 [$p get usevtid]]
+
+	if {$s eq "0"} continue
+
+	set slot [$s get ulslot]
+
+	set elen [llength $events]
+	set eindex 0
+	while {$eindex < $elen} {
+		pop_event 1
+
+		if {$slotid ne [$s get ulslot]} continue
+
+		if {$action eq "5" && $start != [$p start]} continue
+		lset events $($eindex - 1) 6 $pendingclasses($action)
+	}
+}
+
+#foreach ev $events {
+#	puts $ev
+#}
+
+# Event array keys:
+#      0:      start
+#      1:      end
+#      2:      hSvc
+#      3:      event_id
+#      4:      Schedule Slot ID
+#      5:      ucRecKind
+#      6:      class (live, pending)
+
+# Sort final events array
+set events [lsort -index 0 -integer $events]
+
+######################################################################
+# Visualisation functions
+
+# Intend 40 pixels / hour for fully populated timeline.
+set width $(40 * 24)
+# This is the total padding/margin/border width.
+set pad 4
+set padadj 0
+
+# Returns an absolute number of pixels from the left corresponding
+# to a number of seconds into the day.
+proc secstopx {daysecs hourpx usedhours} {
+	# No floor() in Humax jim
+	#set max [expr floor($daysecs / 3600)]
+	set max [expr int($daysecs / 3600)]
+	# Subtract any unused hours from $daysecs.
+	for {set i 0} {$i < $max} {incr i} {
+		if {$i >= 24} break
+		if {![lindex $usedhours $i]} {
+			incr daysecs -3600
+		}
+	}
+	#return [expr floor($daysecs / 3600 * $hourpx)]
+	return [expr int($daysecs * $hourpx / 3600)]
+}
+
+# daysecs - absolute number of seconds into the day that needs to be reached.
+# pxpos   - current pixel position.
+proc showpad {daysecs hourpx &pxpos usedhours} {
+	global debug pad padadj
+
+	# Determine required pixel position.
+	set newpos [set p [secstopx $daysecs $hourpx $usedhours]]
+
+	# Calculate required width of spacer
+	incr p -$pxpos
+
+	# Account for padding and any pending adjustment
+	incr p $(-($pad + $padadj))
+
+	if {$p <= 0} {
+		# If too narrow, show bare skip at full required width.
+		incr p $($pad + $padadj)
+		# Bare skip
+		set class "ct_bskip"
+	} else {
+		set class "ct_skip"
+		if {$debug} { append class " ct_debug" }
+	}
+
+	if {$p > 0} {
+		puts -nonewline \
+		    "<div class=\"$class\" style=\"width: ${p}px;\">"
+		if {$debug} {
+			puts [format "@%d-%d s=%d w=%dpx @%dpx" \
+			    $pxpos $padadj $daysecs $p $newpos]
+		}
+		puts -nonewline "</div>"
+		set pxpos $newpos
+		set padadj 0
+	}
+}
+
+proc showevent {s class &overflow &tomorrow &pxpos start end usedhours daystart dayend hourpx service event sclass} {
+
+	global debug pad padadj dev
+
+	# Required pixel position of event start.
+	set p [secstopx $($start - $daystart) $hourpx $usedhours]
+
+	if {$p < $pxpos} {
+		# Backwards move => tuner conflict.
+		lappend overflow [list $s $start $end $service $event $sclass]
+		return
+	}
+
+	# Show padding up to event.
+	showpad $($start - $daystart) $hourpx pxpos $usedhours
+
+	# And now the event itself.
+
+	set name [set channel "Unknown"]
+	set slotid -1
+	if {$s ne "0"} {
+		set name [$s name]
+		set channel [$s channel_name]
+		set slotid [$s get ulslot]
+	}
+	if {$service > 0} {
+		set epgs [epg dbfetch dump -service $service -event $event]
+		if {[llength $epgs] == 1} {
+			lassign $epgs epg
+			set name [$epg get name]
+			$epg get_channel_info
+			set channel [$epg get channel_name]
+		}
+	}
+
+	if {[string match -nocase "New:*" $name]} {
+		set name [string trim [string range $name 4 end]]
+	}
+	set name [cgi_quote_html $name]
+
+	if {$sclass == "pending"} {
+		append class " purpleshade"
+	} elseif {$sclass == "pending-unschedule" ||
+		  $sclass == "pending-skip"} {
+		append class " strike purpleshade"
+	} elseif {[string match "*pending*" $sclass]} {
+		append class " orangeshade"
+	}
+
+	if {$end > $dayend + 1} {
+		# Push event into tomorrow.
+		if {$s ne "0"} { $s setorigstart $start }
+		lappend tomorrow [list $s $($dayend + 1) $end \
+		    $service $event $sclass]
+		set newpos [set p [secstopx 86400 $hourpx $usedhours]]
+		append name "..."
+	} else {
+		set newpos [set p [\
+		    secstopx $($end - $daystart) $hourpx $usedhours]]
+		if {$start == $daystart && $s ne "0" &&
+		    [$s get _origstart] > 0} {
+			set name "..$name"
+			set start [$s get _origstart]
+			$s setorigstart 0
+		}
+	}
+
+	# Calculate width
+	incr p -$pxpos
+
+	# Account for padding
+	incr p -$pad
+
+	if {$p < 8} {
+		# Event too narrow, force to 8 pixels.
+		set padadj $(8 - $p)
+		set p 8
+	} else {
+		set padadj 0
+	}
+
+	puts -nonewline "<div class=\"$class ct_event\" style=\"width: ${p}px;\" sid=\"${slotid}\" sclass=\"$sclass\" period=\"[clock format $start -format {%H:%M}] - [clock format $end -format {%H:%M}]\" xs=$service xe=$event"
+	if {$s ne "0"} {
+		puts -nonewline " rc=\"[$s get ucRecKind]\" et=\"[$s get ersvtype]\" rt=\"[$s get erepeat]\""
+		if {[$s get szCRID] ne ""} {
+			puts " crid=\"[$s get szCRID]\""
+		}
+	}
+	puts -nonewline " sz=\"[cgi_quote_html $channel]\""
+	puts -nonewline ">"
+
+	if {$debug} {
+		puts -nonewline [format "@%d s=%d w=%dpx @%dpx /=%d" \
+		    $pxpos $($end - $start) $p $newpos $padadj]
+	}
+
+	puts -nonewline "$name</div>"
+
+	set pxpos $newpos
+}
+
+proc render_timeline {usedhours} {
+	global debug events width pad hmap padadj
+
+	puts "<div class=ct_visual>\n"
+
+	set tothours [ladd $usedhours]
+
+	if {!$tothours} {
+		puts "No schedule data found."
+		return
+	}
+
+	# calculate pixels per hour
+	#set hourpx [expr floor($width / $tothours)]
+	set hourpx [expr int($width / $tothours)]
+
+	if {$debug} {
+		puts "USEDHOURS: $usedhours<br>\n"
+		puts "HOURPX: $hourpx (tothours: $tothours)<br>\n"
+	}
+
+	# Show the hour bar.
+	puts "<div class=ct_header><div class=ct_row>"
+	puts "<div class=ct_dayname>&nbsp;</div>"
+	# Account for element padding and margin
+	set px $($hourpx - $pad)
+	for {set i 0} {$i < 25} {incr i} {
+		if {[lindex $usedhours $i] ne "1"} continue
+		puts -nonewline \
+		    "<div class=ct_hour style=\"width:${px}px\"><center>[\
+		    format "%02dh" $i]</center></div>"
+	}
+	puts "</div></div>\n"
+
+	# To store events which overflow into tomorrow.
+	set tomorrow {}
+
+	# Midnight today.
+	set day [clock scan \
+	    [clock format [clock seconds] -format "%Y:%m:%d:0:0:0"] \
+	    -format "%Y:%m:%d:%T"]
+
+	set elength [llength $events]
+	set eindex 0
+	set start 0
+	while {$start < $day} { pop_event }
+	
+	for {set i 0} {$i < 8} {incr i} {
+		# To store things that need to move to the next row.
+		set rows {}
+
+		if {$i % 2} {
+			set class "odd"
+		} else {
+			set class "even"
+		}
+		set eclass "blueshade"
+
+		set dayend [set daystart $day]
+		incr dayend 86399
+
+		# Row 1
+		puts "<div class=\"ct_day $class\">"
+		puts "<div class=\"ct_row\">"
+
+		puts "<div class=ct_dayname>[clock format $day \
+		    -format {%a %d/%m/%Y}]</div>"
+
+		set pxpos [set padadj 0]
+
+		if {[llength $tomorrow]} {
+			set dummy {}
+			foreach row $tomorrow {
+				lassign $row s xstart xend xs xe xsclass
+				showevent $s $eclass rows dummy \
+				    pxpos $xstart $xend $usedhours \
+				    $daystart $dayend $hourpx \
+				    $xs $xe $xsclass
+			}
+
+			set tomorrow {}
+		}
+
+		while {$start >= $daystart && $start <= $dayend} {
+			if {$slotid ne "-1"} {
+				set tab "TBL_RESERVATION"
+				if {$sclass eq "pending"} {
+					set tab "pending"
+				}
+				set s [rsv slot $tab $slotid]
+			} else {
+				set s "0"
+			}
+
+			if {[dict exists $hmap $hsvc]} {
+				set service $hmap($hsvc)
+			} else {
+				set service 0
+			}
+
+			showevent $s $eclass rows tomorrow pxpos \
+			    $start $end $usedhours \
+			    $daystart $dayend $hourpx \
+			    $service $eid $sclass
+
+			pop_event
+		}
+
+		# Close row
+		showpad 86400 $hourpx pxpos $usedhours
+		puts "</div>"
+
+		# Output other rows if necessary
+		while {[llength $rows]} {
+			set nrows {}
+			puts "<div class=\"ct_row $class\"><div class=ct_dayname></div>"
+			set pxpos [set padadj 0]
+			foreach row $rows {
+				lassign $row s xstart xend xs xe xsclass
+				showevent $s $eclass nrows tomorrow \
+				    pxpos $xstart $xend $usedhours \
+				    $daystart $dayend $hourpx \
+				    $xs $xe $xsclass
+			}
+			showpad 86400 $hourpx pxpos $usedhours
+			puts "</div>"
+			set rows $nrows
+			set eclass "pinkshade"
+		}
+
+		incr day 86400
+		# Close ct_day
+		puts "</div>"
+	}
+
+	puts "\n</div>\n"
+}
+
+######################################################################
+# Compressed Day Schedule Visualisation
+
+set usedhours [lrepeat 24 0]
+
+# Determine which hours are usde.
+foreach e $events {
+	lassign $e start end
+	set shour [clock format $start -format "%H"]
+	set ehour [clock format $end -format "%H"]
+	if {$ehour < $shour} {
+		incr ehour 24
+	}
+	for {set i $shour} {$i <= $ehour} {incr i} {
+		set index $i
+		if {$i > 23} { incr index -24 }
+		lset usedhours $index 1
+	}
+}
+
+# To show 24 hours
+# set usedhours [lrepeat 24 1]
+
+puts "
+<fieldset id=sched_timeline class=visual>
+<legend>
+        <h3>Schedule</h3>
+</legend>
+"
+
+render_timeline $usedhours
+
+puts "</fieldset>"
+
+puts {
+<div id=legend>
+<h3 style="display: inline-block">Key:</h3>
+<div class="ct_key blueshade">
+        Scheduled event
+</div>
+<div class="ct_key pinkshade">
+        Conflict
+</div>
+<div class="ct_key orangeshade">
+        Pending change
+</div>
+<div class="ct_key purpleshade">
+        Pending <b>schedule</b>
+</div>
+<div class="ct_key purpleshade strike">
+        Pending <b>unschedule</b>
+</div>
+</div>
+}
+
+source assets.jim
+
+footer
+

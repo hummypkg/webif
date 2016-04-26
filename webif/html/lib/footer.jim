@@ -5,10 +5,9 @@ puts {
 <div class=footer>
 }
 
-if {![catch {
-    set rendertime [expr [expr [clock milliseconds] - $renderstart] / 1000.0]
-    }]} {
-	puts "<font class=footnote>Rendered in: $rendertime seconds</font>"
+catch {
+	set rendertime [expr ([clock milliseconds] - $renderstart) / 1000.0]
+	puts "<span class=footnote>Rendered in: $rendertime seconds</span>"
 }
 
 puts {

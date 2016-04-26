@@ -1,0 +1,45 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require rsv.class epg.class system.class
+
+httpheader
+
+set slots [cgi_get slot -]
+set xservice [cgi_get service 0]
+set xevent [cgi_get event 0]
+
+if {$slots eq "-"} exit
+
+foreach slot [split $slots ","] {
+puts "SLOT: $slot"
+	set event [rsv slot $slot]
+
+	lassign [epg fetch dump -service $xservice -event $xevent] epg
+
+	if {$epg eq ""} {
+		puts "!Cannot find event in EPG."
+		break
+	}
+	$epg get_channel_info
+
+	# First check to see if there is already a pending skip for this
+	# event and, if so, update that one.
+	set crid "[$epg get channel_crid][$epg get series_crid]"
+	set ev [rsv fetch pending [$event get ersvtype] \
+	    [$event get hsvc] 0 [$event get usevtid] $crid]
+	if {$ev eq "0"} {
+		# No pending event
+		puts "No pending event."
+		set ev $event
+		$ev clear_ulslot
+	}
+
+	puts "Set skip $xevent"
+	$ev set_skip $epg
+	$ev insert
+}
+
+system restartpending
+

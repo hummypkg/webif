@@ -17,9 +17,8 @@ if {![file exists /var/lib/humaxtv/rsvp.db]} {
 	$tdb close
 }
 $rsvdb query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
-# This is required to upgrade old tables and will be removed in a future
-# version.
-catch { $rsvdb query {alter table pending add column action int} }
+# These are required to upgrade old tables.
+catch { $rsvdb query { alter table pending add column action int} }
 
 set binaryfields aulEventToRecordInfo
 
@@ -54,6 +53,8 @@ class rsv {
 	usLcn			0
 	sort			0
 	action			0
+	_table			""
+	_origstart		0
 }
 
 require findhsvc
@@ -156,6 +157,10 @@ rsv method start {} {
 	return $nsttime
 }
 
+rsv method end {} {
+	return $([$self start] + $nduration)
+}
+
 rsv method icon {} {
 	set rsvicon ""
 	switch $ersvtype {
@@ -222,6 +227,10 @@ rsv method iconset {{height 20}} {
 		lappend iconlist "<img src='/images/$icon' height=$height>"
 	}
 	return $iconlist
+}
+
+rsv method setorigstart {o} {
+	set _origstart $o
 }
 
 rsv method set_delete {} {
@@ -319,7 +328,10 @@ rsv method insert {{table pending} {force 0}} {
 		if {$ulslot < 0} { set ulslot 0 }
 	}
 
-	set fields [lsort [$self vars]]
+	set fields [lsort [lmap i [$self vars] {
+		if {[string index $i 0] eq "_"} continue
+		concat "" $i
+	    }]]
 
 	foreach field {szSvcName usLcn sort} {
 		set df [lsearch $fields $field]
@@ -379,6 +391,7 @@ proc {rsv list} {{table tbl_reservation} {extra ""}} {
 	set res [$::rsvdb query $qstring]
 	set records {}
 	foreach rec $res {
+		lappend rec _table $table
 		lappend records [rsv new $rec]
 	}
 
@@ -872,31 +885,214 @@ proc {rsv restore} {file} {
 	close $fd
 }
 
-# Check for scheduled events at the same time
-proc {rsv conflicts} {s d} {
-	global rsvdb
-	set query "
-		select count(*) as num
-		from TBL_RESERVATION
-		where ersvtype <= 3
-		and (
-		(
-			nsttime >= $s
-		    and nsttime < $s + $d
-		) or (
-			nsttime + nduration > $s
-		    and nsttime + nduration <= $s + $d
-		) or (
-			nsttime <= $s
-		    and nsttime + nduration >= $s + $d
-		))
-	"
-	set ret [$rsvdb query $query]
+# Returns an array of expanded events from the schedule.
+# Array keys:
+#      0:      start
+#      1:      end
+#      2:      hSvc
+#      3:      event_id
+#      4:      Schedule ID (sid)
+#      5:      ucRecKind
+#      6:      class (live, pending)
 
-	set num 0
-	if {[llength $ret] > 0} {
-		lassign [lindex $ret 0] x num
+proc {rsv allevents} {{xota 0}} {
+	set events [rsv list]
+	set pending [rsv list pending]
+	if {[llength $pending]} {
+		lappend events {*}$pending
 	}
-	return $num
+
+	set xevents {}
+
+	foreach e $events {
+		set seen 0
+
+		if {$xota && [$e get szevtname] eq "Disable OTA"} continue
+
+		if {[$e get action] ne "0"} continue
+
+		set trailer [list \
+			[$e get ulslot] \
+			[$e get ucRecKind] \
+			[$e get _table] \
+		]
+
+		# Expand the events encoded in the AUL data.
+		foreach a [$e aul] {
+			lassign $a service start end event_id
+			if {$start == [$e start] && \
+			    $end == [$e end]} {
+				incr seen
+			}
+			lappend xevents [list $start $end $service $event_id \
+			    {*}$trailer]
+		}
+
+		if {$seen} continue
+
+		set start [$e start]
+		set end [$e end]
+
+		lappend xevents [list $start $end \
+		    [$e get hsvc] [$e get usevtid] {*}$trailer]
+
+		set repeat [$e get erepeat]
+		switch $repeat {
+		    1 -
+		    3 -
+		    4 {
+			# 1 Daily
+			# 3 Weekends
+			# 4 Weekdays
+
+			for {set i 0} {$i < 8} {incr i} {
+
+				incr start 86400
+				incr end 86400
+				
+				# Sun == 0
+				set day [clock format [$e start] \
+				    -format "%w"]
+
+				# Weekdays Only
+				if {$repeat == 3 && ($day == 0 || $day == 6)} {
+					continue
+				}
+
+				# Weekends Only
+				if {$repeat == 4 && $day != 0 && $day != 6} {
+					continue
+				}
+
+				lappend xevents [list \
+				    $start $end \
+				    [$e get hsvc] [$e get usevtid] \
+				    {*}$trailer]
+			}
+		    }
+		    2 {
+				# Weekly
+				lappend xevents [list \
+				    $($start + 7 * 86400) \
+				    $($end  + 7 * 86400) \
+				    [$e get hsvc] [$e get usevtid] \
+				    {*}$trailer]
+		    }
+		}
+		
+	}
+
+	return $xevents
+}
+
+proc {rsv evaluate_conflicts} {events type thresh {debug 0}} {
+	set conflicts {}
+	set slots {0 0}
+	foreach ev $events {
+		lassign $ev start end hsvc eid sid
+
+		if {$debug} {
+			puts "\nSLOTS: $slots"
+			puts $ev
+		}
+
+		# Close off any open slots that have now finished.
+		for {set i 0} {$i < 2} {incr i} {
+			set v [lindex $slots $i]
+			if {$v eq "0"} {
+				if {$debug} { puts "\[$i] empty." }
+				continue
+			}
+
+			lassign $v xsid xend
+
+			if {$start >= $xend} {
+				lset slots $i 0
+				if {$debug} { puts "\[$i] finished $xend." }
+			} else {
+				if {$debug} { puts "\[$i] running $xend." }
+			}
+		}
+
+		# Find slot for recording
+		if {[lindex $slots 0] eq "0"} {
+			set uslot 0
+		} elseif {$thresh > 1 && [lindex $slots 1] eq "0"} {
+			set uslot 1
+		} else {
+			# Conflict detected
+			if {$debug} { puts "    Conflict." }
+			if {$type eq "xlist"} {
+				set c "$sid$end"
+				for {set i 0} {$i < 2} {incr i} {
+					set v [lindex $slots $i]
+					if {$v eq "0"} continue
+
+					lassign $v xsid xend
+
+					lappend c "$xsid$xend"
+				}
+			} else {
+				set c "$sid"
+				for {set i 0} {$i < 2} {incr i} {
+					set v [lindex $slots $i]
+					if {$v eq "0"} continue
+
+					lassign $v xsid xend
+
+					lappend c "$xsid"
+				}
+			}
+			foreach x $c {
+				if {![dict exists $conflicts $x]} {
+					set conflicts($x) $c
+				}
+			}
+
+			# If this events ends later than the
+			# existing one in slot 0, then replace that
+			# with this one.
+
+			lassign [lindex $slots 0] xsid xend
+			if {$xend >= $end} continue
+			if {$debug} { puts " Replacing slot 0.\n" }
+			set uslot 0
+		}
+
+		if {$debug} {
+			puts " -> into slot $uslot"
+		}
+		# Insert event into slot
+		lset slots $uslot [list $sid $end]
+	}
+	return $conflicts
+}
+
+proc {rsv newconflicts} {{thresh 1} {type "list"} {debug 0}} {
+	set events [lsort -index 0 -integer [rsv allevents]]
+	set conflicts [rsv evaluate_conflicts $events $type $thresh $debug]
+
+	if {$type eq "map"} { return $conflicts }
+	return [dict keys $conflicts]
+}
+
+proc {rsv checkconflict} {s d thresh {debug 0}} {
+	set events [rsv allevents]
+	lappend events [list $s $($s + $d) 0 0 0]
+	set events [lsort -index 0 -integer $events]
+	set conflicts [rsv evaluate_conflicts $events 'list' $thresh $debug]
+
+	set ret {}
+
+	if {![dict exists $conflicts "0"]} { return $ret }
+
+	foreach c [dict get $conflicts 0] {
+		if {$c eq "0"} continue
+		set s [rsv slot $c]
+		set s [$s name]
+		lappend ret $s
+	}
+
+	return $ret
 }
 

@@ -21,7 +21,7 @@ require epg_popup
 set service [cgi_get service 4170]
 set records [epg dbfetch dump \
     -service $service \
-    -sort "strftime('%%H%%J', start, 'unixepoch'), strftime('%%M', start, 'unixepoch')" \
+    -sort "strftime('%%H%%J', start, 'unixepoch', 'localtime'), strftime('%%M', start, 'unixepoch')" \
     -debug 0
 ]
 

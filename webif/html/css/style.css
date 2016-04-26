@@ -109,7 +109,7 @@ div.warningbox
 	top: -2px;
 	left: -2px;
 	font-weight: bold;
-	z-index: 30;
+	#z-index: 30;
 	box-shadow: 2px 2px 11px #666;
 	-moz-box-shadow: 2px 2px 11px #666;
 	-webkit-box-shadow: 2px 2px 11px #666;
@@ -174,22 +174,22 @@ table.keyval td
 
 pre, .pre, .prelike
 {
-        font-family: Consolas, 'Courier New', Courier, monospace;
-        color: black;
-        background: #f9d9b0 url('/img/prebg.png') repeat-x top;
+	font-family: Consolas, 'Courier New', Courier, monospace;
+	color: black;
+	background: #f9d9b0 url('/img/prebg.png') repeat-x top;
 	line-height: 1.24;
-        padding: 3px 8px;
-        margin: 0 5em 1em 5em;
-        border-color: #f9d9b0;
-        border-bottom: 1px solid #f9bc6d;
-        border-top-left-radius: 4px;
-        -webkit-border-top-left-radius: 4px;
-        -moz-border-radius-topleft: 4px;
-        -khtml-border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        -webkit-border-top-right-radius: 4px;
-        -moz-border-radius-topright: 4px;
-        -khtml-border-top-right-radius: 4px;
+	padding: 3px 8px;
+	margin: 0 5em 1em 5em;
+	border-color: #f9d9b0;
+	border-bottom: 1px solid #f9bc6d;
+	border-top-left-radius: 4px;
+	-webkit-border-top-left-radius: 4px;
+	-moz-border-radius-topleft: 4px;
+	-khtml-border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-radius-topright: 4px;
+	-khtml-border-top-right-radius: 4px;
 }
 
 pre, .pre
@@ -291,7 +291,7 @@ tr.blueshade > td, .blueshade
 
 .pinkshade
 {
-	background: #ffccff;
+	background: #ffccff !important;
 	color: black;
 }
 
@@ -312,10 +312,16 @@ tr.blueshade > td, .blueshade
 	color: black;
 }
 
-.orangeshade
+tr.orangeshade > td, .orangeshade
 {
-	background: #ffeeaa;
+	background: #ff8040 !important;
 	color: black;
+}
+
+tr.purpleshade > td, .purpleshade
+{
+	background: #7e587e !important;
+	color: white;
 }
 
 .redshade
@@ -592,5 +598,58 @@ img.rollimg
 	font-size: 0.9em;
 	float: right;
 	clear: right;
+}
+
+/* Minimal tabs */
+
+#minimaltabbar
+{
+	background: transparent;
+	border: none;
+	padding: 0 0 0 0;
+	position: relative;
+	top: -40px;
+}
+
+#minimaltabbar .ui-widget-header
+{
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid #c0c0c0;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
+	border-radius: 0px;
+}
+
+#minimaltabbar .ui-tabs-nav
+{
+	margin-bottom: 15px;
+}
+
+#minimaltabbar .ui-tabs-nav .ui-state-default
+{
+	background: transparent;
+	border: none;
+}
+
+#minimaltabbar .ui-tabs-nav .ui-state-active
+{
+	background: transparent url(/img/uiTabsArrow.png) no-repeat bottom center;
+	border: none;
+}
+
+#minimaltabbar .ui-tabs-nav .ui-state-default a
+{
+	color: #c0c0c0;
+}
+
+#minimaltabbar .ui-tabs-nav .ui-state-active a
+{
+	color: #000000;
+}
+
+#minimaltabbar .ui-tabs-panel
+{
+	padding: 0 0 0 0;
 }
 

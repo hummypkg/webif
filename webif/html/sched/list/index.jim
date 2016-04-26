@@ -1,0 +1,353 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require altrow rsv.class progressbar epg.class system.class
+
+noheader
+set renderstart [clock milliseconds]
+
+set svcmap {}
+lmap i \
+    [$::channeldb query {select hSvc, usSvcid from TBL_SVC}] \
+    {
+	set svcmap([lindex $i 1]) [lindex $i 3]
+    }
+set svckeys [array names svcmap]
+
+set conflictstart [clock milliseconds]
+set conflicts [rsv newconflicts [system tuners] "xlist"]
+set conflicttime [expr ([clock milliseconds] - $conflictstart) / 1000.0]
+
+if {[llength $conflicts] > 1} {
+	puts "<div class=warningbox><div><center>
+		Your recording schedule contains conflicts; shown in pink below.
+		</center></div></div>"
+}
+
+require epg_popup
+
+set pkey_tags {
+        1 "Pending unschedule"
+        2 "Pending padding change"
+        3 "Pending padding change"
+        4 "Pending folder change"
+        5 "Pending episode skip"
+        6 "Pending refresh"
+}
+
+proc eventheader {{table TBL_RESERVATION} note} {
+	if {$table eq "pending"} {
+		set sortlist {[[6,0]]}
+	} else {
+		set sortlist {[[5,0]]}
+	}
+
+	puts "
+		<fieldset id=sched_fs_$table
+		    style=\"display: inline; padding: 1em\">
+		<legend>
+	"
+	puts "<h3>$note</h3>"
+	puts "
+		</legend>
+	<table class=\"schedule tablesorter\" data-sortlist=\"$sortlist\">
+		<thead>
+		<tr>
+		<th data-sorter=false>&nbsp;</th>
+	"
+
+	if {$table eq "pending"} { puts "<th>Action</th>" }
+
+	puts {
+			<th>&nbsp;</th>
+			<th data-sorter=false>&nbsp;</th>
+			<th>Channel</th>
+			<th data-sorter=programme>Programme</th>
+			<th data-sorter=xdate>Start Time</th>
+			<th>Duration</th>
+			<th data-sorter=false>Mode</th>
+			<th data-sorter=false>&nbsp;</th>
+		</tr>
+		</thead>
+		<tbody>
+	}
+}
+
+proc eventrow {event {table TBL_RESERVATION}} {
+	global svcmap svckeys num_ended conflicts pmap pkey_tags
+
+	set name [$event name]
+
+	set s [$event start]
+	set d [$event get nduration]
+	set e $($s + $d)
+	set n [clock seconds]
+
+	if {$n > $e && [$event get ersvtype] <= 3} {
+		set ended 1
+		incr num_ended
+	} else {
+		set ended 0
+	}
+
+	set attrs "table=$table sid=[$event get ulslot] \
+	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
+	    ar=[expr ! [$event padded]] ended=$ended"
+
+	set ek [ekey $event]
+	set opts 1
+	set tag ""
+	if {[dict exists $pmap $ek]} {
+		set act $pmap($ek)
+
+		switch $act {
+			1 -
+			5 {
+				append attrs " class=\"blueshade strike\""
+                        	set opts 0
+			}
+			2 -
+			3 -
+			4 {
+				set opts 0
+				append attrs " class=orangeshade"
+			}
+			6 {
+				append attrs " class=orangeshade"
+			}
+                }
+		if {[dict exists $pkey_tags $act]} {
+			set tag $pkey_tags($act)
+		}
+
+	}
+
+	altrow $attrs
+
+	# Checkbox
+	puts "<td><input type=checkbox class=schedselect></td>";
+
+	if {$table eq "pending"} {
+		puts "<td align=center>[$event pendingicon]</td>"
+	}
+
+	puts "<td>[$event get ulslot]</td>"
+
+	if {[$event get usLcn] ne ""} {
+		puts "
+		<td>
+			[epg channelicon [$event channel_name] 50]
+		</td>
+		<td nowrap>[$event get usLcn]<br>
+			[$event channel_name]</td>
+		"
+	} else {
+		puts "<td>&nbsp;<br><br></td><td>&nbsp;</td>"
+	}
+
+	puts "<td nowrap>
+		<a slot=[$event get ulslot] table=$table
+		href=# class=schedule>$name</a>"
+	if {
+	    ([$event get ucRecKind] == 4 && $name ne [$event folder]) ||
+	    ([$event get ucRecKind] == 1 && [$event folder] ne "")
+	} {
+		puts "<br><span class=also>&nbsp;(Folder: [$event folder])</span>"
+	}
+
+	if {$tag ne ""} {
+		puts "<br><span class=blood>&nbsp;$tag</span>"
+	}
+
+	puts "</td>"
+
+	if {$ended} {
+		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
+		puts "<td nowrap class=va>
+			--- -- --- ---- --:--<br>
+			<span class=footnote>(Last: $ds)</span>"
+		puts "</td><td>--:--:--</td>"
+	} else {
+		set elist [$event aul]
+		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
+		puts "<td nowrap class=\"va"
+		if {$n > $e} { puts -nonewline " blood" }
+		if {"[$event get ulslot][$event end]" in $conflicts} {
+			puts -nonewline " pinkshade"
+		}
+		puts "\">"
+
+		if {[llength $elist] > 0} {
+			lassign [lindex $elist 0] service_id start end event_id
+			if {$start == $s && $service_id in $svckeys} {
+				puts "<a class=event href=#
+				    xs=$svcmap($service_id) xe=$event_id>
+				    <span class=ds>$ds</span></a>"
+			} else {
+				puts "<span class=ds>$ds</span>"
+			}
+		} else {
+			puts "<span class=ds>$ds</span>"
+		}
+
+		if {$d > 0 && $n > $s && $n < $e} {
+			puts "<br>"
+			set perc [expr [expr $n - $s] * 100 / $d]
+			puts "<img class=va
+			    src=/images/745_1_11_Video_1REC.png>"
+			puts [progressbar $perc]
+		}
+
+		if {[llength $elist] > 1} {
+			set i 0
+			set c [llength $elist]
+			set max 5
+			foreach e $elist {
+				lassign $e service_id start end event_id
+				if {$start == $s} continue
+
+				if {[incr i] == $max} {
+					set remain $($c - $i)
+					puts "
+				<div class=\"moretoshow footnote\">
+                                    <center>
+                                    Click for $remain more...
+                                    </center>
+                                </div>
+                                <div class=\"hidden moretoshowc\">
+					"
+				} else {
+					puts "<br>"
+				}
+
+				set xcl "also"
+				if {"[$event get ulslot]${end}" in $conflicts} {
+					append xcl " pinkshade"
+				}
+
+				puts "<span class=\"$xcl\">"
+				if {$service_id in $svckeys} {
+				  puts "<a class=event href=#
+				    xs=$svcmap($service_id) xe=$event_id>
+				    [clock format $start \
+				    -format {%a %d %b %Y %H:%M}]</a>"
+				  if {$service_id != [$event get hsvc]} {
+					set ch [system strip [\
+					    get_channel_attr_byhsvc \
+					    $service_id szSvcName]]
+					puts "<img width=15 src=\"[\
+					    epg channeliconpath $ch]\""
+					puts "title=\"$ch\" alt=\"$ch\">"
+				  }
+				} else {
+				  puts "[clock format $start \
+				    -format {%a %d %b %Y %H:%M}]
+				    ($service_id)<br>"
+				}
+				puts "</span>"
+			}
+			if {$i >= $max} {
+				puts "</div>"
+			}
+		}
+
+		puts "</td><td align=center>"
+		set xndur [$event get nduration]
+		if {$xndur > 0} {
+			puts "[clock format $xndur -format %H:%M]"
+		} else {
+			puts "--:--:--"
+		}
+		if {[llength $elist] > 1} {
+			set i 0
+			foreach e $elist {
+				lassign $e service_id start end event_id
+				if {$start == $s} continue
+				if {[incr i] == $max} {
+				    puts "<div class=\"hidden moretoshowc\">"
+				} else {
+				    puts "<br>"
+				}
+				puts "<span class=also>
+				    [clock format $($end - $start) \
+				    -format {%H:%M}]</span>"
+			}
+			if {$i >= $max} {
+				puts "</div>"
+			}
+		}
+
+		puts "</td>"
+	}
+
+	puts "<td nowrap>[join [$event iconset] ""]</td>"
+
+	puts "<td>"
+	if {$opts} {
+		puts "<a href=# class=smenu sid=[$event get ulslot]>
+		    <img border=0 src=/img/more_btn.gif></a>"
+	}
+	puts "</td></tr>"
+}
+
+proc eventfooter {rawlink} {
+	global num_ended
+
+	puts "</tbody></table>"
+	puts "
+		<br>
+		<button class=selall>Select All</button>
+		<button class=selnone>Select None</button>
+	"
+	if {$num_ended} {
+		puts "
+		<button class=selended>Select Finished</button>
+		"
+	}
+	puts "
+		<button class=\"delselected red\">Delete Selected
+		    <span class=delselcnt></span>
+		</button>
+		<button class=\"manual_rsv blue\">Manual Event</button>
+		<button class=rawview
+		    path=\"$rawlink\"
+		    >Raw Database</button>
+		</fieldset>
+	"
+}
+
+proc ekey {event} {
+	set ret ""
+	foreach key {ersvtype nsttime nduration hsvc usevtid} {
+		append ret ".[$event get $key]"
+	}
+	return $ret
+}
+
+set pmap {}
+set events [rsv list pending]
+set num_ended 0
+if {[llength $events] > 0} {
+	eventheader pending "Pending Actions"
+	foreach event $events {
+		eventrow $event pending
+		set pmap([ekey $event]) [$event get action]
+	}
+	eventfooter "db=rsvp.db&tab=pending"
+}
+
+set events [rsv list]
+set num_ended 0
+eventheader live "Scheduled Events"
+foreach event $events {
+	eventrow $event TBL_RESERVATION
+}
+eventfooter "db=rsv.db&tab=TBL_RESERVATION"
+
+source assets.jim
+
+puts "<div class=footnote>Conflict evaluation: $conflicttime seconds</div>"
+
+footer
+

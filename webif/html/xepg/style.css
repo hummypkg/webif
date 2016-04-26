@@ -58,6 +58,15 @@ div.xerow
 {
 }
 
+div.xedate
+{
+	float: left;
+	clear: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: right;
+}
+
 div.xechan
 {
 	vertical-align: middle;
@@ -114,5 +123,76 @@ button#later
 .jcaquestion
 {
 	margin-left: 0px !important;
+}
+
+.timejump_outer, .dayjump_outer
+{
+}
+
+.timejump_bar, .dayjump_bar
+{
+	padding: 4px;
+	background: #e6e6e6;
+	display: inline-block;
+}
+
+.dayjump_bar
+{
+	padding-top: 0;
+	margin-bottom: 5px;
+}
+
+.timejump_label, .dayjump_label
+{
+	text-align: right;
+	font-style: italic;
+	display: inline-block;
+}
+
+.timejump
+{
+	display: inline-block;
+	width: 25px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 1em;
+	border-radius: 5px;
+	padding: 2px 0;
+}
+
+.dayjump
+{
+	display: inline-block;
+	width: 85px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 1em;
+	padding: 2px 0 5px 0;
+	border-top: 1px solid #73e600;
+}
+
+.timejump_hover, .dayjump_hover
+{
+	background: #ffffcc !important;
+}
+
+.dayjump_current
+{
+	border-radius: 10px;
+}
+
+.tjstart, .dayjump_current
+{
+	background: #73e600;
+}
+
+.tjother
+{
+	background: #ccff99;
+}
+
+.delayshow
+{
+	display: none;
 }
 

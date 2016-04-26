@@ -19,9 +19,7 @@ foreach event $events {
 		$event insert
 
 		system restartpending
-
 	}
-
 }
 
 footer

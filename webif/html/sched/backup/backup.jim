@@ -14,7 +14,7 @@ set file [file tail [cgi_get file \
     [clock format $now -format "auto-%Y-%b-%d-%H:%M"]]]
 
 if {[string match {auto-*} $file]} {
-	# Delete any automatic backups over 7 days old.
+	# Delete any automatic backups over 15 days old.
 	set mt $(15 * 86400)
 	foreach af [glob -nocomplain "$dir/auto-*"] {
 		set aft [file mtime $af]

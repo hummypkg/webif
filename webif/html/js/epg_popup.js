@@ -3,9 +3,9 @@ $(function() {
 	{
 		$('#epginfo_extra').load('/cgi-bin/epg/schedule.jim?' +
 		    'service=' +
-		    encodeURIComponent($('#dialogue').attr('xs')) +
+		    encodeURIComponent($('#epgpopup_dialogue').attr('xs')) +
 		    '&event=' +
-		    encodeURIComponent($('#dialogue').attr('xe')) +
+		    encodeURIComponent($('#epgpopup_dialogue').attr('xe')) +
 		    '&type=' + type, function() {
 			$('#restart_block').slideDown('slow');
 		});
@@ -24,14 +24,14 @@ $(function() {
 	    {"Record Series": function() { doschedule(2) }},
 	    $buttons2);
 
-	var $dialog = $('#dialogue').dialog({
+	var $dialog = $('#epgpopup_dialogue').dialog({
 		title: "Programme Details",
 		modal: false, autoOpen: false,
 		height: 500, width: 700,
 		show: 'scale', hide: 'fade',
 		draggable: true, resizable: true,
 		buttons: $buttons1,
-		close: function(e,u) { $('#dialogue').empty().html(
+		close: function(e,u) { $('#epgpopup_dialogue').empty().html(
 		    '<img src="/img/loading.gif" alt="loading">'); }
 	});
 
@@ -51,15 +51,15 @@ $(function() {
 		var url = '/cgi-bin/epg/info.jim?service=' +
 		    o.attr('xs') + '&event=' +
 		    o.attr('xe') + '&bare=1';
-		$('#dialogue')
+		$('#epgpopup_dialogue')
 		    .html('<img src=/img/loading.gif> Loading details...' +
 			' Please wait...')
 		    .load(url, function() {
-			$('#dialogue a.event').click(function(e) {
+			$('#epgpopup_dialogue a.event').click(function(e) {
 				epgpopup(e, $(this));
 			});
 		});
-		$('#dialogue')
+		$('#epgpopup_dialogue')
 		    .attr('xs', o.attr('xs'))
 		    .attr('xe', o.attr('xe'));
 		$dialog.dialog('open');

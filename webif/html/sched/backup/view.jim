@@ -52,7 +52,8 @@ foreach line $data {
 
 	set rsv [rsv new $vars]
 
-	puts "  [$rsv name] ([$rsv channel_name])"
+	puts "  [$rsv name] ([$rsv channel_name] [\
+	    clock format [$rsv start]] - [clock format [$rsv end]])"
 }
 
 close $fd

@@ -1,5 +1,5 @@
 puts {
-<div id=dialogue></div>
+<div id=epgpopup_dialogue></div>
 <script type=text/javascript src=/js/epg_popup.js></script>
 }
 
