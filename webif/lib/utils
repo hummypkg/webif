@@ -12,7 +12,3 @@ proc lremove {var val} {
 	set v [lsearch -all -inline -not -exact $v $val]
 }
 
-proc ladd {l} {
-	expr [join $l +] + 0
-}
-

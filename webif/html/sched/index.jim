@@ -12,7 +12,10 @@ jscss {
 	visual/script.js
 	backup/script.js
 	script.js
-} visual/style.css
+} {
+	list/style.css
+	visual/style.css
+}
 
 header
 # Prevent render time being shown in footer

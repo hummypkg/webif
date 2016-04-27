@@ -56,13 +56,20 @@ if (jQuery) (function() {
                             // Show the menu
                             $(document).unbind('click');
 //                            $(menu).css({ top: y, left: x }).fadeIn(o.inSpeed);
-			$(menu).css('display', 'block').position({
-			    my: "left top",
-			    at: "right bottom",
-			    of: this,
-			    offset: "0 5",
-			    collision: "fit"
-			}).css('display', 'none').fadeIn(o.inSpeed);
+			$(menu).css('display', 'block')
+			if (o.position == undefined)
+				$(menu).position({
+				    my: "left top",
+				    at: "right bottom",
+				    of: this,
+				    offset: "0 5",
+				    collision: "fit"
+				});
+			else
+				$(menu).position(o.position);
+			$(menu)
+			    .css('display', 'none')
+			    .fadeIn(o.inSpeed);
 
                             // Hover events
                             $(menu).find('A').mouseover(function() {

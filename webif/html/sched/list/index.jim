@@ -44,8 +44,7 @@ proc eventheader {{table TBL_RESERVATION} note} {
 	}
 
 	puts "
-		<fieldset id=sched_fs_$table
-		    style=\"display: inline; padding: 1em\">
+		<fieldset id=sched_fs_$table class=sched>
 		<legend>
 	"
 	puts "<h3>$note</h3>"
@@ -157,7 +156,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	}
 
 	if {$tag ne ""} {
-		puts "<br><span class=blood>&nbsp;$tag</span>"
+		puts "<br><span class=pendingnote>&nbsp;$tag</span>"
 	}
 
 	puts "</td>"

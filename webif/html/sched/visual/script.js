@@ -220,7 +220,7 @@ else
 
 }
 
-function menuclick(action, el, pos)
+function visual_menuclick(action, el, pos)
 {
 	var sid = $epgpopup.attr('sid');
 
@@ -261,7 +261,7 @@ function update_buttons(xs, xe)
 	}
 
 	$('#b_more').show().contextMenu({
-		menu: 'optmenu',
+		menu: 'visualoptmenu',
 		leftButton: true,
 		position: {
                     my: "center top",
@@ -269,7 +269,7 @@ function update_buttons(xs, xe)
                     of: $('#b_more'),
                     collision: "fit"
 		}
-	}, menuclick);
+	}, visual_menuclick);
 
 	if (oxs == xs && oxe == xe)
 	{

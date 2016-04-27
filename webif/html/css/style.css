@@ -445,11 +445,15 @@ span.toolbarcell
 	border-right: 1px solid #ccc;
 	text-align: center;
 	padding: 0 1em;
+	margin-top: 1px;
+	margin-left: 1px;
 }
 
 .tbhover
 {
 	background: #dfe8ef;
+	margin-top: 0 !important;
+	margin-left: 0 !important;
 	border-top: solid 1px #ccc;
 	border-left: solid 1px #ccc;
 }

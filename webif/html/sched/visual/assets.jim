@@ -3,8 +3,15 @@
 puts {
 <div id=epgpopup></div>
 
-<ul id=optmenu class=contextMenu style="width: 200px">
-        <li class=separator><a href=#refresh>Refresh Events</a></li>
+<ul id=visualoptmenu class=contextMenu style="width: 200px">
+	<li class="separator disabled">
+		<center>
+			<span class=blood style="font-style: italic">
+				More Options
+			</span>
+		</center>
+	</li>
+        <li class=refresh><a href=#refresh>Refresh Events</a></li>
 </ul>
 }
 

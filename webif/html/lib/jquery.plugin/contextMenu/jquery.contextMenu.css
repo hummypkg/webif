@@ -47,36 +47,3 @@
 	border-top: solid 1px #CCC;
 }
 
-/*
-	Adding Icons
-	
-	You can add icons to the context menu by adding
-	classes to the respective LI element(s)
-*/
-
-.contextMenu LI.pwedit A { background-image: url(/img/context/page_white_edit.png); }
-.contextMenu LI.pwcopy A { background-image: url(/img/context/page_white_copy.png); }
-.contextMenu LI.pwpaste A { background-image: url(/img/context/page_white_paste.png); }
-.contextMenu LI.pwdelete A { background-image: url(/img/context/page_white_delete.png); }
-.contextMenu LI.edit A { background-image: url(/img/context/edit.png); }
-.contextMenu LI.copy A { background-image: url(/img/context/copy.png); }
-.contextMenu LI.paste A { background-image: url(/img/context/paste.png); }
-.contextMenu LI.delete A { background-image: url(/img/context/delete.png); }
-.contextMenu LI.cut A { background-image: url(/img/context/cut.png); }
-.contextMenu LI.quit A { background-image: url(/img/context/door.png); }
-.contextMenu LI.compress A { background-image: url(/img/context/compress.png); }
-.contextMenu LI.compressr A { background-image: url(/img/context/compressr.png); }
-.contextMenu LI.dedup A { background-image: url(/img/context/dedup.png); }
-.contextMenu LI.decrypt A { background-image: url(/img/context/decrypt.png); }
-.contextMenu LI.decryptr A { background-image: url(/img/context/decryptr.png); }
-.contextMenu LI.mpg A { background-image: url(/img/context/mpg.png); }
-.contextMenu LI.mp3 A { background-image: url(/img/context/mp3.png); }
-.contextMenu LI.clock A { background-image: url(/img/context/clock.png); }
-.contextMenu LI.thm A { background-image: url(/img/context/thumb.png); }
-.contextMenu LI.bookmark A { background-image: url(/img/context/bookmark.png); }
-.contextMenu LI.lock A { background-image: url(/img/context/lock.png); }
-.contextMenu LI.rename A { background-image: url(/img/context/rename.png); }
-.contextMenu LI.download A { background-image: url(/img/context/download.png); }
-.contextMenu LI.new A { background-image: url(/img/context/new.png); }
-
-

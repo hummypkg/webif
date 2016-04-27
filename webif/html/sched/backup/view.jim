@@ -54,7 +54,7 @@ foreach line $data {
 
 	puts "  [$rsv name] ([$rsv channel_name] - [\
 	    clock format [$rsv start]] - [\
-	    clock format [$rsv end] -format {%H:%M}]"
+	    clock format [$rsv end] -format {%H:%M}])"
 }
 
 close $fd

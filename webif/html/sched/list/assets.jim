@@ -15,10 +15,10 @@ proc padval {num str def} {
 puts {
 <ul id=optmenu class=contextMenu style="width: 200px">
 	<li class=delete><a href=#delete>Delete</a></li>
-	<li class=separator><a href=#ar>Enable AR</a></li>
-	<li class=separator><a href=#refresh>Refresh Events</a></li>
-	<li class=separator><a href=#folder>Change Folder</a></li>
-	<li class=separator><a href=#mkfolder>Create Folder</a></li>
+	<li class="pad separator"><a href=#ar>Enable AR</a></li>
+	<li class="refresh separator"><a href=#refresh>Refresh Events</a></li>
+	<li class="folder separator"><a href=#folder>Change Folder</a></li>
+	<li class=folderadd><a href=#mkfolder>Create Folder</a></li>
 </ul>
 
 <div id=padding style="display: none">

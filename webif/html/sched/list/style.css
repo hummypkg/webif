@@ -1,0 +1,14 @@
+
+fieldset.sched
+{
+	display: inline;
+	padding: 1em;
+	vertical-align: top;
+}
+
+span.pendingnote
+{
+	font-style: bold;
+	color: white;
+}
+

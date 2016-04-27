@@ -1,13 +1,12 @@
 
 function refresh_backup_files()
 {
+	$('#restore_button,#delete_button,#view_button')
+	    .button('option', 'disabled', true);
 	$('#backup_files').load('backup/files.jim', function() {
 		$('input.restore').change(function() {
-			$('#restore_button').removeAttr('disabled')
-			    .button('option', 'disabled', false);
-			$('#delete_button').removeAttr('disabled')
-			    .button('option', 'disabled', false);
-			$('#view_button').removeAttr('disabled')
+			$('#restore_button,#delete_button,#view_button')
+			    .removeAttr('disabled')
 			    .button('option', 'disabled', false);
 		});
 	});
@@ -16,7 +15,10 @@ function refresh_backup_files()
 function backup_loaded()
 {
 
-$('button').button();
+$('#backup_button').button({icons: {primary: "ui-icon-disk"}});
+$('#restore_button').button({icons: {primary: "ui-icon-play"}});
+$('#delete_button').button({icons: {primary: "ui-icon-trash"}});
+$('#view_button').button({icons: {primary: "ui-icon-script"}});
 
 refresh_backup_files();
 
