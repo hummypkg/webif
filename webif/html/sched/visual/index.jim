@@ -9,7 +9,7 @@ set debug 0
 noheader
 set renderstart [clock milliseconds]
 
-set events [rsv allevents]
+set events [rsv allevents [[settings] hidevisualota]]
 set pending [rsv list pending]
 
 # hSvc -> usSvcId map
@@ -109,8 +109,6 @@ set padadj 0
 # Returns an absolute number of pixels from the left corresponding
 # to a number of seconds into the day.
 proc secstopx {daysecs hourpx usedhours} {
-	# No floor() in Humax jim
-	#set max [expr floor($daysecs / 3600)]
 	set max [expr int($daysecs / 3600)]
 	# Subtract any unused hours from $daysecs.
 	for {set i 0} {$i < $max} {incr i} {
@@ -119,7 +117,6 @@ proc secstopx {daysecs hourpx usedhours} {
 			incr daysecs -3600
 		}
 	}
-	#return [expr floor($daysecs / 3600 * $hourpx)]
 	return [expr int($daysecs * $hourpx / 3600)]
 }
 
@@ -274,7 +271,6 @@ proc render_timeline {usedhours} {
 	}
 
 	# calculate pixels per hour
-	#set hourpx [expr floor($width / $tothours)]
 	set hourpx [expr int($width / $tothours)]
 
 	if {$debug} {

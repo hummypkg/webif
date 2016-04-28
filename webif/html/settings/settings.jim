@@ -44,6 +44,7 @@ set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
 set notwitfeed [$settings notwitfeed]
 set nounwatchedcount [$settings nounwatchedcount]
+set hidevisualota [$settings hidevisualota]
 set chanchangenc [$settings chanchangenc]
 set xepghours [$settings xepghours]
 if {$xepghours == 0} { set xepghours 4 }
@@ -106,6 +107,7 @@ handle_int_update notwitfeed $notwitfeed "Disable twitter feed ticker"
 handle_int_update chanchangenc $chanchangenc \
     "Disable channel change confirmation"
 handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
+handle_int_update hidevisualota $hidevisualota "Hide OTA from visual view"
 handle_int_update genrededup $genrededup "Genre search dedup"
 handle_int_update autolog $autolog "Auto-processing log level"
 handle_int_update audiomp3 $audiomp3 "MP3 type"

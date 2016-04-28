@@ -30,6 +30,7 @@ class settings {
 	nohelplinks	0
 	notwitfeed	0
 	nounwatchedcount	0
+	hidevisualota	0
 	xepghours	4
 	genrededup	0
 	autolog		0
@@ -196,6 +197,10 @@ settings method notwitfeed {{val -1}} {
 
 settings method nounwatchedcount {{val -1}} {
 	return [$self _nval_setting nounwatchedcount $val]
+}
+
+settings method hidevisualota {{val -1}} {
+	return [$self _nval_setting hidevisualota $val]
 }
 
 settings method chanchangenc {{val -1}} {

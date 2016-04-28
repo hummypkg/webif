@@ -32,6 +32,7 @@ setting_toggle "Mobile link on main page?" "nomobile" $(!$nomobile) 1
 setting_toggle "Help links on main page?" "nohelplinks" $(!$nohelplinks) 1
 setting_toggle "Twitter feed ticker on main page?" "notwitfeed" $(!$notwitfeed) 1
 setting_toggle "Unwatched count on folders?" "nounwatchedcount" $(!$nounwatchedcount) 1
+setting_toggle "Hide OTA from Visual View?" "hidevisualota" $hidevisualota
 if {[system pkginst ir]} {
 	setting_toggle "Disable channel change confirmation?" \
 	    "chanchangenc" $chanchangenc 0

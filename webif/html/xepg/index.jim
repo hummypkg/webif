@@ -125,8 +125,8 @@ for {set i 0} {$i < 24} {incr i} {
 	}
 
 	set tt [expr $starthour + $stt + 3600 * ($i - $starthour)]
-	# Back to start of hour (no floor() in Humax Jim)
-	set tt $(3600 * round(1 + $tt / 3600))
+	# Back to start of hour
+	set tt $(3600 * int($tt / 3600))
 
 	if {$xclass ne "" || $i == 0 || $i == 12} {
 		append disp "<br>[clock format $tt -format %p]"
