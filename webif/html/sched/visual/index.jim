@@ -95,7 +95,7 @@ foreach p $pending {
 #      6:      class (live, pending)
 
 # Sort final events array
-set events [lsort -index 0 -integer $events]
+set events [lsort -index 0 -integer [lsort -index 2 -integer $events]]
 
 ######################################################################
 # Visualisation functions
