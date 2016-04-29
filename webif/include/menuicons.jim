@@ -40,7 +40,7 @@ puts {<div style="clear: both">}
 
 menuitem "Browse Media Files" "/images/323_1_10_Menu_Video.png" \
 	/go/mm_browse
-menuitem "Scheduled Events" "/images/321_1_00_Menu_CHList.png" \
+menuitem "Scheduled Events" "/img/Menu_CHList.png" \
 	/go/mm_schedule
 menuitem "EPG" "/images/328_1_26_Menu_TV_Guide.png" \
 	/go/mm_epg 217 228

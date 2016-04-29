@@ -33,7 +33,7 @@ if {[file exists "/mod/bin/ir"]} {
 	tb "/img/remote.png" "Remote" "/plugin/ir/remote.jim"
 }
 tb "/images/323_1_10_Menu_Video.png" "Browse" "/go/mm_browse"
-tb "/images/321_1_00_Menu_CHList.png" "Schedule" "/go/mm_schedule"
+tb "/img/Menu_CHList.png" "Schedule" "/go/mm_schedule"
 tb "/images/328_1_26_Menu_TV_Guide.png" "EPG" "/go/mm_epg"
 tb "/img/spanner.png" "Services" "/go/mm_service"
 tb "/img/packages.png" "Packages" "/go/mm_pkg"

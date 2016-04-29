@@ -906,14 +906,18 @@ proc {rsv allevents} {{xota 0}} {
 		lappend events {*}$pending
 	}
 
+	set today [clock scan 00:00:00 -format "%T"]
+
 	set xevents {}
 
 	foreach e $events {
 		set seen 0
 
-		if {$xota && [$e get szevtname] eq "Disable OTA"} continue
-
+		if {[$e get ersvtype] > 4} continue
 		if {[$e get action] ne "0"} continue
+		if {[$e start] < $today} continue
+
+		if {$xota && [$e get szevtname] eq "Disable OTA"} continue
 
 		set trailer [list \
 			[$e get ulslot] \

@@ -31,7 +31,7 @@ proc pop_event {{debug 0}} {
 		lassign [lindex $events $eindex] \
 		    start end hsvc eid slotid kind sclass
 		incr eindex
-		if {$debug} {
+		if {$debug > 1} {
 			puts "
 			--------------------------------------------------
 			EVENT$eindex
@@ -295,9 +295,7 @@ proc render_timeline {usedhours} {
 	set tomorrow {}
 
 	# Midnight today.
-	set day [clock scan \
-	    [clock format [clock seconds] -format "%Y:%m:%d:0:0:0"] \
-	    -format "%Y:%m:%d:%T"]
+	set day [clock scan "00:00:00" -format "%T"]
 
 	set elength [llength $events]
 	set eindex 0
