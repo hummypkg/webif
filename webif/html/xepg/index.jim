@@ -238,6 +238,16 @@ foreach e $records {
 		if {$bg eq "odd"} { set bg "even" } else { set bg "odd" }
 	}
 
+	if {[$e get event_id] eq ""} {
+		# No data for this service and time period
+		set px $(($ett - $stt) * $secpx)
+		puts "<div class=xeprog style=\"width: ${px}px\">
+		    <center><i>
+			No EPG data for this time range...
+		    </i></center></div>"
+		continue
+	}
+
 	set es [$e get start]
 	set ee [expr $es + [$e get duration]]
 

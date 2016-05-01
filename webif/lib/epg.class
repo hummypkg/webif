@@ -398,7 +398,7 @@ proc {epg dbfetch} {mode args} {
 	"
 
 	set from "
-	    from epg.epg e join TBL_SVC c
+	    from TBL_SVC c left join epg.epg e
 	    on e.service_id = c.usSvcId
 	"
 
@@ -430,7 +430,7 @@ proc {epg dbfetch} {mode args} {
 				-sort { set sort "order by $v" }
 				-trange {
 					lassign [split $v :] stt ett
-					append q "and (
+					append q "and (e.start is null or
 					(e.start > $stt and e.start < $ett) or
 					(e.end > $stt and e.end < $ett) or
 					(e.start < $stt and e.end > $stt)
