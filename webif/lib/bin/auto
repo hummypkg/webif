@@ -672,23 +672,35 @@ proc expire {dir {flag ""}} {
 	}
 }
 
-proc scan_run {dir flag callback} {
+proc scan_run {dir flag callback {seen {}}} {
 	global dustbin
 
 	if {$dir eq $dustbin} return
 
 	if {[specialdir $dir]} return
 
+	file stat $dir st
+	set key "$st(dev):$st(ino)"
+	if {$key in $seen} {
+		log "Already seen $dir ($key)" 2
+		return
+	}
+	lappend seen $key
+
 	if {[file exists "$dir/.$flag"]} { $callback $dir }
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
-			scan_run "$dir/$entry" $flag $callback
+			scan_run "$dir/$entry" $flag $callback $seen
+
+			file stat "$dir/$entry" st
+			set key "$st(dev):$st(ino)"
+			lappend seen $key
 		}
 	}
 }
 
-proc xscan {dir attr {force 0} {recurse 1}} {{indent 0} {forceflag ""}} {
+proc xscan {dir attr {force 0} {recurse 1} {seen {}}} {{indent 0} {forceflag ""}} {
 	global dustbin
 
 	incr indent 2
@@ -696,25 +708,35 @@ proc xscan {dir attr {force 0} {recurse 1}} {{indent 0} {forceflag ""}} {
 	log "[string repeat " " $indent]\[$dir]" 2
 
 	if {$dir eq $dustbin} {
-		log "Dustbin, skipping." 2
+		log "[string repeat " " $indent]Dustbin, skipping." 2
 		incr indent -2
 		return
 	}
 
+	file stat "$dir/" st
+
 	if {[specialdir $dir]} {
 		# Special folder
-		file stat "$dir/" st
 		if {$st(dev) != $::rootdev} {
-			log "Special folder on different device, skipping." 2
+			log "[string repeat " " $indent]Special folder on different device, skipping." 2
 			incr indent -2
 			return
 		}
 		if {$force} {
 			set force 0
 			set forceflag ""
-			log "Special folder, overriding recursion." 2
+			log "[string repeat " " $indent]Special folder, overriding recursion." 2
 		}
 	}
+
+	# Already seen
+	set key "$st(dev):$st(ino)"
+	if {$key in $seen} {
+		log "[string repeat " " $indent]Already seen, skipping." 2
+		incr indent -2
+		return
+	}
+	lappend seen $key
 
 	# Recursion
 	if {!$force && [file exists "$dir/.auto${attr}r"]} {
@@ -733,7 +755,10 @@ proc xscan {dir attr {force 0} {recurse 1}} {{indent 0} {forceflag ""}} {
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {$recurse && [file isdirectory "$dir/$entry"]} {
-			xscan "$dir/$entry" $attr $force
+			xscan "$dir/$entry" $attr $force $recurse $seen
+			file stat "$dir/$entry" st
+			set key "$st(dev):$st(ino)"
+			lappend seen $key
 		}
 	}
 

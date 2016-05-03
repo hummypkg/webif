@@ -73,6 +73,22 @@ $('div.xeprog').qtip({
 	}
 });
 
+if (nowoffset)
+{
+	var $kt = $('#xe0');
+	var ktpos = $kt.position();
+
+	var height = $('#keypos').position().top - 20;
+	var top = ktpos.top - 35;
+
+	var nowpos = ktpos.left + ($kt.width() * nowoffset);
+
+	$('#xepgnow')
+		.css('left', nowpos + 'px')
+		.css('top', top)
+		.height(height)
+		.show('slow');
+}
 
 });
 

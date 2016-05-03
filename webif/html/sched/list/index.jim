@@ -198,16 +198,16 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts [progressbar $perc]
 		}
 
-		if {[llength $elist] > 1} {
+		set c [llength $elist]
+		if {$c > 1} {
 			set i 0
-			set c [llength $elist]
 			set max 5
 			foreach e $elist {
 				lassign $e service_id start end event_id
 				if {$start == $s} continue
 
-				if {[incr i] == $max} {
-					set remain $($c - $i)
+				if {[incr i] == $max &&
+				    [set remain $($c - $i)] > 1} {
 					puts "
 				<div class=\"moretoshow footnote\">
                                     <center>
@@ -258,12 +258,12 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		} else {
 			puts "--:--:--"
 		}
-		if {[llength $elist] > 1} {
+		if {$c > 1} {
 			set i 0
 			foreach e $elist {
 				lassign $e service_id start end event_id
 				if {$start == $s} continue
-				if {[incr i] == $max} {
+				if {[incr i] == $max && [expr $c - $i] > 1} {
 				    puts "<div class=\"hidden moretoshowc\">"
 				} else {
 				    puts "<br>"
