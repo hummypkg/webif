@@ -433,8 +433,13 @@ proc {epg dbfetch} {mode args} {
 				    "and e.end >= $v " }
 				-before { append q \
 				    "and e.start < $v " }
-				-sort { set sort "order by $v" }
-				-nosort { set sort "" }
+				-sort {
+					if {$v eq ""} {
+						set sort ""
+					} else {
+						set sort "order by $v"
+					}
+				}
 				-trange {
 					lassign [split $v :] stt ett
 					append q "and (e.start is null or

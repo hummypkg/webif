@@ -900,9 +900,9 @@ if ($('img.mp3icon'))
 	$.getJSON('/browse/mp3.jim', {dir: dir}, function(data, status, xhr) {
 	    $.each(data, function(file, type) {
 		if (type == 'mp2')
-			alt = 'MPEG-1 Audio Layer III (MP3)';
-		else if (type == 'mp3')
 			alt = 'MPEG-1 Audio Layer II (MP2)';
+		else if (type == 'mp3')
+			alt = 'MPEG-1 Audio Layer III (MP3)';
 		else
 			alt = type;
 		$('a.bf[file$="/' + encodeURIComponent(file) + '"]')
