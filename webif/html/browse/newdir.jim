@@ -3,6 +3,7 @@
 package require cgi
 package require pack
 source /mod/webif/lib/setup
+require escape
 
 httpheader "application/json"
 
@@ -21,7 +22,7 @@ foreach dir [glob -nocomplain "$root"] {
 		set diff $($recs - $plays)
 		if {$diff > 0} {
 			set node [lindex [split $dir /] end]
-			puts "\"$node\": $diff,"
+			puts "\"[jescape $node]\": $diff,"
 		}
 	}
 }

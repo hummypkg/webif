@@ -183,7 +183,8 @@ proc showevent {s class &overflow &tomorrow &pxpos start end usedhours daystart 
 		set slotid [$s get ulslot]
 	}
 	if {$service > 0} {
-		set epgs [epg dbfetch dump -service $service -event $event]
+		set epgs [epg dbfetch dump \
+		    -nosort 1 -service $service -event $event]
 		if {[llength $epgs] == 1} {
 			lassign $epgs epg
 			set name [$epg get name]

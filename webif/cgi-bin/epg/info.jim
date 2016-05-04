@@ -12,7 +12,8 @@ set service [cgi_get service 0]
 set event [cgi_get event 0]
 if {![cgi_exists bare]} header else noheader
 
-set record [lindex [epg fetch dump -service $service -event $event] 0]
+set record [lindex [\
+    epg dbfetch dump -nosort 1 -service $service -event $event] 0]
 $record get_channel_info
 set others [$record othertimes]
 

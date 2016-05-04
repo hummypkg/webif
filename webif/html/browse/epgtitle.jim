@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class
+require ts.class escape
 
 httpheader "application/json"
 
@@ -10,14 +10,10 @@ set file [cgi_get file]
 if {$file == 0} exit
 set ts [ts fetch $file]
 
-proc esc {str} {
-	return [string map {"\n" " "} $str]
-}
-
 puts "{"
-puts "\"title\" : \"[esc [$ts get title]]\","
-puts "\"synopsis\" : \"[esc [$ts get synopsis]]\","
-puts "\"guidance\" : \"[esc [$ts get guidance]]\","
-puts "\"genre\" : [esc [$ts get genre]]"
+puts "\"title\" : \"[jescape [$ts get title]]\","
+puts "\"synopsis\" : \"[jescape [$ts get synopsis]]\","
+puts "\"guidance\" : \"[jescape [$ts get guidance]]\","
+puts "\"genre\" : [jescape [$ts get genre]]"
 puts "}"
 

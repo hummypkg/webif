@@ -12,16 +12,16 @@ require epg.class spinner.class altrow epg_search totop system.class
 
 set irinst [system pkginst ir]
 
-set s [settings]
+set settings [settings]
 
-if {[$s chanchangenc]} {
+if {[$settings chanchangenc]} {
 	puts { <script type=text/javascript src=/js/chanchangenc.js></script> }
 } else {
 	jqplugin confirmAction
 	puts { <script type=text/javascript src=/js/chanchange.js></script> }
 }
 
-if {[$s service_style] eq "standard"} {
+if {[$settings service_style] eq "standard"} {
 	set surl xservice
 } else {
 	set surl service
@@ -44,7 +44,7 @@ if {$stt <= $now} {
 	set current 0
 }
 
-set favgroup [$s channel_group]
+set favgroup [$settings channel_group]
 
 set hours [cgi_get hours -]
 if {$hours eq "-"} {
@@ -77,13 +77,11 @@ set secpx $($minpx / 60.0)
 
 set start [clock milliseconds]
 if {$::qepg} {
+	set args [list -trange "$stt:$ett" -ljoin 1]
 	if {$favgroup} {
-		set records [epg dbfetch dump \
-		    -trange "$stt:$ett" -fav $favgroup]
-	} else {
-		set records [epg dbfetch dump -trange "$stt:$ett"]
+		lappend args -fav $favgroup
 	}
-
+	set records [epg dbfetch dump {*}$args]
 } else {
 	require channelsort
 	set records [channelsort [epg fetch dump -trange "$stt:$ett"]]
@@ -211,8 +209,13 @@ jscss script.js
 puts "
 <div id=xepgnow></div>
 <div id=xepg style=\"min-width: ${contwidth}px;\">
-<div id=xegrid>
 "
+
+if {[$settings epgscroll]} {
+	puts "<div id=xegrid style=\"height: 500px; overflow-y: auto;\">"
+} else {
+	puts "<div id=xegrid>"
+}
 
 set lim 0
 set lcn 0

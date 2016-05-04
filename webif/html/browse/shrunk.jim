@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class
+require ts.class escape
 
 httpheader "application/json"
 
@@ -27,7 +27,7 @@ foreach file [readdir -nocomplain $dir] {
 		if {!$eit} { $ts set_shrunk }
 	}
 
-	puts " \"$file\": $eit,"
+	puts " \"[jescape $file]\": $eit,"
 }
 puts " \"dummy\": 0"
 puts "}"

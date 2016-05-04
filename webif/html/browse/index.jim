@@ -203,6 +203,9 @@ proc entry {file} {{i 0}} {
 		lassign [ts iconset $ts] icons attrs
 
 		puts [join $icons ""]
+	} elseif {$ext eq ".mp3"} {
+		# Will be completed using an ajax call.
+		icon "/img/blank.gif" "" "" "va mp3icon"
 	}
 
 	# Indexed

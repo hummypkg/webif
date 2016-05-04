@@ -116,6 +116,7 @@ puts "
 	</tr>
 "
 
+setting_toggle "Grid EPG Fixed Scrolling?" epgscroll $epgscroll
 setting_toggle "De-duplicate genre search results?" genrededup $genrededup
 
 puts "

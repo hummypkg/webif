@@ -26,6 +26,7 @@ if {[llength $conflicts] > 1} {
 }
 
 require epg_popup
+puts "<div id=list_output class=hidden></div>"
 
 set pkey_tags {
         1 "Pending unschedule"

@@ -1,0 +1,28 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require escape
+
+httpheader "application/json"
+
+set dir [cgi_get dir "/media/My Video/test"]
+
+puts "{"
+foreach file [readdir $dir] {
+	if {[file extension $file] ne ".mp3"} continue
+
+	if {[catch {
+		set lines [exec ffprobe -v error -show_streams "$dir/$file"]
+	}]} continue
+
+	foreach line $lines {
+		if {[string match "codec_name=mp*" $line]} {
+		    puts "\"[jescape $file]\": \"[string range $line 11 end]\","
+		}
+	}
+}
+
+puts "\"dummy\":0"
+puts "}"
+

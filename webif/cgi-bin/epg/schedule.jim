@@ -15,7 +15,8 @@ if {$service eq "-" || $event eq "-"} {
 	exit
 }
 
-set event [lindex [epg fetch dump -service $service -event $event] 0]
+set event [lindex [\
+    epg dbfetch dump -nosort 1 -service $service -event $event] 0]
 if {$event eq ""} {
 	puts "Error, cannot find event to schedule."
 	exit

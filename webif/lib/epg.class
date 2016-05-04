@@ -398,7 +398,7 @@ proc {epg dbfetch} {mode args} {
 	"
 
 	set from "
-	    from TBL_SVC c left join epg.epg e
+	    from epg.epg e join TBL_SVC c
 	    on e.service_id = c.usSvcId
 	"
 
@@ -411,6 +411,12 @@ proc {epg dbfetch} {mode args} {
 			set v $args($arg)
 			switch -- $arg {
 				-debug { set debug $v }
+				-ljoin {
+					set from "
+					    from TBL_SVC c left join epg.epg e
+					    on e.service_id = c.usSvcId
+					"
+				}
 				-crid { append q \
 				    "and e.event_crid = '$v' " }
 				-scrid { append q \
@@ -428,6 +434,7 @@ proc {epg dbfetch} {mode args} {
 				-before { append q \
 				    "and e.start < $v " }
 				-sort { set sort "order by $v" }
+				-nosort { set sort "" }
 				-trange {
 					lassign [split $v :] stt ett
 					append q "and (e.start is null or

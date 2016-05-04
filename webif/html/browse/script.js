@@ -894,6 +894,25 @@ $.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
 // Flag folders with unwatched items
 $.getJSON('/browse/newdir.jim', {dir: dir}, new_folder_callback);
 
+// Populate MPÂ3 icons (if any found)
+if ($('img.mp3icon'))
+{
+	$.getJSON('/browse/mp3.jim', {dir: dir}, function(data, status, xhr) {
+	    $.each(data, function(file, type) {
+		if (type == 'mp2')
+			alt = 'MPEG-1 Audio Layer III (MP3)';
+		else if (type == 'mp3')
+			alt = 'MPEG-1 Audio Layer II (MP2)';
+		else
+			alt = type;
+		$('a.bf[file$="/' + encodeURIComponent(file) + '"]')
+		    .siblings('img.mp3icon')
+		    .attr('src', '/img/mp3_' + type + '.png')
+		    .attr('alt', alt).attr('title', alt);
+	    });
+	});
+}
+
 // Load clipboard
 reloadclipboard();
 

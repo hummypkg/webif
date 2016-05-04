@@ -32,7 +32,7 @@ foreach file [readdir $dir] {
 		if {[lindex $fields 1] eq $lk} {
 			set node [file tail $file]
 			set size [lindex $fields 0]
-			puts "\"$node\" : \"@$size\","
+			puts "\"[jescape $node]\" : \"@$size\","
 		}
 	}
 }

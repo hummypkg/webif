@@ -36,6 +36,7 @@ set hostname [$settings hostname]
 set smtp_server [$settings smtp_server]
 set channel_group [$settings channel_group]
 set epg_style [$settings epg_style]
+set epgscroll [$settings epgscroll]
 set service_style [$settings service_style]
 set notoolbar [$settings notoolbar]
 set tvdb [$settings tvdb]
@@ -93,6 +94,7 @@ handle_str_update hostname $hostname Hostname
 _handle_update ascii smtp_server $smtp_server "SMTP Server"
 handle_int_update channel_group $channel_group "Channel Group"
 handle_int_update xepghours $xepghours "Grid EPG Hours"
+handle_int_update epgscroll $epgscroll "Fixed EPG Scrolling"
 handle_str_update epg_style $epg_style "EPG Type"
 handle_str_update service_style $service_style "EPG Channel Type"
 handle_int_update pkgdev $pkgdev "Development Package Display"

@@ -1,8 +1,14 @@
 
-if {![exists -proc escape]} {
-	proc escape {str} {
-		regsub -all -- {"} "$str" "\\\"" str
-		return $str
+if {![exists -proc jescape]} {
+	proc jescape {str} {
+		return [string map {
+			"\"" "\\\""
+			"\n" " "
+		} $str]
+		#regsub -all -- {"} "$str" "\\\"" str
+		#return $str
 	}
+
+	alias escape jescape
 }
 

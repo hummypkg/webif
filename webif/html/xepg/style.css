@@ -1,6 +1,8 @@
 div#xepg
 {
+	clear: left;
 	position: relative;
+	overflow: visible;
 }
 
 div#xepgnow
