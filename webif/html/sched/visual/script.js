@@ -19,11 +19,18 @@ $epgpopup = $('#epgpopup').dialog({
 	draggable: true, resizable: true,
 	buttons: [
 	    {
-		text: 'Cancel Entire Recording',
+		text: 'Cancel Recording',
 		id: 'b_cancel',
 		class: 'ep_button',
 		icons: { primary: "ui-icon-trash" },
 		click: cancel_recording
+	    },
+	    {
+		text: 'Cancel Pending Change',
+		id: 'b_cancelpending',
+		class: 'ep_button',
+		icons: { primary: "ui-icon-trash" },
+		click: cancel_pending
 	    },
 	    {
 		text: 'Skip This Episode',
@@ -78,6 +85,30 @@ function cancel_recording()
 				$.growl.error({ title: 'Success',
 				    message:
 				    "The recording has been cancelled." });
+				list_reload_required = true;
+			});
+	});
+}
+
+function cancel_pending()
+{
+	$('#b_cancelpending').dojConfirmAction({
+		question: 'Cancel Pending Change?',
+		yesAnswer: 'Yes',
+		cancelAnswer: 'No'
+		}, function(el) {
+			var sid = $epgpopup.attr('sid');
+			$.get('rpc/cancel.jim', {
+				slot: sid,
+				table: 'pending'
+			    }, function() {
+				$('.ct_event[sid=' + sid + ']')
+				    .attr('sclass', 'queued-unschedule')
+				    .addClass('purpleshade strike');
+				$epgpopup.dialog('close');
+				$.growl.error({ title: 'Success',
+				    message:
+				    "The pending change has been cancelled." });
 				list_reload_required = true;
 			});
 	});
@@ -254,9 +285,13 @@ function update_buttons(xs, xe)
 	var sclass = $epgpopup.attr('sclass');
 	var crid = $.trim($epgpopup.find('span.scrid').text());
 
-	if (sid == 0 || sclass != 'tbl_reservation')
+	$('.ep_button').hide();
+	if (sid < 0)
+		return;
+
+	if (sclass.indexOf('pending') >= 0)
 	{
-		$('.ep_button').hide();
+		$('#b_cancelpending').show();
 		return;
 	}
 
