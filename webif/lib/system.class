@@ -453,8 +453,12 @@ proc {system dirinuse} {dir} {
 	return $files
 }
 
-proc {system reboot} {} {
-	exec /mod/webif/lib/bin/reboot
+proc {system reboot} {{fast 0}} {
+	if {$fast} {
+		exec /mod/webif/lib/bin/reboot -f
+	} else {
+		exec /mod/webif/lib/bin/reboot
+	}
 }
 
 proc {system restartpending} {{mode 1}} {

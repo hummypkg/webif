@@ -11,6 +11,7 @@ cgi_input 1
 set cb [[clipboard new {path "/tmp/webif-browse.cb"}] load]
 
 set action [cgi_get act list]
+set imgpath "/lib/jquery.plugin/contextMenu/images"
 
 switch $action {
     list {
@@ -27,7 +28,7 @@ switch $action {
 		set path [$file get path]
 		set xpath [cgi_quote_html $path]
 		puts "<span title=\"$xpath\" alt=\"$xpath\">"
-		puts "<img src=/img/context/$img.png>"
+		puts "<img src=$imgpath/$img.png>"
 		set dfile [file tail $path]
 		if {[string length $dfile] > 25} {
 			set dfile "[string range $dfile 0 22]..."

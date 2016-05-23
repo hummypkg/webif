@@ -1,8 +1,111 @@
 #!/bin/sh
 
+#exec >>/tmp/reboot.log 2>&1
+
+if [ "$1" = "-f" -a "$0" != "/tmp/fastreboot" ]; then
+	cp $0 /tmp/fastreboot
+	chmod 755 /tmp/fastreboot
+	exec /tmp/fastreboot -f
+
+	exit 0
+fi
+
+readwakeup()
+{
+	# Read the wakeup timer from the front panel
+	tries=10
+	while [ $tries -gt 0 ]; do
+		wakeup="`/mod/bin/hwctl d`"
+		[ -n "$wakeup" ] && break
+		tries=$((tries - 1))
+		sleep 1
+	done
+		
+	echo "Wakeup: $wakeup"
+}
+
+setwakeup()
+{
+	tries=10
+	while [ $tries -gt 0 ]; do
+		echo "Setting wakeup timer..."
+		/mod/bin/hwctl 5 1 ^`date +%s` >/dev/null
+		tries=$((tries - 1))
+		if readwakeup | grep "00 00 00 00"; then
+			sleep 1
+			continue
+		fi
+		echo "Success"
+		break
+	done
+}
+
+lbr=0
+if [ -f /tmp/.lbr ]; then
+	lbr="`cat /tmp/.lbr`"
+	echo "LBR: $lbr"
+else
+	# No last-boot-reason file, fall-back to reading timer directly.
+	echo "No .lbr, falling back to timer..."
+	if readwakeup | grep "00 00 00 00"; then
+		echo "Setting LBR=3"
+		lbr=3
+	fi
+fi
+
+if [ $lbr -eq 3 ]; then
+	# Last boot was for scheduled recording. Need to set a wakeup
+	# flag in the Micom or the reboot will result in the Humax
+	# software just powering down (it presumably think that there has
+	# been a power failure).
+	readwakeup	# For interest
+	setwakeup
+	readwakeup
+fi
+
+# Normal reboot.
+
+if [ "$1" != "-f" ]; then
+	/etc/init.d/S90settop shut
+	/mod/bin/sync
+	/sbin/reboot
+	exit 0
+fi
+
+######################################################################
+# Fast reboot, thanks to work by prpr
+
+model="`cat /etc/model`"
+
+# Stop mod services
+for f in /mod/etc/init.d/S??*; do
+	[ -f "$f" ] || continue
+	$f stop
+done
+
+# Stop Humax App
 /etc/init.d/S90settop shut
-/mod/bin/sync
-/sbin/reboot
+
+# Kill DHCP daemon
+killall udhcpc
+
+# Stop any processes still using the disk
+#sleep 1
+#[ "$model" = "HDR" ] && part=/mnt/hd2 || part=/media/drive1
+#lsof -t $part | xargs kill -9
+
+# Unmount disks
+mount | grep '^/dev/sd' | awk '{print $1}' | xargs umount -l
+
+# Stop device
+for f in /sys/block/sd?; do
+	echo 1 >> $f/device/delete
+done
+
+# Restart xinit modules
+/etc/init.d/S80xinit start
+# Restart Humax app
+/etc/init.d/S90settop resume
 
 exit 0
 
