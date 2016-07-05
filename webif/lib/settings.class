@@ -39,6 +39,7 @@ class settings {
 	audiomp3	0
 	logsize		1048576
 	logkeep		2
+	rtschedule	0
 }
 
 settings method hostname {{name ""}} {
@@ -210,6 +211,10 @@ settings method hidevisualota {{val -1}} {
 
 settings method chanchangenc {{val -1}} {
 	return [$self _nval_setting chanchangenc $val]
+}
+
+settings method rtschedule {{val -1}} {
+	return [$self _nval_setting rtschedule $val]
 }
 
 settings method sortorder {{val -1}} {

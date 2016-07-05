@@ -10,6 +10,14 @@ if [ "$1" = "-f" -a "$0" != "/tmp/fastreboot" ]; then
 	exit 0
 fi
 
+model="`cat /etc/model`"
+
+feedback()
+{
+	[ -x /mod/bin/hwctl ] && /mod/bin/hwctl 13 0 >> /dev/null 2>&1
+	[ "$model" = HDR ] && display "$1" || display "\$$2"
+}
+
 readwakeup()
 {
 	# Read the wakeup timer from the front panel
@@ -43,7 +51,7 @@ setwakeup()
 lbr=0
 if [ -f /tmp/.lbr ]; then
 	lbr="`cat /tmp/.lbr`"
-	echo "LBR: $lbr"
+	#echo "LBR: $lbr"
 else
 	# No last-boot-reason file, fall-back to reading timer directly.
 	echo "No .lbr, falling back to timer..."
@@ -66,8 +74,9 @@ fi
 # Normal reboot.
 
 if [ "$1" != "-f" ]; then
+	feedback  "Reboot..." "REBT"
 	/etc/init.d/S90settop shut
-	/mod/bin/sync
+	/bin/sync
 	/sbin/reboot
 	exit 0
 fi
@@ -75,11 +84,13 @@ fi
 ######################################################################
 # Fast reboot, thanks to work by prpr
 
-model="`cat /etc/model`"
+feedback  "Fast Reboot" "FRBT"
 
 # Stop mod services
-for f in /mod/etc/init.d/S??*; do
-	[ -f "$f" ] || continue
+for f in `ls -1r /mod/etc/init.d/S??*`; do
+	[ -f "$f" -a -x "$f" ] || continue
+	# Don't stop the SSH server
+	echo $f | grep -q dropbear && continue
 	$f stop
 done
 
@@ -95,12 +106,15 @@ killall udhcpc
 #lsof -t $part | xargs kill -9
 
 # Unmount disks
+/bin/sync
 mount | grep '^/dev/sd' | awk '{print $1}' | xargs umount -l
 
 # Stop device
 for f in /sys/block/sd?; do
 	echo 1 >> $f/device/delete
 done
+
+feedback "START SYSTEM" "boot"
 
 # Restart xinit modules
 /etc/init.d/S80xinit start

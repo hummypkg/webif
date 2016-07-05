@@ -300,7 +300,7 @@ rsv method cleanvars {} {
 	    }]]
 }
 
-rsv method insert {{table pending} {force 0}} {
+rsv method insert {{table pending} {force 0} {defer 0}} {
 	global rsvdb
 
 	# Duplicate check - all tables
@@ -375,6 +375,8 @@ rsv method insert {{table pending} {force 0}} {
 
 	$rsvdb query "delete from ${table} where ulslot = $ulslot;"
 	$rsvdb query $query {*}$bvals
+
+	if {$table eq "pending" && !$defer} { rsv commit }
 }
 
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
@@ -531,15 +533,14 @@ proc {rsv cleanup} {} {
 }
 
 proc {rsv commit} {} {
-	$::rsvdb query {begin transaction}
-	foreach rec [rsv list pending] {
-		if {[$rec get action] == 0} {
-			$rec clear_ulslot
-			$rec insert TBL_RESERVATION 1
-		}
+	if {![system pkginst nugget]} return
+	if {![[settings] rtschedule]} return
+	if {[catch {
+	    exec /mod/boot/rsvsync -realtime >> /tmp/rsvsync.log} msg]} {
+		puts "Scheduling: $msg"
+	} else {
+		system restartpending 0
 	}
-	$::rsvdb query {delete from pending}
-	$::rsvdb query {commit transaction}
 }
 
 proc {rsv construct} {event type} {

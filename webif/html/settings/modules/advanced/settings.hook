@@ -12,6 +12,10 @@ puts -nonewline "
 
 setting_toggle "Show development and advanced packages?" "pkgdev" $pkgdev
 
+if {[system pkginst nugget]} {
+	setting_toggle "Real-time scheduling? <span class=blood>(beta)</span>" "rtschedule" $rtschedule
+}
+
 puts -nonewline "
 	<tr>
 	<form class=auto id=logsize method=get action=$env(SCRIPT_NAME)>
@@ -54,7 +58,7 @@ puts -nonewline "
 "
 
 if {[system modversion 1] >= 214} {
-	setting_toggle "Expert mode telnet server?" "xtelnet" \
+	setting_toggle "Disable telnet menu?" "xtelnet" \
 	    [file exists /mod/boot/xtelnet] 0 1
 }
 

@@ -1,6 +1,9 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
+require settings.class
+
+set settings [settings]
 
 header
 
@@ -26,9 +29,19 @@ $(document).ready(function() {
 
 source /mod/webif/include/menuicons.jim
 
-puts {
-</div>
+if {[$settings notwitfeed] == 0} {
+	source /mod/webif/include/twitfeed.jim
+}
 
+puts {<div class=cleft>}
+if {[$settings nohelplinks] == 0} {
+	source /mod/webif/include/helplinks.jim
+}
+puts {</div><div class=right>}
+source /mod/webif/include/modversion.jim
+puts {</div>}
+
+puts {
 <div class=footer>
 <ul>
 <li>
@@ -39,11 +52,6 @@ Firmware</a> |
 <a target=_blank href="http://wiki.hummy.tv/wiki/Webif_release_notes">Webif</a>
 </li>
 </ul>
-}
-
-source /mod/webif/include/modversion.jim
-
-puts {
 </div>
 }
 

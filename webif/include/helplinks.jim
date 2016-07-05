@@ -1,0 +1,28 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+
+proc helplink {title icon link} {
+	puts -nonewline "
+<div class=left>
+	<center>
+	<a href=\"$link\" target=_blank>
+		<img src=$icon style=\"padding: 1em\" border=0 height=100>
+	</a>
+	<br>
+	<a href=\"$link target=_blank\">
+		<b>$title</b>
+	</a>
+	<br>
+	</center>
+</div>
+"
+}
+
+helplink "hummy.tv<br>Forums" "/img/forum.png" "http://hummy.tv/"
+helplink "hummy.tv<br>Wiki" "/img/wiki.png" "http://wiki.hummy.tv/"
+helplink "Things Every<br>Owner Should Know" "/img/started.png" \
+	"http://hummy.tv/forum/threads/1858/"
+helplink "Twitter<br>Feed" "/img/silver-twitter-bird-button.png" \
+	"http://twitter.com/HummyPkg"
+

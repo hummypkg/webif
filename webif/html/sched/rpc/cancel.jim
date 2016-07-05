@@ -19,8 +19,9 @@ foreach slot [split $slots ","] {
 
 	$event clear_ulslot
 	$event set_delete
-	$event insert
+	$event insert pending 0 1
 }
 
+rsv commit
 system restartpending
 
