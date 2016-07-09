@@ -963,8 +963,7 @@ proc {rsv allevents} {{xota 0}} {
 				incr end 86400
 				
 				# Sun == 0
-				set day [clock format [$e start] \
-				    -format "%w"]
+				set day [clock format $start -format "%w"]
 
 				# Weekdays Only
 				if {$repeat == 3 && ($day == 0 || $day == 6)} {
