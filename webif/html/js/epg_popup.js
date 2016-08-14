@@ -7,7 +7,10 @@ $(function() {
 		    '&event=' +
 		    encodeURIComponent($('#epgpopup_dialogue').attr('xe')) +
 		    '&type=' + type, function() {
-			$('#restart_block').slideDown('slow');
+			$.getJSON('/cgi-bin/pending.jim', function(data) {
+				if (data.pending > 0)
+					$('#restart_block').slideDown('slow');
+			});
 		});
 		$(":button:contains('Record')").fadeOut('slow');
 		$(":button:contains('Reminder')").fadeOut('slow');

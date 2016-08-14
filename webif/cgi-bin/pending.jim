@@ -1,0 +1,9 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require rsv.class
+
+httpheader "application/json"
+
+puts "{ \"pending\": \"[rsv count pending]\" }"
+
