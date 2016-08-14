@@ -88,10 +88,10 @@ foreach tw [$db query {
 			"Dave" { set mux "COM5/ARQ A" }
 			"4Music" -
 			"Yesterday" { set mux "COM6/ARQ B" }
-			"BBC FOUR HD" -
 			"BBC NEWS HD" { set mux "COM7/ARQ C" }
 			"Made In *" -
 			"Movies4Men" { set mux "Local" }
+			"CBeebies HD" -
 			"QVC + 1 HD" { set mux "COM8/ARQ D" }
 		}
 	}
