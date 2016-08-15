@@ -303,6 +303,13 @@ rsv method cleanvars {} {
 rsv method insert {{table pending} {force 0} {defer 0}} {
 	global rsvdb
 
+	# In-progress check
+	set now [clock seconds]
+	if {$nsttime <= $now && [expr $nsttime + $nduration] >= $now} {
+		throw 20 "Event already in progress."
+		return
+	}
+
 	# Duplicate check - all tables
 	if {!$force && $szCRID ne "" && $action == 0} {
 		foreach tab {pending TBL_RESERVATION} {
