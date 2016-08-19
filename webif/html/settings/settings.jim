@@ -4,62 +4,11 @@ package require cgi
 source /mod/webif/lib/setup
 require settings.class plugin system.class spinner.class
 
+cgi_input
+
 httpheader
 
-if {[cgi_get act] eq "https"} {
-	set val [cgi_get val off]
-	if {$val in {0 off}} {
-		exec /mod/webif/lib/bin/mkcert -delete
-		puts "HTTPS Server will be disabled after next reboot."
-	} else {
-		exec /mod/webif/lib/bin/mkcert
-		puts "HTTPS Server will be enabled after next reboot."
-	}
-	exit
-}
-
-if {[cgi_get act] eq "xtelnet"} {
-	set val [cgi_get val off]
-	if {$val in {0 off}} {
-		file delete /mod/boot/xtelnet
-		puts "Telnet server expert mode will be disabled after next reboot."
-	} else {
-		exec /mod/bin/busybox/touch /mod/boot/xtelnet
-		puts "Telnet server expert mode will be enabled after next reboot."
-	}
-	exit
-}
-
 set settings [settings new]
-
-set hostname [$settings hostname]
-set smtp_server [$settings smtp_server]
-set channel_group [$settings channel_group]
-set epg_style [$settings epg_style]
-set epgscroll [$settings epgscroll]
-set service_style [$settings service_style]
-set notoolbar [$settings notoolbar]
-set tvdb [$settings tvdb]
-set tvdb_debug [$settings tvdb_debug]
-set rtschedule [$settings rtschedule]
-set nomobile [$settings nomobile]
-set nohelplinks [$settings nohelplinks]
-set notwitfeed [$settings notwitfeed]
-set nounwatchedcount [$settings nounwatchedcount]
-set hidevisualota [$settings hidevisualota]
-set chanchangenc [$settings chanchangenc]
-set xepghours [$settings xepghours]
-if {$xepghours == 0} { set xepghours 4 }
-set genrededup [$settings genrededup]
-set audiomp3 [$settings audiomp3]
-set autolog [$settings autolog]
-set pkgdev [$settings pkgdev]
-set logsize [$settings logsize]
-set logkeep [$settings logkeep]
-set dedup_template [$settings dedup_template]
-
-# Handle updates
-
 if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 
 proc _handle_update {class var old text {trim 1}} {
@@ -91,59 +40,19 @@ proc handle_str_update {var old {text "Value"} {class alnum} {trim 1}} {
 	_handle_update $class $var $old $text $trim
 }
 
-handle_str_update hostname $hostname Hostname
-_handle_update ascii smtp_server $smtp_server "SMTP Server"
-handle_int_update channel_group $channel_group "Channel Group"
-handle_int_update xepghours $xepghours "Grid EPG Hours"
-handle_int_update epgscroll $epgscroll "Fixed EPG Scrolling"
-handle_str_update epg_style $epg_style "EPG Type"
-handle_str_update service_style $service_style "EPG Channel Type"
-handle_int_update pkgdev $pkgdev "Development Package Display"
-handle_int_update logsize $logsize "Log rotation size"
-handle_int_update logkeep $logkeep "Logs to keep"
-handle_int_update notoolbar $notoolbar "Disable toolbar"
-handle_int_update tvdb $tvdb "Enable tvdb"
-handle_int_update tvdb_debug $tvdb_debug "Enable tvdb debugging"
-handle_int_update rtschedule $rtschedule "Enable real-time scheduling"
-handle_int_update nomobile $nomobile "Disable mobile link"
-handle_int_update nohelplinks $nohelplinks "Disable help links"
-handle_int_update notwitfeed $notwitfeed "Disable twitter feed ticker"
-handle_int_update chanchangenc $chanchangenc \
-    "Disable channel change confirmation"
-handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
-handle_int_update hidevisualota $hidevisualota "Hide OTA from visual view"
-handle_int_update genrededup $genrededup "Genre search dedup"
-handle_int_update autolog $autolog "Auto-processing log level"
-handle_int_update audiomp3 $audiomp3 "MP3 type"
-handle_str_update dedup_template $dedup_template "Dedup Template" print 0
+######################################################################
+# Settings Modules
 
-set acluser [cgi_get acluser "-"]
-set aclpass [cgi_get aclpass "-"]
-set aclpassc [cgi_get aclpassc "-"]
-if {$acluser ne "-" && $aclpass ne "-"} {
-	if {![string length $acluser]} {
-		puts "No username provided."
-		exit
+set moddir /mod/webif/html/settings/modules
+foreach mod {general tvdb web epg network advanced} {
+	if {[file exists "$moddir/$mod/.disabled"]} continue
+	if {[catch {source "$moddir/$mod/init.hook"} msg]} {
+		puts "ERROR: $msg"
 	}
-	if {$aclpass ne $aclpassc} {
-		puts "Passwords do not match."
-		exit
-	}
-	if {[string length $aclpass] < 4} {
-		puts "Password is too short (< 4 characters)"
-		exit
-	}
-	puts [$settings addacluser $acluser $aclpass]
-	exit
 }
 
-set aclact [cgi_get aclact "-"]
-if {$aclact ne "-" && $acluser ne "-"} {
-	switch $aclact {
-		"del" { puts [$settings delacluser $acluser] }
-	}
-	exit
-}
+######################################################################
+# Web Page
 
 jqplugin form actual iphone-style-checkboxes touchpunch
 jscss settings.js
@@ -178,7 +87,6 @@ proc setting_toggle {name attr checked {invert 0} {val 0}} {
 ######################################################################
 # Settings Modules
 
-set moddir /mod/webif/html/settings/modules
 foreach mod {general tvdb web epg network advanced} {
 	if {[file exists "$moddir/$mod/.disabled"]} continue
 	if {[catch {source "$moddir/$mod/settings.hook"} msg]} {

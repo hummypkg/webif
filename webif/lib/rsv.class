@@ -265,11 +265,37 @@ rsv method set_skip {event} {
 	set crid "[$event get channel_crid][$event get event_crid]"
 	set szRecordedProgCrid "1$crid|$szRecordedProgCrid"
 	set szEventToRecord [string map "1$crid| {}" $szEventToRecord]
-	set aulEventToRecordInfo ""
+
+	set event_hsvc [$event get channel_hsvc]
+	set event_id [$event get event_id]
+
+	set newaul ""
+	set next_event -1
+	foreach aul [$self aul] {
+		lassign $aul _hsvc _start _end _eid
+
+		if {$_hsvc == $event_hsvc && $_eid == $event_id} continue
+
+		# Track the next event which should be recorded.
+		if {$next_event == -1} {
+			set next_event $_eid
+			set next_hsvc $_hsvc
+			set next_time $_start
+		}
+
+		append newaul [binary format iiii \
+			$_hsvc $_start $_end $_eid]
+	}
+	set aulEventToRecordInfo $newaul
+
 	set nsttime [$event get start]
 	set nduration [$event get duration]
-	if {[$event get event_id] eq $usevtid} {
-		set ucVolume $usevtid
+
+	# Handle skipping the next up-coming instance.
+	if {$event_id eq $usevtid} {
+		# (mis)use some fields to hold the next event which
+		# should be recorded.
+		set ucVolume "$next_hsvc:$next_event:$next_time"
 	}
 }
 
@@ -303,21 +329,30 @@ rsv method cleanvars {} {
 rsv method insert {{table pending} {force 0} {defer 0}} {
 	global rsvdb
 
-	# In-progress check
 	set now [clock seconds]
-	if {$nsttime <= $now && [expr $nsttime + $nduration] >= $now} {
-		throw 20 "Event already in progress."
-		return
+
+	# In-progress check
+	if {$nsttime <= $now} {
+		if {$nsttime + $nduration >= $now} {
+			# Still showing - OK if real-time scheduling addition.
+			if {$action != 0 || ![rsv rtsched]} {
+				throw 20 "Event already in progress."
+				return
+			}
+		} elseif {$action == 0} {
+			throw 20 "Event has finished."
+			return
+		}
 	}
 
 	# Duplicate check - all tables
-	if {!$force && $szCRID ne "" && $action == 0} {
+	if {!$force && $action == 0} {
 		foreach tab {pending TBL_RESERVATION} {
 			set rec [$rsvdb query "
 				select ulslot from $tab
-				where szCRID = '%s'
+				where usevtid = '%s'
 				and hsvc = '%s'
-			" $szCRID $hsvc]
+			" $usevtid $hsvc]
 			if {[llength $rec] > 0} {
 				throw 20 "Duplicate reservation."
 				return
@@ -539,9 +574,14 @@ proc {rsv cleanup} {} {
 	catch {$::rsvdb close}
 }
 
+proc {rsv rtsched} {} {
+	if {![system pkginst nugget]} { return 0 }
+	if {![[settings] rtschedule]} { return 0 }
+	return 1
+}
+
 proc {rsv commit} {} {
-	if {![system pkginst nugget]} return
-	if {![[settings] rtschedule]} return
+	if {![rsv rtsched]} return
 	if {[catch {
 	    exec /mod/boot/rsvsync -realtime >> /tmp/rsvsync.log} msg]} {
 		puts "Scheduling: $msg"

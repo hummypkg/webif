@@ -26,6 +26,11 @@ puts {
 <input type=hidden id=paddingsid name=slot value=0>
 <table class=keyval>
 <tr>
+	<td colspan=2 class=blood>
+		Set a value for start or end<br>
+		padding (or both) to disable AR.
+	</td>
+</tr><tr>
 	<th>Start Padding</th>
 	<td><select id=prepadding name=pre
 	    class="ui-widget-content ui-corner-all">

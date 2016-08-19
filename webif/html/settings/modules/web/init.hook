@@ -1,0 +1,41 @@
+
+if {[cgi_get act] eq "https"} {
+	set val [cgi_get val off]
+	if {$val in {0 off}} {
+		exec /mod/webif/lib/bin/mkcert -delete
+		puts "HTTPS Server will be disabled after next reboot."
+	} else {
+		exec /mod/webif/lib/bin/mkcert
+		puts "HTTPS Server will be enabled after next reboot."
+	}
+	exit
+}
+
+set acluser [cgi_get acluser "-"]
+set aclpass [cgi_get aclpass "-"]
+set aclpassc [cgi_get aclpassc "-"]
+if {$acluser ne "-" && $aclpass ne "-"} {
+	if {![string length $acluser]} {
+		puts "No username provided."
+		exit
+	}
+	if {$aclpass ne $aclpassc} {
+		puts "Passwords do not match."
+		exit
+	}
+	if {[string length $aclpass] < 4} {
+		puts "Password is too short (< 4 characters)"
+		exit
+	}
+	puts [$settings addacluser $acluser $aclpass]
+	exit
+}
+
+set aclact [cgi_get aclact "-"]
+if {$aclact ne "-" && $acluser ne "-"} {
+	switch $aclact {
+		"del" { puts [$settings delacluser $acluser] }
+	}
+	exit
+}
+

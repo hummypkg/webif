@@ -91,6 +91,12 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		set ended 0
 	}
 
+	if {$d > 0 && $n >= $s && $n < $e} {
+		set showing 1
+	} else {
+		set showing 0
+	}
+
 	set attrs "table=$table sid=[$event get ulslot] \
 	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
 	    ar=[expr ! [$event padded]] ended=$ended"
@@ -191,12 +197,13 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts "<span class=ds>$ds</span>"
 		}
 
-		if {$d > 0 && $n > $s && $n < $e} {
-			puts "<br>"
+		if {$showing} {
 			set perc [expr [expr $n - $s] * 100 / $d]
+			puts "<br>"
 			puts "<img class=va
 			    src=/images/745_1_11_Video_1REC.png>"
 			puts [progressbar $perc]
+			set opts 0
 		}
 
 		set c [llength $elist]

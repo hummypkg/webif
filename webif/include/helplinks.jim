@@ -10,7 +10,7 @@ proc helplink {title icon link} {
 		<img src=$icon style=\"padding: 1em\" border=0 height=100>
 	</a>
 	<br>
-	<a href=\"$link target=_blank\">
+	<a href=\"$link\" target=_blank>
 		<b>$title</b>
 	</a>
 	<br>

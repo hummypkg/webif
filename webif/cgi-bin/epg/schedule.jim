@@ -21,14 +21,9 @@ if {$event eq ""} {
 	puts "Error, cannot find event to schedule."
 	exit
 }
-if {[$event percent] > 0} {
-	puts "Error, cannot record programme which has already started showing"
-	puts "or occurred in the past."
-	exit
-}
 
 set r [rsv construct $event $type]
-if {[catch {$r insert pending 1} msg]} {
+if {[catch {$r insert pending} msg]} {
 	puts "Error encountered while scheduling: <i>$msg</i>"
 } else {
 	puts "Successfully scheduled <i>[$event get name]</i>"

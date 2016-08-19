@@ -19,7 +19,7 @@
 	};
 })(jQuery);
 
-$(document).ready(function () {
+$(function() {
 	$(":submit").button();
 	$('form.auto').each(function(i, el) {
 		var id = $(this).attr('id');

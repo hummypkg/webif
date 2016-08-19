@@ -1,0 +1,8 @@
+set tvdb [$settings tvdb]
+set tvdb_debug [$settings tvdb_debug]
+set dedup_template [$settings dedup_template]
+
+handle_int_update tvdb $tvdb "Enable tvdb"
+handle_int_update tvdb_debug $tvdb_debug "Enable tvdb debugging"
+handle_str_update dedup_template $dedup_template "Dedup Template" print 0
+

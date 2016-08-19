@@ -44,6 +44,7 @@ This event conflicts with the following items in your scheduled recording list.
 }
 
 puts "
+	<div id=epginfo_extra></div>
 	<table class=keyval>
 	<tr>
 		<th>Programme</th>
@@ -169,8 +170,6 @@ puts "
 		Show raw EPG info
 	</a>
 "
-
-puts "<div id=epginfo_extra class=footnote></div>"
 
 epg cleanup
 if {![cgi_exists bare]} footer

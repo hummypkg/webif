@@ -1,0 +1,23 @@
+
+if {[cgi_get act] eq "xtelnet"} {
+	set val [cgi_get val off]
+	if {$val in {0 off}} {
+		file delete /mod/boot/xtelnet
+		puts "Telnet server expert mode will be disabled after next reboot."
+	} else {
+		exec /mod/bin/busybox/touch /mod/boot/xtelnet
+		puts "Telnet server expert mode will be enabled after next reboot."
+	}
+	exit
+}
+
+set pkgdev [$settings pkgdev]
+set rtschedule [$settings rtschedule]
+set logsize [$settings logsize]
+set logkeep [$settings logkeep]
+
+handle_int_update pkgdev $pkgdev "Development Package Display"
+handle_int_update rtschedule $rtschedule "Real-time scheduling"
+handle_int_update logsize $logsize "Log rotation size"
+handle_int_update logkeep $logkeep "Logs to keep"
+

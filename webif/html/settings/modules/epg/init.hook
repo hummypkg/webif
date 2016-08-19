@@ -1,0 +1,16 @@
+
+set epg_style [$settings epg_style]
+set service_style [$settings service_style]
+set channel_group [$settings channel_group]
+set xepghours [$settings xepghours]
+if {$xepghours == 0} { set xepghours 4 }
+set epgscroll [$settings epgscroll]
+set genrededup [$settings genrededup]
+
+handle_str_update epg_style $epg_style "EPG Type"
+handle_str_update service_style $service_style "EPG Channel Type"
+handle_int_update channel_group $channel_group "Channel Group"
+handle_int_update xepghours $xepghours "Grid EPG Hours"
+handle_int_update epgscroll $epgscroll "Fixed EPG Scrolling"
+handle_int_update genrededup $genrededup "Genre search dedup"
+

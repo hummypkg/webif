@@ -2,17 +2,19 @@ $(function() {
 
 function doschedule(type)
 {
-	$('#epginfo_extra').load('/cgi-bin/epg/schedule.jim?' +
-	    'service=' +
-	    encodeURIComponent($('#epgpopup_dialogue').attr('xs')) +
-	    '&event=' +
-	    encodeURIComponent($('#epgpopup_dialogue').attr('xe')) +
-	    '&type=' + type, function() {
+	$('#epginfo_extra')
+	    .empty()
+	    .html('<img src=/img/loading.gif> Processing request...')
+	    .load('/cgi-bin/epg/schedule.jim', {
+		    'service': $('#epgpopup_dialogue').attr('xs'),
+		    'event': $('#epgpopup_dialogue').attr('xe'),
+		    'type': type
+	    }, function() {
 		$.getJSON('/cgi-bin/pending.jim', function(data) {
 			if (data.pending > 0)
 				$('#restart_block').slideDown('slow');
 		});
-	});
+	    });
 	$(":button:contains('Record')").fadeOut('slow');
 	$(":button:contains('Reminder')").fadeOut('slow');
 }
