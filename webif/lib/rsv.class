@@ -333,7 +333,7 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 
 	# In-progress check
 	if {$nsttime <= $now} {
-		if {$nsttime + $nduration >= $now} {
+		if {$table ne "pending" && $nsttime + $nduration >= $now} {
 			# Still showing - OK if real-time scheduling addition.
 			if {$action != 0 || ![rsv rtsched]} {
 				throw 20 "Event already in progress."
@@ -575,7 +575,7 @@ proc {rsv cleanup} {} {
 }
 
 proc {rsv rtsched} {} {
-	if {![system pkginst nugget]} { return 0 }
+	if {![system nuggeted]} { return 0 }
 	if {![[settings] rtschedule]} { return 0 }
 	return 1
 }

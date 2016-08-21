@@ -12,7 +12,7 @@ puts -nonewline "
 
 setting_toggle "Show development and advanced packages?" "pkgdev" $pkgdev
 
-if {[system pkginst nugget]} {
+if {[system nuggeted]} {
 	setting_toggle "Real-time scheduling? <span class=blood>(beta)</span>" "rtschedule" $rtschedule
 }
 

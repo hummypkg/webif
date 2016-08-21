@@ -197,7 +197,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts "<span class=ds>$ds</span>"
 		}
 
-		if {$showing} {
+		if {$table ne "pending" && $showing} {
 			set perc [expr [expr $n - $s] * 100 / $d]
 			puts "<br>"
 			puts "<img class=va
