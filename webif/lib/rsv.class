@@ -126,11 +126,19 @@ rsv method name {} {
 	return $name
 }
 
-rsv method padded {} {
+rsv method padded {{l 0}} {
 	if {$ulPreOffset > 0 || $ulPostOffset > 0} {
-		return 1
+		if {$l} {
+			return [list $ulPreOffset $ulPostOffset]
+		} else {
+			return 1
+		}
 	} else {
-		return 0
+		if {$l} {
+			return {0 0}
+		} else {
+			return 0
+		}
 	}
 }
 
@@ -332,12 +340,22 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 	set now [clock seconds]
 
 	# In-progress check
-	if {$nsttime <= $now} {
-		if {$table ne "pending" && $nsttime + $nduration >= $now} {
-			# Still showing - OK if real-time scheduling addition.
-			if {$action != 0 || ![rsv rtsched]} {
+	if {$nsttime - $ulPreOffset <= $now} {
+		# Start time in the past
+		if {$nsttime + $nduration + $ulPostOffset >= $now} {
+			# Still showing
+			switch $action {
+			    0 {	# Add
+				# Ok if real-time scheduling in use.
+				if {![rsv rtsched]} {
+					throw 20 "Event already in progress."
+					return
+				}
+			    }
+			    default {
 				throw 20 "Event already in progress."
 				return
+			    }
 			}
 		} elseif {$action == 0} {
 			throw 20 "Event has finished."

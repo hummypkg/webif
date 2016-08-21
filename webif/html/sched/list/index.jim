@@ -83,15 +83,16 @@ proc eventrow {event {table TBL_RESERVATION}} {
 	set d [$event get nduration]
 	set e $($s + $d)
 	set n [clock seconds]
+	lassign [$event padded 1] sp ep
 
-	if {$n > $e && [$event get ersvtype] <= 3} {
+	if {$n > $e + $ep && [$event get ersvtype] <= 3} {
 		set ended 1
 		incr num_ended
 	} else {
 		set ended 0
 	}
 
-	if {$d > 0 && $n >= $s && $n < $e} {
+	if {$d > 0 && $n >= $s - $sp && $n < $e + $ep} {
 		set showing 1
 	} else {
 		set showing 0
@@ -198,7 +199,8 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		}
 
 		if {$table ne "pending" && $showing} {
-			set perc [expr [expr $n - $s] * 100 / $d]
+			set perc [expr [expr $n - ($s - $sp)] * 100 / \
+			    ($d + $sp + $ep)]
 			puts "<br>"
 			puts "<img class=va
 			    src=/images/745_1_11_Video_1REC.png>"
