@@ -98,6 +98,15 @@ proc eventrow {event {table TBL_RESERVATION}} {
 		set showing 0
 	}
 
+	switch -- [$event status] {
+		"idle" -
+		"ready"		{ set showing 0 }
+		"arwatch"	{ set showing 2; set ended 0 }
+		"recording"	{ set showing 1; set ended 0 }
+	}
+
+	if {$table eq "pending"} { set showing 0 }
+
 	set attrs "table=$table sid=[$event get ulslot] \
 	    reckind=[$event get ucRecKind] rsvtype=[$event get ersvtype] \
 	    ar=[expr ! [$event padded]] ended=$ended"
@@ -198,9 +207,17 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts "<span class=ds>$ds</span>"
 		}
 
-		if {$table ne "pending" && $showing} {
-			set perc [expr [expr $n - ($s - $sp)] * 100 / \
-			    ($d + $sp + $ep)]
+		if {$showing == 2} {
+			# AR watch
+			puts "
+		<span class=relative>
+		<img class=\"stackimg va\" src=/img/ar.png>
+		<img class=\"stackimg va\" src=/img/ripple.gif>
+		</span>
+				"
+		} elseif {$showing} {
+			set perc $(($n - ($s - $sp)) * 100 / \
+			    ($d + $sp + $ep))
 			puts "<br>"
 			puts "<img class=va
 			    src=/images/745_1_11_Video_1REC.png>"
@@ -267,6 +284,9 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts "[clock format $xndur -format %H:%M]"
 		} else {
 			puts "--:--:--"
+		}
+		if {$showing == 1} {
+			puts "<br><img src=/img/blank.gif height=31>"
 		}
 		if {$c > 1} {
 			set i 0

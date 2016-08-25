@@ -60,6 +60,18 @@ class rsv {
 require findhsvc
 if {![exists -proc binary]} { package require binary }
 
+rsv method status {} {
+	set stat -1
+	catch {set stat [exec /mod/bin/nugget schedule.timers.status $ulslot]}
+	switch -- $stat {
+		"0,0"	{ return "idle" }
+		"1,1"	{ return "ready" }
+		"2,1"	{ return "arwatch" }
+		"2,2"	{ return "recording" }
+		default	{ return "unknown" }
+	}
+}
+
 rsv method aul {} {
 	set aul {}
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {
@@ -624,7 +636,7 @@ proc {rsv construct} {event type} {
 	set args(eReady)		30
 	lassign [system padding] args(ulPreOffset) args(ulPostOffset)
 
-	set ccrid [$event get channel_crid]
+	set ccrid [string toupper [$event get channel_crid]]
 
 	# Fallback from series to event if there is no series CRID.
 	if {$type == 2 && [$event get series_crid] eq ""} {

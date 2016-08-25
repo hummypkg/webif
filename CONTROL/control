@@ -4,7 +4,7 @@ Section: web
 Version: 1.3.2-1
 Architecture: mipsel
 Maintainer: af123@hpkg.tv
-Depends: tcpfix,webif-channelicons(>=1.1.24),lighttpd(>=1.4.39-1),jim(>=0.76-2),jim-oo,jim-sqlite3(>=0.76),jim-cgi(>=0.7-1),jim-binary(>=0.76),service-control(>=2.1),busybox(>=1.20.2-1),lsof(>=4.87),epg(>=1.2.3),hmt(>=2.0.10),ssmtp,cron-daemon(>=1.18.3-3),at(>=3.1.18),anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.1.5),webif-charts(>=1.2-1),stripts(>=1.2.5-3),tmenu(>=1.08),ffmpeg,id3v2,multienv(>=1.6),tcpping(>=1.1),e2fsprogs,wireless-tools(>=29-1),dbupdate,recmon(>=2.0.7),hwctl,nugget(>=0.91)
+Depends: tcpfix,webif-channelicons(>=1.1.24),lighttpd(>=1.4.39-1),jim(>=0.76-2),jim-oo,jim-sqlite3(>=0.76),jim-cgi(>=0.7-1),jim-binary(>=0.76),service-control(>=2.1),busybox(>=1.20.2-1),lsof(>=4.87),epg(>=1.2.3),hmt(>=2.0.10),ssmtp,cron-daemon(>=1.18.3-3),at(>=3.1.18),anacron,trm(>=1.1),openssl-command,nicesplice,id3v2,file,rsvsync(>=1.1.6),webif-charts(>=1.2-1),stripts(>=1.2.5-3),tmenu(>=1.08),ffmpeg,id3v2,multienv(>=1.6),tcpping(>=1.1),e2fsprogs,wireless-tools(>=29-1),dbupdate,recmon(>=2.0.7),hwctl,nugget(>=0.92)
 Suggests:
 Description: An evolving web interface for the Humax.
 Tags: http://hummy.tv/forum/threads/7116/

@@ -525,6 +525,13 @@ img.doublebmp
 	position: relative;
 }
 
+.stackimg
+{
+	position: absolute;
+	height: 20px;
+	width: 29px;
+}
+
 span.foldernum
 {
 	display: none;
