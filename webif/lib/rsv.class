@@ -451,6 +451,10 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 	if {$table eq "pending" && !$defer} { rsv commit }
 }
 
+rsv method insert_deferred {{table pending}} {
+	return [rsv insert $table 0 1]
+}
+
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
 	set qstring "
 		select $table.*,
