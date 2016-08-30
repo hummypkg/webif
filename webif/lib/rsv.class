@@ -452,7 +452,7 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 }
 
 rsv method insert_deferred {{table pending}} {
-	return [rsv insert $table 0 1]
+	return [$self insert $table 0 1]
 }
 
 proc {rsv list} {{table tbl_reservation} {extra ""}} {
