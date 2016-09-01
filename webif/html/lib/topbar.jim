@@ -17,7 +17,7 @@ puts {
 		<span style="display: inline; font-size: 150%;
 		    padding: 0 0 0 2em;">
 }
-source /mod/webif/include/model.jim
+puts $::mws::pagetitle
 source /mod/webif/include/upgrade.jim
 puts {
 		</span>

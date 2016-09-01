@@ -207,15 +207,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			puts "<span class=ds>$ds</span>"
 		}
 
-		if {$showing == 2} {
-			# AR watch
-			puts "
-		<span class=relative>
-		<img class=\"stackimg va\" src=/img/ar.png>
-		<img class=\"stackimg va\" src=/img/ripple.gif>
-		</span>
-				"
-		} elseif {$showing} {
+		if {$showing == 1} {
 			set perc $(($n - ($s - $sp)) * 100 / \
 			    ($d + $sp + $ep))
 			puts "<br>"

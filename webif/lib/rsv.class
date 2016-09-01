@@ -236,6 +236,9 @@ rsv method iconset {{height 20}} {
 				lappend iconlist \
 				    "<img src=/img/pad.png height=$height
 				     title=\"$padding\" alt=\"$padding\">"
+			} elseif {[$self status] eq "arwatch"} {
+				lappend iconlist \
+				    "<img src=/img/aractive.gif height=$height>"
 			} else {
 				lappend iconlist \
 				    "<img src=/img/ar.png height=$height>"

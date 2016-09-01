@@ -48,8 +48,46 @@ if {![exists -proc require]} {
 		set done 1
 	}
 
+	proc setpagetag {name} {
+		set ::mws::pagetag $name
+	}
+
+	proc ::mws::setpagetitle {} {
+		global env
+		if {[info exists ::mws::pagetitle]} return
+		if {![dict exists $env REQUEST_URI]} return
+		if {![info exists ::mws::pagetag]} {
+		    switch -glob -- $env(REQUEST_URI) {
+			"/sched/*" { set ::mws::pagetag "Schedule" }
+			"/diag/*" { set ::mws::pagetag "Diagnostics" }
+			"/browse/*" { set ::mws::pagetag "Browse Files" }
+			"/xepg/*" { set ::mws::pagetag "EPG" }
+			"/settings/*" { set ::mws::pagetag "Settings" }
+			"/services/*" { set ::mws::pagetag "Services" }
+			"/pkg/*" { set ::mws::pagetag "Packages" }
+			"/cgi-bin/*" { set ::mws::pagetag "" }
+			default {
+				set _xpath [split $env(REQUEST_URI) /]
+				if {[llength $_xpath] > 2} {
+					set ::mws::pagetag [string totitle [\
+					    lindex $_xpath 1]]
+				} else {
+					set ::mws::pagetag ""
+				}
+			}
+		    }
+		}
+
+		set ::mws::pagetitle "Humax [system model] Fox T2 ([\
+		    system hostname])"
+		if {$::mws::pagetag ne ""} {
+			append ::mws::pagetitle " - $::mws::pagetag"
+		}
+	}
+
 	proc header {{type "text/html"} {cache 0}} {
 		httpheader $type $cache
+		::mws::setpagetitle
 		uplevel source /mod/webif/html/lib/header.jim
 		incr ::mws::headerdone
 	}
