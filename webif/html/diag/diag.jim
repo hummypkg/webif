@@ -9,6 +9,7 @@ jscss script.js style.css
 header
 
 pkg loaddiagmeta
+eval_plugins diagmeta
 
 set model [system model]
 set smv [system modversion 1]

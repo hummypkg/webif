@@ -451,6 +451,8 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 	$rsvdb query "delete from ${table} where ulslot = $ulslot;"
 	$rsvdb query $query {*}$bvals
 
+	system plog activity "Scheduled [$self name] @ $nsttime"
+
 	if {$table eq "pending" && !$defer} { rsv commit }
 }
 
@@ -620,7 +622,7 @@ proc {rsv rtsched} {} {
 proc {rsv commit} {} {
 	if {![rsv rtsched]} return
 	if {[catch {
-	    exec /mod/boot/rsvsync -realtime >> /tmp/rsvsync.log} msg]} {
+	    exec /mod/boot/rsvsync -realtime >> /mod/tmp/rsvsync.log} msg]} {
 		puts "Scheduling: $msg"
 	} else {
 		system restartpending 0
