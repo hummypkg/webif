@@ -318,7 +318,11 @@ rsv method set_skip {event} {
 	if {$event_id eq $usevtid} {
 		# (mis)use some fields to hold the next event which
 		# should be recorded.
-		set ucVolume "$next_hsvc:$next_event:$next_time"
+		if {$next_event == -1} {
+			set ucVolume -1
+		} else {
+			set ucVolume "$next_hsvc:$next_event:$next_time"
+		}
 	}
 }
 
