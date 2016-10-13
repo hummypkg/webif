@@ -359,7 +359,7 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 	set now [clock seconds]
 
 	# In-progress check
-	if {$nsttime - $ulPreOffset <= $now} {
+	if {!$force && $nsttime - $ulPreOffset <= $now} {
 		# Start time in the past
 		if {$nsttime + $nduration + $ulPostOffset >= $now} {
 			# Still showing
