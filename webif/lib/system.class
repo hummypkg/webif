@@ -133,6 +133,7 @@ proc {system loaderver} {} {{ver ""}} {
 		"\xec\xe5" { format "a7.31" }
 		"\x59\x9d" { format "a7.33" }
 		"\x72\x5c" { format "a7.34" }
+		"\xe5\xe3" { format "L7.26" }
 		"\x8f\x7c" { format "L7.27" }
 		default {
 			binary scan $bytes H* hex

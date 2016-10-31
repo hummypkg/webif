@@ -10,7 +10,14 @@ fi
 
 case "$1" in
 	start)
-		/mod/bin/epg -f $epg sqlitedumpd $epgdb > /tmp/epgd.log 2>&1 &
+		(
+			ulimit -c unlimited
+			while [ 1 ]; do
+				/mod/bin/epg -f $epg sqlitedumpd $epgdb \
+				    > /tmp/epgd.log 2>&1
+				[ $? -eq 143 ] && break
+			done
+		)&
 		;;
 	stop)
 		killall -q epg
