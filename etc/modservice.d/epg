@@ -1,0 +1,3 @@
+key=/mod/bin/epg
+rc=60parseepg
+proc="/mod/bin/epg.*sqlitedumpd"
