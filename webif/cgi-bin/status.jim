@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require system.class findhsvc epg.class rsv.class
+require system.class findhsvc epg.class rsv.class plugin
 
 set runmode cli
 if {[string match {*jim} $argv0]} { set runmode cgi }
@@ -32,8 +32,29 @@ if {[catch {set pid [exec pgrep -n humaxtv]}]} {
 
 set exts {.ts .avi .mpg .mpeg .wmv .mkv .mp3 .mp4 .mov .hmt .m4v .m4a}
 
+set statusops {
+    decrypt {	"Decrypting"
+		"/img/decrypt.png style=\"padding: 0 0.2em 0 0.5em\""
+    }
+    mpg {	"Extracting MPG"
+		"/img/mpg.png style=\"padding: 0 0.2em 0 0.5em\""
+    }
+    mp3 {	"Extracting MP3"
+		"/img/mp3.png style=\"padding: 0 0.2em 0 0.5em\""
+    }
+    shrink {	"Shrinking"
+		"/img/compress.png style=\"padding: 0 0.2em 0 0.5em\""
+    }
+}
+
+proc register_statusop {op name icon} {
+	set statusops($op) [list $name $icon]
+}
+
+eval_plugins status
+
 proc get_data {} {
-	global pid exts opfile
+	global pid exts
 
 	set ret {}
 	if {[catch {set data \
@@ -75,8 +96,10 @@ proc get_data {} {
 			    }
 			}
 		}
-		if {$opfile ne "" && $opfile ni $ret && [file exists $opfile]} {
-			set ret($opfile) [file size $opfile]
+	}
+	foreach file [dict keys $::ops] {
+		if {![dict exists $ret $file] && [file exists $file]} {
+			set ret($file) [file size $file]
 		}
 	}
 	return $ret
@@ -85,17 +108,26 @@ proc get_data {} {
 set play 0
 set rec 0
 set output {}
+set ops {}
+set model [system model]
 
-set opfile ""
-if {[file exists "/mod/tmp/webif_auto/.op"]} {
-	set fp [open "/mod/tmp/webif_auto/.op"]
-	lassign [split [string trim [$fp read]] ":"] op opfile
-	$fp close
-	if {[system model] eq "HDR"} {
-		set opfile [string map {/media/ /mnt/hd2/} $opfile]
+foreach opfile [glob -nocomplain -directory /tmp -tails -- ".bgop.*"] {
+	set op [string range $opfile 6 end]
+	lassign [split [file read "/tmp/$opfile"] "\n"] file oppid
+	if {$model eq "HDR"} {
+		set file [string map {/media/ /mnt/hd2/} $file]
 	}
-	debug "OP: $op - $opfile"
+
+	# Check that the lock is still held
+	if {![system checkop $op]} {
+		debug "$op/$file/$oppid - process not found."
+		file delete "/tmp/$opfile"
+	} else {
+		set ops($file) $op
+	}
 }
+
+debug "OPS: $ops"
 
 set data {}
 if {$type eq "full"} {
@@ -132,8 +164,8 @@ if {[llength $data]} {
 	foreach file [array names data] {
 		set bname [file rootname [file tail $file]]
 
-		if {$file eq $opfile} {
-			set mode $op
+		if {[dict exists $ops $file]} {
+			set mode $ops($file)
 		} elseif {$data($file) == -1} {
 			set mode chase
 		} elseif {$rr} {
@@ -168,25 +200,13 @@ if {[llength $data]} {
 				set mode "Playing"
 				set icon "745_1_10_Video_2Live.png"
 			}
-			dec {
-				set mode "Decrypting"
-				set icon "/img/decrypt.png "
-				append icon "style=\"padding: 0 0.2em 0 0.5em\""
-			}
-			mpg {
-				set mode "Extracting MPG"
-				set icon "/img/mpg.png "
-				append icon "style=\"padding: 0 0.2em 0 0.5em\""
-			}
-			mp3 {
-				set mode "Extracting MP3"
-				set icon "/img/mp3.png "
-				append icon "style=\"padding: 0 0.2em 0 0.5em\""
-			}
-			shrink {
-				set mode "Shrinking"
-				set icon "/img/compress.png "
-				append icon "style=\"padding: 0 0.2em 0 0.5em\""
+			default {
+				if {[dict exists $statusops $mode]} {
+					lassign $statusops($mode) mode icon
+				} else {
+					set mode "Unknown"
+					set icon "/img/blank.gif"
+				}
 			}
 		}
 

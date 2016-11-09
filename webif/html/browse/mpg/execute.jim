@@ -18,10 +18,12 @@ set base [file rootname $rfile]
 set shname [file tail $base]
 puts "Processing $shname"
 
+system startop mpg $rfile
 puts [exec /mod/bin/ffmpeg -y -benchmark -v 0 \
     -i $rfile \
     -map 0:0 -map 0:1 \
     -vcodec copy -acodec copy "${base}.mpg"]
+endop mpg
 
 set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]
 puts "Time taken: $xtime"

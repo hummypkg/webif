@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class pretty_size
+require system.class ts.class pretty_size
 
 httpheader
 
@@ -35,11 +35,12 @@ foreach ext $tsgroup {
 	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
 
+system startop shrink $rfile
 puts [exec /mod/bin/stripts \
     "$origdir/$shname" \
     "$dir/$shname" \
     ]
-
+system endop shrink
 
 # Set the file time to match the old file
 ts touchgroup "$dir/$shname.ts" "$origdir/$shname.ts"

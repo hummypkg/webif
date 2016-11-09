@@ -38,7 +38,9 @@ if {[file exists "$origdir/$shname.ts"]} {
 	exit
 }
 
+system startop decrypt $rfile
 exec wget -O "$rfile.decrypting" $url
+system endop decrypt
 
 puts "Moving recording to $origdir"
 
