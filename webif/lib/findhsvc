@@ -3,9 +3,7 @@ if {![exists -proc get_channel_attr]} {
 	if {![exists -proc rsv]} { require rsv.class }
 
 	proc get_channel_attr {channel {field hSvc}} {
-		global rsvdb
-
-		set ff [$rsvdb query "
+		set ff [[rsv dbhandle] query "
 			select $field
 			from channel.TBL_SVC
 			where szSvcName = '$channel'
@@ -20,9 +18,7 @@ if {![exists -proc get_channel_attr]} {
 	}
 
 	proc get_channel_attr_bylcn {lcn {field hSvc}} {
-		global rsvdb
-
-		set ff [$rsvdb query "
+		set ff [[rsv dbhandle] query "
 			select $field
 			from channel.TBL_SVC
 			where usLcn = $lcn
@@ -36,9 +32,7 @@ if {![exists -proc get_channel_attr]} {
 	}
 
 	proc get_channel_attr_byorglcn {lcn {field hSvc}} {
-		global rsvdb
-
-		set ff [$rsvdb query "
+		set ff [[rsv dbhandle] query "
 			select $field
 			from channel.TBL_SVC
 			where usOrgLcn = $lcn
@@ -53,9 +47,7 @@ if {![exists -proc get_channel_attr]} {
 	}
 
 	proc get_channel_attr_byhsvc {hsvc {field usLcn}} {
-		global rsvdb
-
-		set ff [$rsvdb query "
+		set ff [[rsv dbhandle] query "
 			select $field
 			from channel.TBL_SVC
 			where hSvc = $hsvc
@@ -69,9 +61,7 @@ if {![exists -proc get_channel_attr]} {
 	}
 
 	proc get_channel_attr_bysvc {svc {field usLcn}} {
-		global rsvdb
-
-		set ff [$rsvdb query "
+		set ff [[rsv dbhandle] query "
 			select $field
 			from channel.TBL_SVC
 			where usSvcId = $svc

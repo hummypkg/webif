@@ -220,7 +220,7 @@ if {[llength $data]} {
 if {![system instandby] && $play < 1} {
 	set hsvc [system param CUR_SVC Value USERCONFIG]
 
-	set ff [$rsvdb query "
+	set ff [[rsv dbhandle] query "
 		select usSvcid as svcid, usLcn as lcn,
 		substr(szSvcName, 2) as name
 		from channel.TBL_SVC
