@@ -48,10 +48,10 @@ set statusops {
 }
 
 proc register_statusop {op name icon} {
-	set statusops($op) [list $name $icon]
+	set ::statusops($op) [list $name $icon]
 }
 
-eval_plugins status
+eval_plugins status 1
 
 proc get_data {} {
 	global pid exts
