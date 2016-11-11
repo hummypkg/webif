@@ -759,9 +759,13 @@ proc {system checkop} {op} {
 	return $ret
 }
 
-proc {system startop} {op file} {
+proc {system startop} {args op file} {
 	if {![regexp -nocase -- {^[a-z0-9]+$} $op]} { return 0 }
-	if {[dict exists $::system::ops $op]} {
+	if {"-multiple" in $args} {
+		set i 1
+		while {[dict exists $::system::ops "$op$i"]} { incr i }
+		append op $i
+	} elseif {[dict exists $::system::ops $op]} {
 		system endop $op
 	}
 	if {[catch {
@@ -775,7 +779,7 @@ proc {system startop} {op file} {
 			error "Could not lock op file."
 		}
 	}]} { return 0 }
-	return 1
+	return $op
 }
 
 proc {system endop} {op} {

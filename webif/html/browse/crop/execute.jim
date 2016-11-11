@@ -60,13 +60,11 @@ if {$invert} {
 	lappend cmd "-cutBookMarks"
 }
 
-puts "CMD: $cmd"
+#puts "CMD: $cmd"
 
+system startop crop $rfile
 puts [exec {*}$cmd]
-#puts [exec /mod/bin/nicesplice \
-#    -in "$origdir/$shname" \
-#    -out "$dir/$shname" \
-#    -cutBookMarks]
+system endop crop
 
 set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"
