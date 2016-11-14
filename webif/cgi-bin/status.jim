@@ -116,6 +116,9 @@ proc add_output {icon mode name} {
 	global runmode output
 
 	if {$runmode eq "cgi"} {
+		if {[string first "/" $icon] == -1} {
+			set icon "/images/$icon"
+		}
 		lappend output [concat \
 		    "<span class=\"va stitem\">\n" \
 		    "  <img class=va src=$icon>\n" \
@@ -246,10 +249,6 @@ if {[llength $data]} {
 					set icon "/img/blank.gif"
 				}
 			}
-		}
-
-		if {[string first "/" $icon] == -1} {
-			set icon "/images/$icon"
 		}
 
 		add_output $icon $mode $name

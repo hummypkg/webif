@@ -762,7 +762,8 @@ proc {system checkop} {op} {
 proc {system startop} {args op file} {
 	if {![regexp -nocase -- {^[a-z0-9]+$} $op]} { return 0 }
 	if {"-multiple" in $args} {
-		set i 1
+		set i 0
+		append op "[pid]."
 		while {[dict exists $::system::ops "$op$i"]} { incr i }
 		append op $i
 	} elseif {[dict exists $::system::ops $op]} {
