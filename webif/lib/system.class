@@ -743,10 +743,11 @@ proc {system has} {comp} {
 	return 0
 }
 
-set ::system::ops {}
-
+# Note that {system checkop} can be called from processes other than that
+# which started the operation. Hence no visilibty into the ::system::ops
+# dictionary.
 proc {system checkop} {op} {
-	if {![regexp -nocase -- {^[a-z0-9]+$} $op]} { return 0 }
+	if {![regexp -nocase -- {^[.a-z0-9]+$} $op]} { return 0 }
 	if {[catch {set fp [open "/tmp/.bgop.$op" "a"]}]} {
 		return 0
 	}
@@ -758,6 +759,8 @@ proc {system checkop} {op} {
 	$fp close
 	return $ret
 }
+
+set ::system::ops {}
 
 proc {system startop} {args op file} {
 	if {![regexp -nocase -- {^[a-z0-9]+$} $op]} { return 0 }
@@ -784,7 +787,7 @@ proc {system startop} {args op file} {
 }
 
 proc {system endop} {op} {
-	if {![regexp -nocase -- {^[a-z0-9]+$} $op]} { return 0 }
+	if {![regexp -nocase -- {^[.a-z0-9]+$} $op]} { return 0 }
 	if {[dict exists $::system::ops $op]} {
 		catch {
 			set fp $::system::ops($op)

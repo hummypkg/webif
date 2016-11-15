@@ -145,7 +145,7 @@ foreach opfile [glob -nocomplain -directory /tmp -tails -- ".bgop.*"] {
 
 	# Check that the lock is still held
 	if {![system checkop $op]} {
-		debug "$op/$file/$oppid - process not found."
+		debug "$op - $file - $oppid - process not found."
 		file delete "/tmp/$opfile"
 	} else {
 		set ops($file) $op
