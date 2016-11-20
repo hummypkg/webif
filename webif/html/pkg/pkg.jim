@@ -79,6 +79,9 @@ proc pkgrow {name pkg} {
 }
 
 set pkgdata [pkg getall]
+if {[file exists /mod/var/opkg/beta]} {
+	set pkgdata [dict merge $pkgdata [pkg getall beta]]
+}
 pkg loadmeta
 set type [cgi_get type "avail"]
 
