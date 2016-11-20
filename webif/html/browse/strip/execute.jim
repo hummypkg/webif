@@ -35,12 +35,12 @@ foreach ext $tsgroup {
 	file rename "$base.$ext" "${origdir}/$tail.$ext"
 }
 
-system startop shrink $rfile
+set token [system startop -multiple shrink $rfile]
 puts [exec /mod/bin/stripts \
     "$origdir/$shname" \
     "$dir/$shname" \
     ]
-system endop shrink
+system endop $token
 
 # Set the file time to match the old file
 ts touchgroup "$dir/$shname.ts" "$origdir/$shname.ts"

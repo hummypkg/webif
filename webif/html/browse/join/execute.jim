@@ -21,7 +21,9 @@ foreach file [split [cgi_get files] ","] {
 lappend cmd "-out" "$dir/$dst"
 
 puts "($cmd)"
+set token [system startop -multiple join "$dir/$dst"]
 puts [exec {*}$cmd]
+system endop $token
 
 set ts [ts fetch "$dir/$dst.ts"]
 $ts settitle $dst

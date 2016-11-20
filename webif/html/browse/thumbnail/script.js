@@ -34,18 +34,22 @@ $('button.usethm').disable().on('click', function(e) {
 	e.preventDefault();
 	var pos = $(this).attr('pos');
 	$('button,input').disable();
-	$.get('/browse/thumbnail/set.jim?file=' +
-	    encodeURIComponent(file) + '&pos=' + pos,
-	    function() {
+	$.get('/browse/thumbnail/set.jim',
+	    {
+		'file':	file,
+		'pos':  pos
+	    }, function() {
 		window.location.href = '/go/browse?dir=' +
 		    encodeURIComponent(dir);
 	});;
 });
 
-var start = $('#start').text();
-var end = $('#end').text();
-$.get('/browse/thumbnail/mkrange.jim?file=' + encodeURIComponent(file) +
-    '&s=' + start + '&e=' + end, function() {
+$.get('/browse/thumbnail/mkrange.jim',
+    {
+	'file':	file,
+	's':    $('#start').text(),
+	'e':    $('#end').text()
+    }, function() {
 	$('img.bmp').each(function(i) {
 		var pos = $(this).attr('pos');
 		$(this).attr('src',

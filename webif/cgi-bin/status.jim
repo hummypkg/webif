@@ -48,6 +48,9 @@ set statusops {
     crop {	"Cropping"
 		"/img/cut.png style=\"padding: 0 0.2em 0 0.5em\""
     }
+    join {	"Joining"
+		"/img/cut.png style=\"padding: 0 0.2em 0 0.5em\""
+    }
 }
 
 proc register_statusop {op name icon} {

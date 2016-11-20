@@ -38,9 +38,9 @@ if {[file exists "$origdir/$shname.ts"]} {
 	exit
 }
 
-system startop decrypt $rfile
+set token [system startop -multiple decrypt $rfile]
 exec wget -O "$rfile.decrypting" $url
-system endop decrypt
+system endop $token
 
 puts "Moving recording to $origdir"
 

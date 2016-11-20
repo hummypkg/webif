@@ -62,9 +62,9 @@ if {$invert} {
 
 #puts "CMD: $cmd"
 
-system startop crop $rfile
+set token [system startop -multiple crop $rfile]
 puts [exec {*}$cmd]
-system endop crop
+system endop $token
 
 set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"

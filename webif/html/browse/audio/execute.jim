@@ -26,9 +26,9 @@ if {![[settings] audiomp3]} {
 lappend cmd "${base}.mp3"
 
 #puts "$cmd"
-system startop mp3 $rfile
+set token [system startop -multiple mp3 $rfile]
 puts [exec {*}$cmd]
-system endop mp3
+system endop $token
 
 if {[system pkginst id3v2]} {
 	puts [exec /mod/bin/id3v2 \

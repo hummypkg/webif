@@ -340,10 +340,9 @@ ts method mkbmps {{offset 0}} {
 
 ts method mkbmp {{offset 0} {ext ""}} {
 	set bfile [file rootname $file]
-	if {[catch {
-	    exec /mod/bin/ffmpeg -loglevel fatal -ss $offset -i $file \
-	    -frames 1 -pix_fmt argb -vf vflip -s 140x78 "$bfile$ext.bmp"
-	} msg]} {
+	set cmd [list /mod/bin/ffmpeg -loglevel fatal -ss $offset -i $file \
+	    -frames 1 -pix_fmt argb -vf vflip -s 140x78 "$bfile$ext.bmp"]
+	if {[catch { exec {*}$cmd } msg]} {
 		puts "ERROR: $msg"
 		return 0
 	}
