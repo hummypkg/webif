@@ -217,7 +217,7 @@ if {[llength $data]} {
 		}
 
 		if {[dict exists $ops $file]} {
-			if {$mode eq "rec"} {
+			if {$mode eq "rec" || $mode eq "chase"} {
 				set mode "Recording"
 				set icon "745_1_11_Video_1REC.png"
 				add_output $icon $mode $name

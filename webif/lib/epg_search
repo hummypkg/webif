@@ -1,7 +1,7 @@
 
 puts {
 <style type=text/css>
-.ui-button, .ui-button-text { padding: 0; font-size: 12px; }
+.ui-button, .ui-button-text { font-size: 12px; }
 #moresearch { display: none; }
 #morebutton { position: relative; top: -12px; }
 </style>
