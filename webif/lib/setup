@@ -55,7 +55,10 @@ if {![exists -proc require]} {
 	proc ::mws::setpagetitle {} {
 		global env
 		if {[info exists ::mws::pagetitle]} return
-		if {![dict exists $env REQUEST_URI]} return
+		if {![dict exists $env REQUEST_URI]} {
+			set ::mws::pagetitle "CLI"
+			return
+		}
 		if {![info exists ::mws::pagetag]} {
 		    switch -glob -- $env(REQUEST_URI) {
 			"/sched/*" { set ::mws::pagetag "Schedule" }

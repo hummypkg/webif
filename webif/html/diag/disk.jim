@@ -100,8 +100,10 @@ foreach line [split [exec /bin/smartctl -A $device] "\n"] {
 	regsub -all -- {[[:space:]]+} $line " " line
 	regsub -all -- {^[[:space:]]+} $line "" line
 	if {[incr i] < 8} continue
+	if {$line eq ""} continue
 	lassign [split $line] \
 	    id name flags val worst thresh type updated when rval
+	if {$id eq ""} continue
 	set class normal
 	switch $id {
 		5 {
@@ -125,6 +127,7 @@ foreach line [split [exec /bin/smartctl -A $device] "\n"] {
 		set class redshade
 	}
 	set left ""
+	if {$flags eq ""} { set flags 0 }
 	if {$id ni $nolife &&
 	    [expr $flags & 0x18] == 0x10 && $val == $worst && $val <= 100 &&
 	    $thresh < 100} {
