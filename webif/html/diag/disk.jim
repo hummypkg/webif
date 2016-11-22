@@ -195,13 +195,14 @@ foreach line [split $msg "\n"] {
 	if {[incr i] < 7} continue
 	lassign [split $line "|"] id name status remaining when lba
 	if {[string length $id] > 10} continue
+	if {$id eq ""} continue
 	puts "<tr>
 		<td>$id</td>
 		<td>$name</td>
-		<td>$status</th>
-		<td>$remaining</th>
-		<td>$when</th>
-		<td>$lba</th>
+		<td>$status</td>
+		<td>$remaining</td>
+		<td>$when</td>
+		<td>$lba</td>
 	</tr>"
 }
 
