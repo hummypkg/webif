@@ -1,0 +1,79 @@
+
+######################################################################
+# Auto-Processing Settings
+
+puts "
+	<h4>Auto-Processing Settings</h4>
+	<div><fieldset style=\"display: inline\">
+		<legend>
+			Auto-Processing Settings
+		</legend>
+	<table>
+"
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=autolog method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Auto-processing log level</th>
+		<td><select id=autolog name=autolog
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+puts "<option value=0"
+if {$autolog == 0} { puts " selected" }
+puts ">Actions and errors only\n"
+puts "<option value=1"
+if {$autolog == 1} { puts " selected" }
+puts ">Actions, errors and scan information\n"
+puts "<option value=2"
+if {$autolog == 2} { puts " selected" }
+puts ">Debugging information\n"
+puts "
+		</select>
+		<small>
+		<input name=autolog value=\"set\" type=submit>
+		</small>
+		<div id=autolog_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+setting_toggle "Suspend automatic processing whilst recording?" \
+    "noautorec" $noautorec
+setting_toggle "Suspend automatic processing if will record soon?" \
+    "noautorecimm" $noautorecimm
+
+setting_number autorecperiod "...how many minutes is soon?" $autorecperiod
+
+puts -nonewline "
+	<tr>
+	<form class=auto id=noautohours method=get action=$env(SCRIPT_NAME)>
+		<th class=key>Suspend automatic processing during:
+		<div class=blood>
+			Use Shift and Control to select multiple entries.
+		</div>
+		</th>
+		<td><select name=\"noautohours\[]\"
+		    multiple size=8
+		    class=\"text ui-widget-content ui-corner-all\">
+"
+loop h 0 23 {
+	puts -nonewline "<option value=$h"
+	if {$h in $noautohours} { puts -nonewline " selected" }
+	puts ">[format "%02d:00 - %02d:59" $h $h]</option>"
+}
+puts "
+		</select>
+		<small>
+		<input name=noautohours value=\"set\" type=submit>
+		</small>
+		<div id=noautohours_output></div>
+		</td>
+	</form>
+	</tr>
+"
+
+puts "
+</table></fieldset></div>
+"
+

@@ -199,6 +199,15 @@ rsv method end {} {
 	return $([$self start] + $nduration)
 }
 
+rsv method showing {} {
+	set now [clock seconds]
+	if {$nsttime - $ulPreOffset <= $now &&
+	    $nsttime + $nduration + $ulPostOffset >= $now} {
+		return 1
+	}
+	return 0
+}
+
 rsv method icon {} {
 	set rsvicon ""
 	switch $ersvtype {

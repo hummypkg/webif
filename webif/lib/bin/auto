@@ -2,13 +2,21 @@
 
 source /mod/webif/lib/setup
 require lock system.class ts.class pretty_size browse.class \
-    safe_delete settings.class plugin
+    safe_delete settings.class plugin queue.class rsv.class
 
 set settings [settings]
 set loglevel [$settings autolog]
 set audiomp3 [$settings audiomp3]
 
 set modules {decrypt dedup shrink mpg mp3 expire}
+
+set queue_actions {
+	decrypt do_decrypt
+	strip do_shrink
+	shrink do_shrink
+	mpg do_mpg
+	mp3 do_mp3
+}
 
 set root [system mediaroot]
 
@@ -17,6 +25,7 @@ set logfile "/mod/tmp/auto.log"
 set logfd "unset"
 set logprefix ""
 set prelocked 0
+set earlyexit 0
 while {[llength $argv]} {
 	switch -- [lindex $argv 0] {
 		-d {
@@ -32,6 +41,9 @@ while {[llength $argv]} {
 				set logprefix [lindex $argv 0]
 			}
 		}
+		-test {
+			set earlyexit 1
+		}
 		default {
 			# Unknown option, pass to rest of script.
 			break
@@ -40,11 +52,16 @@ while {[llength $argv]} {
 	set argv [lrange $argv 1 end]
 }
 
+#########################################################################
+
+if {$logfd ne "unset"} {
+	puts $logfd "Acquiring lock..."
+}
 if {!$prelocked && ![acquire_lock webif_auto 10 1]} {
 	if {$loglevel > 1} {
 		system plog auto "Could not acquire lock."
 	}
-	puts "Could acquire exclusive lock, terminating."
+	puts "Could not acquire exclusive lock, terminating."
 	exit
 }
 
@@ -62,6 +79,50 @@ proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
 	puts $::logfd "[system logtimestamp] - $::logprefix$msg"
 	flush $::logfd
+}
+
+proc oktorun {} {
+	global settings
+	set now [clock seconds]
+
+	# Ongoing scheduled recording
+	if {[$settings noautorec]} {
+		# Use redring helper files if available.
+		set recs [glob -nocomplain /tmp/.rec*]
+		set events [rsv list tbl_reservation \
+		    " where ersvtype = 3
+		      and nsttime - ulPreOffset <= $now
+		      and nsttime + nduration + ulPostOffset >= $now "]
+		if {[llength $recs] || [llength $events]} {
+			log "Aborted, recording in progress." 2
+			exit
+		}
+	}
+
+	# Imminent recording
+	if {[$settings noautorecimm]} {
+		set autorecperiod $([$settings autorecperiod] * 60)
+		set events [rsv list tbl_reservation \
+		    " where ersvtype = 3
+		      and nsttime - $now < $autorecperiod
+		      and nsttime > $now "]
+		if {[llength $events]} {
+			set event [lindex $events 0]
+			log [concat \
+		    "Aborted, will record '[$event name]' " \
+		    "on [$event channel_name] at " \
+		    "[clock format [$event get nsttime] -format {%H:%M}]" \
+			] 2
+			exit
+		}
+	}
+
+	# Non-running hours
+	set hour $([clock format [clock seconds] -format %H] + 0)
+	if {$hour in [$settings noautohours]} {
+		log "Aborted, not running during hour $hour" 2
+		exit
+	}
 }
 
 proc inuse {ts} {
@@ -114,6 +175,10 @@ proc register {type fn {priority 50}} {
 	}
 }
 
+proc register_queue {action function} {
+	set ::queue_actions($action) $function
+}
+
 proc runplugin {name {ts 0}} {
 	set var "hook_$name"
 	global $var
@@ -128,6 +193,14 @@ proc runplugin {name {ts 0}} {
 		}
 		log "Completed $name plugin $fn" 2
 	}
+}
+
+# Check if it's ok to run now.
+oktorun
+
+if {$earlyexit} {
+	puts "Early exit."
+	exit
 }
 
 eval_plugins auto 1
@@ -253,6 +326,7 @@ proc do_shrink {ts} {
 		$ts set_shrunk
 		return
 	}
+	oktorun
 	set size [$ts size]
 	dsc $size
 	system startop shrink [$ts get file]
@@ -360,6 +434,7 @@ proc do_decrypt {ts} {
 	}
 
 	# Perform the decryption by requesting the file from the DLNA server.
+	oktorun
 	set size [$ts size]
 	dsc $size
 	runplugin predecrypt $ts
@@ -397,8 +472,10 @@ proc do_decrypt {ts} {
 
 	if {$anencd != "0"} {
 		log "  $file - File did not decrypt properly." 0
-		system notify "$file - auto-decrypt failed."
 		file tdelete "$tmp/$bfile"
+		if {[clock seconds] - [$ts get end] > 3 * 3600} {
+			system notify "$file - auto-decrypt failed."
+		}
 		system endop decrypt
 		return
 	}
@@ -462,6 +539,7 @@ proc do_mpg {ts} {
 		log "  $file - In use."
 		return
 	}
+	oktorun
 	system startop mpg [$ts get file]
 	runplugin prempg $ts
 	dsc [$ts size]
@@ -515,6 +593,7 @@ proc do_mp3 {ts} {
 		log "  $file - In use."
 		return
 	}
+	oktorun
 	system startop mp3 [$ts get file]
 	runplugin premp3 $ts
 	dsc [$ts size]
@@ -733,6 +812,7 @@ proc xscan {dir attr {force 0} {recurse 1} {seen {}}} {{indent 0} {forceflag ""}
 		set forceflag "$dir/.auto${attr}r"
 	}
 
+	oktorun
 	dsc
 
 	if {$force} {
@@ -799,6 +879,33 @@ log "Root device: $rootdev" 2
 
 if {[lindex $argv 0] eq "-singledir"} {
 	scansingle [lrange $argv 1 end]
+} elseif {[lindex $argv 0] eq "-queue"} {
+	log "Processing queue..." 2
+	while {[llength [set q [queue pop]]]} {
+		oktorun
+
+		if {[catch {set ts [ts fetch [$q get file]]}]} {
+			$q update FAILED "Could not open recording." 1
+			continue
+		}
+		if {$ts == 0} {
+			$q update FAILED "Could not open recording." 1
+			continue
+		}
+		set act [$q get action]
+		if {![dict exists $::queue_actions $act]} {
+			log "Unknown queue action, $act"
+			$q update FAILED "Unknown queue action, $act" 1
+			continue
+		}
+		set func $::queue_actions($act)
+		$q update RUNNING "Started at [clock format [clock seconds]]"
+		if {[catch {$func $ts} msg]} {
+			$q update FAILED $msg 1
+			continue
+		}
+		$q update COMPLETE "Completed at [clock format [clock seconds]]"
+	}
 } elseif {[llength $argv] > 0} {
 	set loglevel 2
 	foreach arg $argv {

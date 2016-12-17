@@ -1,0 +1,68 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require altrow ts.class queue.class
+
+jqplugin tablesorter2 enadis blockui confirmAction
+jscss script.js style.css
+
+header
+
+puts {
+<h3 class=va>
+	<img class=va width=100 src=/img/queuep.png>
+	Queued Tasks
+</h3>
+<fieldset class=cleft>
+<legend>Queued Tasks</legend>
+<table class=borders cellpadding=5>
+<thead>
+<tr>
+	<th nowrap>ID<input type=checkbox id=selall></th>
+	<th>Submitted</th>
+	<th>File</th>
+	<th>Action</th>
+	<th>Status</th>
+	<th>Log</th>
+</tr>
+</thead>
+<tbody>
+}
+
+foreach q [queue all] {
+	set name [string map {
+                        "/mnt/hd2/My Video/" ""
+                        "/media/drive1/Video/" ""
+                        "/media/" ""
+                        ".ts" ""
+                } [$q get file]]
+
+	puts "
+	<tr>
+		<td><input type=checkbox class=qid value=[$q get id]>
+			[$q get id]
+		</td>
+		<td>[clock format [$q get dat] -format {%c}]</td>
+		<td>$name</td>
+		<td>[$q get action]</td>
+		<td class=\"status [$q get status]\">[$q get status]"
+	if {[$q get status] eq "RUNNING"} {
+		puts "<img src=/img/loading.gif>"
+	}
+	puts "</td>
+		<td>[$q get log]</td>
+	</tr>
+	"
+}
+
+puts {
+</tbody>
+</table>
+<button id=qdelete>Delete Selected</button>
+<button id=refresh>Refresh Page</button>
+</fieldset>
+}
+
+footer
+

@@ -3,7 +3,7 @@
 package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size system.class settings.class escape browse.class \
-    plugin epg.class classdump
+    plugin epg.class classdump queue.class
 
 set mroot [system mediaroot]
 set dir [cgi_get dir $mroot]
@@ -216,6 +216,12 @@ proc entry {file} {{i 0}} {
 		set dlna 1
 	}
 
+	# Queued
+	set queued [queue status $ts]
+	if {$queued ne ""} {
+		icon "/img/queueps.png" "Queued for $queued"
+	}
+
 	# Opt+ button
 
 	puts "
@@ -372,6 +378,9 @@ puts {
 if {$nicesplice} {
 	puts { <button id=join>Join</button> }
 }
+
+# Queue
+puts { <button id=queue>View Queue</button> }
 
 # De-duplicate
 

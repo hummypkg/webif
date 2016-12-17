@@ -8,6 +8,8 @@ cgi_input
 
 httpheader
 
+set modules {general auto tvdb web epg network advanced}
+
 set settings [settings new]
 if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 
@@ -44,7 +46,7 @@ proc handle_str_update {var old {text "Value"} {class alnum} {trim 1}} {
 # Settings Modules
 
 set moddir /mod/webif/html/settings/modules
-foreach mod {general tvdb web epg network advanced} {
+foreach mod $modules {
 	if {[file exists "$moddir/$mod/.disabled"]} continue
 	if {[catch {source "$moddir/$mod/init.hook"} msg]} {
 		puts "ERROR: $msg"
@@ -84,10 +86,29 @@ proc setting_toggle {name attr checked {invert 0} {val 0}} {
 	"
 }
 
+proc setting_number {name descr val} {
+	puts -nonewline "
+	<tr>
+	<form class=auto id=${name} method=get action=$::env(SCRIPT_NAME)>
+		<th class=key>$descr</th>
+		<td>
+			<input name=${name} size=5 type=number
+			    class=\"text ui-widget-content ui-corner-all\"
+			    maxlength=10 value=\"$val\">
+			<small>
+			<input value=\"set\" type=submit>
+			</small>
+			<div id=${name}_output></div>
+		</td>
+	</form>
+	</tr>
+	"
+}
+
 ######################################################################
 # Settings Modules
 
-foreach mod {general tvdb web epg network advanced} {
+foreach mod $modules {
 	if {[file exists "$moddir/$mod/.disabled"]} continue
 	if {[catch {source "$moddir/$mod/settings.hook"} msg]} {
 		puts "ERROR: $msg"
@@ -97,17 +118,16 @@ foreach mod {general tvdb web epg network advanced} {
 ######################################################################
 # Plugins
 
-set hook settings
-foreach plugin [lsort [glob -nocomplain /mod/webif/plugin/*]] {
-	if {[file isfile "$plugin/$hook.hook"]} {
-		puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
-		puts "<div class=pluginsettings>"
-		if {[catch {source "$plugin/$hook.hook"} msg]} {
-			puts "ERROR: $msg"
-		}
-		puts "</div>"
-	} 
+proc plugin_callback {plugin hook} {
+	puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
+	puts "<div class=pluginsettings>"
+	if {[catch {source "$plugin/$hook"} msg]} {
+		puts "ERROR: $msg"
+	}
+	puts "</div>"
 }
+
+eval_plugins settings 0 plugin_callback
 
 puts "</div>"
 

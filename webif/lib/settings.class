@@ -24,6 +24,7 @@ class settings {
 	smtp_server	""
 	pkgdev		0
 	notoolbar	0
+	noautorec	0
 	tvdb		0
 	tvdb_debug	0
 	nomobile	0
@@ -35,6 +36,10 @@ class settings {
 	epgscroll	0
 	genrededup	0
 	autolog		0
+	noautorec	0
+	noautorecimm	0
+	autorecperiod	10
+	noautohours	""
 	changechangenc	0
 	audiomp3	0
 	logsize		1048576
@@ -223,6 +228,23 @@ settings method sortorder {{val -1}} {
 
 settings method autolog {{level -1}} {
 	return [$self _nval_setting autolog $level]
+}
+
+settings method noautorec {{val -1}} {
+	return [$self _nval_setting noautorec $val]
+}
+
+settings method noautorecimm {{val -1}} {
+	return [$self _nval_setting noautorecimm $val]
+}
+
+settings method autorecperiod {{val -1}} {
+	return [$self _nval_setting autorecperiod $val]
+}
+
+settings method noautohours {{val -1}} {
+	set val [$self _tval_setting noautohours $val]
+	return $val
 }
 
 settings method audiomp3 {{val -1}} {

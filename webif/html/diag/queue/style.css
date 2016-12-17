@@ -1,0 +1,28 @@
+
+td.status
+{
+	font-style: italic;
+}
+
+td
+{
+	white-space: nowrap;
+}
+
+td.status.RUNNING
+{
+	color: red;
+}
+
+td.status.COMPLETE
+{
+	color: green;
+	font-weight: bold;
+}
+
+td.status.INTERRUPTED
+{
+	color: #ffa500;
+	font-weight: bold;
+}
+

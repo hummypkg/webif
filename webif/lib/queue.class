@@ -1,0 +1,169 @@
+
+if {![exists -proc class]} { package require oo }
+if {![exists -proc sqlite3.open]} { package require sqlite3 }
+
+class queue {
+	id	-1
+	dat	0
+	file	""
+	action	""
+	log	""
+	status	""
+	retry	0
+}
+
+proc {queue dbhandle} {args} {
+	if {"-close" in $args} {
+		if {[info exists ::queue::db]} {
+			catch {$::queue::db close}
+			unset ::queue::db
+			return 1
+		}
+		return 0
+	}
+
+	if {[info exists ::queue::db]} {
+		return $::queue::db
+	}
+
+	if {![file exists /mod/etc/queue.db]} {
+		set ::queue::db [sqlite3.open /mod/etc/queue.db]
+		$::queue::db query {
+			create table queue(
+				id integer primary key autoincrement,
+				dat integer,
+				file text,
+				action text,
+				status text default 'PENDING',
+				log text default '',
+				retry integer default 0
+			);
+		}
+		$::queue::db query {
+			create unique index file on queue(file, action);
+		}
+	} else {
+		set ::queue::db [sqlite3.open /mod/etc/queue.db]
+	}
+
+	return $::queue::db
+}
+
+queue method update {_status {_log ""} {_retry 0}} {
+	set db [queue dbhandle]
+	$db query {
+		update queue
+		set status = '%s', log = '%s', retry = retry + %s
+		where id = %s
+	} $_status $_log $_retry $id
+}
+
+proc {queue boot} {} {
+	set db [queue dbhandle]
+	$db query {
+		update queue
+		set status = 'INTERRUPTED',
+		log = 'System was shut down. Job will be retried automatically.',
+		retry = retry + 1
+		where status in ('RUNNING', 'INTERRUPTED')
+	}
+	$db query {
+		delete from queue
+		where status in ('COMPLETE', 'FAILED')
+		and dat < %s
+	} [expr [clock seconds] - 86400 * 3]
+}
+
+proc {queue insert} {ts action} {
+	set db [queue dbhandle]
+
+	$db query {
+		insert or ignore into queue(dat, file, action)
+		values(%s, '%s', '%s')
+	} [clock seconds] [file normalize [$ts get file]] $action
+
+	return [$db lastid]
+}
+
+proc {queue delete} {ts {action "*"}} {
+	set db [queue dbhandle]
+
+	set q "
+		delete from queue
+		where file = '%s'
+		and status in ('PENDING', 'INTERRUPTED', 'COMPLETE', 'FAILED')
+	"
+	if {$action ne "*"} {
+		append q " and action = '%s'"
+	}
+
+	$db query $q [file normalize [$ts get file]] $action
+}
+
+proc {queue delete_by_id} {id} {
+	set db [queue dbhandle]
+
+	set q "
+		delete from queue
+		where id = '%s'
+		and status in ('PENDING', 'INTERRUPTED', 'COMPLETE', 'FAILED')
+	"
+
+	$db query $q $id
+}
+
+proc {queue status} {ts} {
+	set db [queue dbhandle]
+
+	set ret [$db query {
+		select group_concat(action)
+		from queue
+		where file = '%s'
+		and status not in ('COMPLETE', 'FAILED')
+	} [file normalize [$ts get file]]]
+
+	set q ""
+	if {[llength $ret] == 1} {
+		lassign [lindex $ret 0] x q
+	}
+	return $q
+}
+
+proc {queue all} {} {
+	set db [queue dbhandle]
+
+	set ret {}
+	foreach row [$db query {select * from queue order by id}] {
+		lappend ret [queue new $row]
+	}
+	return $ret
+}
+
+proc {queue pending} {} {
+	set db [queue dbhandle]
+
+	set ret {}
+	foreach row [$db query {
+		select * from queue
+		where status in ('PENDING', 'INTERRUPTED')
+		order by id
+	}] {
+		lappend ret [queue new $row]
+	}
+	return $ret
+}
+
+proc {queue pop} {} {
+	set db [queue dbhandle]
+
+	foreach row [$db query {
+		select * from queue
+		where status in ('PENDING', 'INTERRUPTED')
+		order by id
+		limit 1
+	}] {
+		return [queue new $row]
+	}
+	return {}
+}
+

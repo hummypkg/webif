@@ -6,6 +6,7 @@ export TZ=GMT+0BST,M3.5.0/1,M10.5.0/2
 
 case "$1" in
 	start)
+		/mod/webif/lib/bin/update_queue
 		/mod/webif/lib/bin/manage_logs
 		plog activity "System booted (`lbr_descr`)."
 		;;

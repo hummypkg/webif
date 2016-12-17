@@ -7,7 +7,6 @@ set notwitfeed [$settings notwitfeed]
 set nounwatchedcount [$settings nounwatchedcount]
 set hidevisualota [$settings hidevisualota]
 set chanchangenc [$settings chanchangenc]
-set autolog [$settings autolog]
 set audiomp3 [$settings audiomp3]
 
 handle_str_update hostname $hostname Hostname
@@ -19,6 +18,5 @@ handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
 handle_int_update hidevisualota $hidevisualota "Hide OTA from visual view"
 handle_int_update chanchangenc $chanchangenc \
     "Disable channel change confirmation"
-handle_int_update autolog $autolog "Auto-processing log level"
 handle_int_update audiomp3 $audiomp3 "MP3 type"
 

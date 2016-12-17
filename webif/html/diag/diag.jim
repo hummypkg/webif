@@ -105,6 +105,7 @@ util "shredder" "rma" "RMA" "#" "<br><span id=rmaresult></span>"
 
 util "bluering" "reboot" "Reboot System" "/restart/"
 util "maint" "maint" "Maintenance Mode" "#" "<br><span id=maintresult></span>"
+util "queuep" "queue" "Queued Tasks" "/diag/queue/"
 
 eval_plugins diag
 

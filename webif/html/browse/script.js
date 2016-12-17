@@ -880,6 +880,14 @@ $('#bmpdialogue').dialog({
 	close: function() { $('#thmbmp').attr('src', 'about:blank'); }
 });
 
+// Selection overlay
+$seloverlay = $('#selectoverlay').dialog({
+	modal: false, autoOpen: false,
+	height: 85, width: 460,
+	show: 'fade', hide: 'fade',
+	draggable: true, resizable: false
+});
+
 // Create re-usable confirmation dialogue.
 $confirm = $('#confirm').dialog({
 	modal: true, autoOpen: false,
@@ -924,6 +932,10 @@ $('input.fs:checked').prop('checked', false);
 $('#dedup').button().click(function() {
 	window.location = '/dedup/dedup.jim?dir='
 	    + encodeURIComponent(dir);
+});
+
+$('#queue').button().click(function() {
+	window.location = '/diag/queue/';
 });
 
 $('#save_stream').button().click(function() {
@@ -1058,7 +1070,128 @@ $('input.fs').change(function() {
 	else
 		$('#join').disable();
 
+	if (num > 0)
+	{
+		$seloverlay
+		    .dialog('option', 'position', {
+			my: "left top",
+			at: "right bottom",
+			of: this
+		    })
+		    .dialog('option', 'title', 'Selected files: ' + num)
+		    .dialog('open')
+		    .find('span.selcount').text(num);
+	}
+	else
+	{
+		$seloverlay.dialog('close');
+	}
 });
+
+$('#so_delete').button()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fs:checked + a').each(function() {
+		files.push(decodeURIComponent($(this).attr('file')));
+	});
+	//console.log("%o", files);
+	var str = 'Are you sure you want to delete ' + files.length +
+	    ' file';
+	if (files.length != 1) str += 's';
+	str += '?';
+	if (confirm(str))
+	{
+		disableall();
+		$('#deletewait').slideDown('slow');
+
+		$('#pwdialogue').dialog({
+			title: "Deleting",
+			modal: true, autoOpen: true,
+			height: 'auto', width: 'auto',
+			show: 'scale', hide: 'fade',
+			draggable: false, resizable: false,
+			closeOnEscape: false,
+			open: function() {
+			    $('.ui-dialog-titlebar-close').hide();
+			}
+		});
+		$('#pwfeedback').load(
+		    '/browse/delete.jim', {
+			'dir': dir,
+			'files': files
+			}, function() {
+			$('#pwdialogue').dialog('close');
+			blockpage();
+			window.location.reload(true);
+		});
+	}
+    });
+
+
+$('#so_queue').button()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fs:checked + a').each(function() {
+		files.push(decodeURIComponent($(this).attr('file')));
+	});
+
+	disableall();
+
+	$('#pwdialogue').dialog({
+		title: "Queuing",
+		modal: true, autoOpen: true,
+		height: 'auto', width: 'auto',
+		show: 'scale', hide: 'fade',
+		draggable: false, resizable: false,
+		closeOnEscape: false,
+		open: function() {
+		    $('.ui-dialog-titlebar-close').hide();
+		}
+	});
+
+	$('#pwfeedback').load(
+	    '/browse/queue.jim', {
+		'dir': dir,
+		'files': files,
+		'act': $('#so_queueactions').val()
+		}, function() {
+		$('#pwdialogue').dialog('close');
+		blockpage();
+		window.location.reload(true);
+	});
+    });
+
+$('#so_dequeue').button()
+    .click(function() {
+	var files = new Array();
+	var els = $('input.fs:checked + a').each(function() {
+		files.push(decodeURIComponent($(this).attr('file')));
+	});
+
+	disableall();
+
+	$('#pwdialogue').dialog({
+		title: "De-queuing",
+		modal: true, autoOpen: true,
+		height: 'auto', width: 'auto',
+		show: 'scale', hide: 'fade',
+		draggable: false, resizable: false,
+		closeOnEscape: false,
+		open: function() {
+		    $('.ui-dialog-titlebar-close').hide();
+		}
+	});
+
+	$('#pwfeedback').load(
+	    '/browse/dequeue.jim', {
+		'dir': dir,
+		'files': files
+		}, function() {
+		$('#pwdialogue').dialog('close');
+		blockpage();
+		window.location.reload(true);
+	});
+    });
 
 var streamsize = 0;
 

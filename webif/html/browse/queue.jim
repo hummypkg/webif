@@ -1,0 +1,34 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require ts.class queue.class
+
+httpheader
+
+set dir [cgi_get dir]
+set act [cgi_get act -]
+if {$act eq "-"} {
+	puts "No action."
+	exit;
+}
+
+puts "<div id=deleting class=blood><img src=/img/loading.gif>Queuing...</div>"
+puts "<ul style=\"list-style-type: square\">"
+
+foreach file [cgi_get files] {
+	puts -nonewline "<li>\"$file\"..."
+
+	if {[string first "$dir/" $file] != 0} {
+		puts "Error - outside directory."
+		continue
+	}
+
+	set ts [ts fetch $file]
+	if {$ts eq "0"} continue
+
+	queue insert $ts $act
+	puts "</li>"
+}
+puts "</ul>"
+

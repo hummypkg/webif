@@ -376,6 +376,26 @@ Please wait...
 <div id=bmpdialogue title="Recording Thumbnail" class=hidden>
 <img id=thmbmp class=doublebmp src="about:blank">
 </div>
+}
 
+set queueactions(decrypt) "Decryption"
+set queueactions(shrink) "Shrink"
+set queueactions(mp3) "Audio-Extraction"
+set queueactions(mpg) "Conversion to MPG"
+eval_plugins queueactions
+
+puts {
+<div id=selectoverlay title="Selected files" class=hidden>
+<button id=so_delete>Delete</button>
+<button id=so_queue>Queue for</button>
+<select id=so_queueactions>
+}
+foreach {k v} $queueactions {
+	puts "<option value=$k>$v</option>"
+}
+puts {
+</select>
+<button id=so_dequeue>De-queue</button>
+</div>
 }
 

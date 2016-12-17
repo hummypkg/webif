@@ -40,33 +40,6 @@ if {[system pkginst ir]} {
 
 puts -nonewline "
 	<tr>
-	<form class=auto id=autolog method=get action=$env(SCRIPT_NAME)>
-		<th class=key>Auto-processing log level</th>
-		<td><select id=autolog name=autolog
-		    class=\"text ui-widget-content ui-corner-all\">
-"
-puts "<option value=0"
-if {$autolog == 0} { puts " selected" }
-puts ">Actions and errors only\n"
-puts "<option value=1"
-if {$autolog == 1} { puts " selected" }
-puts ">Actions, errors and scan information\n"
-puts "<option value=2"
-if {$autolog == 2} { puts " selected" }
-puts ">Debugging information\n"
-puts "
-		</select>
-		<small>
-		<input name=autolog value=\"set\" type=submit>
-		</small>
-		<div id=autolog_output></div>
-		</td>
-	</form>
-	</tr>
-"
-
-puts -nonewline "
-	<tr>
 	<form class=auto id=audiomp3 method=get action=$env(SCRIPT_NAME)>
 		<th class=key>Audio extraction type</th>
 		<td><select id=audiomp3 name=audiomp3

@@ -1,0 +1,7 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require queue.class
+
+queue boot
+
