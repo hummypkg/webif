@@ -13,7 +13,7 @@ set modules {general auto tvdb web epg network advanced}
 set settings [settings new]
 if {![dict exists $env SCRIPT_NAME]} { set env(SCRIPT_NAME) "" }
 
-proc _handle_update {class var old text {trim 1}} {
+proc _handle_update {class var old text {trim 1} {min ""} {max ""}} {
 	global _cgi
 	global settings
 
@@ -25,6 +25,14 @@ proc _handle_update {class var old text {trim 1}} {
 		if {$new == $old} {
 			puts "$text unchanged."
 		} elseif {[string is $class -strict $new]} {
+			if {$class == "digit" && $min ne "" && $new < $min} {
+				puts "Invalid value for $var (too small)."
+				exit
+			}
+			if {$class == "digit" && $max ne "" && $new > $max} {
+				puts "Invalid value for $var (too large)."
+				exit
+			}
 			$settings $var $new
 			puts "$text updated."
 		} else {
@@ -34,8 +42,8 @@ proc _handle_update {class var old text {trim 1}} {
 	}
 }
 
-proc handle_int_update {var old {text "Value"} {trim 1}} {
-	_handle_update digit $var $old $text $trim
+proc handle_int_update {var old {text "Value"} {trim 1} {min ""} {max ""}} {
+	_handle_update digit $var $old $text $trim $min $max
 }
 
 proc handle_str_update {var old {text "Value"} {class alnum} {trim 1}} {
@@ -86,7 +94,7 @@ proc setting_toggle {name attr checked {invert 0} {val 0}} {
 	"
 }
 
-proc setting_number {name descr val} {
+proc setting_number {name descr val {min ""} {max ""}} {
 	puts -nonewline "
 	<tr>
 	<form class=auto id=${name} method=get action=$::env(SCRIPT_NAME)>
@@ -94,7 +102,14 @@ proc setting_number {name descr val} {
 		<td>
 			<input name=${name} size=5 type=number
 			    class=\"text ui-widget-content ui-corner-all\"
-			    maxlength=10 value=\"$val\">
+			    maxlength=10"
+	if {$min ne ""} {
+		puts -nonewline " min=$min"
+	}
+	if {$max ne ""} {
+		puts -nonewline " max=$max"
+	}
+	puts -nonewline " value=\"$val\">
 			<small>
 			<input value=\"set\" type=submit>
 			</small>

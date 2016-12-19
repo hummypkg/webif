@@ -43,7 +43,8 @@ setting_toggle "Suspend automatic processing whilst recording?" \
 setting_toggle "Suspend automatic processing if will record soon?" \
     "noautorecimm" $noautorecimm
 
-setting_number autorecperiod "...how many minutes is soon?" $autorecperiod
+setting_number autorecperiod "...how many minutes is soon?" $autorecperiod \
+    1 $(60 * 24)
 
 puts -nonewline "
 	<tr>
