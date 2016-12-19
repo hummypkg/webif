@@ -217,9 +217,11 @@ proc entry {file} {{i 0}} {
 	}
 
 	# Queued
-	set queued [queue status $ts]
-	if {$queued ne ""} {
-		icon "/img/queueps.png" "Queued for $queued"
+	if {$type eq "ts"} {
+		set queued [queue status $ts]
+		if {$queued ne ""} {
+			icon "/img/queueps.png" "Queued for $queued"
+		}
 	}
 
 	# Opt+ button

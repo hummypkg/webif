@@ -128,6 +128,8 @@ proc {queue delete_by_id} {id} {
 }
 
 proc {queue status} {ts} {
+	if {$ts eq "0"} { return "" }
+
 	set db [queue dbhandle]
 
 	set ret [$db query {
