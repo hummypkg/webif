@@ -56,7 +56,7 @@ foreach mod $modules {
 ######################################################################
 # Web Page
 
-jqplugin form actual iphone-style-checkboxes touchpunch
+jqplugin form actual iphone-style-checkboxes touchpunch multiselect
 jscss settings.js
 header
 

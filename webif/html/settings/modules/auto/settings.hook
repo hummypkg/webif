@@ -48,16 +48,16 @@ setting_number autorecperiod "...how many minutes is soon?" $autorecperiod
 puts -nonewline "
 	<tr>
 	<form class=auto id=noautohours method=get action=$env(SCRIPT_NAME)>
-		<th class=key>Suspend automatic processing during:
-		<div class=blood>
-			Use Shift and Control to select multiple entries.
-		</div>
+		<th class=key>Choose hours during which
+		    automatic processing runs:
 		</th>
-		<td><select name=\"noautohours\[]\"
+		<td>
+		<input name=\"noautohours\[]\" value=dummy>
+		<select name=\"noautohours\[]\" id=s_noautohours
 		    multiple size=8
 		    class=\"text ui-widget-content ui-corner-all\">
 "
-loop h 0 23 {
+loop h 0 24 {
 	puts -nonewline "<option value=$h"
 	if {$h in $noautohours} { puts -nonewline " selected" }
 	puts ">[format "%02d:00 - %02d:59" $h $h]</option>"
@@ -73,7 +73,14 @@ puts "
 	</tr>
 "
 
-puts "
+puts {
 </table></fieldset></div>
-"
+
+<script type=text/javascript>
+$('#s_noautohours').multiSelect({
+	selectableHeader: "<div class=odd>Enable during</div>",
+	selectionHeader: "<div class=odd>Disable during</div>"
+});
+</script>
+}
 

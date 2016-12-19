@@ -89,6 +89,8 @@ $(function() {
 		uncheckedLabel: 'NO'
 	});
 
+	$('select.multiselect').multiSelect();
+
 	// For now - until plugins are updated.
 	//$('div.pluginsettings').find('br + br').remove();
 });
