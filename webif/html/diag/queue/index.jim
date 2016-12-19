@@ -31,7 +31,8 @@ puts {
 <tbody>
 </tbody>
 </table>
-<button id=qdelete>Delete Selected</button>
+<button id=qdelete class=needssel>Delete Selected</button>
+<button id=qresubmit class=needssel>Retry Selected</button>
 <button id=selcomplete>Select Completed</button>
 <button id=selall>Select All</button>
 <button id=selnone>Select None</button>

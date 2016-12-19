@@ -4,6 +4,8 @@ set noautorec [$settings noautorec]
 set noautorecimm [$settings noautorecimm]
 set autorecperiod [$settings autorecperiod]
 if {$autorecperiod == 0} { set autorecperiod 10 }
+set autokeep [$settings autokeep]
+if {$autokeep == 0} { set autokeep 7 }
 set noautohours [$settings noautohours]
 
 handle_int_update autolog $autolog "Auto-processing log level"
@@ -11,5 +13,7 @@ handle_int_update noautorec $noautorec "Auto-processing during recording"
 handle_int_update noautorecimm $noautorecimm "Auto-processing before recording"
 handle_int_update autorecperiod $autorecperiod \
     "Auto-processing recording wait period" 1 1 $(60 * 24)
+handle_int_update autokeep $autokeep \
+    "Auto-processing queue period" 1 1 365
 handle_str_update noautohours $noautohours "Auto processing hours" ascii
 

@@ -1,0 +1,22 @@
+
+# Initialise a map from control characters to JSON escaped characters.
+# Initially all non-null control characters to \u00xx sequences.
+for {set i 1} {$i < 32} {incr i} {
+	set ::json::escape_map([format %c $i]) \\u[format %04x $i]
+}
+
+# Then overwrite certain well known control characters with shorter versions.
+set ::json::escape_map([format %c 8]) \\b; # backspace
+set ::json::escape_map([format %c 9]) \\t; # tab
+set ::json::escape_map([format %c 10]) \\n; # lf
+set ::json::escape_map([format %c 12]) \\f; # ff
+set ::json::escape_map([format %c 13]) \\r; # cr
+# Other special sequences
+set ::json::escape_map(\") {\"}
+set ::json::escape_map(\\) {\\}
+set ::json::escape_map(/)  {\/}
+
+proc ::json::escape {in} {
+	return [string map $::json::escape_map $in]
+}
+

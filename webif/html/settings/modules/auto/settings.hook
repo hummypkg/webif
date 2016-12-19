@@ -46,6 +46,10 @@ setting_toggle "Suspend automatic processing if will record soon?" \
 setting_number autorecperiod "...how many minutes is soon?" $autorecperiod \
     1 $(60 * 24)
 
+setting_number autokeep \
+    "How many days should completed entries stay in the queue?" $autokeep \
+    1 365
+
 puts -nonewline "
 	<tr>
 	<form class=auto id=noautohours method=get action=$env(SCRIPT_NAME)>
@@ -53,7 +57,7 @@ puts -nonewline "
 		    automatic processing runs:
 		</th>
 		<td>
-		<input name=\"noautohours\[]\" value=dummy>
+		<input class=hidden name=\"noautohours\[]\" value=dummy>
 		<select name=\"noautohours\[]\" id=s_noautohours
 		    multiple size=8
 		    class=\"text ui-widget-content ui-corner-all\">
@@ -79,8 +83,8 @@ puts {
 
 <script type=text/javascript>
 $('#s_noautohours').multiSelect({
-	selectableHeader: "<div class=odd>Enable during</div>",
-	selectionHeader: "<div class=odd>Disable during</div>"
+	selectableHeader: '<div class=odd>Enable during</div>',
+	selectionHeader: '<div class=odd>Disable during</div>'
 });
 </script>
 }

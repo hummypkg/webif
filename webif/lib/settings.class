@@ -39,6 +39,7 @@ class settings {
 	noautorec	0
 	noautorecimm	0
 	autorecperiod	10
+	autokeep	7
 	noautohours	""
 	changechangenc	0
 	audiomp3	0
@@ -240,6 +241,10 @@ settings method noautorecimm {{val -1}} {
 
 settings method autorecperiod {{val -1}} {
 	return [$self _nval_setting autorecperiod $val]
+}
+
+settings method autokeep {{val -1}} {
+	return [$self _nval_setting autokeep $val]
 }
 
 settings method noautohours {{val -1}} {

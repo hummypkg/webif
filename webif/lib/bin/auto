@@ -881,7 +881,7 @@ if {[lindex $argv 0] eq "-singledir"} {
 	scansingle [lrange $argv 1 end]
 } elseif {[lindex $argv 0] eq "-queue"} {
 	log "Processing queue..." 2
-	queue startup
+	queue startup [$settings autokeep]
 	while {[llength [set q [queue pop]]]} {
 		oktorun
 
@@ -903,7 +903,7 @@ if {[lindex $argv 0] eq "-singledir"} {
 		$q update RUNNING "Started at [clock format [clock seconds]]"
 		set start [clock seconds]
 		if {[catch {$func $ts} msg]} {
-			$q update FAILED $msg 1
+			$q update FAILED "$msg" 1
 			continue
 		}
 		set elapsed $([clock seconds] - $start)

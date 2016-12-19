@@ -73,7 +73,8 @@ queue method update {_status {_log ""} {_retry 0} {_elapsed 0}} {
 	set elapsed $_elapsed
 }
 
-proc {queue startup} {} {
+proc {queue startup} {{days 7}} {
+	if {$days == 0} { set days 7 }
 	set db [queue dbhandle]
 	$db query {
 		update queue
@@ -86,7 +87,7 @@ proc {queue startup} {} {
 		delete from queue
 		where status in ('COMPLETE', 'FAILED')
 		and dat < %s
-	} [expr [clock seconds] - 86400 * 7]
+	} [expr [clock seconds] - 86400 * $days]
 }
 
 proc {queue insert} {ts action} {
@@ -122,6 +123,19 @@ proc {queue delete_by_id} {id} {
 		delete from queue
 		where id = '%s'
 		and status in ('PENDING', 'INTERRUPTED', 'COMPLETE', 'FAILED')
+	"
+
+	$db query $q $id
+}
+
+proc {queue resubmit} {id} {
+	set db [queue dbhandle]
+
+	set q "
+		update queue
+		set status = 'PENDING'
+		where id = '%s'
+		and status in ('FAILED')
 	"
 
 	$db query $q $id

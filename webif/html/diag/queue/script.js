@@ -10,12 +10,11 @@ function page_refresh(msg)
 
 function load()
 {
+	$('#isloading').show('fast');
 	$.getJSON('fetch.jim', function(data) {
 		$('#queuetab > tbody').empty();
 
 		$.each(data, function(k, v) {
-
-	$('#isloading').show('fast');
 
 	s = '<tr>' +
 	'<td><input type=checkbox class=qid status=' + v.status +
@@ -67,9 +66,9 @@ load();
 $('#queuetab').on('change', 'input.qid', function() {
 	var num = $('input.qid:checked').size();
 	if (num)
-		$('#qdelete').enable();
+		$('.needssel').enable();
 	else
-		$('#qdelete').disable();
+		$('.needssel').disable();
 }).first().trigger('change');
 
 $('#qdelete').button({icons:{primary:"ui-icon-trash"}})
@@ -87,6 +86,29 @@ $('#qdelete').button({icons:{primary:"ui-icon-trash"}})
 				return this.value;
 			}).get();
 			$.get('delete.jim', {
+				slot: slots.join(',')
+			}, function() {
+				page_refresh();
+			});
+    });
+
+});
+
+$('#qresubmit').button({icons:{primary:"ui-icon-refresh"}})
+    .on('click', function() {
+	$(this).dojConfirmAction({
+		question: 'Re-submit selected?',
+		yesAnswer: 'Yes',
+		cancelAnswer: 'No'
+		}, function(el) {
+			$.blockUI({
+		message: '<h1><img src=/img/loading.gif> Re-submitting... </h1>'
+			});
+
+			var slots = $('input.qid:checked').map(function() {
+				return this.value;
+			}).get();
+			$.get('resubmit.jim', {
 				slot: slots.join(',')
 			}, function() {
 				page_refresh();
