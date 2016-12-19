@@ -883,7 +883,7 @@ $('#bmpdialogue').dialog({
 // Selection overlay
 $seloverlay = $('#selectoverlay').dialog({
 	modal: false, autoOpen: false,
-	height: 85, width: 460,
+	height: 85, width: 485,
 	show: 'fade', hide: 'fade',
 	draggable: true, resizable: false
 });

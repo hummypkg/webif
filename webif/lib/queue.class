@@ -10,6 +10,7 @@ class queue {
 	log	""
 	status	""
 	retry	0
+	elapsed 0
 }
 
 proc {queue dbhandle} {args} {
@@ -36,6 +37,7 @@ proc {queue dbhandle} {args} {
 				action text,
 				status text default 'PENDING',
 				log text default '',
+				elapsed integer,
 				retry integer default 0
 			);
 		}
@@ -44,26 +46,39 @@ proc {queue dbhandle} {args} {
 		}
 	} else {
 		set ::queue::db [sqlite3.open /mod/etc/queue.db]
+# XXX - Remove before release
+		catch { $::queue::db query {
+			alter table queue
+			add column elapsed integer default 0
+		}}
 	}
 
 	return $::queue::db
 }
 
-queue method update {_status {_log ""} {_retry 0}} {
+queue method update {_status {_log ""} {_retry 0} {_elapsed 0}} {
 	set db [queue dbhandle]
 	$db query {
 		update queue
-		set status = '%s', log = '%s', retry = retry + %s
+		set status = '%s',
+		    log = '%s',
+		    retry = retry + %s,
+		    elapsed = %s
 		where id = %s
-	} $_status $_log $_retry $id
+	} $_status $_log $_retry $_elapsed $id
+
+	set status $_status
+	set log $_log
+	incr retry $_retry
+	set elapsed $_elapsed
 }
 
-proc {queue boot} {} {
+proc {queue startup} {} {
 	set db [queue dbhandle]
 	$db query {
 		update queue
 		set status = 'INTERRUPTED',
-		log = 'System was shut down. Job will be retried automatically.',
+		log = 'Job will be retried automatically.',
 		retry = retry + 1
 		where status in ('RUNNING', 'INTERRUPTED')
 	}
@@ -71,7 +86,7 @@ proc {queue boot} {} {
 		delete from queue
 		where status in ('COMPLETE', 'FAILED')
 		and dat < %s
-	} [expr [clock seconds] - 86400 * 3]
+	} [expr [clock seconds] - 86400 * 7]
 }
 
 proc {queue insert} {ts action} {

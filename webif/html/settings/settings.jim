@@ -121,7 +121,7 @@ foreach mod $modules {
 proc plugin_callback {plugin hook} {
 	puts "<h4>Settings for <i>[file tail $plugin]</i> package</h4>"
 	puts "<div class=pluginsettings>"
-	if {[catch {source "$plugin/$hook"} msg]} {
+	if {[catch {uplevel source "$plugin/$hook"} msg]} {
 		puts "ERROR: $msg"
 	}
 	puts "</div>"

@@ -16,51 +16,27 @@ puts {
 </h3>
 <fieldset class=cleft>
 <legend>Queued Tasks</legend>
-<table class=borders cellpadding=5>
+<table id=queuetab class=borders cellpadding=5>
 <thead>
 <tr>
-	<th nowrap>ID<input type=checkbox id=selall></th>
+	<th nowrap>ID</th>
 	<th>Submitted</th>
 	<th>File</th>
 	<th>Action</th>
 	<th>Status</th>
+	<th>Time</th>
 	<th>Log</th>
 </tr>
 </thead>
 <tbody>
-}
-
-foreach q [queue all] {
-	set name [string map {
-                        "/mnt/hd2/My Video/" ""
-                        "/media/drive1/Video/" ""
-                        "/media/" ""
-                        ".ts" ""
-                } [$q get file]]
-
-	puts "
-	<tr>
-		<td><input type=checkbox class=qid value=[$q get id]>
-			[$q get id]
-		</td>
-		<td>[clock format [$q get dat] -format {%c}]</td>
-		<td>$name</td>
-		<td>[$q get action]</td>
-		<td class=\"status [$q get status]\">[$q get status]"
-	if {[$q get status] eq "RUNNING"} {
-		puts "<img src=/img/loading.gif>"
-	}
-	puts "</td>
-		<td>[$q get log]</td>
-	</tr>
-	"
-}
-
-puts {
 </tbody>
 </table>
 <button id=qdelete>Delete Selected</button>
-<button id=refresh>Refresh Page</button>
+<button id=selcomplete>Select Completed</button>
+<button id=selall>Select All</button>
+<button id=selnone>Select None</button>
+<button id=refresh>Refresh</button>
+<span id=isloading><img src=/img/loading.gif></span>
 </fieldset>
 }
 

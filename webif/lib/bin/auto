@@ -881,6 +881,7 @@ if {[lindex $argv 0] eq "-singledir"} {
 	scansingle [lrange $argv 1 end]
 } elseif {[lindex $argv 0] eq "-queue"} {
 	log "Processing queue..." 2
+	queue startup
 	while {[llength [set q [queue pop]]]} {
 		oktorun
 
@@ -900,11 +901,14 @@ if {[lindex $argv 0] eq "-singledir"} {
 		}
 		set func $::queue_actions($act)
 		$q update RUNNING "Started at [clock format [clock seconds]]"
+		set start [clock seconds]
 		if {[catch {$func $ts} msg]} {
 			$q update FAILED $msg 1
 			continue
 		}
-		$q update COMPLETE "Completed at [clock format [clock seconds]]"
+		set elapsed $([clock seconds] - $start)
+		$q update COMPLETE \
+		    "Completed at [clock format [clock seconds]]" 0 $elapsed
 	}
 } elseif {[llength $argv] > 0} {
 	set loglevel 2
