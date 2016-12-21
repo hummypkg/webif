@@ -198,3 +198,17 @@ proc {queue pop} {} {
 	return {}
 }
 
+proc {queue size} {} {
+	set db [queue dbhandle]
+
+	set num 0
+	set ret [$db query {
+		select count(*) from queue
+		where status in ('PENDING', 'INTERRUPTED')
+	}]
+	if {[llength $ret]} {
+		lassign [lindex $ret 0] x num
+	}
+	return $num
+}
+

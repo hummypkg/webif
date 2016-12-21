@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require ts.class escape
+require ts.class json
 
 httpheader "application/json"
 

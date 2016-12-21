@@ -41,6 +41,8 @@ class settings {
 	autorecperiod	10
 	autokeep	7
 	noautohours	""
+	autofreq	20
+	autolast	0
 	changechangenc	0
 	audiomp3	0
 	logsize		1048576
@@ -245,6 +247,14 @@ settings method autorecperiod {{val -1}} {
 
 settings method autokeep {{val -1}} {
 	return [$self _nval_setting autokeep $val]
+}
+
+settings method autofreq {{val -1}} {
+	return [$self _nval_setting autofreq $val]
+}
+
+settings method autolast {{val -1}} {
+	return [$self _nval_setting autolast $val]
 }
 
 settings method noautohours {{val -1}} {

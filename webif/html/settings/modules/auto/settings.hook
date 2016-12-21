@@ -38,6 +38,9 @@ puts "
 	</tr>
 "
 
+setting_number autofreq "How often should auto-processing run (in minutes)?" \
+    $autofreq 5 60
+
 setting_toggle "Suspend automatic processing whilst recording?" \
     "noautorec" $noautorec
 setting_toggle "Suspend automatic processing if will record soon?" \
@@ -45,10 +48,6 @@ setting_toggle "Suspend automatic processing if will record soon?" \
 
 setting_number autorecperiod "...how many minutes is soon?" $autorecperiod \
     1 $(60 * 24)
-
-setting_number autokeep \
-    "How many days should completed entries stay in the queue?" $autokeep \
-    1 365
 
 puts -nonewline "
 	<tr>
@@ -77,6 +76,10 @@ puts "
 	</form>
 	</tr>
 "
+
+setting_number autokeep \
+    "How many days should completed entries stay in the queue?" $autokeep \
+    1 365
 
 puts {
 </table></fieldset></div>

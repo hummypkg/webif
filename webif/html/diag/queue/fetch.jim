@@ -20,7 +20,7 @@ foreach q [queue all] {
 	puts "{"
 	puts "  \"qid\": [$q get id],"
 	puts "  \"dat\": \"$dat\","
-	puts "  \"file\": \"$name\","
+	puts "  \"file\": \"[::json::escape $name]\","
 	puts "  \"action\": \"[$q get action]\","
 	puts "  \"status\": \"[$q get status]\","
 	puts "  \"log\": \"[::json::escape [$q get log]]\","

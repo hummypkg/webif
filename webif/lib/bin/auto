@@ -45,19 +45,27 @@ while {[llength $argv]} {
 			set earlyexit 1
 		}
 		default {
-			# Unknown option, pass to rest of script.
+			# Pass to rest of script.
 			break
 		}
 	}
 	set argv [lrange $argv 1 end]
 }
 
+set manualrun $([llength $argv] > 0)
+if {$loglevel > 1} {
+	if {$logfd ne "unset"} {
+		puts $logfd "Manual run: $manualrun"
+	}
+}
+
 #########################################################################
 
+# Acquire lock
 if {$logfd ne "unset"} {
 	puts $logfd "Acquiring lock..."
 }
-if {!$prelocked && ![acquire_lock webif_auto 10 1]} {
+if {!$prelocked && ![acquire_lock webif_auto]} {
 	if {$loglevel > 1} {
 		system plog auto "Could not acquire lock."
 	}
@@ -71,9 +79,12 @@ if {[file exists $logfile] && [file size $logfile] > 2097152} {
 	file delete $logfile
 }
 
+# Open log file
 if {$logfd eq "unset"} {
 	set logfd [open "/mod/tmp/auto.log" "a+"]
 }
+
+#########################################################################
 
 proc log {msg {level 1}} {
 	if {$level > $::loglevel} return
@@ -83,6 +94,7 @@ proc log {msg {level 1}} {
 
 proc oktorun {} {
 	global settings
+
 	set now [clock seconds]
 
 	# Ongoing scheduled recording
@@ -124,6 +136,43 @@ proc oktorun {} {
 		exit
 	}
 }
+
+proc dsc {{size 0}} {
+	set free [system diskfree]
+
+	# Required disk space is 1GiB + 3 times the file size.
+	set req $($size * 3 + 1073741824)
+
+	if {$free < $req} {
+		log "Insufficient disk space. Require=$req, Free=$free" 0
+		exit
+	}
+}
+
+# Determine if it's time to run
+
+dsc
+oktorun
+if {!$manualrun} {
+	set autofreq [$settings autofreq]
+
+	set timesincelast $(([clock seconds] - [$settings autolast]) / 60)
+	if {![queue size] && $timesincelast < $autofreq} {
+		log "Aborting, not yet time to run." 2
+		log "  elapsed (minutes): $timesincelast (<$autofreq)" 2
+		exit
+	}
+}
+
+if {$earlyexit} {
+	if {!$manualrun} {
+		$settings autolast [clock seconds]
+	}
+	puts "Early exit."
+	exit
+}
+
+#########################################################################
 
 proc inuse {ts} {
 	set retries 5
@@ -195,13 +244,7 @@ proc runplugin {name {ts 0}} {
 	}
 }
 
-# Check if it's ok to run now.
-oktorun
-
-if {$earlyexit} {
-	puts "Early exit."
-	exit
-}
+#########################################################################
 
 eval_plugins auto 1
 
@@ -222,19 +265,7 @@ if {[system dlnastatus]} {
 	log "DLNA Server is NOT running." 2
 }
 
-log "Media scan starting, DLNA server status: $dlnaok"
-
-proc dsc {{size 0}} {
-	set free [system diskfree]
-
-	# Required disk space is 1GiB + 3 times the file size.
-	set req $($size * 3 + 1073741824)
-
-	if {$free < $req} {
-		log "Insufficient disk space. Require=$req, Free=$free" 0
-		exit
-	}
-}
+log "Auto processing starting, DLNA server status: $dlnaok"
 
 dsc
 
@@ -873,13 +904,8 @@ proc scansingle {dirs} {
 	}
 }
 
-file stat "$root/" rootstat
-set rootdev $rootstat(dev)
-log "Root device: $rootdev" 2
-
-if {[lindex $argv 0] eq "-singledir"} {
-	scansingle [lrange $argv 1 end]
-} elseif {[lindex $argv 0] eq "-queue"} {
+proc process_queue {} {
+	global settings
 	log "Processing queue..." 2
 	queue startup [$settings autokeep]
 	while {[llength [set q [queue pop]]]} {
@@ -910,6 +936,18 @@ if {[lindex $argv 0] eq "-singledir"} {
 		$q update COMPLETE \
 		    "Completed at [clock format [clock seconds]]" 0 $elapsed
 	}
+}
+
+file stat "$root/" rootstat
+set rootdev $rootstat(dev)
+log "Root device: $rootdev" 2
+
+######################################################################
+
+if {[lindex $argv 0] eq "-singledir"} {
+	scansingle [lrange $argv 1 end]
+} elseif {[lindex $argv 0] eq "-queue"} {
+	process_queue
 } elseif {[llength $argv] > 0} {
 	set loglevel 2
 	foreach arg $argv {
@@ -926,6 +964,7 @@ if {[lindex $argv 0] eq "-singledir"} {
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
 } else {
+	process_queue
 	foreach arg $modules {
 		set st [clock milliseconds]
 		log "$arg scan starting."
@@ -935,9 +974,10 @@ if {[lindex $argv 0] eq "-singledir"} {
 		runplugin "post${arg}scan" processed_files
 		log "$arg scan completed in [elapsed $st] seconds."
 	}
+	$settings autolast [clock seconds]
 }
 
 if {!$prelocked} { release_lock webif_auto }
 
-log "Media scan completed in [elapsed $scanstart] seconds."
+log "Auto processing completed in [elapsed $scanstart] seconds."
 

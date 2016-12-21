@@ -2,7 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require escape
+require json
 
 httpheader "application/json"
 
@@ -16,7 +16,7 @@ foreach line [split [exec /mod/bin/busybox/du -h -l -d 1 "$dir/"] "\n"] {
 	lassign [split $line "\t"] size node
 	set node [string range $node $dlen end]
 	if {[string length $node]} {
-		puts "\"$node\": \"$size\","
+		puts "\"[jescape $node]\": \"$size\","
 	}
 }
 
