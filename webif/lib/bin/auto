@@ -155,6 +155,7 @@ dsc
 oktorun
 if {!$manualrun} {
 	set autofreq [$settings autofreq]
+	if {$autofreq == 0} { set autofreq 20 }
 
 	set timesincelast $(([clock seconds] - [$settings autolast]) / 60)
 	if {![queue size] && $timesincelast < $autofreq} {
