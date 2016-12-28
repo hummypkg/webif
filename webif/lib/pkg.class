@@ -16,12 +16,16 @@ set ::diagmeta {}
 
 pkg method _load {nm} {
 	set name $nm
+	set latest 0
 	foreach line [split [exec /bin/opkg list $nm] "\n"] {
 		# betaftpd - 0.0.8pre17-1 - Description...
 		if {[string match { *} $line]} {
 			append descr $line
 		} else {
-			regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x latest descr
+			regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x xlatest descr
+			if {[pkg vercompare $xlatest $latest] > 0} {
+				set latest $xlatest
+			}
 		}
 	}
 	regexp {(.*) \[(.*)\]} $descr x descr changes

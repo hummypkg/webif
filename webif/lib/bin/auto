@@ -151,6 +151,11 @@ proc dsc {{size 0}} {
 
 # Determine if it's time to run
 
+if {[system uptime] < 180} {
+	log "Aborting, system has just booted." 2
+	exit
+}
+
 dsc
 oktorun
 if {!$manualrun} {
