@@ -12,6 +12,9 @@ set verlist {
 	1.0-1 1.0 1
 	1.0 1.0-1 -1
 	2 1.0.1 1
+	2010-365-4 2010-365-5 -1
+	2010-365-5 2010-365-4 1
+	2010-365-5 2010-365-5 0
 }
 
 foreach {a b e} $verlist {
@@ -19,7 +22,7 @@ foreach {a b e} $verlist {
 	if {$ret eq $e} {
 		puts " OK $a $b ($e)"
 	} else {
-		puts "BAD $a $b ($e)"
+		puts "BAD $a $b ($e / $ret)"
 	}
 }
 
