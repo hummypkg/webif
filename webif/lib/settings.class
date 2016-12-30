@@ -122,7 +122,7 @@ settings method _nval_setting {name {val -1}} {
 	}
 }
 
-settings method _tval_setting {name {val -1}} {
+settings method _tval_setting {name {val -1} {def 0}} {
 	global settingsdb
 
 	if {$val eq "-1"} {
@@ -134,7 +134,7 @@ settings method _tval_setting {name {val -1}} {
 		if {$res ne ""} {
 			return [lindex [lindex $res end] end]
 		}
-		return 0
+		return $def
 	} else {
 		# Set
 		$settingsdb query "
@@ -258,7 +258,7 @@ settings method autolast {{val -1}} {
 }
 
 settings method noautohours {{val -1}} {
-	set val [$self _tval_setting noautohours $val]
+	set val [$self _tval_setting noautohours $val ""]
 	return $val
 }
 

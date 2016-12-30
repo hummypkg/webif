@@ -269,6 +269,22 @@ if {[system dlnastatus]} {
 } else {
 	set dlnaok 0
 	log "DLNA Server is NOT running." 2
+	if {[system instandby]} {
+		log "System is in standby." 2
+	} elseif {[system param DMS_START_ON] ne "1"} {
+		log "DLNA is disabled." 2
+	} else {
+		log "Giving DLNA more time to start..." 2
+		loop x 0 10 {
+			sleep 10
+			if {[system dlnastatus]} {
+				set dlnaok 1
+				log "DLNA Server is running." 2
+				break
+			}
+			log "DLNA Server not yet running, waiting..." 2
+		}
+	}
 }
 
 log "Auto processing starting, DLNA server status: $dlnaok"

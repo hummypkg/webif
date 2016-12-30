@@ -46,11 +46,6 @@ proc {queue dbhandle} {args} {
 		}
 	} else {
 		set ::queue::db [sqlite3.open /mod/etc/queue.db]
-# XXX - Remove before release
-		catch { $::queue::db query {
-			alter table queue
-			add column elapsed integer default 0
-		}}
 	}
 
 	return $::queue::db
@@ -80,6 +75,14 @@ proc {queue startup} {{days 7}} {
 		update queue
 		set status = 'INTERRUPTED',
 		log = 'Job will be retried automatically.',
+		retry = retry + 1
+		where status in ('RUNNING', 'INTERRUPTED')
+		and retry < 5
+	}
+	$db query {
+		update queue
+		set status = 'FAILED',
+		log = 'Too many retries.',
 		retry = retry + 1
 		where status in ('RUNNING', 'INTERRUPTED')
 	}
