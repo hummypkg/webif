@@ -3,18 +3,37 @@
 if {[file exists /mod/tmp/notify.log]} {
 
 source /mod/webif/lib/setup
-require cat
 
-puts "
-<div id=sysnotify class=warningbox style=\"width: 90%\"><center>
+puts {
+<div id=sysnotify class=warningbox style="width: 90%"><center>
 !! WARNING !!
 <br><br>
 You have pending system notifications:
 <br><br>
 </center>
 <pre>
-"
-cat /mod/tmp/notify.log
+}
+
+set lines {}
+set seen {}
+foreach line [split [file read /mod/tmp/notify.log] "\n"] {
+	set rest [lassign [split $line -] date]
+	if {[dict exists $seen $rest]} {
+		incr seen($rest)
+	} else {
+		set seen($rest) 1
+	}
+	set lines($rest) "$line"
+	set mul $seen($rest)
+	if {$mul > 1} {
+		append lines($rest) " ($mul instances)"
+	}
+}
+
+foreach {line msg} $lines {
+	puts $msg
+}
+
 puts {
 </pre>
 <center>

@@ -672,3 +672,8 @@ img.rollimg
 	padding: 0 0 0 0;
 }
 
+a.breadcrumb:hover
+{
+	color: #008080;
+}
+

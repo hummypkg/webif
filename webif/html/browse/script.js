@@ -59,7 +59,8 @@ else
 	$('#doptmenu,#dooptmenu').disableContextMenuItems('#paste');
 }
 
-$('#clipclear').button().click(function() {
+$('#clipclear').button({icons: {primary: "ui-icon-cancel"}})
+    .click(function() {
 	$.get('/browse/clipboard.jim?act=clear', function() {
 		reloadclipboard();
 	});
@@ -72,7 +73,7 @@ $('a.clipdel').click(function() {
 	});
 });
 
-$('#paste').button()
+$('#paste').button({icons: {primary: "ui-icon-clipboard"}})
     .click(function() {
 	disableall();
 	pastedialogue();
@@ -159,45 +160,29 @@ function delete_callback(file, dir, id)
 	    .html('<img src=/img/loading.gif>Deleting, please wait...')
 	    .slideDown('slow')
 	    .load('/browse/delete.jim', {
-		'dir': dir,
-		'files': [decodeURIComponent(file)]
+			'dir': dir,
+			'files': [file]
 		}, function() {
-		$(el).delay(3000).slideUp(300, function() {
-			$(el).remove();
+			$(el).delay(3000).slideUp(300, function() {
+				$(el).remove();
+			});
 		});
-	});
 }
 
 function lock_callback(file, type, id)
 {
-	var url = '/browse/lock.jim?file=' + file;
-	$.get(url, function() { blockpage(); window.location.reload(true); });
-}
-
-function enc_callback(file, type, id)
-{
-	var url = '/browse/enc.jim?file=' + file;
-	$.get(url, function() { blockpage(); window.location.reload(true); });
+	$.get('/browse/lock.jim', {file: file}, function() {
+		blockpage();
+		window.location.reload(true);
+	});
 }
 
 function new_callback(file, type, id)
 {
-	var url = '/browse/new.jim?file=' + file;
-	$.get(url, function() { blockpage(); window.location.reload(true); });
-}
-
-function thumbnail_callback(file, type, id)
-{
-	var el = 'div.bf#' + id;
-	var results = el + ' .results';
-	$(results)
-	    .html('<img src=/img/loading.gif>Generating thumbnail, ' +
-		'please wait...')
-	    .slideDown('slow')
-	    .load('/browse/thumbnail.jim?file=' + file)
-	    .delay(3000)
-	    .slideUp('slow');
-	$('div.bf#' + id + ' img.opt').attr('thmok', 1);
+	$.get('/browse/new.jim', {file: file}, function() {
+		blockpage();
+		window.location.reload(true);
+	});
 }
 
 function rename_submit()
@@ -264,7 +249,7 @@ function confirm_action(action, callback, file, type, id)
 	});
 	$('#confirm').empty().html(
 	    'Are you sure you wish to ' + action + '<br>' +
-	    '<i>' + decodeURIComponent(bfile) + '</i> ?'
+	    '<i>' + bfile + '</i> ?'
 	);
 	$confirm.dialog('open');
 }
@@ -273,17 +258,6 @@ function preparemenu(el, menu)
 {
 	if (el.attr('type') == 'ts')
 	{
-//		if (el.attr('def') == 'HD')
-//		{
-//			$(menu).enableContextMenuItems('#enc');
-//			if (el.attr('encd') == 1)
-//				$(menu).changeContextMenuItem('#enc',
-//				    'Remove Enc');
-//			else
-//				$(menu).changeContextMenuItem('#enc',
-//				    'Set Enc');
-//		}
-
 		if (el.attr('bx') > 0)
 			$(menu).enableContextMenuItems('#crop');
 		else
@@ -351,7 +325,6 @@ function preparemenu(el, menu)
 	{
 		$(menu).enableContextMenuItems('#delete');
 		$(menu).disableContextMenuItems('#lock');
-		//$(menu).disableContextMenuItems('#enc');
 		$(menu).disableContextMenuItems('#new');
 	}
 
@@ -406,7 +379,15 @@ function preparedmenu(el, menu)
 	fixdmenu(el, menu, 'autodecrypt', '#decrypt', 'Auto-decrypt', 1);
 	fixdmenu(el, menu, 'autompg', '#mpg', 'Auto-mpg', 0);
 	fixdmenu(el, menu, 'automp3', '#mp3', 'Auto-audio', 0);
-	//fixdmenu(el, menu, 'autoexpire', '#expire', 'Auto-expire', 0);
+
+	$('#doptmenu a.notself').each(function() {
+		var href = $(this).attr('href');
+		if (el.hasClass('self'))
+			$(menu).disableContextMenuItems(href);
+		else
+			$(menu).enableContextMenuItems(href);
+	});
+
 	$.each(plugins.dmenu_prepare, function(k,v) {
 		plugins.dmenu_prepare[k](el, menu);
 	});
@@ -414,14 +395,14 @@ function preparedmenu(el, menu)
 
 function flagdir(file, flag, iconset, output, options)
 {
-	var url = '/browse/flagdir.jim?dir=' + file +
-		    '&flag=' + flag;
-
-	$(output).slideDown().load(url, function() {
+	$(output).slideDown().load('/browse/flagdir.jim', {
+		dir: file,
+		flag: flag
+	    }, function() {
 		$(iconset)
 		    .empty()
 		    .html('<img src=/img/loading.gif> Updating...')
-		    .load('/browse/iconset.jim?file=' + file);
+		    .load('/browse/iconset.jim', { file: file });
 		if ($(options).attr(flag) == '1')
 			$(options).attr(flag, 0);
 		else
@@ -432,6 +413,7 @@ function flagdir(file, flag, iconset, output, options)
 var menuclick = function(action, el, pos)
 {
 	var file = $(el).parent().prevAll('a.bf').last().attr('file');
+	var efile = encodeURIComponent(file);
 	var bfile = file.replace(/.*\/|\.[^.]*$/g, '');
 	bfile = bfile.replace(/[\x00-\x1f]+/g, '');
 	var type = $(el).attr('type');
@@ -444,12 +426,16 @@ var menuclick = function(action, el, pos)
 		break;
 
 	    case 'copy':
-		if (!confirm('Are you sure? Copying recordings takes a long time!'))
+		if (!confirm('Are you sure? ' +
+		    'Copying recordings takes a long time!'))
 			break;
 		// Fallthrough
 	    case 'cut':
-		$.get('/browse/clipboard.jim?act=add&mode=' + action +
-		    '&path=' + file, function() {
+		$.get('/browse/clipboard.jim', {
+			act: 'add',
+			mode: action,
+			path: file
+		    }, function() {
 			reloadclipboard();
 		    });
 		break;
@@ -459,19 +445,14 @@ var menuclick = function(action, el, pos)
 		    file, type, id);
 		break;
 
-//	    case 'enc':
-//		confirm_action('change the ENC flag on', enc_callback,
-//		    file, type, id);
-//		break;
-
 	    case 'new':
 		confirm_action('change the New flag on', new_callback,
 		    file, type, id);
 		break;
 
 	    case 'rename':
-		$('#rename').val(decodeURIComponent(bfile));
-		$('#renamefile').val(decodeURIComponent(file));
+		$('#rename').val(bfile);
+		$('#renamefile').val(file);
 
 		$('#rename_title').val('');
 		$('#rename_synopsis').val('');
@@ -480,8 +461,8 @@ var menuclick = function(action, el, pos)
 
 		if (type == 'ts')
 		{
-			$.getJSON('/browse/epgtitle.jim?file=' +
-			    file, epginfo_callback);
+			$.getJSON('/browse/epgtitle.jim',
+			    {file: file}, epginfo_callback);
 		}
 
 		$('#renameform').dialog('open');
@@ -489,53 +470,53 @@ var menuclick = function(action, el, pos)
 
 	    case 'thm':
 		window.location.href = '/browse/thumbnail/index.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'vthm':
-		$('#thmbmp').attr('src', '/browse/bmp.jim?file=' + file);
+		$('#thmbmp').attr('src', '/browse/bmp.jim?file=' + efile);
 		$('#bmpdialogue').dialog('open');
 		break;
 
 	    case 'bmarks':
 		window.location.href = '/browse/bookmarks/?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'download':
 		window.location.href = '/browse/download.jim?file=' +
-		    file + '&base=' +
+		    efile + '&base=' +
 		    encodeURIComponent(document.URL.match(/:\/\/(.[^/]+)/)[1]);
 		break;
 
 	    case 'crop':
 		window.location.href = '/browse/crop/crop.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'strip':
 		window.location.href = '/browse/strip/strip.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'chunk':
 		window.location.href = '/browse/chunk/chunk.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'decrypt':
 		window.location.href =
-		    '/browse/decrypt/decrypt.jim?file=' + file;
+		    '/browse/decrypt/decrypt.jim?file=' + efile;
 		break;
 
 	    case 'audio':
 		window.location.href = '/browse/audio/audio.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    case 'mpg':
 		window.location.href = '/browse/mpg/mpg.jim?file=' +
-		    file;
+		    efile;
 		break;
 
 	    default:
@@ -574,30 +555,42 @@ var omenuclick = function(action, el, pos)
 
 var dmenuclick = function(action, el, pos)
 {
-	var direl = $(el).parent().parent();
-	var file = $(el).parent().prevAll('a.dbf').last().attr('file');
-	var iconset = $(el).parent().prevAll('span.iconset').last();
+	var file, iconset, direl;
+
+	if (el.hasClass('self'))
+	{
+		file = dir;
+		iconset = $('#diriconset');
+	}
+	else
+	{
+		file = $(el).parent().prevAll('a.dbf').last().attr('file');
+		iconset = $(el).parent().prevAll('span.iconset').last();
+		direl = $(el).parent().parent();
+	}
+
+	var results = $(el).parent().next('div.results');
+
+	var efile = encodeURIComponent(file);
 	var bfile = file.replace(/.*\//g, '');
 	bfile = bfile.replace(/[\x00-\x1f]+/g, '');
-	var results = $(el).parent().next('div.results');
 
 	switch (action)
 	{
 	    case 'paste':
 		pastedialogue();
-		$('#pwfeedback').load(
-		    '/browse/clipboard.jim?act=paste&dir=' +
-		    file, function() {
+		$('#pwfeedback').load('/browse/clipboard.jim', {
+			act: 'paste',
+			dir: file
+		    }, function() {
 			$('#pwdialogue').dialog('close');
 			reloadclipboard();
 		});
 		break;
 
 	    case 'delete':
-
 		if (confirm('Are you sure you wish to delete "' +
-		    decodeURIComponent(file) +
-		    '" and all files within it?'))
+		    file + '" and all files within it?'))
 		{
 			$(results)
 			    .html('<img src=/img/loading.gif>' +
@@ -605,7 +598,7 @@ var dmenuclick = function(action, el, pos)
 			    .slideDown('slow')
 			    .load('/browse/delete.jim', {
 				'dir': dir,
-				'files': [decodeURIComponent(file)]
+				'files': [file]
 				}, function() {
 				$(direl).delay(3000).slideUp(300, function() {
 					$(direl).remove();
@@ -615,24 +608,28 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'copy':
-		if (!confirm('Are you sure? Copying directories can take a very long time!'))
+		if (!confirm('Are you sure? ' +
+		    'Copying directories can take a very long time!'))
 			break;
 		// Fallthrough
 	    case 'cut':
-		$.get('/browse/clipboard.jim?act=add&mode=' + action +
-		    '&path=' + file, function() {
+		$.get('/browse/clipboard.jim', {
+			act: 'add',
+			mode: action,
+			path: file
+		    }, function() {
 			reloadclipboard();
 		    });
 		break;
 
 	    case 'rename':
-		$('#drename').val(decodeURIComponent(bfile));
-		$('#drenameorig').val(decodeURIComponent(file));
+		$('#drename').val(bfile);
+		$('#drenameorig').val(file);
 		$('#drenameform').dialog('open');
 		break;
 
 	    case 'expire':
-		$('#aexpiry_ldir').val(decodeURIComponent(file));
+		$('#aexpiry_ldir').val(file);
 
 		// Initialise form with default values
 		$('#aexpiry_days').val("");
@@ -644,8 +641,10 @@ var dmenuclick = function(action, el, pos)
 		$('#aexpiry_working').hide('fast');
 		$('#aexpiry_loading').show('fast');
 
-		$.getJSON('/browse/aexpiry.jim?act=fetch&dir=' + file,
-		    function(data) {
+		$.getJSON('/browse/aexpiry.jim', {
+			act: 'fetch',
+			dir: file
+		    }, function(data) {
 			$.each(data, function(key, val) {
 				if (key == 'days')
 					$('#aexpiry_days').val(val);
@@ -695,9 +694,9 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'resetnew':
-		var url = '/browse/resetnew.jim?dir=' + file;
 		blockpage();
-		$.get(url, function() { window.location.reload(true); });
+		$.get('/browse/resetnew.jim', { dir: file },
+		    function() { window.location.reload(true); });
 		break;
 
 	    default:
@@ -708,6 +707,17 @@ var dmenuclick = function(action, el, pos)
 		break;
 	}
 };
+
+function update_diriconset()
+{
+	$('#diriconset')
+	    .empty()
+	    .html('<img src=/img/loading.gif> Updating...')
+	    .load('/browse/iconset.jim', {file: dir});
+}
+
+//////////////////////////////////////////////////////////////////////
+/// Start page loaded functions.
 
 $(function() {
 
@@ -784,7 +794,7 @@ function doplay()
 
 	window.location = '/play/play.jim?' +
 	    'dir=' + encodeURIComponent(dir) +
-	    '&file=' + file;
+	    '&file=' + encodeURIComponent(file);
 }
 
 // Bind dialogue open to filenames.
@@ -795,9 +805,10 @@ $('a.bf').click(function(e) {
 	var type = $(this).attr('type');
 	var opt = $(this).nextAll('a').find('img.opt');
 
-	var url = '/browse/file.jim?file=' + file
-	    + '&type=' + type;
-	$dialog.load(url);
+	$dialog.load('/browse/file.jim', {
+		file: file,
+		type: type
+	});
 
 	$dialog.attr('file', file);
 	$dialog.attr('type', type);
@@ -880,14 +891,6 @@ $('#bmpdialogue').dialog({
 	close: function() { $('#thmbmp').attr('src', 'about:blank'); }
 });
 
-// Selection overlay
-$seloverlay = $('#selectoverlay').dialog({
-	modal: false, autoOpen: false,
-	height: 85, width: 485,
-	show: 'fade', hide: 'fade',
-	draggable: true, resizable: false
-});
-
 // Create re-usable confirmation dialogue.
 $confirm = $('#confirm').dialog({
 	modal: true, autoOpen: false,
@@ -895,6 +898,9 @@ $confirm = $('#confirm').dialog({
 	show: 'fade', hide: 'fade',
 	draggable: false, resizable: false
 });
+
+// Load iconset
+//update_diriconset();
 
 // Load folder sizes
 $.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
@@ -913,7 +919,7 @@ if ($('img.mp3icon'))
 			alt = 'MPEG-1 Audio Layer III (MP3)';
 		else
 			alt = type;
-		$('a.bf[file$="/' + encodeURIComponent(file) + '"]')
+		$('a.bf[file$="/' + file + '"]')
 		    .siblings('img.mp3icon')
 		    .attr('src', '/img/mp3_' + type + '.png')
 		    .attr('alt', alt).attr('title', alt);
@@ -945,9 +951,8 @@ $('#save_stream').button().click(function() {
 	$('#savestream_name').val('').enable();
 
 	$('#savestreamform').dialog('open');
-	$('#savestream_detail').load(
-	    '/browse/ffmpeg.jim?file=' +
-	    encodeURIComponent($('#save_stream').attr('file')),
+	$('#savestream_detail').load('/browse/ffmpeg.jim',
+		{file: $('#save_stream').attr('file')},
 	    function() {
 		$('#savestream_retrieving').hide();
 		$('#savestream_detail').show();
@@ -964,7 +969,7 @@ $('#deselectall').click(function(e) {
 	$('input.fs:checked').prop('checked', false).trigger('change');
 });
 
-$('#join').button().disable()
+$('#join').button({icons: {primary: "ui-icon-video"}})
     .click(function() {
 	var files = new Array();
 	var els = $('input.fsts:checked + a').each(function() {
@@ -975,7 +980,7 @@ $('#join').button().disable()
 	    files.join();
     });
 
-$('#delete').button().disable()
+$('#delete').button({icons: {primary: "ui-icon-trash"}})
     .click(function() {
 	var files = new Array();
 	var els = $('input.fs:checked + a').each(function() {
@@ -989,7 +994,6 @@ $('#delete').button().disable()
 	if (confirm(str))
 	{
 		disableall();
-		$('#deletewait').slideDown('slow');
 
 		$('#pwdialogue').dialog({
 			title: "Deleting",
@@ -1014,7 +1018,9 @@ $('#delete').button().disable()
 	}
     });
 
-$('#copy,#cut').button().disable()
+$('#copy').button({icons: {primary: "ui-icon-copy"}});
+$('#cut').button({icons: {primary: "ui-icon-scissors"}});
+$('#copy,#cut')
     .click(function() {
 	var files = new Array();
 	var els = $('input.fs:checked + a').each(function() {
@@ -1033,11 +1039,12 @@ $('#copy,#cut').button().disable()
 	    'path': files
 	    }, function() {
 		reloadclipboard();
-		$('input.fs:checked').prop('checked', false);
+		$('input.fs:checked').prop('checked', false).trigger('change');
 	    });
     });
 
-$('#newdir').button().click(function() {
+$('#newdir').button({icons: {primary: "ui-icon-folder-collapsed"}})
+    .click(function() {
 	$('#newdirform').dialog({
 		autoOpen: true,
 		height: 'auto', width: 'auto',
@@ -1060,73 +1067,23 @@ $('button.plugin').button().on('click', function() {
 $('input.fs').change(function() {
 	var num = $('input.fs:checked').size();
 	if (num > 0)
-		$('#delete,#cut,#copy').enable();
+		$('.onesel').enable();
 	else
-		$('#delete,#cut,#copy').disable();
+		$('.onesel').disable();
 
 	var num = $('input.fsts:checked').size();
-	if (num > 1)
-		$('#join').enable();
-	else
-		$('#join').disable();
-
 	if (num > 0)
-	{
-		$seloverlay
-		    .dialog('option', 'position', {
-			my: "left top",
-			at: "right bottom",
-			of: this
-		    })
-		    .dialog('option', 'title', 'Selected files: ' + num)
-		    .dialog('open')
-		    .find('span.selcount').text(num);
-	}
+		$('.tsonesel').enable();
 	else
-	{
-		$seloverlay.dialog('close');
-	}
+		$('.tsonesel').disable();
+	if (num > 1)
+		$('.tstwosel').enable();
+	else
+		$('.tstwosel').disable();
 });
 
-$('#so_delete').button()
-    .click(function() {
-	var files = new Array();
-	var els = $('input.fs:checked + a').each(function() {
-		files.push(decodeURIComponent($(this).attr('file')));
-	});
-	//console.log("%o", files);
-	var str = 'Are you sure you want to delete ' + files.length +
-	    ' file';
-	if (files.length != 1) str += 's';
-	str += '?';
-	if (confirm(str))
-	{
-		disableall();
-		$('#deletewait').slideDown('slow');
-
-		$('#pwdialogue').dialog({
-			title: "Deleting",
-			modal: true, autoOpen: true,
-			height: 'auto', width: 'auto',
-			show: 'scale', hide: 'fade',
-			draggable: false, resizable: false,
-			closeOnEscape: false,
-			open: function() {
-			    $('.ui-dialog-titlebar-close').hide();
-			}
-		});
-		$('#pwfeedback').load(
-		    '/browse/delete.jim', {
-			'dir': dir,
-			'files': files
-			}, function() {
-			$('#pwdialogue').dialog('close');
-			blockpage();
-			window.location.reload(true);
-		});
-	}
-    });
-
+$('.onesel,.tsonesel,.tstwosel').disable();
+$('input.fs').first().trigger('change');
 
 $('#so_queue').button()
     .click(function() {
@@ -1161,37 +1118,6 @@ $('#so_queue').button()
 	});
     });
 
-$('#so_dequeue').button()
-    .click(function() {
-	var files = new Array();
-	var els = $('input.fs:checked + a').each(function() {
-		files.push(decodeURIComponent($(this).attr('file')));
-	});
-
-	disableall();
-
-	$('#pwdialogue').dialog({
-		title: "De-queuing",
-		modal: true, autoOpen: true,
-		height: 'auto', width: 'auto',
-		show: 'scale', hide: 'fade',
-		draggable: false, resizable: false,
-		closeOnEscape: false,
-		open: function() {
-		    $('.ui-dialog-titlebar-close').hide();
-		}
-	});
-
-	$('#pwfeedback').load(
-	    '/browse/dequeue.jim', {
-		'dir': dir,
-		'files': files
-		}, function() {
-		$('#pwdialogue').dialog('close');
-		blockpage();
-		window.location.reload(true);
-	});
-    });
 
 var streamsize = 0;
 

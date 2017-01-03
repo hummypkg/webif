@@ -1,8 +1,14 @@
 
-div.brow
+div.buttonrow
 {
 	float: left;
 	clear: left;
+	margin-top: 3px;
+}
+
+div.clipbuttons
+{
+	margin-top: 3px;
 }
 
 div.cliplist span
@@ -10,8 +16,17 @@ div.cliplist span
 	display: block;
 }
 
-#clipclear
+img.qb
 {
-	margin-top: 1em;
+	height: 14px;
+	position: relative;
+	top: 3px;
+}
+
+#diriconset
+{
+	font-style: italic;
+	font-size: 0.7em;
+	color: #ff4000;
 }
 

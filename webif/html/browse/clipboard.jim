@@ -43,9 +43,10 @@ switch $action {
 		    <img border=0 src=/img/close.png height=16></a>"
 		puts "</span>"
 	}
-	puts "</div>"
+	puts "</div><div class=clipbuttons>"
 	puts "<button id=paste>Paste to current folder</button>"
 	puts "<button id=clipclear>Empty clipboard</button>"
+	puts "</div>"
     }
     add {
 	if {[set path [cgi_get path]] eq "0"} {

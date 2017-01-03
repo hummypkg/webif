@@ -64,7 +64,7 @@ proc directory {file bfile tbfile} {
 	puts "<input class=\"fs fsdir\" type=checkbox>"
 	puts "<a class=dbf
 	    href=\"$::env(SCRIPT_NAME)?dir=[cgi_quote_url $file]\"
-	    file=\"[cgi_quote_url $file]\">"
+	    file=\"[cgi_quote_html $file]\">"
 	puts "$bfile</a><span class=filesize id=\"$tbfile\">
 		</span>"
 
@@ -169,7 +169,7 @@ proc entry {file} {{i 0}} {
 		<img class=va border=0 src=/img/$img.png>
 		<input class=\"$fscl\" type=checkbox>
 		<a class=bf title=\"$synopsis\"
-		    file=\"[cgi_quote_url $file]\" type=$type href=#>
+		    file=\"[cgi_quote_html $file]\" type=$type href=#>
 		    $bfile
 	        </a>
 	"
@@ -269,7 +269,17 @@ puts "
 "
 
 browse breadcrumb $dir
-puts "<span class=filesize id=dirsize></span>"
+lassign [dir iconset $dir] icons attrs
+puts "
+	<span class=filesize id=dirsize></span>
+	<span id=diriconset>[join $icons ""]</span>
+	<a href=#>
+	<img class=\"dopt self va\" border=0 width=45 [join $attrs " "]
+	    src=/images/181_1_00_Help5_OPT_Plus.png>
+	</a>
+	<div class=\"results blood\" style=\"margin: 0 0 0 5em\"></div>
+"
+
 puts "</legend>"
 
 if {[system has tvdb] && [string length $dir] > [string length $mroot]} {
@@ -364,30 +374,13 @@ File Clipboard
 </fieldset>
 }
 
-puts "<div class=brow>"
-
+# Always-active buttons.
 puts {
-<button id=copy>Copy</button>
-<button id=cut>Cut</button>
-<button id=delete>Delete</button>
+<div class=buttonrow>
 <button id=newdir>New Folder</button>
-<div id=deletewait class=blood style="display: none">
-<img src=/img/loading.gif>Deleting may take some time, please be patient...
-</div>
-}
-
-# Join
-if {$nicesplice} {
-	puts { <button id=join>Join</button> }
-}
-
-# Queue
-puts { <button id=queue>View Queue</button> }
-
-# De-duplicate
-
-puts {
-	<button id=dedup>De-duplicate/tidy this folder</button>
+<button id=dedup><img src=/img/dedup.png width=16>
+	De-duplicate/tidy this folder</button>
+<button id=queue><img src=/img/queueps.png class=qb> View Queue</button>
 }
 
 # Streamer file
@@ -400,11 +393,43 @@ if {[file exists /mnt/hd3/Streamer_down_file]} {
 	</button>
 	}
 }
+puts "</div>"
+
+# Buttons dependent on selection
+puts {
+<div class=buttonrow>
+<button id=copy class=onesel>Copy</button>
+<button id=cut class=onesel>Cut</button>
+<button id=delete class=onesel>Delete</button>
+}
+# Join
+if {$nicesplice} {
+	puts { <button id=join class=tstwosel>Join</button> }
+}
+# Queue
+set queueactions(decrypt) "Decryption"
+set queueactions(shrink) "Shrink"
+set queueactions(mp3) "Audio-Extraction"
+set queueactions(mpg) "Conversion to MPG"
+eval_plugins queueactions
+
+puts {
+<button id=so_queue class=tsonesel><img src=/img/queueps.png class=qb>
+Queue for</button>
+<select id=so_queueactions
+    class="tsonesel text ui-widget-content ui-corner-all">
+}
+foreach {k v} $queueactions {
+	puts "<option value=$k>$v</option>"
+}
+puts {
+</select>
+}
 
 # Plugin buttons
 
 if {[llength $plugins(buttons)]} {
-	puts "</div><div class=brow style=\"margin-top: 3px\">"
+	puts "</div><div class=buttonrow>"
         foreach plugin $plugins(buttons) {
                 lassign $plugin tag options
 		puts "

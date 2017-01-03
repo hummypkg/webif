@@ -36,7 +36,8 @@ function select_episode()
 	});
 }
 
-$('#tvdbsetseries').button().on('click', function(e) {
+$('#tvdbsetseries').button({icons:{primary:"ui-icon-link"}})
+    .on('click', function(e) {
 	e.stopPropagation();
 	val = $('#tvdbseriesname').text();
 	if (!val)

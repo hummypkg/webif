@@ -119,17 +119,18 @@ $('#qresubmit').button({icons:{primary:"ui-icon-refresh"}})
 
 $('#selnone').button({icons:{primary:"ui-icon-close"}})
     .on('click', function() {
-	$('#queuetab input:checkbox').prop('checked', false);
+	$('#queuetab input:checkbox').prop('checked', false).trigger('change');
 });
 
 $('#selall').button({icons:{primary:"ui-icon-check"}})
     .on('click', function() {
-	$('#queuetab input:checkbox').prop('checked', true);
+	$('#queuetab input:checkbox').prop('checked', true).trigger('change');
 });
 
 $('#selcomplete').button({icons:{primary:"ui-icon-stop"}})
     .on('click', function() {
-	$('#queuetab input:checkbox[status="COMPLETE"]').prop('checked', true);
+	$('#queuetab input:checkbox[status="COMPLETE"]').prop('checked', true)
+	    .trigger('change');
 });
 
 $('#refresh').button({icons:{primary:"ui-icon-refresh"}})

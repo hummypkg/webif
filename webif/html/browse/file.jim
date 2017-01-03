@@ -31,7 +31,8 @@ if {$type eq "ts"} {
 	<td class=va>
 	"
 	if {[file exists "[file rootname $file].thm"]} {
-		puts "<img class=\"bmp va\" src=\"/browse/bmp.jim?file=$file\">"
+		puts "<img class=\"bmp va\"
+		    src=\"/browse/bmp.jim?file=[cgi_quote_url $file]\">"
 	}
 
 	if {[dict exists $idata thumb]} {

@@ -163,6 +163,14 @@ proc {queue status} {ts} {
 	return $q
 }
 
+proc {queue check} {ts {q "all"}} {
+	set queues [split [queue status $ts] ,]
+	if {$q eq "any" && [llength $queues]} {
+		return 1
+	}
+	return $($q in $queues)
+}
+
 proc {queue all} {} {
 	set db [queue dbhandle]
 
