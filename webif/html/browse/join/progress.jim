@@ -6,7 +6,10 @@ source /mod/webif/lib/setup
 httpheader
 
 set expected [cgi_get esize 1]
-set file [file normalize [cgi_get file]]
+if {[catch {set file [file normalize [cgi_get file]]}]} {
+	puts "12"
+	exit
+}
 
 if {![file exists $file]} {
 	puts "0"

@@ -8,10 +8,10 @@ var handle = 0;
 
 function update()
 {
-	$.get('progress.jim'
-	    + '?esize=' + $('#back').attr('esize')
-	    + '&file=' + $('#back').attr('dir') + '/' + $('#dest').val(),
-	    function(data) {
+	$.get('progress.jim', {
+		esize: $('#back').attr('esize'),
+		file: $('#back').attr('dir') + '/' + $('#dest').val()
+	    }, function(data) {
 		if (handle)
 			$('#progressbar').reportprogress(data);
 	});
@@ -22,7 +22,8 @@ $(document).ready(function() {
 $('#progressbar').reportprogress(0);
 
 $('#back').button().click(function() {
-	window.location = '/go/browse?dir=' + $(this).attr('dir');
+	window.location = '/go/browse?dir=' +
+	    encodeURIComponent($(this).attr('dir'));
 });
 
 $('#filelist').sortable().disableSelection();
@@ -41,7 +42,7 @@ $('#dojoin').button().attr('disabled', true).addClass('ui-state-disabled')
 
 	$('#output').text('Please do not interrupt...')
 	    .load('execute.jim?files=' +
-	    sfiles.join() + '&dest=' + $('#dest').val(),
+	    sfiles.join() + '&dest=' + encodeURIComponent($('#dest').val()),
 	    function() {
 		clearInterval(handle);
 		handle = 0;

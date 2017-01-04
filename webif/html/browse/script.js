@@ -899,16 +899,13 @@ $confirm = $('#confirm').dialog({
 	draggable: false, resizable: false
 });
 
-// Load iconset
-//update_diriconset();
-
 // Load folder sizes
 $.getJSON('/browse/sizes.jim', {dir: dir}, folder_size_callback);
 
 // Flag folders with unwatched items
 $.getJSON('/browse/newdir.jim', {dir: dir}, new_folder_callback);
 
-// Populate MPÂ3 icons (if any found)
+// Populate MP3 icons (if any found)
 if ($('img.mp3icon'))
 {
 	$.getJSON('/browse/mp3.jim', {dir: dir}, function(data, status, xhr) {

@@ -46,7 +46,7 @@ Name for joined file:
 <button id=dojoin>Join</button>
 </div>
 <button id=back
-    dir=\"[cgi_quote_url $dir]\"
+    dir=\"[cgi_quote_html $dir]\"
     esize=\"$esize\">Back to media list</button>
 
 <div id=progressdiv style=\"display: none\">

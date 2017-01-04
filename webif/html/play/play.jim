@@ -43,3 +43,12 @@ puts {
 </fieldset>
 }
 
+puts "
+<div class=cleft>
+<button id=back dir=\"[cgi_quote_html [file dirname $rfile]]\">
+Back to media browser</button>
+</div>
+"
+
+footer
+

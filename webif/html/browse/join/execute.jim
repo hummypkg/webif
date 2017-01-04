@@ -11,7 +11,7 @@ cgi_input 1
 set joinstart [clock milliseconds]
 
 set cmd {/mod/bin/nicesplice}
-set dst [file rootname [cgi_get dest "joined"]]
+set dst [file rootname [cgi_unquote_input [cgi_get dest "joined"]]]
 
 foreach file [split [cgi_get files] ","] {
 	set file [cgi_unquote_input $file]
