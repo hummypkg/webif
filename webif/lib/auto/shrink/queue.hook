@@ -1,0 +1,98 @@
+
+proc ::shrink::dequeue {q ts} {
+	global tsgroup
+	namespace import ::auto::log
+
+	set tmp $::auto::tmp
+	set file [$ts get file]
+
+	if {[$ts flag "Shrunk"]} {
+		return {"OK" "Already shrunk"}
+	}
+
+	# If the directory is flagged for decryption as well as shrink
+	# then check to see if decryption has already occured. If not,
+	# defer the shrink for now.
+	set dir [file dirname $file]
+	if {[file exists "$dir/.autodecrypt"] ||
+	    [::auto::autoflagscanup $dir decrypt] == 1} {
+		log "  $dir is also set for decryption." 2
+		if {[$ts flag "ODEncrypted"]} {
+			return {"DEFER" "Deferring shrink until decrypted"}
+		}
+	}
+
+	set file [file rootname [$ts get file]]
+
+	if {[::auto::inuse $ts]} {
+		return {"DEFER" "Recording in use"}
+	}
+
+	if {[catch {
+		set perc [exec /mod/bin/stripts -aq $file]
+	    } msg]} {
+		return [list "FAILED" $msg]
+	}
+	if {[string match {*%} $perc]} {
+		set perc [string range $perc 0 end-1]
+	} else {
+		set perc 0
+	}
+
+	if {$perc == 0} {
+		log "  $file - already shrunk." 2
+		$ts set_shrunk
+		return {"OK" "Already shrunk"}
+	}
+	set size [$ts size]
+	::auto::dsc $size
+	system startop shrink [$ts get file]
+	::auto::startclock
+	log "  SHRINK: $file" 0
+	log "          Estimate $perc% saving." 0
+	log "          Shrinking..." 0
+	if {[catch {
+		foreach line [split \
+		    [exec nice -n 19 /mod/bin/stripts -q $file $tmp/shrunk] \
+		    "\n"] {
+			set stats [string trim $line]
+			log $stats 0
+		}
+	    } msg]} {
+		log "Error during shrink: $msg" 0
+		system notify "$file - auto-shrink - error $msg."
+		system endop shrink
+		return [list "FAILED" $msg]
+	}
+
+	# The following steps are structured to minimise the risk of
+	# things being left in an inconsistent state if the system goes
+	# into standby. Renames within the same filesystem are very
+	# quick so the risk is small, but even so...
+
+	# Move the shrunken version back to the local directory.
+	foreach f [glob "$tmp/shrunk.*"] {
+		set ext [file extension $f]
+		file rename $f "${file}_shrunk${ext}"
+		# Set the file time to match the old file
+		file touch "${file}_shrunk${ext}" [$ts get file]
+	}
+
+	# Remove the old recording (-> bin if undelete is installed)
+	safe_delete [$ts get file] "webif_autoshrink"
+
+	# Finally, rename the shrunken recording again.
+	foreach ext $tsgroup {
+		set f "${file}_shrunk.$ext"
+		if {[file exists $f]} {
+			file rename $f "${file}.$ext"
+		}
+	}
+	$ts set_shrunk
+	set summary [::auto::endclock $size]
+	system endop shrink
+	return [list "OK" "$summary $stats"]
+}
+
+::auto::register shrink 400
+

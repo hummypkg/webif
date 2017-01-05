@@ -20,15 +20,15 @@ function load()
 	'<td><input type=checkbox class=qid status=' + v.status +
 	    ' value=' + v.qid + '>' +
 	    v.qid + '</td>' +
-	'<td>' + v.dat + '</td>' +
+	'<td>' + v.submitted + '</td>' +
 	'<td>' + v.file + '</td>' +
 	'<td>' + v.action + '</td>' +
 	'<td class="status ' + v.status + '">' + v.status;
 	if (v.status == 'RUNNING')
 		s += ' &nbsp;<img class=va src=/img/loading.gif>';
 	s += '</td><td>';
-	if (v.elapsed != '0')
-		s += v.elapsed;
+	if (v.runtime != '0')
+		s += v.runtime;
 	s += '</td>' +
 	'<td>' + v.log + '</td>' +
 	'</tr>';

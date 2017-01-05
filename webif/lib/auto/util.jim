@@ -1,0 +1,159 @@
+
+set ::auto::logfile "/mod/tmp/auto.log"
+set ::auto::logfd "unset"
+set ::auto::logprefix ""
+set ::auto::loglevel 1
+
+proc ::auto::loginit {} {
+
+	# Rotate log file if large enough.
+	if {[file exists $::auto::logfile] &&
+	    [file size $::auto::logfile] > 2097152} {
+		file copy -force $::auto::logfile "/mod/tmp/auto_old.log"
+		file delete $::auto::logfile
+	}
+
+	# Open log file
+	if {$::auto::logfd eq "unset"} {
+		set ::auto::logfd [open "/mod/tmp/auto.log" "a+"]
+	}
+}
+
+proc ::auto::log {msg {level 1}} {
+	variable loglevel
+
+	if {$level > $loglevel} return
+
+	variable logfd
+	variable logprefix
+
+	puts $logfd "[system logtimestamp] - $logprefix$msg"
+	flush $logfd
+}
+
+proc ::auto::tmpdir {dir} {
+	set ::auto::tmp "/mod/tmp/$dir"
+	if {![file exists $::auto::tmp]} {
+		if {[catch {file mkdir $::auto::tmp} msg]} {
+			log "Cannot create temporary directory -"\
+			    " $::auto::tmp ($msg)" 0
+			exit
+		}
+	} elseif {![file isdirectory $::auto::tmp]} {
+		log "Cannot create temporary directory -"\
+		    " $::auto::tmp (file exists)" 0
+		exit
+	}
+
+	# Clean-up the temporary directory
+	foreach file [readdir -nocomplain $::auto::tmp] {
+		file tdelete "$::auto::tmp/$file"
+	}
+}
+
+proc ::auto::oktorun {} {
+	variable settings
+
+	set now [clock seconds]
+
+	# Ongoing scheduled recording
+	if {[$settings noautorec]} {
+		# Use redring helper files if available.
+		set recs [glob -nocomplain /tmp/.rec*]
+		set events [rsv list tbl_reservation \
+		    " where ersvtype = 3
+		      and nsttime - ulPreOffset <= $now
+		      and nsttime + nduration + ulPostOffset >= $now "]
+		if {[llength $recs] || [llength $events]} {
+			log "Aborted, recording in progress." 2
+			exit
+		}
+	}
+
+	# Imminent recording
+	if {[$settings noautorecimm]} {
+		set autorecperiod $([$settings autorecperiod] * 60)
+		set events [rsv list tbl_reservation \
+		    " where ersvtype = 3
+		      and nsttime - $now < $autorecperiod
+		      and nsttime > $now "]
+		if {[llength $events]} {
+			set event [lindex $events 0]
+			log [concat \
+		    "Aborted, will record '[$event name]' " \
+		    "on [$event channel_name] at " \
+		    "[clock format [$event get nsttime] -format {%H:%M}]" \
+			] 2
+			exit
+		}
+	}
+
+	# Non-running hours
+	set hour $([clock format [clock seconds] -format %H] + 0)
+	if {$hour in [$settings noautohours]} {
+		log "Aborted, not running during hour $hour" 2
+		exit
+	}
+}
+
+proc ::auto::dsc {{size 0}} {
+	set free [system diskfree]
+
+	# Required disk space is 1GiB + 3 times the file size.
+	set req $($size * 3 + 1073741824)
+
+	if {$free < $req} {
+		log "Insufficient disk space. Require=$req, Free=$free" 0
+		exit
+	}
+}
+
+proc ::auto::inuse {ts} {
+	set retries 5
+	while {$retries > 0 && [$ts inuse]} {
+		log "inuse($retries) - [$ts get file]"
+		incr retries -1
+		sleep 1
+	}
+	return [$ts inuse]
+}
+
+proc ::auto::specialdir {dir} {
+	if {[string match {\[*} [string trimleft [file tail $dir]]]} {
+		return 1
+	}
+	return 0
+}
+
+proc ::auto::elapsed {start} {
+	return $(([clock milliseconds] - $start) / 1000.0)
+}
+
+proc ::auto::startclock {} {
+	set ::startclock_s [clock milliseconds]
+}
+
+proc ::auto::endclock {size} {
+	set el [elapsed $::startclock_s]
+	set rate $($size / $el)
+	return "[pretty_size $size] in $el seconds - [pretty_size $rate]/s"
+}
+
+proc ::auto::autoflagscanup {dir flag} {
+	variable root
+
+	set rl [string length $root]
+	while {[string length $dir] >= $rl} {
+		if {[specialdir $dir]} {
+			return -1
+		}
+		if {[file exists "$dir/.auto${flag}r"]} {
+			log "scanup:   Found ${flag}r ($dir)" 2
+			return 1
+		}
+		set dir [file dirname $dir]
+	}
+
+	return 0
+}
+

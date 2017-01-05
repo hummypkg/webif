@@ -1,0 +1,132 @@
+
+proc ::decrypt::dequeue {q ts} {
+	namespace import ::auto::log
+
+	set tmp $::auto::tmp
+	set file [$ts get file]
+	set rfile [file rootname $file]
+	set bfile [file tail $file]
+
+	if {![$ts flag "ODEncrypted"]} {
+		return {"OK" "Already decrypted"}
+	}
+
+	if {[$ts flag "Encrypted"]} {
+		return {"DEFER" "Protected (Enc flag)"}
+	}
+
+	if {![system dlnastatus]} {
+		return {"DEFER" "DLNA Server not running"}
+	}
+
+	if {[::auto::inuse $ts]} {
+		return {"DEFER" "Recording in use"}
+	}
+
+	# Check that the file is not already decrypted by analysing it.
+	set anencd [exec /mod/bin/stripts -qE $rfile]
+	if {$anencd != "1"} {
+		exec /mod/webif/lib/bin/fixencflags $file
+		return {"OK"
+		    "Already decrypted but the HMT flag was wrong (fixed)"}
+	}
+
+	lassign [$ts dlnaloc "127.0.0.1"] url
+	if {$url ne ""} {
+		log "  $file - has been indexed."
+		set helper 0
+	} else {
+		log "  $file - Not yet indexed, trying helper."
+		if {[catch {
+		    lassign [system dlnahelper [file normalize $file]] url
+		    } msg]} {
+			log "  $file - $msg"
+			return [list "FAILED" $msg]
+		}
+		if {$url eq ""} {
+			return {"DEFER" "DLNA helper failed"}
+		}
+		set helper 1
+	}
+
+	# Perform the decryption by requesting the file from the DLNA server.
+	set size [$ts size]
+	::auto::dsc $size
+	system startop decrypt $file
+	::auto::startclock
+	log "  DECRYPT: $rfile" 0
+	log "  DLNA: $url" 0
+	exec wget -O "$tmp/$bfile" $url
+
+	# Release the helper lock once finished.
+	if {$helper} { system dlnahelper -release }
+
+	if {[file size $file] != [file size "$tmp/$bfile"]} {
+		log "  $file - File size mismatch." 0
+		file tdelete "$tmp/$bfile"
+		system endop decrypt
+		return {"DEFER" "File size mismatch"}
+	}
+
+	# Check if the file is in use. It is possible that the file is
+	# now being played even though it was free when decryption started.
+	if {[::auto::inuse $ts]} {
+		log "  $file - In use."
+		file tdelete "$tmp/$bfile"
+		system endop decrypt
+		return {"DEFER" "Recording in use"}
+	}
+
+	# Copy the HMT file over for stripts
+	set thmt "$tmp/[file rootname $bfile].hmt"
+	file copy "$rfile.hmt" $thmt
+	# Check that the file is no longer encrypted by analysing it.
+	set anencd [exec /mod/bin/stripts -qE "$tmp/[file rootname $bfile]"]
+	file delete $thmt
+
+	if {$anencd != "0"} {
+		log "  $file - File did not decrypt properly." 0
+		file tdelete "$tmp/$bfile"
+		if {[$q get retries] > 3} {
+			system notify "$file - auto-decrypt failed."
+		}
+		system endop decrypt
+		return {"DEFER" "Recording did not decrypt properly"}
+	}
+
+	# Move the encrypted file out of the way.
+	file rename $file "$rfile.encrypted"
+	# Move the decrypted copy into place.
+	file rename "$tmp/$bfile" $file
+	# Set the file time to match the old file
+	file touch $file "$rfile.encrypted"
+	# Patch the HMT - quickest way to get back to a playable file.
+	exec /mod/bin/hmt -encrypted "$rfile.hmt"
+
+	log "  Removing/binning old copy." 0
+	# Move the old recording to the bin if undelete is installed.
+	if {$::auto::dustbin ne ""} {
+		set bin [_del_bindir $file "webif_autodecrypt"]
+		set tail [file tail $rfile]
+		file rename "$rfile.encrypted" "$bin/$tail.ts"
+		foreach ext {nts hmt thm} {
+			if {[file exists "$rfile.$ext"]} {
+				file copy $rfile.$ext "$bin/$tail.$ext"
+				if {$ext eq "hmt"} {
+					# Patch the binned HMT back
+					exec /mod/bin/hmt +encrypted \
+					    "$bin/$tail.hmt"
+				}
+			}
+		}
+	} else {
+		file tdelete "$rfile.encrypted"
+	}
+	set summary [::auto::endclock $size]
+	$ts unflag "ODEncrypted"
+	system endop decrypt
+	return [list "OK" $summary]
+}
+
+::auto::register decrypt 900
+

@@ -1,0 +1,205 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class settings.class ts.class rsv.class browse.class \
+    queue.class \
+    lock plugin safe_delete pretty_size
+
+source /mod/webif/lib/auto/util.jim
+
+set ::auto::settings [settings]
+set ::auto::loglevel [$::auto::settings autolog]
+
+set ::auto::force 0
+
+while {[llength $argv]} {
+	switch -- [lindex $argv 0] {
+		-d {
+			set ::auto::loglevel 2
+			set ::auto::logfd stdout
+		}
+		-f {
+			set ::auto::force 1
+		}
+		-logprefix {
+			set argv [lrange $argv 1 end]
+			if {[llength $argv]} {
+				set ::auto::logprefix [lindex $argv 0]
+			}
+		}
+		default {
+			# Pass to rest of script.
+			break
+		}
+	}
+	set argv [lrange $argv 1 end]
+}
+
+# Acquire lock
+if {$::auto::logfd ne "unset"} {
+	puts $::auto::logfd "Acquiring lock..."
+}
+if {![acquire_lock webif_autodeq]} {
+	if {$::auto::loglevel > 1} {
+		system plog auto "Could not acquire lock."
+	}
+	puts "Could not acquire exclusive lock, terminating."
+	exit
+}
+
+::auto::loginit
+
+######################################################################
+# Determine if it's time to run
+
+if {[system uptime] < 180} {
+	::auto::log "Aborting, system has just booted." 2
+	exit
+}
+
+::auto::dsc
+::auto::oktorun
+
+#########################################################################
+# Initialisation
+
+set scanstart [clock milliseconds]
+::auto::log "Auto de-queue starting"
+
+::auto::tmpdir "webif_autoq"
+
+if {[system pkginst undelete]} {
+	set ::auto::dustbin "[system dustbin]"
+} else {
+	set ::auto::dustbin ""
+}
+
+set ::auto::root [system mediaroot]
+file stat "$::auto::root/" rootstat
+set ::auto::rootdev $rootstat(dev)
+
+#########################################################################
+# Utility functions
+
+######################################################################
+# Plugin registration
+
+set ::auto::plugins {}
+
+proc ::auto::register {plugin {priority 500}} {
+	variable plugins
+
+	set fn "::${plugin}::dequeue"
+	set plugins($plugin) $priority
+	log "Registered $plugin with priority $priority"
+}
+
+######################################################################
+# Load plugins
+
+# Bundled
+eval_plugins queue 1 "" /mod/webif/lib/auto
+
+# Third party
+
+eval_plugins queue 1
+
+######################################################################
+# Process the queue
+
+queue startup [$::auto::settings autokeep]
+
+proc ::auto::dumpq {qq} {
+	foreach q $qq {
+		if {[$q get action] in $::auto::plugins} {
+			set pri $::auto::plugins([$q get action])
+		}
+		log [format " C: %4d %5d %8s - [$q get file]" \
+		    [$q get id] $pri [$q get action]] 2
+	}
+}
+
+proc ::auto::runplugin {plugin fn args} {
+	set rfn "::${plugin}::${fn}"
+	if {![exists -proc $rfn]} { return -1 }
+	if {[catch {set ret [uplevel 1 $rfn {*}$args]} msg]} {
+		log "$rfn: $msg" 0
+		return -1
+	}
+	return $ret
+}
+
+proc ::auto::runplugins {fn args} {
+	foreach plugin [dict keys $::auto::plugins] {
+		set rfn "::${plugin}::${fn}"
+		if {![exists -proc $rfn]} continue
+		if {[catch {uplevel 1 $rfn {*}$args} msg]} {
+			log "$rfn: $msg" 0
+		}
+	}
+}
+
+# Helper function to sort a list of queue items by plugin priority
+proc ::auto::pending {} {
+	return [lsort -decreasing -command [lambda {a b} {
+		set aa [$a get action]
+		set ba [$b get action]
+		if {$aa ni $::auto::plugins} { return 0 }
+		if {$ba ni $::auto::plugins} { return 0 }
+		return $($::auto::plugins($aa) - $::auto::plugins($ba))
+	}] [queue pending]]
+}
+
+for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
+	::auto::dumpq $qq
+
+	# Try to run the first item in the queue.
+	set q [lindex $qq 0]
+	set plugin [$q get action]
+
+	::auto::log "De-queuing [$q get id] - [$q get action] - [$q get file]" 0
+
+	if {[catch {set ts [ts fetch [$q get file]]}] || $ts eq "0"} {
+		::auto::log "ts load failed." 0
+		$q update "FAILED" "Could not load .ts file" 1
+		continue
+	}
+
+	::auto::dsc
+	::auto::oktorun
+
+	$q update RUNNING "Started at [clock format [clock seconds]]"
+
+	set ologprefix $::auto::logprefix
+	set ::auto::logprefix "$plugin:$::auto::logprefix"
+
+	set st [clock milliseconds]
+	lassign [::auto::runplugin $plugin dequeue $q $ts] code msg
+	set ::auto::logprefix $ologprefix
+	set elapsed [::auto::elapsed $st]
+
+	::auto::log "    $code - $msg" 0
+	switch -- $code {
+	    "-1" {
+		::auto::log "   Plugin failure." 0
+		$q update "FAILED" "Plugin failure" 1
+	    }
+	    "OK" {
+		$q update "COMPLETE" $msg 1 $elapsed
+		::auto::runplugins dequeued $plugin $q $ts
+	    }
+	    "DEFER" { $q update "DEFER" $msg 1 $elapsed }
+	    "FAILED" { $q update "FAILED" $msg 1 $elapsed }
+	    default {
+		$q update "FAILED" "Unknown response '$code' from plugin"
+	    }
+	}
+}
+
+######################################################################
+# Cleanup
+
+release_lock webif_autodeq
+
+::auto::log "Auto de-queue completed in [::auto::elapsed $scanstart] seconds."
+

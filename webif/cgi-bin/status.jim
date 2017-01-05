@@ -39,7 +39,7 @@ set statusops {
     mpg {	"Extracting MPG"
 		"/img/mpg.png style=\"padding: 0 0.2em 0 0.5em\""
     }
-    mp3 {	"Extracting MP3"
+    mp {	"Extracting MP3"
 		"/img/mp3.png style=\"padding: 0 0.2em 0 0.5em\""
     }
     shrink {	"Shrinking"

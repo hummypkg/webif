@@ -17,14 +17,14 @@ if {$loglevel > 0} {
 }
 
 # Wait up to 10 minutes for any existing auto process to finish...
-if {![acquire_lock webif_auto 600 5]} {
+if {![acquire_lock webif_autoscan 600 5]} {
 	puts "Cannot acquire exclusive lock, terminating."
 	system plog auto "$prefix: failed to get lock"
 	exit
 }
 if {$loglevel > 0} { system plog auto "$prefix: got lock" }
 
-exec /mod/webif/lib/bin/auto -prelocked -logprefix "$prefix: " -singledir $dir
+exec /mod/webif/lib/auto/scan -prelocked -logprefix "$prefix: " -singledir $dir
 
 if {$loglevel > 0} { system plog auto "$prefix: done" }
 

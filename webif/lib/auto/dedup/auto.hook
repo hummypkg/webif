@@ -1,0 +1,29 @@
+
+proc ::dedup::directory {dir} {
+	namespace import ::auto::log
+
+	log "DEDUP: \[$dir]" 2
+	loop i 0 1 {
+		foreach line [split \
+		    [exec /mod/webif/html/dedup/dedup -yes -auto $dir] "\n"] {
+			log $line 2
+		}
+	}
+	::auto::recalcdir $dir
+}
+
+proc ::dedup::rundir {dir} {
+	set sup [::auto::autoflagscanup $dir dedup]
+	if {$sup == -1} {
+		log "Encountered special directory." 2
+		return
+	}
+	::auto::autoflagscan $dir dedup ::dedup::directory 0 $sup
+}
+
+proc ::dedup::run {} {
+	::auto::autoflagscan $::auto::root dedup ::dedup::directory
+}
+
+::auto::register dedup 800
+

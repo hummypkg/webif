@@ -1,0 +1,90 @@
+
+proc ::expire::directory {dir} {
+	namespace import ::auto::log
+
+	log "EXPIRE: \[$dir]" 2
+	
+	# type 0 keep {} days 2 keepnew 0
+	set ax [dir expiry $dir]
+	log "  $ax" 2
+	if {![string is integer -strict $ax(keep)]} { set ax(keep) 0 }
+	if {![string is integer -strict $ax(days)]} { set ax(days) 0 }
+
+	if {!$ax(keep) && !$ax(days)} {
+		log "Expire error ($dir): neither keep nor days set ($ax)" 0
+		return
+	}
+
+	if {$ax(type) eq "0"} {
+		set getter [lambda {ts} { list [$ts get end] }]
+	} else {
+		set getter [lambda {ts} { list [$ts lastmod] }]
+	}
+
+	set entries [lsort \
+	    -command [lambda {a b} {upvar getter g; expr [$g $a] - [$g $b]}]\
+	    [lmap i [readdir -nocomplain $dir] {
+		if {![string match {*.ts} $i]} continue
+		if {[catch {set ts [ts fetch "$dir/$i"]}]} continue
+		if {$ts == 0} continue
+		list $ts
+	}]]
+
+	# Entries are now sorted with oldest first, according to the selected
+	# criterion.
+
+	set num [llength $entries]
+	log "      Entries: $num" 2
+	foreach e $entries { log "        [file tail [$e get file]]" 2 }
+
+	set now [clock seconds]
+	foreach ts $entries {
+		set file [$ts get file]
+		if {$num <= $ax(keep)} {
+			log "    Remaining ($num) <= keep ($ax(keep))" 2
+			break
+		}
+		log "      [file tail $file]"
+		if {[::auto::inuse $ts]} {
+			log "        In use, skipping."
+			continue
+		}
+		if {$ax(keepnew) ne "0" && [$ts flag New]} {
+			log "        Unwatched, skipping."
+			continue
+		}
+		if {$ax(days) > 0} {
+			# Calculate age in days
+			set age $(($now - [$getter $ts]) / 86400.0)
+			log "        $age days (cf. $ax(days))"
+			if {$age < $ax(days)} {
+				log "        Too new, skipping."
+				continue
+			}
+		}
+		log "        Removing."
+		if {![safe_delete $file]} {
+			log "Unknown error in safe_delete, aborting." 0
+			break
+		}
+		log "     EXPIRE: removed $file" 0
+		::auto::recalcdir $dir
+		incr num -1
+	}
+}
+
+proc ::expire::rundir {dir} {
+	set sup [::auto::autoflagscanup $dir expire]
+	if {$sup == -1} {
+		log "Encountered special directory." 2
+		return
+	}
+	::auto::autoflagscan $dir expire ::expire::directory 0 $sup
+}
+
+proc ::expire::run {} {
+	::auto::autoflagscan $::auto::root expire ::expire::directory
+}
+
+::auto::register expire 900
+

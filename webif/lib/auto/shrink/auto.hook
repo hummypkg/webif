@@ -1,0 +1,57 @@
+
+proc ::shrink::ts {ts} {
+	set file [$ts get file]
+
+	if {[$ts flag "Shrunk"]} {
+		::auto::log "  $file - already shrunk." 2
+		return
+	}
+
+	if {[queue check $ts shrink]} {
+		::auto::log "  $file - Already queued." 2
+		return
+	}
+
+	if {[catch {
+		set perc [exec /mod/bin/stripts -aq [file rootname $file]]
+	    } msg]} {
+		::auto::log "          Error: $msg" 0
+		return
+	}
+	if {[string match {*%} $perc]} {
+		set perc [string range $perc 0 end-1]
+	} else {
+		set perc 0
+	}
+
+	if {$perc == 0} {
+		::auto::log "  $file - already shrunk." 2
+		$ts set_shrunk
+		return
+	}
+
+	# Enqueue file
+	queue insert $ts shrink
+	::auto::log "  $file - Queued for shrink." 0
+}
+
+proc ::shrink::directory {dir} {
+	::auto::log "SHRINK: \[$dir]" 2
+	::auto::direntries $dir ::shrink::ts
+}
+
+proc ::shrink::rundir {dir} {
+	set sup [::auto::autoflagscanup $dir shrink]
+	if {$sup == -1} {
+		log "Encountered special directory." 2
+		return
+	}
+	::auto::autoflagscan $dir shrink ::shrink::directory 0 $sup
+}
+
+proc ::shrink::run {} {
+	::auto::autoflagscan $::auto::root shrink ::shrink::directory
+}
+
+::auto::register shrink 400
+

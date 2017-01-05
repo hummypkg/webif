@@ -1,6 +1,7 @@
 
-proc eval_plugins {hook {verbose 0} {callback ""}} {
-	foreach plugin [lsort [glob -nocomplain /mod/webif/plugin/*]] {
+proc eval_plugins {hook {verbose 0} {callback ""} {dir /mod/webif/plugin}} {
+	foreach plugin [lsort [glob -nocomplain "$dir/*"]] {
+		if {![file isdirectory $plugin]} continue
 		if {[file exists "$plugin/.disabled"]} continue
 		if {[file isfile "$plugin/$hook.hook"]} {
 			if {$callback ne ""} {

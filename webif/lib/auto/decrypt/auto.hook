@@ -1,0 +1,58 @@
+
+proc ::decrypt::ts {ts} {
+	set file [$ts get file]
+
+	if {![$ts flag "ODEncrypted"]} {
+		::auto::log "  $file - Already decrypted." 2
+		return
+	}
+
+	if {[$ts flag "Encrypted"]} {
+		::auto::log "  $file - Protected (Enc flag)." 2
+		return
+	}
+
+	if {[::auto::inuse $ts]} {
+		::auto::log "  $file - In use."
+		return
+	}
+
+	if {[queue check $ts decrypt]} {
+		::auto::log "  $file - Already queued." 2
+		return
+	}
+
+	# Check that the file is not already decrypted by analysing it.
+	set anencd [exec /mod/bin/stripts -qE [file rootname $file]]
+	if {$anencd != "1"} {
+		::auto::log "  $file - already decrypted but the HMT flag is wrong." 0
+		# Fix...
+		exec /mod/webif/lib/bin/fixencflags $file
+		return
+	}
+
+	# Enqueue file
+	queue insert $ts decrypt
+	::auto::log "  $file - Queued for decryption." 0
+}
+
+proc ::decrypt::directory {dir} {
+	::auto::log "DECRYPT: \[$dir]" 2
+	::auto::direntries $dir ::decrypt::ts
+}
+
+proc ::decrypt::rundir {dir} {
+	set sup [::auto::autoflagscanup $dir decrypt]
+	if {$sup == -1} {
+		log "Encountered special directory." 2
+		return
+	}
+	::auto::autoflagscan $dir decrypt ::decrypt::directory 0 $sup
+}
+
+proc ::decrypt::run {} {
+	::auto::autoflagscan $::auto::root decrypt ::decrypt::directory
+}
+
+::auto::register decrypt 600
+

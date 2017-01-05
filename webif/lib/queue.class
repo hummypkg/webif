@@ -3,15 +3,24 @@ if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
 
 class queue {
-	id	-1
-	dat	0
-	file	""
-	action	""
-	log	""
-	status	""
-	retry	0
-	elapsed 0
+	id		-1
+	file		""
+	action		""
+	start		0
+	status		""
+	log		""
+	runtime		0
+	retries		0
+	submitted	0
 }
+
+#
+# Queue status values:
+#	PENDING
+#	FAILED
+#	INTERRUPTED
+#	COMPLETE
+#	DEFER
 
 proc {queue dbhandle} {args} {
 	if {"-close" in $args} {
@@ -32,14 +41,24 @@ proc {queue dbhandle} {args} {
 		$::queue::db query {
 			create table queue(
 				id integer primary key autoincrement,
-				dat integer,
 				file text,
 				action text,
+				start integer default 0,
 				status text default 'PENDING',
 				log text default '',
-				elapsed integer,
-				retry integer default 0
+				runtime integer,
+				retries integer default 0,
+				submitted integer
 			);
+		}
+		$::queue::db query {
+			create table config(
+				var text,
+				val text
+			);
+		}
+		$::queue::db query {
+			insert into config values('version', 2);
 		}
 		$::queue::db query {
 			create unique index file on queue(file, action);
@@ -51,23 +70,6 @@ proc {queue dbhandle} {args} {
 	return $::queue::db
 }
 
-queue method update {_status {_log ""} {_retry 0} {_elapsed 0}} {
-	set db [queue dbhandle]
-	$db query {
-		update queue
-		set status = '%s',
-		    log = '%s',
-		    retry = retry + %s,
-		    elapsed = %s
-		where id = %s
-	} $_status $_log $_retry $_elapsed $id
-
-	set status $_status
-	set log $_log
-	incr retry $_retry
-	set elapsed $_elapsed
-}
-
 proc {queue startup} {{days 7}} {
 	if {$days == 0} { set days 7 }
 	set db [queue dbhandle]
@@ -75,33 +77,50 @@ proc {queue startup} {{days 7}} {
 		update queue
 		set status = 'INTERRUPTED',
 		log = 'Job will be retried automatically.',
-		retry = retry + 1
+		retries = retries + 1
 		where status in ('RUNNING', 'INTERRUPTED')
-		and retry < 5
+		and retries < 5
 	}
 	$db query {
 		update queue
 		set status = 'FAILED',
-		log = 'Too many retries.',
-		retry = retry + 1
+		log = 'Too many retries.'
 		where status in ('RUNNING', 'INTERRUPTED')
+		and retries >= 5
+	}
+	$db query {
+		update queue
+		set status = 'PENDING'
+		where status = 'DEFER'
 	}
 	$db query {
 		delete from queue
 		where status in ('COMPLETE', 'FAILED')
-		and dat < %s
+		and submitted < %s
 	} [expr [clock seconds] - 86400 * $days]
+}
+
+proc {queue fetch} {id} {
+	set db [queue dbhandle]
+
+	foreach row [$db query {
+		select * from queue
+		where id = %s
+	} $id] {
+		return [queue new $row]
+	}
+	return {}
 }
 
 proc {queue insert} {ts action} {
 	set db [queue dbhandle]
 
 	$db query {
-		insert or ignore into queue(dat, file, action)
+		insert or ignore into queue(submitted, file, action)
 		values(%s, '%s', '%s')
 	} [clock seconds] [file normalize [$ts get file]] $action
 
-	return [$db lastid]
+	return [queue fetch [$db lastid]]
 }
 
 proc {queue delete} {ts {action "*"}} {
@@ -136,7 +155,7 @@ proc {queue resubmit} {id} {
 
 	set q "
 		update queue
-		set status = 'PENDING'
+		set status = 'PENDING', retries = 0
 		where id = '%s'
 		and status in ('FAILED')
 	"
@@ -188,38 +207,42 @@ proc {queue pending} {} {
 	foreach row [$db query {
 		select * from queue
 		where status in ('PENDING', 'INTERRUPTED')
-		order by id
-	}] {
+		and start < %s
+		order by id desc
+	} [clock seconds]] {
 		lappend ret [queue new $row]
 	}
 	return $ret
 }
 
-proc {queue pop} {} {
-	set db [queue dbhandle]
-
-	foreach row [$db query {
-		select * from queue
-		where status in ('PENDING', 'INTERRUPTED')
-		order by id
-		limit 1
-	}] {
-		return [queue new $row]
-	}
-	return {}
+proc {queue size} {} {
+	return [llength [queue runcandidates]]
 }
 
-proc {queue size} {} {
+queue method update {_status {_log ""} {_retries 0} {_runtime 0}} {
 	set db [queue dbhandle]
+	$db query {
+		update queue
+		set status = '%s',
+		    log = '%s',
+		    retries = retries + %s,
+		    runtime = %s
+		where id = %s
+	} $_status $_log $_retries $_runtime $id
 
-	set num 0
-	set ret [$db query {
-		select count(*) from queue
-		where status in ('PENDING', 'INTERRUPTED')
-	}]
-	if {[llength $ret]} {
-		lassign [lindex $ret 0] x num
-	}
-	return $num
+	set status $_status
+	set log $_log
+	incr retries $_retries
+	set runtime $_runtime
+}
+
+queue method set {var val} {
+	set db [queue dbhandle]
+	$db query {
+		update queue
+		set %s = '%s'
+		where id = %s
+	} $var $val $id
+	set $var $val
 }
 

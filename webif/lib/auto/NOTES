@@ -1,0 +1,148 @@
+
+Everything is a plugin. Those bundled with the web interface are in
+/mod/webif/lib/auto/<name> and others are in /mod/webif/plugin/<name>
+
+----------------------------------------------------------------------
+Priorities (* - additional package)
+----------
+
+Module		Scan		De-queue
+------		----		--------
+*newk		1000		-
+ expire		900		-
+ dedup		800		-
+*sweeper	700		-
+*flatten	650		-
+*flatview	650		-
+ decrypt	600		900
+ shrink		400		800
+ mpg		300		300
+ mp3		300		300
+*detectads	300		200
+
+Notes:
+
+* Anything that moves files around runs first.
+  (used to always prefer decryption first to improve the changes that the
+   file was DLNA indexed but DLNA helper removes that constraint)
+* Decrypt > Shrink so arbookmarks can run post-decrypt and still have the
+  EIT tables present.
+
+----------------------------------------------------------------------
+Scan phase hooks
+----------------
+
+The scan process looks for 'auto.hook'
+
+Plugins register themselves with:
+
+    ::auto::register <module> [priority]
+
+	If not specified, priority defaults to 500.
+
+The framework will call the following callbacks (if defined within the module):
+
+    ::module::init
+
+	This function will be called before any module runs and can be
+	used if the module requires any initialisation.
+
+    ::module::cleanup
+
+	Called once all modules have completed their work.
+
+    ::module::run
+
+	This function is called when the module should do its work against
+	all recordings.
+
+    ::module::rundir <dir>
+
+	The module should do its work against the specific provided directory.
+
+The following global variables are available for modules to use:
+
+    ::auto::settings	- instance of the system settings class.
+    ::auto::root	- root directory of recordings.
+    ::auto::dustbin	- path to the dustbin directory.
+
+The following functions are available for modules to use:
+
+    ::auto::log <msg> [level]
+
+	Log a message to the log file with appropriate prefix.
+	The level argument should be a number between 0 and 2 inclusive.
+	If level is not provided then it defaults to 1.
+	Level 2 is reserved for debugging messages.
+
+    ::auto::dsc [required bytes]
+
+	Checks that there is enough available system disk space
+	(1GiB + 3 * <required bytes>) and aborts processing otherwise.
+	If [required bytes] is not provided then it defaults to zero and
+	the function just checks fro 1GiB of free disk space.
+
+    ::auto::inuse <ts>
+
+	Check if a recording is in use (with retries).
+
+    ::auto::autoflagscan <root> <flag> <callback>
+
+	Starting at the directory indicated by <root>, all directories are
+	recursively scanned looking for those containing a file named
+	".auto<flag>" or ".auto<flag>r".
+
+	This function automatically takes care of avoiding the dustbin,
+	filesystem loops, disabling recursion when a special folder is found,
+	etc. It is used by built-in modules such as "decrypt"
+
+	The callback will be called once for each flagged directory with
+	the directory name passed as the sole argument.
+
+    ::auto::flagscan <root> <fiag> <callback>
+
+	Starting at the directory indicated by <root>, all directories are
+	recursively scanned looking for those containing a file named
+	".<flag>".
+
+	The callback will be called once for each flagged directory with
+	the directory name passed as the sole argument.
+
+    ::auto::direntries <directory> <callback>
+
+	Scan the named directory and call the callback for each loadable
+	ts file found. The ts object is passed to the callback function.
+
+    ::auto::recalcdir <directory>
+
+	Indicate that the unwatched recording count for the given directory
+	should be updated at the end of the run.
+
+----------------------------------------------------------------------
+De-queue hooks
+--------------
+
+    ::auto::register <module> [priority]
+
+	If not specified, priority defaults to 500.
+
+The framework will call the following callbacks (if defined within the module):
+
+    ::module::dequeue <q> <ts>
+
+	De-queue the provided queue item and associated ts file object.
+	The module must return a list containing <result> [message]
+
+	Possible results:
+
+		OK	- The queue item was successfully processed.
+		FAILED	- Processing failed (and should not be re-attempted).
+		DEFER	- Processing should be tried again later.
+
+	Examples:
+
+		return "OK"
+		return [list "OK" "Processing was successful."]
+		return [list "DEFER" "File not yet decrypted."]
+		return [list "FAILED" "File is already decrypted."]
+

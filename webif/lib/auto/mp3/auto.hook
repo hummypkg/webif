@@ -1,0 +1,45 @@
+
+proc ::mp3::ts {ts} {
+	set file [file rootname [$ts get file]]
+
+	if {[file exists $file.mp3]} {
+		# Already done.
+		return
+	}
+
+	if {[$ts get definition] eq "HD"} {
+		# Cannot extract a useful MP3 from a HD recording.
+		::auto::log "  $file - High definition." 2
+		return
+	}
+
+	if {[queue check $ts mp3]} {
+		::auto::log "  $file - Already queued." 2
+		return
+	}
+
+	# Enqueue file
+	queue insert $ts mp3
+	::auto::log "  $file - Queued for mp3." 0
+}
+
+proc ::mp3::directory {dir} {
+	::auto::log "MP3: \[$dir]" 2
+	::auto::direntries $dir ::mp3::ts
+}
+
+proc ::mp3::rundir {dir} {
+	set sup [::auto::autoflagscanup $dir mp3]
+	if {$sup == -1} {
+		log "Encountered special directory." 2
+		return
+	}
+	::auto::autoflagscan $dir mp3 ::mp3::directory 0 $sup
+}
+
+proc ::mp3::run {} {
+	::auto::autoflagscan $::auto::root mp3 ::mp3::directory
+}
+
+::auto::register mp3 300
+

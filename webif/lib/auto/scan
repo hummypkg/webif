@@ -1,0 +1,362 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class settings.class ts.class rsv.class browse.class \
+    queue.class \
+    lock plugin safe_delete pretty_size
+
+source /mod/webif/lib/auto/util.jim
+
+set ::auto::settings [settings]
+set ::auto::loglevel [$::auto::settings autolog]
+
+set ::auto::prelocked 0
+set ::auto::earlyexit 0
+set ::auto::force 0
+
+while {[llength $argv]} {
+	switch -- [lindex $argv 0] {
+		-d {
+			set ::auto::loglevel 2
+			set ::auto::logfd stdout
+		}
+		-f {
+			set ::auto::force 1
+		}
+		-prelocked {
+			set ::auto::prelocked 1
+		}
+		-logprefix {
+			set argv [lrange $argv 1 end]
+			if {[llength $argv]} {
+				set ::auto::logprefix [lindex $argv 0]
+			}
+		}
+		-test {
+			set ::auto::earlyexit 1
+		}
+		default {
+			# Pass to rest of script.
+			break
+		}
+	}
+	set argv [lrange $argv 1 end]
+}
+
+# Acquire lock
+if {$::auto::logfd ne "unset"} {
+	puts $::auto::logfd "Acquiring lock..."
+}
+if {!$::auto::prelocked && ![acquire_lock webif_autoscan]} {
+	if {$::auto::loglevel > 1} {
+		system plog auto "Could not acquire lock."
+	}
+	puts "Could not acquire exclusive lock, terminating."
+	exit
+}
+
+::auto::loginit
+
+######################################################################
+# Determine if it's time to run
+
+if {[system uptime] < 180} {
+	::auto::log "Aborting, system has just booted." 2
+	exit
+}
+
+::auto::dsc
+::auto::oktorun
+if {!$::auto::force} {
+	set autofreq [$::auto::settings autofreq]
+	if {$autofreq == 0} { set autofreq 20 }
+
+	set timesincelast $(([clock seconds] - [$::auto::settings autolast]) / 60)
+	if {$timesincelast < $autofreq} {
+		::auto::log "Aborting, not yet time to run." 2
+		::auto::log "  elapsed (minutes): $timesincelast (<$autofreq)" 2
+		exit
+	}
+}
+
+if {$::auto::earlyexit} {
+	if {!$::auto::force} {
+		$::auto::settings autolast [clock seconds]
+	}
+	puts "Early exit."
+	exit
+}
+
+#########################################################################
+# Initialisation
+
+set scanstart [clock milliseconds]
+::auto::log "Auto processing starting"
+
+::auto::tmpdir "webif_auto"
+
+if {[system pkginst undelete]} {
+	set ::auto::dustbin "[system dustbin]"
+} else {
+	set ::auto::dustbin ""
+}
+
+set ::auto::root [system mediaroot]
+file stat "$::auto::root/" rootstat
+set ::auto::rootdev $rootstat(dev)
+
+#########################################################################
+# Utility functions
+
+set ::auto::recalcdirs {}
+
+proc ::auto::recalcdir {dir} {
+	variable recalcdirs
+	ladd recalcdirs $dir
+}
+
+proc ::auto::direntries {dir callback} {
+	foreach entry [readdir -nocomplain $dir] {
+		if {![string match {*.ts} $entry]} continue
+		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
+		if {$ts == 0} continue
+		$callback $ts
+	}
+}
+
+proc ::auto::autoflagscan {dir attr callback {recurse 1} {force 0} {seen {}}} \
+    {{indent 0} {forceflag ""}} {
+	variable dustbin
+	variable rootdev
+
+	incr indent 2
+
+	log "[string repeat " " $indent]\[$dir]" 2
+
+	if {$dir eq $dustbin} {
+		log "[string repeat " " $indent]Dustbin, skipping." 2
+		incr indent -2
+		return
+	}
+
+	file stat "$dir/" st
+
+	if {[specialdir $dir]} {
+		# Special folder
+		if {$st(dev) != $rootdev} {
+			log "[string repeat " " $indent\
+			    ]Special folder on different device, skipping." 2
+			incr indent -2
+			return
+		}
+		if {$force} {
+			set force 0
+			set forceflag ""
+			log "[string repeat " " $indent\
+			    ]Special folder, overriding recursion." 2
+		}
+	}
+
+	# Already seen
+	set key "$st(dev):$st(ino)"
+	if {$key in $seen} {
+		log "[string repeat " " $indent]Already seen, skipping." 2
+		incr indent -2
+		return
+	}
+	lappend seen $key
+
+	# Recursion
+	if {!$force && [file exists "$dir/.auto${attr}r"]} {
+		log "[string repeat " " $indent]  (R)" 2
+		set force 1
+		set forceflag "$dir/.auto${attr}r"
+	}
+
+	oktorun
+	dsc
+
+	if {$force || [file exists "$dir/.auto$attr"]} {
+		$callback $dir
+	}
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {$recurse && [file isdirectory "$dir/$entry"]} {
+			autoflagscan "$dir/$entry" \
+			    $attr $callback $recurse $force \
+			    $seen
+			file stat "$dir/$entry" st
+			set key "$st(dev):$st(ino)"
+			lappend seen $key
+		}
+	}
+
+	incr indent -2
+}
+
+proc ::auto::flagscan {dir flag callback {seen {}}} {
+	variable dustbin
+
+	if {$dir eq $dustbin} return
+
+	if {[specialdir $dir]} return
+
+	file stat $dir st
+	set key "$st(dev):$st(ino)"
+	if {$key in $seen} {
+		log "Already seen $dir ($key)" 2
+		return
+	}
+	lappend seen $key
+
+	if {[file exists "$dir/.$flag"]} { $callback $dir }
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			flagscan "$dir/$entry" $flag $callback $seen
+
+			file stat "$dir/$entry" st
+			set key "$st(dev):$st(ino)"
+			lappend seen $key
+		}
+	}
+}
+
+######################################################################
+# Plugin registration
+
+set ::auto::plugins {}
+
+proc ::auto::register {plugin {priority 500} {fn ""}} {
+	variable plugins
+
+	if {$fn eq ""} { set fn "::${plugin}::run" }
+	lappend plugins [list $plugin $fn $priority]
+	log "Registered $plugin with priority $priority ($fn)"
+}
+
+# Backwards compatibility with legacy plugins
+set ::auto::legacy {}
+proc register {type fn {priority 50}} {
+	set module [lindex [split $fn :] 2]
+
+	switch -- $type {
+		predecryptscan { incr priority 600 }
+		postdecryptscan { incr priority 500 }
+		prededupscan { incr priority 800 }
+		postdedupscan { incr priority 700 }
+		preshrinkscan { incr priority 400 }
+		postshrinkscan { incr priority 300 }
+		prempgscan { incr priority 300 }
+		postmpgscan { incr priority 200 }
+		premp3scan { incr priority 300 }
+		postmp3scan { incr priority 200 }
+		preexpirescan { incr priority 900 }
+		postexpirescan { incr priority 800 }
+		postdecryptsingledir {
+			::auto::log \
+			    "Mapping ::${module}::rundir on to $fn" 1
+			alias ::${module}::rundir $fn
+			return
+		}
+		default {
+			::auto::log \
+			    "Legacy registration ignored for $type $fn" 1
+			return
+		}
+	}
+	::auto::register $module $priority $fn
+	lappend ::auto::legacy $module
+}
+
+######################################################################
+# Load plugins
+
+# Bundled
+eval_plugins auto 1 "" /mod/webif/lib/auto
+
+# Third party
+
+# temporary for legacy plugins
+set settings $::auto::settings
+set root $::auto::root
+eval_plugins auto 1
+unset settings root
+
+######################################################################
+# Set expected variables for legacy plugins
+
+if {[llength $::auto::legacy]} {
+	::auto::log "Legacy plugins in use - $::auto::legacy" 1
+
+	set settings $::auto::settings
+	set root $::auto::root
+	alias log ::auto::log
+	alias scan_run ::auto::flagscan
+	alias scanup ::auto::autoflagscanup
+}
+
+######################################################################
+# Run plugins
+
+set ::auto::orderedplugins [\
+    lsort -index end -decreasing -integer $::auto::plugins]
+
+set __dummy ""
+proc ::auto::runplugin {fn {_plugin ""} args} {
+	variable orderedplugins
+	variable legacy
+
+	foreach p $orderedplugins {
+		lassign $p plugin xfn priority
+
+		if {$_plugin ne "" && $plugin ne $_plugin} continue
+
+		if {$fn eq "run"} {
+			set rfn $xfn
+		} else {
+			set rfn "::${plugin}::$fn"
+		}
+
+		if {[exists -proc $rfn] || [exists -alias $rfn]} {
+			set st [clock milliseconds]
+			log [string repeat * 56] 2
+			log "*********> $rfn (Priority $priority)" 2
+			if {$plugin in $legacy && $fn ne "rundir"} {
+				set call [list $rfn __dummy]
+			} else {
+				set call [list $rfn $args]
+			}
+			if {[catch {uplevel 1 {*}$call} msg]} {
+				log "$rfn: $msg" 0
+			}
+			log "<********* $rfn ([elapsed $st] seconds)" 2
+		}
+	}
+}
+
+set ::auto::passes {init run cleanup}
+if {[lindex $argv 0] eq "-singledir"} {
+	foreach dir [lrange $argv 1 end] {
+		::auto::runplugin rundir "" $dir
+	}
+} elseif {[llength $argv] > 0} {
+	foreach pass $::auto::passes {
+		foreach arg $argv { ::auto::runplugin $pass $arg }
+	}
+} else {
+	foreach pass $::auto::passes {
+		::auto::runplugin $pass
+	}
+	$::auto::settings autolast [clock seconds]
+}
+
+if {!$::auto::prelocked} { release_lock webif_autoscan }
+
+foreach dir $::auto::recalcdirs {
+	::auto::log "Running unwatched recalculation for $dir" 2
+	ts resetnew $dir
+}
+
+::auto::log "Auto processing completed in [::auto::elapsed $scanstart] seconds."
+
