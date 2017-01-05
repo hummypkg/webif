@@ -1,0 +1,11 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require queue.class
+
+if {[queue version] == 1} {
+	queue dbhandle -close
+	file delete /mod/etc/queue.db
+	queue dbhandle
+}
+

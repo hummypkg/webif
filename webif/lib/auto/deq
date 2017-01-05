@@ -98,7 +98,7 @@ proc ::auto::register {plugin {priority 500}} {
 # Load plugins
 
 # Bundled
-eval_plugins queue 1 "" /mod/webif/lib/auto
+eval_plugins queue 1 "" /mod/webif/lib/auto/plugin
 
 # Third party
 

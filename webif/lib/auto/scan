@@ -273,7 +273,7 @@ proc register {type fn {priority 50}} {
 # Load plugins
 
 # Bundled
-eval_plugins auto 1 "" /mod/webif/lib/auto
+eval_plugins auto 1 "" /mod/webif/lib/auto/plugin
 
 # Third party
 

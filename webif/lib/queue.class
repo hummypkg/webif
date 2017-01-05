@@ -219,6 +219,21 @@ proc {queue size} {} {
 	return [llength [queue runcandidates]]
 }
 
+proc {queue version} {} {
+	set db [queue dbhandle]
+
+	set version 1
+	catch {
+		foreach row [$db query {
+			select val from config
+			where var = 'version'
+		}] {
+			lassign $row x version
+		}
+	}
+	return $version
+}
+
 queue method update {_status {_log ""} {_retries 0} {_runtime 0}} {
 	set db [queue dbhandle]
 	$db query {

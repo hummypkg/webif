@@ -1,6 +1,6 @@
 
 Everything is a plugin. Those bundled with the web interface are in
-/mod/webif/lib/auto/<name> and others are in /mod/webif/plugin/<name>
+/mod/webif/lib/auto/plugin/<name> and others are in /mod/webif/plugin/<name>
 
 ----------------------------------------------------------------------
 Priorities (* - additional package)

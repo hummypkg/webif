@@ -18,9 +18,11 @@ export tmpf=/tmp/cronf.$$
 
 crontab=$PKG_ROOT/bin/crontab
 if [ -x $crontab ]; then
-	$crontab -l | grep -v webif/lib/bin/auto > $tmpf
+	$crontab -l | grep -v webif/lib/bin/auto \
+	    | grep -v webif/lib/auto > $tmpf
 	cat $tmpf - << EOM | $crontab -
-* * * * * /mod/webif/lib/bin/auto >/dev/null 2>&1
+* * * * * /mod/webif/lib/auto/scan >/dev/null 2>&1
+* * * * * /mod/webif/lib/auto/deq >/dev/null 2>&1
 EOM
 fi
 
@@ -47,6 +49,7 @@ $PKG_ROOT/etc/init.d/S02anacron start < /dev/null > /dev/null 2>&1 &
 #fi
 
 /mod/webif/lib/bin/diskattrs
+/mod/webif/lib/auto/upgrade
 #/mod/webif/lib/bin/resetnew
 
 # Remove hook script placed by the legacy rt3070 package which does not work

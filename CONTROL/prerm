@@ -4,7 +4,8 @@ export tmpf=/tmp/cronf.$$
 
 crontab=$PKG_ROOT/bin/crontab
 if [ -x $crontab ]; then
-	$crontab -l | grep -v webif/lib/bin/auto > $tmpf
+	$crontab -l | grep -v webif/lib/bin/auto \
+	    | grep -v webif/lib/auto > $tmpf
 	[ -s $tmpf ] && $crontab $tmpf || $crontab -r
 fi
 
