@@ -8,7 +8,8 @@ set autokeep [$settings autokeep]
 if {$autokeep == 0} { set autokeep 7 }
 set noautohours [$settings noautohours]
 set autofreq [$settings autofreq]
-if {$autofreq == 0} { set autofreq 20 }
+if {$autofreq == 0} { set autofreq 10 }
+set toolbarqueue [$settings toolbarqueue]
 
 handle_int_update autolog $autolog "Auto-processing log level"
 handle_int_update noautorec $noautorec "Auto-processing during recording"
@@ -18,4 +19,5 @@ handle_int_update autorecperiod $autorecperiod \
 handle_int_update autokeep $autokeep "Auto-processing queue period" 1 1 365
 handle_int_update autofreq $autofreq "Auto-processing frequency" 1 5 60
 handle_str_update noautohours $noautohours "Auto processing hours" ascii
+handle_int_update toolbarqueue $toolbarqueue "Toolbar queue icon"
 

@@ -64,7 +64,7 @@ if {[system uptime] < 180} {
 # Initialisation
 
 set scanstart [clock milliseconds]
-::auto::log "Auto de-queue starting"
+::auto::log "Auto de-queue starting" 2
 
 ::auto::tmpdir "webif_autoq"
 
@@ -91,7 +91,7 @@ proc ::auto::register {plugin {priority 500}} {
 
 	set fn "::${plugin}::dequeue"
 	set plugins($plugin) $priority
-	log "Registered $plugin with priority $priority"
+	log "Registered $plugin with priority $priority" 2
 }
 
 ######################################################################
@@ -111,6 +111,7 @@ queue startup [$::auto::settings autokeep]
 
 proc ::auto::dumpq {qq} {
 	foreach q $qq {
+		set pri 0
 		if {[$q get action] in $::auto::plugins} {
 			set pri $::auto::plugins([$q get action])
 		}
@@ -168,7 +169,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	::auto::dsc
 	::auto::oktorun
 
-	$q update RUNNING "Started at [clock format [clock seconds]]"
+	$q update RUNNING "Started at [::auto::date]"
 
 	set ologprefix $::auto::logprefix
 	set ::auto::logprefix "$plugin:$::auto::logprefix"
@@ -185,7 +186,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 		$q update "FAILED" "Plugin failure" 1
 	    }
 	    "OK" {
-		$q update "COMPLETE" $msg 1 $elapsed
+		$q update "COMPLETE" "[::auto::date] $msg" 1 $elapsed
 		::auto::runplugins dequeued $plugin $q $ts
 	    }
 	    "DEFER" { $q update "DEFER" $msg 1 $elapsed }

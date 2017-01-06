@@ -1,0 +1,25 @@
+#!/mod/bin/jimsh
+
+package require cgi
+source /mod/webif/lib/setup
+require queue.class
+
+httpheader
+
+set slots [cgi_get slot 0]
+set act [cgi_get act -]
+
+foreach slot [split $slots ","] {
+	switch -- $act {
+	    delete {
+		queue delete_by_id $slot
+	    }
+	    resubmit {
+		queue resubmit $slot
+	    }
+	    hold {
+		queue hold $slot
+	    }
+	}
+}
+

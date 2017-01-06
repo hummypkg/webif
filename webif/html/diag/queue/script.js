@@ -10,7 +10,7 @@ function page_refresh(msg)
 
 function load()
 {
-	$('#isloading').show('fast');
+	$('#isloading').show();
 	$.getJSON('fetch.jim', function(data) {
 		$('#queuetab > tbody').empty();
 
@@ -22,7 +22,7 @@ function load()
 	    v.qid + '</td>' +
 	'<td>' + v.submitted + '</td>' +
 	'<td>' + v.file + '</td>' +
-	'<td>' + v.action + '</td>' +
+	'<td>' + v.action + ' ' + v.args + '</td>' +
 	'<td class="status ' + v.status + '">' + v.status;
 	if (v.status == 'RUNNING')
 		s += ' &nbsp;<img class=va src=/img/loading.gif>';
@@ -35,6 +35,20 @@ function load()
 
 			$('#queuetab > tbody').append(s);
 		});
+
+		if (data.length > 0)
+		{
+			$('#nodata').hide();
+			$('#queuetab').show();
+			$('.needsdata').enable();
+		}
+		else
+		{
+			$('#nodata').show();
+			$('#queuetab').hide();
+			$('.needssel,.needsdata').disable();
+		}
+
 		var resort = true;
 		$('#queuetab').trigger('update', [resort]);
 		$('input.qid:checkbox').prop('checked', false).enable();
@@ -47,7 +61,7 @@ function load()
 		});
 
 		$('input.qid').first().trigger('change');
-		$('#isloading').hide('slow');
+		$('#loading,#isloading').hide('slow');
 	});
 }
 
@@ -71,63 +85,48 @@ $('#queuetab').on('change', 'input.qid', function() {
 		$('.needssel').disable();
 }).first().trigger('change');
 
-$('#qdelete').button({icons:{primary:"ui-icon-trash"}})
-    .on('click', function() {
+$('#qdelete').button({icons:{primary:"ui-icon-trash"}});
+$('#qresubmit').button({icons:{primary:"ui-icon-refresh"}});
+$('#qhold').button({icons:{primary:"ui-icon-pause"}});
+
+$('button.submit').on('click', function() {
+	var name = $(this).text();
+	var act = $(this).attr('act');
+
 	$(this).dojConfirmAction({
-		question: 'Delete selected?',
+		question: name + ' selected?',
 		yesAnswer: 'Yes',
 		cancelAnswer: 'No'
 		}, function(el) {
 			$.blockUI({
-		message: '<h1><img src=/img/loading.gif> Deleting... </h1>'
+		message: '<h1><img src=/img/loading.gif> Processing... </h1>'
 			});
 
 			var slots = $('input.qid:checked').map(function() {
 				return this.value;
 			}).get();
-			$.get('delete.jim', {
+			$.get('update.jim', {
+				act: act,
 				slot: slots.join(',')
 			}, function() {
-				page_refresh();
+				$.unblockUI();
+				load();
 			});
     });
-
 });
 
-$('#qresubmit').button({icons:{primary:"ui-icon-refresh"}})
-    .on('click', function() {
-	$(this).dojConfirmAction({
-		question: 'Re-submit selected?',
-		yesAnswer: 'Yes',
-		cancelAnswer: 'No'
-		}, function(el) {
-			$.blockUI({
-		message: '<h1><img src=/img/loading.gif> Re-submitting... </h1>'
-			});
-
-			var slots = $('input.qid:checked').map(function() {
-				return this.value;
-			}).get();
-			$.get('resubmit.jim', {
-				slot: slots.join(',')
-			}, function() {
-				page_refresh();
-			});
-    });
-
-});
 
 $('#selnone').button({icons:{primary:"ui-icon-close"}})
     .on('click', function() {
 	$('#queuetab input:checkbox').prop('checked', false).trigger('change');
 });
 
-$('#selall').button({icons:{primary:"ui-icon-check"}})
+$('#selall').button({icons:{primary:"ui-icon-star"}})
     .on('click', function() {
 	$('#queuetab input:checkbox').prop('checked', true).trigger('change');
 });
 
-$('#selcomplete').button({icons:{primary:"ui-icon-stop"}})
+$('#selcomplete').button({icons:{primary:"ui-icon-check"}})
     .on('click', function() {
 	$('#queuetab input:checkbox[status="COMPLETE"]').prop('checked', true)
 	    .trigger('change');

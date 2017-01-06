@@ -3,9 +3,18 @@
 source /mod/webif/lib/setup
 require queue.class
 
-if {[queue version] == 1} {
-	queue dbhandle -close
-	file delete /mod/etc/queue.db
-	queue dbhandle
+switch -- [queue version] {
+	1 {
+		puts "Clearing queue due to version change..."
+		queue dbhandle -close
+		file delete /mod/etc/queue.db
+		queue dbhandle
+	}
+	2 {
+		puts "Queue version is up-to-date."
+	}
+	default {
+		puts "Unknown queue version."
+	}
 }
 

@@ -43,6 +43,7 @@ class settings {
 	noautohours	""
 	autofreq	20
 	autolast	0
+	toolbarqueue	0
 	changechangenc	0
 	audiomp3	0
 	logsize		1048576
@@ -183,6 +184,10 @@ settings method pkgdev {{val -1}} {
 
 settings method notoolbar {{val -1}} {
 	return [$self _nval_setting notoolbar $val]
+}
+
+settings method toolbarqueue {{val -1}} {
+	return [$self _nval_setting toolbarqueue $val]
 }
 
 settings method tvdb {{val -1}} {

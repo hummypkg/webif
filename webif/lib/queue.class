@@ -6,21 +6,23 @@ class queue {
 	id		-1
 	file		""
 	action		""
+	args		""
 	start		0
 	status		""
 	log		""
 	runtime		0
 	retries		0
+	interrupts	0
 	submitted	0
 }
 
-#
 # Queue status values:
 #	PENDING
 #	FAILED
 #	INTERRUPTED
 #	COMPLETE
 #	DEFER
+#	HOLD
 
 proc {queue dbhandle} {args} {
 	if {"-close" in $args} {
@@ -43,11 +45,13 @@ proc {queue dbhandle} {args} {
 				id integer primary key autoincrement,
 				file text,
 				action text,
+				args text,
 				start integer default 0,
 				status text default 'PENDING',
 				log text default '',
 				runtime integer,
 				retries integer default 0,
+				interrupts integer default 0,
 				submitted integer
 			);
 		}
@@ -77,16 +81,16 @@ proc {queue startup} {{days 7}} {
 		update queue
 		set status = 'INTERRUPTED',
 		log = 'Job will be retried automatically.',
-		retries = retries + 1
-		where status in ('RUNNING', 'INTERRUPTED')
-		and retries < 5
+		retries = retries + 1,
+		interrupts = interrupts + 1
+		where status = 'RUNNING'
 	}
 	$db query {
 		update queue
 		set status = 'FAILED',
-		log = 'Too many retries.'
-		where status in ('RUNNING', 'INTERRUPTED')
-		and retries >= 5
+		log = 'Too many interrupts.'
+		where status = 'INTERRUPTED'
+		and interrupts >= 5
 	}
 	$db query {
 		update queue
@@ -100,13 +104,14 @@ proc {queue startup} {{days 7}} {
 	} [expr [clock seconds] - 86400 * $days]
 }
 
-proc {queue fetch} {id} {
+proc {queue fetch} {file action} {
 	set db [queue dbhandle]
 
 	foreach row [$db query {
 		select * from queue
-		where id = %s
-	} $id] {
+		where file = '%s'
+		and action = '%s'
+	} [file normalize $file] $action] {
 		return [queue new $row]
 	}
 	return {}
@@ -120,7 +125,7 @@ proc {queue insert} {ts action} {
 		values(%s, '%s', '%s')
 	} [clock seconds] [file normalize [$ts get file]] $action
 
-	return [queue fetch [$db lastid]]
+	return [queue fetch [$ts get file] $action]
 }
 
 proc {queue delete} {ts {action "*"}} {
@@ -129,7 +134,7 @@ proc {queue delete} {ts {action "*"}} {
 	set q "
 		delete from queue
 		where file = '%s'
-		and status in ('PENDING', 'INTERRUPTED', 'COMPLETE', 'FAILED')
+		and status != 'RUNNING'
 	"
 	if {$action ne "*"} {
 		append q " and action = '%s'"
@@ -144,7 +149,7 @@ proc {queue delete_by_id} {id} {
 	set q "
 		delete from queue
 		where id = '%s'
-		and status in ('PENDING', 'INTERRUPTED', 'COMPLETE', 'FAILED')
+		and status != 'RUNNING'
 	"
 
 	$db query $q $id
@@ -155,9 +160,22 @@ proc {queue resubmit} {id} {
 
 	set q "
 		update queue
-		set status = 'PENDING', retries = 0
+		set status = 'PENDING', interrupts = 0
 		where id = '%s'
-		and status in ('FAILED')
+		and status in ('FAILED', 'HOLD')
+	"
+
+	$db query $q $id
+}
+
+proc {queue hold} {id} {
+	set db [queue dbhandle]
+
+	set q "
+		update queue
+		set status = 'HOLD'
+		where id = '%s'
+		and status != 'RUNNING'
 	"
 
 	$db query $q $id
@@ -172,7 +190,7 @@ proc {queue status} {ts} {
 		select group_concat(action)
 		from queue
 		where file = '%s'
-		and status not in ('COMPLETE', 'FAILED')
+		and status not in ('COMPLETE', 'FAILED', 'HOLD')
 	} [file normalize [$ts get file]]]
 
 	set q ""

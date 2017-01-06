@@ -16,7 +16,16 @@ puts {
 </h3>
 <fieldset class=cleft>
 <legend>Queued Tasks</legend>
-<table id=queuetab class=borders cellpadding=5>
+
+<div id=loading>
+<img src=/img/loading.gif> Loading queue data...
+</div>
+
+<div id=nodata class="hidden">
+There are no tasks in the queue.
+</div>
+
+<table id=queuetab class="borders hidden" cellpadding=5>
 <thead>
 <tr>
 	<th nowrap>ID</th>
@@ -31,13 +40,16 @@ puts {
 <tbody>
 </tbody>
 </table>
-<button id=qdelete class=needssel>Delete Selected</button>
-<button id=qresubmit class=needssel>Retry Selected</button>
-<button id=selcomplete>Select Completed</button>
-<button id=selall>Select All</button>
-<button id=selnone>Select None</button>
+<div class=buttonbar>
+<button id=qdelete act=delete class="submit needssel">Delete</button>
+<button id=qresubmit act=resubmit class="submit needssel">Re-submit</button>
+<button id=qhold act=hold class="submit needssel">Hold</button>
+<button id=selcomplete class=needsdata>Select Completed</button>
+<button id=selall class=needsdata>Select All</button>
+<button id=selnone class=needsdata>Select None</button>
 <button id=refresh>Refresh</button>
 <span id=isloading><img src=/img/loading.gif></span>
+</div>
 </fieldset>
 }
 

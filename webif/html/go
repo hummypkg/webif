@@ -25,6 +25,7 @@ set pages {
 	"pkg" "/pkg/"
 	"diag" "/diag/diag.jim"
 	"settings" "/settings/settings.jim"
+	"queue" "/diag/queue/"
 }
 set pages(epg) $epglink
 

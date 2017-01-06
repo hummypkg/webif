@@ -12,7 +12,7 @@ Module		Scan		De-queue
  expire		900		-
  dedup		800		-
 *sweeper	700		-
-*flatten	650		-
+*flatten	750		-
 *flatview	650		-
  decrypt	600		900
  shrink		400		800
@@ -99,6 +99,9 @@ The following functions are available for modules to use:
 	The callback will be called once for each flagged directory with
 	the directory name passed as the sole argument.
 
+	If the callback returns the string "STOP" then the directory
+	scan stops.
+
     ::auto::flagscan <root> <fiag> <callback>
 
 	Starting at the directory indicated by <root>, all directories are
@@ -108,10 +111,16 @@ The following functions are available for modules to use:
 	The callback will be called once for each flagged directory with
 	the directory name passed as the sole argument.
 
+	If the callback returns the string "STOP" then the directory
+	scan stops.
+
     ::auto::direntries <directory> <callback>
 
 	Scan the named directory and call the callback for each loadable
 	ts file found. The ts object is passed to the callback function.
+
+	If the callback returns the string "STOP" then the directory
+	scan stops.
 
     ::auto::recalcdir <directory>
 
@@ -142,6 +151,7 @@ The framework will call the following callbacks (if defined within the module):
 	Examples:
 
 		return "OK"
+		return {"OK" "Processing was successful."}
 		return [list "OK" "Processing was successful."]
 		return [list "DEFER" "File not yet decrypted."]
 		return [list "FAILED" "File is already decrypted."]

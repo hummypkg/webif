@@ -26,3 +26,14 @@ td.status.INTERRUPTED
 	font-weight: bold;
 }
 
+div.buttonbar
+{
+	padding-top: 5px;
+}
+
+div#loading, div#nodata
+{
+	font-style: italic;
+	color: #ff4000;
+}
+

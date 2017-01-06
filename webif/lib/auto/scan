@@ -69,7 +69,7 @@ if {[system uptime] < 180} {
 ::auto::oktorun
 if {!$::auto::force} {
 	set autofreq [$::auto::settings autofreq]
-	if {$autofreq == 0} { set autofreq 20 }
+	if {$autofreq == 0} { set autofreq 10 }
 
 	set timesincelast $(([clock seconds] - [$::auto::settings autolast]) / 60)
 	if {$timesincelast < $autofreq} {
@@ -91,7 +91,7 @@ if {$::auto::earlyexit} {
 # Initialisation
 
 set scanstart [clock milliseconds]
-::auto::log "Auto processing starting"
+::auto::log "Auto processing starting" 2
 
 ::auto::tmpdir "webif_auto"
 
@@ -120,7 +120,7 @@ proc ::auto::direntries {dir callback} {
 		if {![string match {*.ts} $entry]} continue
 		if {[catch {set ts [ts fetch "$dir/$entry"]}]} continue
 		if {$ts == 0} continue
-		$callback $ts
+		if {[$callback $ts] eq "STOP"} break
 	}
 }
 
@@ -177,14 +177,22 @@ proc ::auto::autoflagscan {dir attr callback {recurse 1} {force 0} {seen {}}} \
 	dsc
 
 	if {$force || [file exists "$dir/.auto$attr"]} {
-		$callback $dir
+		if {[$callback $dir] eq "STOP"} {
+			log "[string repeat " " $indent\
+			    ]Callback returned STOP." 2
+			incr indent -2
+			return "STOP"
+		}
 	}
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {$recurse && [file isdirectory "$dir/$entry"]} {
-			autoflagscan "$dir/$entry" \
+			if {[autoflagscan "$dir/$entry" \
 			    $attr $callback $recurse $force \
-			    $seen
+			    $seen] eq "STOP"} {
+				incr indent -2
+				return "STOP"
+			}
 			file stat "$dir/$entry" st
 			set key "$st(dev):$st(ino)"
 			lappend seen $key
@@ -209,11 +217,19 @@ proc ::auto::flagscan {dir flag callback {seen {}}} {
 	}
 	lappend seen $key
 
-	if {[file exists "$dir/.$flag"]} { $callback $dir }
+	if {[file exists "$dir/.$flag"]} {
+		if {[$callback $dir] eq "STOP"} {
+			log "Callback returned STOP." 2
+			return "STOP"
+		}
+	}
 
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
-			flagscan "$dir/$entry" $flag $callback $seen
+			if {[flagscan "$dir/$entry" $flag $callback $seen]
+			    eq "STOP"} {
+				return "STOP"
+			}
 
 			file stat "$dir/$entry" st
 			set key "$st(dev):$st(ino)"
@@ -232,7 +248,7 @@ proc ::auto::register {plugin {priority 500} {fn ""}} {
 
 	if {$fn eq ""} { set fn "::${plugin}::run" }
 	lappend plugins [list $plugin $fn $priority]
-	log "Registered $plugin with priority $priority ($fn)"
+	log "Registered $plugin with priority $priority ($fn)" 2
 }
 
 # Backwards compatibility with legacy plugins

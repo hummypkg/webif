@@ -157,3 +157,8 @@ proc ::auto::autoflagscanup {dir flag} {
 	return 0
 }
 
+proc ::auto::date {{s 0}} {
+	if {!$s} { set s [clock seconds] }
+	return [clock format $s -format "%d/%m/%Y %H:%M:%S"]
+}
+

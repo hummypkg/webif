@@ -14,14 +14,16 @@ foreach q [queue all] {
 			"/media/" ""
 			".ts" ""
 		} [$q get file]]
-	set submitted [clock format [$q get submitted] -format {%c}]
+	set submitted [clock format [$q get submitted] \
+	    -format {%d/%m/%Y %H:%M:%S}]
 
 	if {$flag} { puts "," } else { incr flag }
 	puts "{"
 	puts "  \"qid\": [$q get id],"
 	puts "  \"submitted\": \"$submitted\","
 	puts "  \"file\": \"[::json::escape $name]\","
-	puts "  \"action\": \"[$q get action]\","
+	puts "  \"action\": \"[::json::escape [$q get action]]\","
+	puts "  \"args\": \"[::json::escape [$q get args]]\","
 	puts "  \"status\": \"[$q get status]\","
 	puts "  \"log\": \"[::json::escape [$q get log]]\","
 	if {[$q get runtime] > 0} {
