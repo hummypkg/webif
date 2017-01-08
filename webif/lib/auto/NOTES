@@ -140,7 +140,9 @@ The framework will call the following callbacks (if defined within the module):
     ::module::dequeue <q> <ts>
 
 	De-queue the provided queue item and associated ts file object.
-	The module must return a list containing <result> [message]
+	The module must return a list containing <result> [message] [next]
+	The [next] field is applicable to the DEFER result only and indicates
+	when the next de-queue attempt should occur.
 
 	Possible results:
 
@@ -151,8 +153,11 @@ The framework will call the following callbacks (if defined within the module):
 	Examples:
 
 		return "OK"
-		return {"OK" "Processing was successful."}
-		return [list "OK" "Processing was successful."]
-		return [list "DEFER" "File not yet decrypted."]
-		return [list "FAILED" "File is already decrypted."]
+		return {"OK" "Processing was successful"}
+		return [list "OK" "Processing was successful"]
+		return [list "DEFER" "File not yet decrypted"]
+		return [list "DEFER" "Recording in progress" +300]
+		return [list "DEFER" "Recording in progress" \
+		    $([clock seconds] + 300)]
+		return [list "FAILED" "Could not decrypt file"]
 

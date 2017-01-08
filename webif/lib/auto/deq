@@ -175,11 +175,13 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	set ::auto::logprefix "$plugin:$::auto::logprefix"
 
 	set st [clock milliseconds]
-	lassign [::auto::runplugin $plugin dequeue $q $ts] code msg
+	lassign [::auto::runplugin $plugin dequeue $q $ts] code msg next
 	set ::auto::logprefix $ologprefix
 	set elapsed [::auto::elapsed $st]
 
-	::auto::log "    $code - $msg" 0
+	if {[string index $next 0] eq "+"} { incr next [clock seconds] }
+
+	::auto::log "    $code - $msg - $next" 0
 	switch -- $code {
 	    "-1" {
 		::auto::log "   Plugin failure." 0
@@ -189,7 +191,10 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 		$q update "COMPLETE" "[::auto::date] $msg" 1 $elapsed
 		::auto::runplugins dequeued $plugin $q $ts
 	    }
-	    "DEFER" { $q update "DEFER" $msg 1 $elapsed }
+	    "DEFER" {
+		if {$next ne ""} { $q set start $next }
+		$q update "DEFER" $msg 1 $elapsed
+	    }
 	    "FAILED" { $q update "FAILED" $msg 1 $elapsed }
 	    default {
 		$q update "FAILED" "Unknown response '$code' from plugin"

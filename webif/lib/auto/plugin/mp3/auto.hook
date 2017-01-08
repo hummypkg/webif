@@ -19,7 +19,8 @@ proc ::mp3::ts {ts} {
 	}
 
 	# Enqueue file
-	queue insert $ts mp3
+	set q [queue insert $ts mp3]
+	#$q set args "-mp2"
 	::auto::log "  $file - Queued for mp3." 0
 }
 

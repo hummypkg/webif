@@ -26,6 +26,8 @@ function load()
 	'<td class="status ' + v.status + '">' + v.status;
 	if (v.status == 'RUNNING')
 		s += ' &nbsp;<img class=va src=/img/loading.gif>';
+	if ((v.status == 'DEFER' || v.status == 'PENDING') && v.start != '0')
+		s += ' &nbsp;(' + v.start + 's)';
 	s += '</td><td>';
 	if (v.runtime != '0')
 		s += v.runtime;

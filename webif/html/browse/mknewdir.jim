@@ -2,6 +2,7 @@
 
 package require cgi
 source /mod/webif/lib/setup
+require plugin
 
 httpheader
 
@@ -9,4 +10,8 @@ set dir [cgi_get dir -]
 set name [cgi_get newdirname "New Folder"]
 
 file mkdir "$dir/$name"
+
+set dir "$dir/$name"
+
+eval_plugins mkdir
 

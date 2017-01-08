@@ -16,11 +16,31 @@ proc ::decrypt::dequeue {q ts} {
 	}
 
 	if {![system dlnastatus]} {
+		if {[system instandby]} {
+			# Prevent polling every minute
+			return [list "DEFER" "Cannot decrypt in standby" +300]
+		}
 		return {"DEFER" "DLNA Server not running"}
 	}
 
 	if {[::auto::inuse $ts]} {
-		return {"DEFER" "Recording in use"}
+		if {[clock seconds] < [$ts get end]} {
+			if {[$ts get scheddur] == 5700} {
+				# Likely to be instant-recording.
+				return [list "DEFER" \
+				    "Instant-recording in-progress" +300]
+			}
+			# Recording in progress, defer until near expected
+			# end.
+			set left $([$ts get end] - [clock seconds])
+			if {$left > 360} {
+				return [list "DEFER" "Recording in progress" \
+				    "+$($left - 300)"]
+			} else {
+				return [list "DEFER" "Recording in progress"]
+			}
+		}
+		return [list "DEFER" "Recording in use"]
 	}
 
 	# Check that the file is not already decrypted by analysing it.

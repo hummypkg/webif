@@ -17,6 +17,9 @@ foreach q [queue all] {
 	set submitted [clock format [$q get submitted] \
 	    -format {%d/%m/%Y %H:%M:%S}]
 
+	set start [$q get start]
+	if {$start ne "0"} { set start $($start - [clock seconds]) }
+
 	if {$flag} { puts "," } else { incr flag }
 	puts "{"
 	puts "  \"qid\": [$q get id],"
@@ -25,6 +28,7 @@ foreach q [queue all] {
 	puts "  \"action\": \"[::json::escape [$q get action]]\","
 	puts "  \"args\": \"[::json::escape [$q get args]]\","
 	puts "  \"status\": \"[$q get status]\","
+	puts "  \"start\": \"$start\","
 	puts "  \"log\": \"[::json::escape [$q get log]]\","
 	if {[$q get runtime] > 0} {
 		set time [clock format [lindex [split [$q get runtime] .] 0] \
