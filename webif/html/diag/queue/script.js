@@ -14,6 +14,11 @@ function load()
 	$.getJSON('fetch.jim', function(data) {
 		$('#queuetab > tbody').empty();
 
+		$('#autolast').html(data.autolast);
+		$('#autofreq').html(data.autofreq);
+
+		data = data.data;
+
 		$.each(data, function(k, v) {
 
 	s = '<tr>' +

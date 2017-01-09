@@ -18,6 +18,11 @@ proc ::mp3::ts {ts} {
 		return
 	}
 
+	if {[::auto::inuse $ts]} {
+		::auto::log "  $file - In use." 2
+		return
+	}
+
 	# Enqueue file
 	set q [queue insert $ts mp3]
 	#$q set args "-mp2"

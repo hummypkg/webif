@@ -188,7 +188,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 		$q update "FAILED" "Plugin failure" 1
 	    }
 	    "OK" {
-		$q update "COMPLETE" "[::auto::date] $msg" 1 $elapsed
+		$q update "COMPLETE" "$msg ([::auto::date])" 1 $elapsed
 		::auto::runplugins dequeued $plugin $q $ts
 	    }
 	    "DEFER" {

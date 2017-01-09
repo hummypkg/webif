@@ -29,16 +29,20 @@ proc ::mp3::dequeue {q ts} {
 	system startop mp3 [$ts get file]
 	::auto::dsc [$ts size]
 
+	set mp3mode $audiomp3
+	if {"-mp2" in [$q get args]} { set mp3mode 0 }
+	if {"-mp3" in [$q get args]} { set mp3mode 1 }
+
 	::auto::startclock
 
 	log "     MP3: $file" 0
 	log "          Converting... [$::auto::settings \
-	    audiomp3descr $audiomp3]" 0
+	    audiomp3descr $mp3mode]" 0
 	if {[catch {
 		set cmd [list nice -n 19 \
 		    /mod/bin/ffmpeg -y -benchmark -v 0 -i "$file.ts" \
 		    -f mp3 -vn]
-		if {!$audiomp3} { lappend cmd -acodec copy }
+		if {!$mp3mode} { lappend cmd -acodec copy }
 		lappend cmd "$tmp/mp3.mp3"
 		foreach line [split [exec {*}$cmd] "\n"] {
 			log [string trim $line] 0

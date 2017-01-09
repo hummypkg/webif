@@ -175,7 +175,7 @@ proc {queue hold} {id} {
 		update queue
 		set status = 'HOLD'
 		where id = '%s'
-		and status != 'RUNNING'
+		and status not in ('RUNNING', 'COMPLETE')
 	"
 
 	$db query $q $id

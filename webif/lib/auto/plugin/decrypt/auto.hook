@@ -7,12 +7,13 @@ proc ::decrypt::ts {ts} {
 		return
 	}
 
-	if {[$ts flag "Encrypted"]} {
-		::auto::log "  $file - Protected (Enc flag)." 2
-		return
-	}
 	if {[queue check $ts decrypt]} {
 		::auto::log "  $file - Already queued." 2
+		return
+	}
+
+	if {[::auto::inuse $ts]} {
+		::auto::log "  $file - In use." 2
 		return
 	}
 

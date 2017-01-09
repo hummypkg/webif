@@ -1,11 +1,19 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require queue.class json
+require queue.class json settings.class
 
 httpheader "application/json"
 
-puts "\["
+set s [settings]
+set autolast [$s autolast]
+set autofreq [$s autofreq]
+puts "{"
+puts "  \"autofreq\": \"$autofreq\","
+puts "  \"autolast\": \"[clock format $autolast] ([clock format [expr \
+    [clock seconds] - $autolast] -format %T] ago)\","
+
+puts "  \"data\": \["
 set flag 0
 foreach q [queue all] {
 	set name [string map {
@@ -41,4 +49,5 @@ foreach q [queue all] {
 	puts -nonewline "}"
 }
 puts "\n]"
+puts "}"
 

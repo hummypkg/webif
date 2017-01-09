@@ -722,3 +722,11 @@ ts method epstr {{format "s%se%E/%n"}} {
 	return [string map $map $format]
 }
 
+ts method tsr {} {
+	set fd [open "[file rootname $file].nts"]
+	set bytes [read $fd 0x20]
+	close $fd
+	set tsr [unpack $bytes -uintle $(8 * 0x1f) 8]
+	return $tsr
+}
+
