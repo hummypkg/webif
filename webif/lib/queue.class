@@ -53,8 +53,8 @@ proc {queue dbhandle} {args} {
 				runtime integer,
 				retries integer default 0,
 				interrupts integer default 0,
-				submitted integer,
-				last integer
+				submitted integer default 0,
+				last integer default 0
 			);
 		}
 		$::queue::db query {

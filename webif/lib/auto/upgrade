@@ -4,7 +4,6 @@ source /mod/webif/lib/setup
 require queue.class system.class
 
 proc fixflags {dir} {
-	puts "Upgrading directory flags..."
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
 			fixflags "$dir/$entry"
@@ -19,7 +18,7 @@ proc fixflags {dir} {
 }
 
 set queries {
-	2 { {alter table queue add column last integer} }
+	2 { {alter table queue add column last integer default 0} }
 }
 
 set latest 3
@@ -30,7 +29,10 @@ if {$cur == $latest} {
 	exit
 }
 
-if {$cur < 3} { fixflags [system mediaroot] }
+if {$cur < 3} {
+	puts "Upgrading directory flags..."
+	fixflags [system mediaroot]
+}
 
 if {$cur < 2} {
 	puts "Clearing queue due to version change..."

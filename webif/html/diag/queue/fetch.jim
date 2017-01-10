@@ -24,9 +24,9 @@ foreach q [queue all] {
 		} [$q get file]]
 	set submitted [clock format [$q get submitted] \
 	    -format {%d/%m/%Y %H:%M:%S}]
-	if {[$q get last] ne "0"} {
-		set last [clock format [$q get last] \
-		    -format {%d/%m/%Y %H:%M:%S}]
+	set last [$q get last]
+	if {$last ne "" && $last ne "0"} {
+		set last [clock format $last -format {%d/%m/%Y %H:%M:%S}]
 	} else {
 		set last ""
 	}
