@@ -17,7 +17,7 @@ set ::auto::force 0
 while {[llength $argv]} {
 	switch -- [lindex $argv 0] {
 		-d {
-			set ::auto::loglevel 2
+			incr ::auto::loglevel
 			set ::auto::logfd stdout
 		}
 		-f {
@@ -71,7 +71,8 @@ if {!$::auto::force} {
 	set autofreq [$::auto::settings autofreq]
 	if {$autofreq == 0} { set autofreq 10 }
 
-	set timesincelast $(([clock seconds] - [$::auto::settings autolast]) / 60)
+	set timesincelast $(([clock seconds] - [$::auto::settings autolast]) \
+	    / 60)
 	if {$timesincelast < $autofreq} {
 		::auto::log "Aborting, not yet time to run." 2
 		::auto::log "  elapsed (minutes): $timesincelast (<$autofreq)" 2
@@ -108,6 +109,93 @@ set ::auto::rootdev $rootstat(dev)
 #########################################################################
 # Utility functions
 
+set ::auto::flagdb {}
+set ::auto::activeflags {}
+set ::auto::extraflags {}
+
+proc ::auto::buildflagdb {dir {active {}}} {{seen {}} {indent 0}} {
+	variable flagdb
+	variable activeflags
+	variable extraflags
+	variable dustbin
+	variable rootdev
+
+	incr indent 2
+	log "[string repeat " " $indent]\[$dir]" 3
+
+	if {$dir eq $dustbin} {
+		log "[string repeat " " $indent]Dustbin, skipping." 3
+		incr indent -2
+		return
+	}
+
+	file stat "$dir/" st
+
+	if {[specialdir $dir]} {
+		# Special folder
+		if {$st(dev) != $rootdev} {
+			log "[string repeat " " $indent\
+			    ]Special folder on different device, skipping." 3
+			incr indent -2
+			return
+		}
+		if {[llength $active]} {
+			set active {}
+			log "[string repeat " " $indent\
+			    ]Special folder, overriding recursion." 3
+		}
+	}
+
+	# Already seen
+	set key "$st(dev):$st(ino)"
+	if {$key in $seen} {
+		log "[string repeat " " $indent]Already seen, skipping." 3
+		incr indent -2
+		return
+	}
+	lappend seen $key
+
+	set flags [lmap i \
+	    [glob -nocomplain -directory $dir -tails ".auto*"] \
+	    { string range $i 5 end }]
+
+	foreach x $extraflags {
+		foreach f [lmap i \
+		    [glob -nocomplain -directory $dir -tails ".$x"] \
+		    { string range $i 1 end }] {
+			ladd flags $f
+		}
+	}
+
+	foreach f $flags {
+		# If recursive flag found, add to active set.
+		if {[string index $f end] eq "R"} {
+			ladd active [string range $f 0 end-1]
+		}
+	}
+
+	# Add any active flags to the set.
+	foreach f $active {
+		ladd flags $f
+	}
+
+	if {[llength $flags]} {
+		lappend flagdb $dir $flags
+		log "[string repeat " " $indent]    $flags" 3
+		foreach f $flags { ladd activeflags $f }
+	}
+
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			buildflagdb "$dir/$entry" $active
+		}
+	}
+
+	set active {}
+
+	incr indent -2
+}
+
 set ::auto::recalcdirs {}
 
 proc ::auto::recalcdir {dir} {
@@ -124,119 +212,38 @@ proc ::auto::direntries {dir callback} {
 	}
 }
 
-proc ::auto::autoflagscan {dir attr callback {recurse 1} {force 0} {seen {}}} \
-    {{indent 0} {forceflag ""}} {
-	variable dustbin
-	variable rootdev
+proc ::auto::flagscan {root flag callback {recurse 1}} {
+	variable flagdb
+	variable activeflags
 
-	incr indent 2
-
-	log "[string repeat " " $indent]\[$dir]" 2
-
-	if {$dir eq $dustbin} {
-		log "[string repeat " " $indent]Dustbin, skipping." 2
-		incr indent -2
+	if {$flag ni $activeflags} {
+		log "No $flag flags in filesystem, suppressing scan."
 		return
 	}
 
-	file stat "$dir/" st
-
-	if {[specialdir $dir]} {
-		# Special folder
-		if {$st(dev) != $rootdev} {
-			log "[string repeat " " $indent\
-			    ]Special folder on different device, skipping." 2
-			incr indent -2
-			return
+	if {!$recurse} {
+		# Just this exact directory
+		if {[dict exists $flagdb $root] && $flag in $flagdb($root)} {
+			log "[string toupper $flag]: \[$root]" 2
+			$callback $root
 		}
-		if {$force} {
-			set force 0
-			set forceflag ""
-			log "[string repeat " " $indent\
-			    ]Special folder, overriding recursion." 2
-		}
-	}
-
-	# Already seen
-	set key "$st(dev):$st(ino)"
-	if {$key in $seen} {
-		log "[string repeat " " $indent]Already seen, skipping." 2
-		incr indent -2
 		return
 	}
-	lappend seen $key
 
-	# Recursion
-	if {!$force && [file exists "$dir/.auto${attr}r"]} {
-		log "[string repeat " " $indent]  (R)" 2
-		set force 1
-		set forceflag "$dir/.auto${attr}r"
-	}
+	set rootl [string length $root]
 
-	oktorun
-	dsc
-
-	if {$force || [file exists "$dir/.auto$attr"]} {
-		if {[$callback $dir] eq "STOP"} {
-			log "[string repeat " " $indent\
-			    ]Callback returned STOP." 2
-			incr indent -2
-			return "STOP"
-		}
-	}
-
-	foreach entry [readdir -nocomplain $dir] {
-		if {$recurse && [file isdirectory "$dir/$entry"]} {
-			if {[autoflagscan "$dir/$entry" \
-			    $attr $callback $recurse $force \
-			    $seen] eq "STOP"} {
-				incr indent -2
-				return "STOP"
-			}
-			file stat "$dir/$entry" st
-			set key "$st(dev):$st(ino)"
-			lappend seen $key
-		}
-	}
-
-	incr indent -2
-}
-
-proc ::auto::flagscan {dir flag callback {seen {}}} {
-	variable dustbin
-
-	if {$dir eq $dustbin} return
-
-	if {[specialdir $dir]} return
-
-	file stat $dir st
-	set key "$st(dev):$st(ino)"
-	if {$key in $seen} {
-		log "Already seen $dir ($key)" 2
-		return
-	}
-	lappend seen $key
-
-	if {[file exists "$dir/.$flag"]} {
-		if {[$callback $dir] eq "STOP"} {
-			log "Callback returned STOP." 2
-			return "STOP"
-		}
-	}
-
-	foreach entry [readdir -nocomplain $dir] {
-		if {[file isdirectory "$dir/$entry"]} {
-			if {[flagscan "$dir/$entry" $flag $callback $seen]
-			    eq "STOP"} {
-				return "STOP"
-			}
-
-			file stat "$dir/$entry" st
-			set key "$st(dev):$st(ino)"
-			lappend seen $key
+	foreach {dir flags} $flagdb {
+		if  {![string equal -length $rootl $dir $root]} continue
+		if {$flag in $flags} {
+			oktorun
+			dsc
+			log "[string toupper $flag]: \[$dir]" 2
+			if {[$callback $dir] eq "STOP"} break
 		}
 	}
 }
+
+alias ::auto::autoflagscan ::auto::flagscan
 
 ######################################################################
 # Plugin registration
@@ -249,6 +256,12 @@ proc ::auto::register {plugin {priority 500} {fn ""}} {
 	if {$fn eq ""} { set fn "::${plugin}::run" }
 	lappend plugins [list $plugin $fn $priority]
 	log "Registered $plugin with priority $priority ($fn)" 2
+}
+
+proc ::auto::register_flag {plugin flag} {
+	variable extraflags
+	ladd extraflags $flag
+	log "Registered flag '$flag' for $plugin" 2
 }
 
 # Backwards compatibility with legacy plugins
@@ -310,6 +323,20 @@ if {[llength $::auto::legacy]} {
 	alias log ::auto::log
 	alias scan_run ::auto::flagscan
 	alias scanup ::auto::autoflagscanup
+}
+
+######################################################################
+# Run media flag database
+
+::auto::log "Scanning media for flags..."
+set st [clock milliseconds]
+::auto::buildflagdb $::auto::root
+::auto::log "Scan completed ([::auto::elapsed $st] seconds)"
+::auto::log "Active flags: $::auto::activeflags"
+if {$::auto::loglevel > 1} {
+	foreach {dir flags} $::auto::flagdb {
+		::auto::log "[format %-80s $dir] - $flags" 2
+	}
 }
 
 ######################################################################

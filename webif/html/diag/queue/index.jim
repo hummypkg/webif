@@ -33,8 +33,9 @@ There are no tasks in the queue.
 	<th>File</th>
 	<th>Action</th>
 	<th>Status</th>
-	<th>Time</th>
+	<th>Runtime</th>
 	<th>Log</th>
+	<th>Last Update</th>
 </tr>
 </thead>
 <tbody>

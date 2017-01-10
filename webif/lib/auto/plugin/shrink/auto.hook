@@ -41,21 +41,15 @@ proc ::shrink::ts {ts} {
 }
 
 proc ::shrink::directory {dir} {
-	::auto::log "SHRINK: \[$dir]" 2
 	::auto::direntries $dir ::shrink::ts
 }
 
 proc ::shrink::rundir {dir} {
-	set sup [::auto::autoflagscanup $dir shrink]
-	if {$sup == -1} {
-		log "Encountered special directory." 2
-		return
-	}
-	::auto::autoflagscan $dir shrink ::shrink::directory 0 $sup
+	::auto::flagscan $dir shrink ::shrink::directory 0
 }
 
 proc ::shrink::run {} {
-	::auto::autoflagscan $::auto::root shrink ::shrink::directory
+	::auto::flagscan $::auto::root shrink ::shrink::directory
 }
 
 ::auto::register shrink 400

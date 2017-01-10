@@ -28,15 +28,16 @@ foreach file [cgi_get files] {
 	if {$ts eq "0"} continue
 
 	if {$act eq "mp2"} {
-		set q [queue insert $ts mp3]
+		set q [queue insert -hold $ts mp3]
 	} else {
-		set q [queue insert $ts $act]
+		set q [queue insert -hold $ts $act]
 	}
 
 	switch -- $act {
 		mp2 { $q set args "-mp2" }
 		mp3 { $q set args "-mp3" }
 	}
+	$q submit
 	puts "</li>"
 }
 puts "</ul>"

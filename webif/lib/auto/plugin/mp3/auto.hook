@@ -24,27 +24,20 @@ proc ::mp3::ts {ts} {
 	}
 
 	# Enqueue file
-	set q [queue insert $ts mp3]
-	#$q set args "-mp2"
+	queue insert $ts mp3
 	::auto::log "  $file - Queued for mp3." 0
 }
 
 proc ::mp3::directory {dir} {
-	::auto::log "MP3: \[$dir]" 2
 	::auto::direntries $dir ::mp3::ts
 }
 
 proc ::mp3::rundir {dir} {
-	set sup [::auto::autoflagscanup $dir mp3]
-	if {$sup == -1} {
-		log "Encountered special directory." 2
-		return
-	}
-	::auto::autoflagscan $dir mp3 ::mp3::directory 0 $sup
+	::auto::flagscan $dir mp3 ::mp3::directory 0
 }
 
 proc ::mp3::run {} {
-	::auto::autoflagscan $::auto::root mp3 ::mp3::directory
+	::auto::flagscan $::auto::root mp3 ::mp3::directory
 }
 
 ::auto::register mp3 300

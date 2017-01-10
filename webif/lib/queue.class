@@ -14,6 +14,7 @@ class queue {
 	retries		0
 	interrupts	0
 	submitted	0
+	last		0
 }
 
 # Queue status values:
@@ -52,7 +53,8 @@ proc {queue dbhandle} {args} {
 				runtime integer,
 				retries integer default 0,
 				interrupts integer default 0,
-				submitted integer
+				submitted integer,
+				last integer
 			);
 		}
 		$::queue::db query {
@@ -62,7 +64,7 @@ proc {queue dbhandle} {args} {
 			);
 		}
 		$::queue::db query {
-			insert into config values('version', 2);
+			insert into config values('version', 3);
 		}
 		$::queue::db query {
 			create unique index file on queue(file, action);
@@ -117,13 +119,16 @@ proc {queue fetch} {file action} {
 	return {}
 }
 
-proc {queue insert} {ts action} {
+proc {queue insert} {args ts action} {
 	set db [queue dbhandle]
 
+	set status "PENDING"
+	if {"-hold" in $args} { set status "HOLD" }
+
 	$db query {
-		insert or ignore into queue(submitted, file, action)
-		values(%s, '%s', '%s')
-	} [clock seconds] [file normalize [$ts get file]] $action
+		insert or ignore into queue(submitted, file, action, status)
+		values(%s, '%s', '%s', '%s')
+	} [clock seconds] [file normalize [$ts get file]] $action $status
 
 	return [queue fetch [$ts get file] $action]
 }
@@ -259,9 +264,10 @@ queue method update {_status {_log ""} {_retries 0} {_runtime 0}} {
 		set status = '%s',
 		    log = '%s',
 		    retries = retries + %s,
-		    runtime = %s
+		    runtime = %s,
+		    last = %s
 		where id = %s
-	} $_status $_log $_retries $_runtime $id
+	} $_status $_log $_retries $_runtime [clock seconds] $id
 
 	set status $_status
 	set log $_log
@@ -277,5 +283,10 @@ queue method set {var val} {
 		where id = %s
 	} $var $val $id
 	set $var $val
+}
+
+queue method submit {{_start 0}} {
+	if {$_start} { $self set start $_start }
+	queue resubmit $id
 }
 

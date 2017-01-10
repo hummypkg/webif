@@ -40,6 +40,14 @@ Plugins register themselves with:
 
 	If not specified, priority defaults to 500.
 
+Plugins should use directory flags of the form .auto<flag>[R] with the
+optional trailing R indicating recursion. If they use filesystem flags
+that don't conform to this scheme then they should register them with:
+
+    ::auto::register_flag <module> <flag>
+
+    		(e.g. ::auto::register_flag sweeper sweeper)
+
 The framework will call the following callbacks (if defined within the module):
 
     ::module::init
@@ -86,7 +94,7 @@ The following functions are available for modules to use:
 
 	Check if a recording is in use (with retries).
 
-    ::auto::autoflagscan <root> <flag> <callback>
+    ::auto::flagscan <root> <flag> <callback>
 
 	Starting at the directory indicated by <root>, all directories are
 	recursively scanned looking for those containing a file named
@@ -95,18 +103,6 @@ The following functions are available for modules to use:
 	This function automatically takes care of avoiding the dustbin,
 	filesystem loops, disabling recursion when a special folder is found,
 	etc. It is used by built-in modules such as "decrypt"
-
-	The callback will be called once for each flagged directory with
-	the directory name passed as the sole argument.
-
-	If the callback returns the string "STOP" then the directory
-	scan stops.
-
-    ::auto::flagscan <root> <fiag> <callback>
-
-	Starting at the directory indicated by <root>, all directories are
-	recursively scanned looking for those containing a file named
-	".<flag>".
 
 	The callback will be called once for each flagged directory with
 	the directory name passed as the sole argument.

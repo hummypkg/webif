@@ -32,21 +32,15 @@ proc ::decrypt::ts {ts} {
 }
 
 proc ::decrypt::directory {dir} {
-	::auto::log "DECRYPT: \[$dir]" 2
 	::auto::direntries $dir ::decrypt::ts
 }
 
 proc ::decrypt::rundir {dir} {
-	set sup [::auto::autoflagscanup $dir decrypt]
-	if {$sup == -1} {
-		log "Encountered special directory." 2
-		return
-	}
-	::auto::autoflagscan $dir decrypt ::decrypt::directory 0 $sup
+	::auto::flagscan $dir decrypt ::decrypt::directory 0
 }
 
 proc ::decrypt::run {} {
-	::auto::autoflagscan $::auto::root decrypt ::decrypt::directory
+	::auto::flagscan $::auto::root decrypt ::decrypt::directory
 }
 
 ::auto::register decrypt 600

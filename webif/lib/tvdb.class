@@ -70,7 +70,7 @@ tvdb method _fetch {url} {
 	return $ret
 }
 
-tvdb method _parse {xml vars {end "XXX"}} {
+tvdb method _parse {xml vars {end "XX"}} {
 	set x [xml init $xml]
 	set cattr 0
 	while {1} {

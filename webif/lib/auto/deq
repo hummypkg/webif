@@ -15,7 +15,7 @@ set ::auto::force 0
 while {[llength $argv]} {
 	switch -- [lindex $argv 0] {
 		-d {
-			set ::auto::loglevel 2
+			incr ::auto::loglevel
 			set ::auto::logfd stdout
 		}
 		-f {
@@ -151,8 +151,11 @@ proc ::auto::pending {} {
 	}] [queue pending]]
 }
 
+set ::auto::processed 0
 for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	::auto::dumpq $qq
+
+	incr ::auto::processed
 
 	# Try to run the first item in the queue.
 	set q [lindex $qq 0]
@@ -169,7 +172,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	::auto::dsc
 	::auto::oktorun
 
-	$q update RUNNING "Started at [::auto::date]"
+	$q update RUNNING "Started"
 
 	set ologprefix $::auto::logprefix
 	set ::auto::logprefix "$plugin:$::auto::logprefix"
@@ -184,11 +187,11 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	::auto::log "    $code - $msg - $next" 0
 	switch -- $code {
 	    "-1" {
-		::auto::log "   Plugin failure." 0
+		::auto::log "   Plugin failure" 0
 		$q update "FAILED" "Plugin failure" 1
 	    }
 	    "OK" {
-		$q update "COMPLETE" "$msg ([::auto::date])" 1 $elapsed
+		$q update "COMPLETE" $msg 1 $elapsed
 		::auto::runplugins dequeued $plugin $q $ts
 	    }
 	    "DEFER" {
@@ -197,7 +200,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	    }
 	    "FAILED" { $q update "FAILED" $msg 1 $elapsed }
 	    default {
-		$q update "FAILED" "Unknown response '$code' from plugin"
+		$q update "FAILED" "Unknown response '$code'"
 	    }
 	}
 }
@@ -207,5 +210,10 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 
 release_lock webif_autodeq
 
-::auto::log "Auto de-queue completed in [::auto::elapsed $scanstart] seconds."
+if {$::auto::processed || $::auto::loglevel > 1} {
+	set q "s"
+	if {$::auto::processed == 1} { set q "" }
+	::auto::log "Auto de-queue processed $::auto::processed item$q in [\
+	    ::auto::elapsed $scanstart] seconds."
+}
 

@@ -29,21 +29,15 @@ proc ::mpg::ts {ts} {
 }
 
 proc ::mpg::directory {dir} {
-	::auto::log "MPG: \[$dir]" 2
 	::auto::direntries $dir ::mpg::ts
 }
 
 proc ::mpg::rundir {dir} {
-	set sup [::auto::autoflagscanup $dir mpg]
-	if {$sup == -1} {
-		log "Encountered special directory." 2
-		return
-	}
-	::auto::autoflagscan $dir mpg ::mpg::directory 0 $sup
+	::auto::flagscan $dir mpg ::mpg::directory 0
 }
 
 proc ::mpg::run {} {
-	::auto::autoflagscan $::auto::root mpg ::mpg::directory
+	::auto::flagscan $::auto::root mpg ::mpg::directory
 }
 
 ::auto::register mpg 300

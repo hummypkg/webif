@@ -38,6 +38,7 @@ function load()
 		s += v.runtime;
 	s += '</td>' +
 	'<td>' + v.log + '</td>' +
+	'<td>' + v.last + '</td>' +
 	'</tr>';
 
 			$('#queuetab > tbody').append(s);

@@ -403,6 +403,7 @@ function flagdir(file, flag, iconset, output, options)
 		    .empty()
 		    .html('<img src=/img/loading.gif> Updating...')
 		    .load('/browse/iconset.jim', { file: file });
+		flag = flag.toLowerCase();
 		if ($(options).attr(flag) == '1')
 			$(options).attr(flag, 0);
 		else
@@ -682,7 +683,7 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'shrinkr':
-		flagdir(file, 'autoshrinkr', iconset, results, el);
+		flagdir(file, 'autoshrinkR', iconset, results, el);
 		break;
 
 	    case 'decrypt':
@@ -690,7 +691,7 @@ var dmenuclick = function(action, el, pos)
 		break;
 
 	    case 'decryptr':
-		flagdir(file, 'autodecryptr', iconset, results, el);
+		flagdir(file, 'autodecryptR', iconset, results, el);
 		break;
 
 	    case 'resetnew':

@@ -2,8 +2,6 @@
 proc ::expire::directory {dir} {
 	namespace import ::auto::log
 
-	log "EXPIRE: \[$dir]" 2
-	
 	# type 0 keep {} days 2 keepnew 0
 	set ax [dir expiry $dir]
 	log "  $ax" 2
@@ -74,16 +72,11 @@ proc ::expire::directory {dir} {
 }
 
 proc ::expire::rundir {dir} {
-	set sup [::auto::autoflagscanup $dir expire]
-	if {$sup == -1} {
-		log "Encountered special directory." 2
-		return
-	}
-	::auto::autoflagscan $dir expire ::expire::directory 0 $sup
+	::auto::flagscan $dir expire ::expire::directory 0
 }
 
 proc ::expire::run {} {
-	::auto::autoflagscan $::auto::root expire ::expire::directory
+	::auto::flagscan $::auto::root expire ::expire::directory
 }
 
 ::auto::register expire 900

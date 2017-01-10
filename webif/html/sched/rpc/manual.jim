@@ -33,10 +33,10 @@ if {[llength $errfields]} {
 		set r [rsv manual $start $end $lcn $type $repeat $title]
 	    }  msg]} {
 		puts "\"status\": 0,"
-		puts "\"err\": \"$msg\""
+		puts "\"err\": \"c: $msg\""
 	} elseif {[catch {$r insert} msg]} {
 		puts "\"status\": 0,"
-		puts "\"err\": \"$msg\""
+		puts "\"err\": \"i: $msg\""
 	} else {
 		puts "\"status\": 1"
 		system restartpending

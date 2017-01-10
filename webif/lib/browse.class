@@ -36,7 +36,7 @@ proc {dir iconset} {dir} {
 	set attrs {}
 
 	set autoshrinkr 0
-	if {[file exists "$dir/.autoshrinkr"]} {
+	if {[file exists "$dir/.autoshrinkR"]} {
 		set autoshrinkr 1
 		lappend icons [_addicon "/img/compressr.png" \
 		    "Recursive Auto-shrink"]
@@ -58,7 +58,7 @@ proc {dir iconset} {dir} {
 	}
 
 	set autodecryptr 0
-	if {[file exists "$dir/.autodecryptr"]} {
+	if {[file exists "$dir/.autodecryptR"]} {
 		set autodecryptr 1
 		lappend icons [_addicon "/img/decryptr.png" \
 		    "Recursive Auto-decrypt"]

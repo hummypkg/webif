@@ -1,20 +1,55 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require queue.class
+require queue.class system.class
 
-switch -- [queue version] {
-	1 {
-		puts "Clearing queue due to version change..."
-		queue dbhandle -close
-		file delete /mod/etc/queue.db
-		queue dbhandle
+proc fixflags {dir} {
+	puts "Upgrading directory flags..."
+	foreach entry [readdir -nocomplain $dir] {
+		if {[file isdirectory "$dir/$entry"]} {
+			fixflags "$dir/$entry"
+			continue
+		}
+		if {[string match {.auto*r} $entry]} {
+			puts "Updating flag $dir/$entry"
+			file rename "$dir/$entry" \
+			    "$dir/[string range $entry 0 end-1]R"
+		}
 	}
-	2 {
-		puts "Queue version is up-to-date."
-	}
-	default {
-		puts "Unknown queue version."
+}
+
+set queries {
+	2 { {alter table queue add column last integer} }
+}
+
+set latest 3
+set cur [queue version]
+
+if {$cur == $latest} {
+	puts "Queue database is up-to-date."
+	exit
+}
+
+if {$cur < 3} { fixflags [system mediaroot] }
+
+if {$cur < 2} {
+	puts "Clearing queue due to version change..."
+	queue dbhandle -close
+	file delete /mod/etc/queue.db
+	queue dbhandle
+	set cur $latest
+}
+
+set db [queue dbhandle]
+loop i $cur $latest {
+	puts "Upgrading queue database to version $($i + 1)"
+	foreach q $queries($i) {
+		catch { $db query $q }
+		$db query {
+			update config
+			set val = %s
+			where var = 'version'
+		} $($i + 1)
 	}
 }
 

@@ -410,7 +410,7 @@ rsv method insert {{table pending} {force 0} {defer 0}} {
 	}
 
 	# Duplicate check - all tables
-	if {!$force && $action == 0} {
+	if {!$force && $action == 0 && $usevtid} {
 		foreach tab {pending TBL_RESERVATION} {
 			set rec [$rsvdb query "
 				select ulslot from $tab

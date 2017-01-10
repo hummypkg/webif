@@ -24,6 +24,12 @@ foreach q [queue all] {
 		} [$q get file]]
 	set submitted [clock format [$q get submitted] \
 	    -format {%d/%m/%Y %H:%M:%S}]
+	if {[$q get last] ne "0"} {
+		set last [clock format [$q get last] \
+		    -format {%d/%m/%Y %H:%M:%S}]
+	} else {
+		set last ""
+	}
 
 	set start [$q get start]
 	if {$start ne "0"} { set start $($start - [clock seconds]) }
@@ -32,6 +38,7 @@ foreach q [queue all] {
 	puts "{"
 	puts "  \"qid\": [$q get id],"
 	puts "  \"submitted\": \"$submitted\","
+	puts "  \"last\": \"$last\","
 	puts "  \"file\": \"[::json::escape $name]\","
 	puts "  \"action\": \"[::json::escape [$q get action]]\","
 	puts "  \"args\": \"[::json::escape [$q get args]]\","
