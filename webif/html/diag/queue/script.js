@@ -8,6 +8,11 @@ function page_refresh(msg)
         window.location.reload(true);
 }
 
+function dirname(path)
+{
+	return path.replace(/\/[^\/]*$/, '');
+}
+
 function load()
 {
 	$('#isloading').show();
@@ -26,7 +31,7 @@ function load()
 	    ' value=' + v.qid + '>' +
 	    v.qid + '</td>' +
 	'<td>' + v.submitted + '</td>' +
-	'<td>' + v.file + '</td>' +
+	'<td><a href=# class=file>' + v.file + '</a></td>' +
 	'<td>' + v.action + ' ' + v.args + '</td>' +
 	'<td class="status ' + v.status + '">' + v.status;
 	if (v.status == 'RUNNING')
@@ -37,7 +42,7 @@ function load()
 	if (v.runtime != '0')
 		s += v.runtime;
 	s += '</td>' +
-	'<td>' + v.log + '</td>' +
+	'<td class=queuelog>' + v.log + '</td>' +
 	'<td>' + v.last + '</td>' +
 	'</tr>';
 
@@ -143,6 +148,13 @@ $('#selcomplete').button({icons:{primary:"ui-icon-check"}})
 $('#refresh').button({icons:{primary:"ui-icon-refresh"}})
     .on('click', function() {
 	load();
+});
+
+$('#queuetab').on('click', 'a.file', function(e) {
+	e.preventDefault();
+	file = $(this).html();
+	window.location = '/go/browse?dir=' +
+	    encodeURIComponent('{root}/' + dirname(file));
 });
 
 setInterval(load, 60000);

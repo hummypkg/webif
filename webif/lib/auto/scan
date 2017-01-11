@@ -372,6 +372,8 @@ proc ::auto::runplugin {fn {_plugin ""} args} {
 			}
 			if {[catch {uplevel 1 {*}$call} msg]} {
 				log "$rfn: $msg" 0
+				lassign [info stacktrace] p f l
+				log "    $f:$l @ $p" 0
 			}
 			log "<********* $rfn ([elapsed $st] seconds)" 2
 		}

@@ -37,3 +37,11 @@ div#loading, div#nodata
 	color: #ff4000;
 }
 
+#lastscan
+{
+	color: #ccc;
+	background: transparent;
+	font-style: italic;
+	padding-top: 2px;
+}
+

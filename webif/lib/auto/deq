@@ -125,6 +125,8 @@ proc ::auto::runplugin {plugin fn args} {
 	if {![exists -proc $rfn]} { return -1 }
 	if {[catch {set ret [uplevel 1 $rfn {*}$args]} msg]} {
 		log "$rfn: $msg" 0
+		lassign [info stacktrace] p f l
+		log "    $f:$l @ $p" 0
 		return -1
 	}
 	return $ret
@@ -136,6 +138,8 @@ proc ::auto::runplugins {fn args} {
 		if {![exists -proc $rfn]} continue
 		if {[catch {uplevel 1 $rfn {*}$args} msg]} {
 			log "$rfn: $msg" 0
+			lassign [info stacktrace] p f l
+			log "    $f:$l @ $p" 0
 		}
 	}
 }

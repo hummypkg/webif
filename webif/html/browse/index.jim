@@ -31,6 +31,8 @@ if {![dict exists $env SCRIPT_NAME]} {
 
 if {![dict exists $env QUERY_STRING]} { set env(QUERY_STRING) "root" }
 
+set dir [string map [list "\{root\}" $mroot] $dir]
+
 set config [settings new]
 
 set order [cgi_get order -]

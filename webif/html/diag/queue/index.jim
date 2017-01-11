@@ -51,7 +51,7 @@ There are no tasks in the queue.
 <button id=refresh>Refresh</button>
 <span id=isloading><img src=/img/loading.gif></span>
 </div>
-<div class=blood>Last scan: <span id=autolast>retrieving...</span> -
+<div id=lastscan>Last media scan: <span id=autolast>retrieving...</span> -
 scanning every <span id=autofreq>TBC</span> minutes.</div>
 </fieldset>
 }
