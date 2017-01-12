@@ -44,7 +44,9 @@ proc ::decrypt::dequeue {q ts} {
 	}
 
 	# Check that the file is not already decrypted by analysing it.
-	set anencd [exec /mod/bin/stripts -qE $rfile]
+	if {[catch {set anencd [exec /mod/bin/stripts -qE $rfile]} msg]} {
+		return [list "DEFER" "plugin failure - $msg"]
+	}
 	if {$anencd != "1"} {
 		exec /mod/webif/lib/bin/fixencflags $file
 		return {"OK"
@@ -80,7 +82,9 @@ proc ::decrypt::dequeue {q ts} {
 	::auto::startclock
 	log "  DECRYPT: $rfile" 0
 	log "  DLNA: $url" 0
-	exec wget -O "$tmp/$bfile" $url
+	if {[catch {exec wget -O "$tmp/$bfile" $url} msg opts]} {
+		::auto::log "Wget error - $msg - $opts"
+	}
 
 	# Release the helper lock once finished.
 	if {$helper} { system dlnahelper -release }

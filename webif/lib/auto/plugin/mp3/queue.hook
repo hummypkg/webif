@@ -54,12 +54,14 @@ proc ::mp3::dequeue {q ts} {
 	}
 
 	if {[system pkginst id3v2]} {
+		catch {
 		log [exec /mod/bin/id3v2 \
 		    --song "[$ts get title]" \
 		    --comment "[$ts get synopsis]" \
 		    --album "[$ts get channel_name]" \
 		    --year "[clock format [$ts get start] -format {%Y}]" \
 		    "$tmp/mp3.mp3"] 0
+		}
 	}
 
 	# Move the MP3 into the local directory
