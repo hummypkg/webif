@@ -52,10 +52,11 @@ foreach a {
     } {
 	lassign $a id attr
 	if {![dict exists $attrs $id]} continue
-	puts "$attr: $attrs($id)"
+	puts -nonewline "$attr: $attrs($id) "
 	$settings _nval_setting "SMART_$attr" $attrs($id)
 	if {$attrs($id) < [$settings _nval_setting "SMART_ack_$attr"]} {
 		$settings _nval_setting "SMART_ack_$attr" $attrs($id)
 	}
 }
+puts ""
 

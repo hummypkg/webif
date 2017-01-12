@@ -9,7 +9,7 @@ set dir /mod/var/backup
 
 httpheader
 
-set file [file tail [cgi_get restore_file]]
+set file [file tail [cgi_get restore_file test]]
 if {$file == 0} {
 	puts "No filename supplied."
 	exit
@@ -32,16 +32,11 @@ puts "Listing scheduled events from <i>$file</i>..."
 set fields [[rsv] cleanvars]
 
 set data [split [read $fd] "\n"]
-
 set ver 1
 
-foreach line $data {
-	if {[string match "# version *" $line]} {
-		set ver [lindex [split $line " "] 2]
-		puts "Backup version $ver"
-	}
-	set vals [split $line "\t"]
-	if {[lindex $vals 0] ne "event"} { continue }
+proc event {vals} {
+	global fields ver
+
 	set vars {}
 	set i 0
 	foreach f $fields {
@@ -55,6 +50,48 @@ foreach line $data {
 	puts "  [$rsv name] ([$rsv channel_name] - [\
 	    clock format [$rsv start]] - [\
 	    clock format [$rsv end] -format {%H:%M}])"
+}
+
+set favnames {}
+
+proc fav {vals} {{lgroup 0}} {
+	global favnames
+
+	lassign $vals x group svctype svcname idx
+
+	if {$group != $lgroup} {
+		set lgroup $group
+		if {[dict exists $favnames $group]} {
+			puts "Favourites ($favnames($group))"
+		} else {
+			puts "Favourites (group $group)"
+		}
+	}
+	puts "  $svcname"
+}
+
+proc favname {vals} {
+	global favnames
+
+	lassign $vals x num idx name
+
+	puts "Favourites $num '$name'"
+	set favnames($idx) $name
+}
+
+foreach line $data {
+	if {[string match "# version *" $line]} {
+		set ver [lindex [split $line " "] 2]
+		puts "Backup version $ver"
+	}
+	set vals [split $line "\t"]
+	set type [lindex $vals 0]
+	switch -- $type {
+		fav -
+		favname -
+		event { $type $vals }
+	    #default { puts "Unhandled '$type'" }
+	}
 }
 
 close $fd

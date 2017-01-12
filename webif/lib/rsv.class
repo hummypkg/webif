@@ -124,13 +124,7 @@ rsv method isseries {} {
 }
 
 rsv method _strip {str} {
-	if {[string range $str 1 2] eq "i7"} {
-		set str [string range $str 3 end]
-	}
-	if {[string first "\025" $str] == 0} {
-		set str [string range $str 1 end]
-	}
-	return $str
+	return [system strip $str]
 }
 
 rsv method folder {} {
@@ -799,6 +793,18 @@ proc {rsv backup} {file} {
 	puts "Done."
 
 	puts "Backing up channel favourites..."
+	puts "  Names:"
+
+	# Favourite names
+	set favnames {}
+	loop i 1 6 {
+		set favname [system strip \
+		    [system param FAV_CUSTOM_STR0$i Text]]
+		set idx [expr 1 << ($i - 1)]
+		set favnames($idx) $favname
+		puts $fd "favname\t$i\t$idx\t$favname"
+		puts "    $favname"
+	}
 
 	set grp 0
 	foreach res [$rsvdb query {
@@ -811,7 +817,11 @@ proc {rsv backup} {file} {
 	    }] {
 		if {$res(eFavGroup) != $grp} {
 			set grp $res(eFavGroup)
-			puts "  Group $grp"
+			if {[dict exists $favnames $grp]} {
+				puts "  Group $favnames($grp)"
+			} else {
+				puts "  Group '$grp':"
+			}
 		}
 		puts "    $res(szSvcName)"
 		puts $fd "fav\t$res(eFavGroup)\t$res(eSvcType)\t$res(szSvcName)\t$res(favIdx)"
@@ -848,7 +858,7 @@ proc {rsv restore} {file} {
 
 	puts "Restoring scheduled events from <i>$file</i>..."
 
-	$rsvdb query {begin transaction;}
+	catch { exec /mod/bin/nugget quit }
 	$rsvdb query {delete from TBL_RESERVATION;}
 
 	set fields [[rsv] cleanvars]
@@ -859,6 +869,7 @@ proc {rsv restore} {file} {
 
 	set hsvcmap {}
 	set lcnmap {}
+	set favmap {}
 
 	# Check version, build maps for later.
 	foreach line $data {
@@ -866,14 +877,17 @@ proc {rsv restore} {file} {
 			set ver [lindex [split $line " "] 2]
 			puts "Backup version $ver"
 		}
-		lassign [split $line "\t"] tag hsvc name
-		if {$tag eq "hsvc"}  {
-			set hsvcmap($hsvc) $name
-		}
-		if {$tag eq "lcn"} {
-			set lcnmap($name) $hsvc
+		lassign [split $line "\t"] tag f1 f2 f3 f4
+		switch -- $tag {
+		    hsvc 	{ set hsvcmap($f1) $f2 }
+		    lcn 	{ set lcnmap($f2) $f1 }
+		    favname 	{ set favmap($f2) $f3 }
 		}
 	}
+
+	set chanmap [lreverse $hsvcmap]
+
+	# Restore events
 
 	foreach line $data {
 		set vals [split $line "\t"]
@@ -949,61 +963,73 @@ proc {rsv restore} {file} {
 		}
 
 		if {!$bad} {
-			if {[catch {$rsv insert pending 1} msg]} {
+			if {[catch {$rsv insert pending 1 1} msg]} {
 				puts "    Error inserting event, $msg"
 			}
 		}
 		puts ""
 	}
 
-	$rsvdb query {commit transaction;}
-
 	puts "Restoring favourite channels..."
-	$rsvdb query {begin transaction;}
 	$rsvdb query {delete from channel.TBL_FAV}
 
 	$rsvdb query {drop table if exists pending.fav}
 	$rsvdb query {create table pending.fav (
-		favIdx integer primary key autoincrement unique,
+		favIdx integer primary key unique,
 		hSvc integer(4),
 		eFavGroup integer(4),
 		[eSvcType] integer(4)
+	)}
+	$rsvdb query {drop table if exists pending.favnames}
+	$rsvdb query {create table pending.favnames (
+		idx integer primary key unique,
+		name string
 	)}
 
 	set grp 0
 	foreach line $data {
 		set vals [split $line "\t"]
+
+		if {[lindex $vals 0] eq "favname"} {
+			lassign $vals x num x name
+			$rsvdb query {
+				insert into
+				pending.favnames(idx, name)
+				values(%s, '%s')
+			} $num $name
+			continue
+		}
+
 		if {[lindex $vals 0] ne "fav"} { continue }
 
-		set group [lindex $vals 1]
-		set type [lindex $vals 2]
-		set chan [lindex $vals 3]
-		set idx [lindex $vals 4]
+		lassign $vals x group type chan idx
+
 		if {$idx eq ""} { set idx 0 }
-		set hsvc [get_channel_attr $chan]
 
 		if {$grp != $group} {
 			set grp $group
-			puts "  Group $grp"
+			if {[dict exists $favmap $grp]} {
+				puts "  Group $favmap($grp)"
+			} else {
+				puts "  Group $grp"
+			}
 		}
 
 		puts "    $chan"
 
-		if {$hsvc eq ""} {
+		if {[dict exists $chanmap $chan]} {
+			set hsvc $chanmap($chan)
+		} else {
 			puts "        Cannot map channel name to service."
 			continue
 		}
 
-		set query "
+		$rsvdb query {
 			insert into
 			pending.fav(favIdx, hSvc, eFavGroup, eSvcType)
-			values($idx, $hsvc, $group, $type);
-		"
-
-		$rsvdb query $query
+			values(%s, %s, %s, %s);
+		} $idx $hsvc $group $type
 	}
-
-	$rsvdb query {commit transaction;}
 
 	system restartpending
 

@@ -38,15 +38,7 @@ EOM
 $PKG_ROOT/etc/init.d/S02anacron start < /dev/null > /dev/null 2>&1 &
 
 [ -f /tmp/webif_auto.log ] && rm -f /tmp/webif_auto.log
-
-#if [ ! -f /mod/webif/.strip-updated ]; then
-#	echo "*********************************"
-#	echo "* Please wait while any shrunk recordings are flagged..."
-#	echo "*********************************"
-#	/mod/webif/lib/bin/strip-update
-#
-#	touch /mod/webif/.strip-updated
-#fi
+[ -f /mod/webif/.strip-updated ] && rm -f /mod/webif/.strip-updated
 
 /mod/webif/lib/bin/diskattrs
 /mod/webif/lib/auto/upgrade

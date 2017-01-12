@@ -65,6 +65,8 @@ $('#restore_button').click(function() {
 				refresh_backup_files();
 				$('#restore_warning').slideDown();
 				$('#restart_block').slideDown('slow');
+				list_reload_required = true;
+				visual_reload_required = true;
 			});
 		});
 	}

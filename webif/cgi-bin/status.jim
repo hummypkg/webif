@@ -16,6 +16,7 @@ switch $runmode {
     cli {
 	set type "full"
 	if {"-X" in $argv} { set schedtime 7200 }
+	if {"-x" in $argv} { set schedtime 7200 }
     }
 }
 

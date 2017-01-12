@@ -18,6 +18,7 @@ set lines {}
 set seen {}
 foreach line [split [file read /mod/tmp/notify.log] "\n"] {
 	set rest [lassign [split $line -] date]
+	if {$rest eq ""} { set rest $date }
 	if {[dict exists $seen $rest]} {
 		incr seen($rest)
 	} else {
