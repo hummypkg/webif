@@ -22,7 +22,9 @@ pkg method _load {nm} {
 		if {[string match { *} $line]} {
 			append descr $line
 		} else {
-			regexp {^[^ ]+ - ([^ ]+) - (.*)$} $line x xlatest descr
+			set xlatest $latest
+			regexp {^[^ ]+ - ([^ ]+)(?: - (.*))?$} $line x \
+			    xlatest descr
 			if {[pkg vercompare $xlatest $latest] > 0} {
 				set latest $xlatest
 			}
