@@ -160,7 +160,7 @@ if (reckind != 4)
 	return;
 }
 
-$.blockUI({message: '<h1><img src=/img/loading.gif> ' +
+$.blockUI({message: '<h1><img src=/img/spin.gif> ' +
     'Re-scheduling series... </h1>'});
 
 $.get('/cgi-bin/epg/schedule.jim?type=2&service=' + xs + '&event=' + xe,
@@ -203,7 +203,7 @@ var reckind = $epgpopup.attr('reckind');
 
 if (reckind != 4)
 {
-	$.blockUI({message: '<h1><img src=/img/loading.gif> ' +
+	$.blockUI({message: '<h1><img src=/img/spin.gif> ' +
 	    'Re-scheduling one-off event... </h1>'});
 
 	$.get('/cgi-bin/epg/schedule.jim?type=1&service=' + xs + '&event=' + xe,
@@ -224,7 +224,7 @@ if (reckind != 4)
 }
 else
 {
-	$.blockUI({message: '<h1><img src=/img/loading.gif> ' +
+	$.blockUI({message: '<h1><img src=/img/spin.gif> ' +
 	    'Re-scheduling series event... </h1>'});
 
 	$.get('/cgi-bin/epg/schedule.jim?type=1&service=' + xs + '&event=' + xe,
@@ -344,7 +344,7 @@ function epgpopup(e, o, first)
 	var url = '/cgi-bin/epg/info.jim?bare&service=' + xs + '&event=' + xe +
 	    '&bare=1';
 	$epgpopup
-	    .empty().html('<img src="/img/loading.gif" alt="loading"> ' +
+	    .empty().html('<img src="/img/spin.gif" alt="loading"> ' +
 	    'Retrieving details...')
 	    .load(url, function() {
 		update_buttons(xs, xe);

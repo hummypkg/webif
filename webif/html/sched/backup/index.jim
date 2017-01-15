@@ -34,7 +34,7 @@ puts "<button id=backup_button>Create Backup</button>"
 puts {
 	<br>
 	<div id=backup_working class=va style="display: none;">
-		<img class=va src=/img/loading.gif>&nbsp;
+		<img class=va src=/img/spin.gif>&nbsp;
 		<font class=footnote>Backing up...</font>
 	</div>
 </div>
@@ -45,7 +45,7 @@ puts {
 	padding: 0 1em 1em 1em">
 	<h3>Available Backups</h3>
 	<div id=backup_files style="padding: 0 0 0 2em">
-		<img src=/img/loading.gif>Retrieving list of backups...
+		<img src=/img/spin.gif>Retrieving list of backups...
 	</div>
 	<br>
 	<button id=restore_button disabled>Restore Backup</button>
@@ -53,7 +53,7 @@ puts {
 	<button id=view_button disabled>View Backup</button>
 	<br>
 	<div id=restore_working class=va style="display: none;">
-		<img class=va src=/img/loading.gif>&nbsp;
+		<img class=va src=/img/spin.gif>&nbsp;
 		<font class=footnote>Restoring...</font>
 	</div>
 </div>

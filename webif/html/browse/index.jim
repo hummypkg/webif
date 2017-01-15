@@ -371,7 +371,7 @@ puts {
 File Clipboard
 </legend>
 <div id=clipboard>
-<img src=/img/loading.gif> <i>Loading...</i>
+<img src=/img/spin.gif> <i>Loading...</i>
 </div>
 </fieldset>
 }

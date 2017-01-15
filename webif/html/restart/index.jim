@@ -20,7 +20,7 @@ puts {
 </i></span></legend>
 
 <div id=restart_status>
-<span class=blood><img src=/img/loading.gif>
+<span class=blood><img src=/img/spin.gif>
 	Retrieving status...
 </span>
 </div>

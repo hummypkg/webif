@@ -34,7 +34,7 @@ Your original recording files will be retained in a folder called _original.
 <td>Shrinking will take around [clock format $esttime -format "%T"]</td></tr>
 <tr><th>Estimated Saving:</th>
 <td class=va><span id=analysis class=va>
-	<img class=va src=/img/loading.gif> Analysing file, please wait...
+	<img class=va src=/img/spin.gif> Analysing file, please wait...
 </span></td></tr>
 </table>
 

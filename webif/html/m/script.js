@@ -137,7 +137,7 @@ function execopkg(arg, pkg)
 	s('.opkg_op_complete').hide('fast');
 	s('.opkg_popup_text')
 	    .empty()
-	    .html('<img src=/img/loading.gif> Processing...');
+	    .html('<img src=/img/spin.gif> Processing...');
 	s('.opkg_popup').popup('open', {transition: 'pop'})
 	s('.opkg_popup_text').load('/cgi-bin/opkg.jim?cmd=' + arg, function() {
 		s('.opkg_op_complete').slideDown('slow');

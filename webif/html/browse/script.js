@@ -15,7 +15,7 @@ function blockpage(msg)
 	if (!msg)
 		msg = 'Refreshing page...';
 	$.blockUI({
-		message: '<h1><img src=/img/loading.gif> ' + msg + '</h1>'
+		message: '<h1><img src=/img/spin.gif> ' + msg + '</h1>'
 	});
 }
 
@@ -43,7 +43,7 @@ function reloadclipboard()
 {
 	$('#clipboard')
 	    .empty()
-	    .html('<img src=/img/loading.gif> <i>Loading...</i>')
+	    .html('<img src=/img/spin.gif> <i>Loading...</i>')
 	    .load('/browse/clipboard.jim', function() {
 
 // Start Clipboard post-load actions
@@ -157,7 +157,7 @@ function delete_callback(file, dir, id)
 	var el = 'div.bf#' + id;
 	var results = el + ' .results';
 	$(results)
-	    .html('<img src=/img/loading.gif>Deleting, please wait...')
+	    .html('<img src=/img/spin.gif>Deleting, please wait...')
 	    .slideDown('slow')
 	    .load('/browse/delete.jim', {
 			'dir': dir,
@@ -401,7 +401,7 @@ function flagdir(file, flag, iconset, output, options)
 	    }, function() {
 		$(iconset)
 		    .empty()
-		    .html('<img src=/img/loading.gif> Updating...')
+		    .html('<img src=/img/spin.gif> Updating...')
 		    .load('/browse/iconset.jim', { file: file });
 		flag = flag.toLowerCase();
 		if ($(options).attr(flag) == '1')
@@ -594,7 +594,7 @@ var dmenuclick = function(action, el, pos)
 		    file + '" and all files within it?'))
 		{
 			$(results)
-			    .html('<img src=/img/loading.gif>' +
+			    .html('<img src=/img/spin.gif>' +
 			    'Deleting, please wait...')
 			    .slideDown('slow')
 			    .load('/browse/delete.jim', {
@@ -713,7 +713,7 @@ function update_diriconset()
 {
 	$('#diriconset')
 	    .empty()
-	    .html('<img src=/img/loading.gif> Updating...')
+	    .html('<img src=/img/spin.gif> Updating...')
 	    .load('/browse/iconset.jim', {file: dir});
 }
 
@@ -783,7 +783,7 @@ var $dialog = $('#dialogue').dialog({
 	draggable: true, resizable: true,
 	buttons: $buttons,
 	close: function(e,u) { $('#dialogue').empty().html(
-	    '<img src="/img/loading.gif">Retrieving data...'); }
+	    '<img src="/img/spin.gif">Retrieving data...'); }
 });
 
 function doplay()

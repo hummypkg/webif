@@ -39,7 +39,7 @@ var $dialog = $('#sdialogue').dialog({
 	draggable: true, resizable: true,
 	buttons: $buttons2,
 	close: function(e,u) { $('#sdialogue').empty().html(
-	    '<img src="/img/loading.gif" alt="loading">'); }
+	    '<img src="/img/spin.gif" alt="loading">'); }
 });
 
 function schedpopup(e, o)
@@ -67,7 +67,7 @@ $('button.delselected').button({icons:{primary:"ui-icon-trash"}})
 		cancelAnswer: 'No'
 		}, function(el) {
 			$.blockUI({
-		message: '<h1><img src=/img/loading.gif> Deleting... </h1>'
+		message: '<h1><img src=/img/spin.gif> Deleting... </h1>'
 			});
 
 			var els = $(el).parent().find('.schedselect:checked');
@@ -310,7 +310,7 @@ $('#manrsv').dialog({
 		}
 
 		$('#mrerr')
-		    .html('<img src=/img/loading.gif> Creating event...');
+		    .html('<img src=/img/spin.gif> Creating event...');
 		
 		$.getJSON('rpc/manual.jim', data, function(d) {
 			if (d.status)

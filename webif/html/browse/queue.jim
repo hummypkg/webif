@@ -13,7 +13,7 @@ if {$act eq "-"} {
 	exit;
 }
 
-puts "<div id=deleting class=blood><img src=/img/loading.gif>Queuing...</div>"
+puts "<div id=deleting class=blood><img src=/img/spin.gif>Queuing...</div>"
 puts "<ul style=\"list-style-type: square\">"
 
 foreach file [cgi_get files] {

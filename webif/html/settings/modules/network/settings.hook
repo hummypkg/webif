@@ -96,7 +96,7 @@ proc _ns_iftable {if tag} {
 			<th class=key>&nbsp;</th>
 			<td>
 				<div id=ns_ssid_loading class=blood>
-					<img src=/img/loading.gif>
+					<img src=/img/spin.gif>
 					Scanning for wireless networks...
 				</div>
 				<table id=ns_ssid_list></table>

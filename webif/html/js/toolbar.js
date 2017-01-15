@@ -10,7 +10,7 @@ if (window.location.pathname != '/' &&
 				tb_lastupd = +new Date();
 				$('#tbstatus')
 				    .empty()
-				    .html('<img src=/img/loading.gif> ' +
+				    .html('<img src=/img/spin.gif> ' +
 					'Updating...')
 				    .load('/cgi-bin/status.jim');
 			}

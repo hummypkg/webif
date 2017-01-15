@@ -26,7 +26,7 @@ function loaddata(data, status)
 		});
 	}
 	else
-		$('#results').append('<br><img src=/img/loading.gif> ' +
+		$('#results').append('<br><img src=/img/spin.gif> ' +
 		    'Still working...');
 	$('#d_results').animate({
 	    scrollTop: $('#d_results').prop('scrollHeight')
@@ -35,7 +35,7 @@ function loaddata(data, status)
 
 function chunked_request(placeholder, url, data)
 {
-	$('#resultsheader').html('<img src=/img/loading.gif> ' + placeholder)
+	$('#resultsheader').html('<img src=/img/spin.gif> ' + placeholder)
 	    .slideDown('slow');
 	$('#resultscomplete').hide();
 	$('#results').empty();

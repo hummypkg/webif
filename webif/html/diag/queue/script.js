@@ -3,7 +3,7 @@ function page_refresh(msg)
         if (!msg)
                 msg = 'Refreshing page...';
         $.blockUI({
-                message: '<h1><img src=/img/loading.gif> ' + msg + '</h1>'
+                message: '<h1><img src=/img/spin.gif> ' + msg + '</h1>'
         });
         window.location.reload(true);
 }
@@ -35,7 +35,7 @@ function load()
 	'<td>' + v.action + ' ' + v.args + '</td>' +
 	'<td class="status ' + v.status + '">' + v.status;
 	if (v.status == 'RUNNING')
-		s += ' &nbsp;<img class=va src=/img/loading.gif>';
+		s += ' &nbsp;<img class=va src=/img/spin.gif>';
 	if ((v.status == 'DEFER' || v.status == 'PENDING') && v.start != '0')
 		s += ' &nbsp;(' + v.start + 's)';
 	s += '</td><td>';
@@ -112,7 +112,7 @@ $('button.submit').on('click', function() {
 		cancelAnswer: 'No'
 		}, function(el) {
 			$.blockUI({
-		message: '<h1><img src=/img/loading.gif> Processing... </h1>'
+		message: '<h1><img src=/img/spin.gif> Processing... </h1>'
 			});
 
 			var slots = $('input.qid:checked').map(function() {

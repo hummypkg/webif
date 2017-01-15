@@ -21,11 +21,11 @@ puts {
 
 <div id=tvdbresults title="Choose Series" class=hidden>
     <div class=tvdbresults id=tvdbresults_loading>
-	<img src=/img/loading.gif>
+	<img src=/img/spin.gif>
 	Searching TheTVDB.com database, please wait...
     </div>
     <div class=tvdbresults id=tvdbresults_saving>
-	<img src=/img/loading.gif>
+	<img src=/img/spin.gif>
 	Retrieving episode details from TheTVDB.com, please wait...
     </div>
     <div class=tvdbresults id=tvdbresults_force>

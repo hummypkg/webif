@@ -24,7 +24,7 @@ $('#opkgupgradeall')
 $('#pkgtabs').tabs({
 	active: curtab,
 	create: function(event, ui) {
-		$(ui.panel).html("<img src=/img/loading.gif>" +
+		$(ui.panel).html("<img src=/img/spin.gif>" +
 		    "Loading data... Please wait...");
 		busy = true;
 		$('#pkgtabs').tabs('disable');
@@ -37,7 +37,7 @@ $('#pkgtabs').tabs({
 			    'operation completes.');
 			return false;
 		}
-		$(ui.newPanel).html("<img src=/img/loading.gif>" +
+		$(ui.newPanel).html("<img src=/img/spin.gif>" +
 		    "Loading data... Please wait...");
 		busy = true;
 		$('#pkgtabs').tabs('disable');
@@ -47,7 +47,7 @@ $('#pkgtabs').tabs({
 		setup_buttons();
 		$('#pkgtabs').tabs('enable');
 	},
-	spinner: '<img border=0 src=/img/loading.gif> ' +
+	spinner: '<img border=0 src=/img/spin.gif> ' +
 	    '<em>Loading...</em>'
 });
 
@@ -70,7 +70,7 @@ var $dialog = $('#dialogue').dialog({
 			else
 			{
 				$('.ui-tabs-panel')
-				    .html("<img src=/img/loading.gif>" +
+				    .html("<img src=/img/spin.gif>" +
 				    "Loading data... Please wait...");
 				$('#pkgtabs').tabs('load', tswitch);
 			}

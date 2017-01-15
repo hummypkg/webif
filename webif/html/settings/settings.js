@@ -59,7 +59,7 @@ $(function() {
 		$(output)
 		    .empty()
 		    .show('slow')
-		    .html('<img src=/img/loading.gif> Please wait...')
+		    .html('<img src=/img/spin.gif> Please wait...')
 		    .load('/settings/settings.jim?' + urlargs,
 		        function() {
 				// $(el).enable();

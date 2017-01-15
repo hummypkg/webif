@@ -9,7 +9,7 @@ function update()
 		clearInterval(handle);
 		pct = 0;
 		$.blockUI({
-			message: '<h1><img src=/img/loading.gif> ' +
+			message: '<h1><img src=/img/spin.gif> ' +
 				'Reconnecting...</h1>',
 			css: { background: '#ffffcc' }
 		});
@@ -26,7 +26,7 @@ $('#restartbutton').button({icons:{primary:"ui-icon-power"}})
 	$('#restarting').slideDown('slow');
 	handle = setInterval("update()" , 500);
 	$.blockUI({
-		message: '<h1><img src=/img/loading.gif> Restarting...</h1>' +
+		message: '<h1><img src=/img/spin.gif> Restarting...</h1>' +
 			 '<br>' +
 			 '<center><div id=progressbar></div></center>',
 		css: { background: '#ffffcc' }

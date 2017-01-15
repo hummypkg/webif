@@ -22,7 +22,7 @@ $('#usbeject').on('click', function(e) {
 	}
 	usbeject_lastupd = +new Date();
 	$('#usbejecttab tbody').empty();
-	$('#usbejectout').html('<img src=/img/loading.gif> ' +
+	$('#usbejectout').html('<img src=/img/spin.gif> ' +
 	    '<span class=blood>Scanning media...</span>');
 	usbeject_visible = 1;
 	$('#usbejectinfo').slideDown();
@@ -99,7 +99,7 @@ $('#usbeject').on('click', function(e) {
 	var label = btn.attr('label');
 	if (!confirm('Eject ' + label + '?'))
 		return;
-	$('#usbejectout').html('<img src=/img/loading.gif> ' +
+	$('#usbejectout').html('<img src=/img/spin.gif> ' +
 	    '<span class=blood>Ejecting ' + label + '</span>');
 	$.getJSON('/cgi-bin/usbeject.jim', {
 	    label: label,
@@ -118,7 +118,7 @@ $('#usbeject').on('click', function(e) {
 	var dev = btn.attr('device');
 	if (!confirm('Rescan ' + dev + '?'))
 		return;
-	$('#usbejectout').html('<img src=/img/loading.gif> ' +
+	$('#usbejectout').html('<img src=/img/spin.gif> ' +
 	    '<span class=blood>Re-scanning ' + dev + '</span>');
 	$.getJSON('/cgi-bin/usbrescan.jim', {
 	    device: dev

@@ -2,7 +2,7 @@
 class spinner {
 	name		"spinner"
 	text		"Loading..."
-	img		"/img/loading.gif"
+	img		"/img/spin.gif"
 	size		"1.1em"
 	style		""
 	speed		"slow"

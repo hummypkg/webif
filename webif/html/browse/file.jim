@@ -265,7 +265,7 @@ puts "
 </tr><tr>
 	<th>Info</th>
 	<td class=pre id=ffmpeg>
-		<img src=/img/loading.gif><i>Loading...</i>
+		<img src=/img/spin.gif><i>Loading...</i>
 	</td>
 </tr>
 </table>

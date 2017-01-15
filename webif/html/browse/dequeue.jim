@@ -8,7 +8,7 @@ httpheader
 
 set dir [cgi_get dir]
 
-puts "<div id=deleting class=blood><img src=/img/loading.gif>De-queuing...</div>"
+puts "<div id=deleting class=blood><img src=/img/spin.gif>De-queuing...</div>"
 puts "<ul style=\"list-style-type: square\">"
 
 foreach file [cgi_get files] {

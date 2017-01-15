@@ -10,7 +10,7 @@ set dir [cgi_get dir]
 
 #puts "DIR: ($dir)"
 
-puts "<div id=deleting class=blood><img src=/img/loading.gif>Deleting...</div>"
+puts "<div id=deleting class=blood><img src=/img/spin.gif>Deleting...</div>"
 puts "<ul style=\"list-style-type: square\">"
 
 foreach file [cgi_get files] {

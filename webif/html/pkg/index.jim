@@ -24,7 +24,7 @@ puts {
 
 <div id=refreshing class="hidden shadowbox" style="margin: 1 0 1em 0">
 	<div>
-		<img border=0 src=/img/loading.gif>
+		<img border=0 src=/img/spin.gif>
 		Refreshing...
 	</div>
 </div>
@@ -32,7 +32,7 @@ puts {
 <div id=dialogue class=hidden style="align: center">
 	<div id=dresults></div>
 	<div id=dspinner>
-		<img border=0 src=/img/loading.gif>
+		<img border=0 src=/img/spin.gif>
 		Processing request...
 	</div>
 	<div class=hidden id=complete>

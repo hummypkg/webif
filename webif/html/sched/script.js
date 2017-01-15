@@ -1,5 +1,5 @@
 
-var spinner = '<div class=spinner><img border=0 src=/img/loading.gif>' +
+var spinner = '<div class=spinner><img border=0 src=/img/spin.gif>' +
     '&nbsp;Retrieving data... Please wait...</div>';
 
 var LIST_INDEX = 0;
@@ -35,7 +35,7 @@ function page_refresh(msg)
 	if (!msg)
 		msg = 'Refreshing page...';
 	$.blockUI({
-		message: '<h1><img src=/img/loading.gif> ' + msg + '</h1>'
+		message: '<h1><img src=/img/spin.gif> ' + msg + '</h1>'
 	});
 	window.location.reload(true);
 }

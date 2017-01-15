@@ -56,7 +56,7 @@ proc pager {} {
 puts "
 </select>
 <span id=loginfo class=blood></span>
-<span id=loading class=hidden><img src=/img/loading.gif>Loading...</span>
+<span id=loading class=hidden><img src=/img/spin.gif>Loading...</span>
 </div>
 
 <div class=left id=buttons>

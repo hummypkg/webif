@@ -235,7 +235,7 @@ puts {
     style="display: none">
 	<div class=pre id=savestream_detail></div>
 	<div id=savestream_retrieving>
-		<img src=/img/loading.gif> Retrieving details...
+		<img src=/img/spin.gif> Retrieving details...
 	</div>
 	<form id=savestream_form class=hidden>
 }
@@ -254,7 +254,7 @@ puts {
 		    value="" size=70 maxlength=255
 		    class="text ui-widget-content ui-corner-all">
 		<span id=savestream_spin>
-			<img src=/img/loading.gif> Saving...
+			<img src=/img/spin.gif> Saving...
 		</span>
 	</td>
 	</tr>
@@ -350,23 +350,23 @@ puts {
 
 	</table>
 	<div id=aexpiry_working class=hidden>
-		<img src=/img/loading.gif> Applying changes...
+		<img src=/img/spin.gif> Applying changes...
 	</div>
 	<div id=aexpiry_loading class=hidden>
-		<img src=/img/loading.gif> Retrieving data...
+		<img src=/img/spin.gif> Retrieving data...
 	</div>
 	</form>
 </div>
 
 <div id=dialogue>
-<img src=/img/loading.gif>Retrieving data...
+<img src=/img/spin.gif>Retrieving data...
 </div>
 
 <div id=confirm title="Confirmation Required"></div>
 
 <div id=pwdialogue style="display: none">
 <center>
-<img src=/img/loading.gif>
+<img src=/img/spin.gif>
 <br><br>
 Please wait...
 <div id=pwfeedback></div>

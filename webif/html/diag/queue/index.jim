@@ -18,7 +18,7 @@ puts {
 <legend>Queued Tasks</legend>
 
 <div id=loading>
-<img src=/img/loading.gif> Loading queue data...
+<img src=/img/spin.gif> Loading queue data...
 </div>
 
 <div id=nodata class="hidden">
@@ -49,7 +49,7 @@ There are no tasks in the queue.
 <button id=selall class=needsdata>Select All</button>
 <button id=selnone class=needsdata>Select None</button>
 <button id=refresh>Refresh</button>
-<span id=isloading><img src=/img/loading.gif></span>
+<span id=isloading><img src=/img/spin.gif></span>
 </div>
 <div id=lastscan>Last media scan: <span id=autolast>retrieving...</span> -
 scanning every <span id=autofreq>TBC</span> minutes.</div>
