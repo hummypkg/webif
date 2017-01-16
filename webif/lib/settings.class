@@ -288,11 +288,7 @@ settings method channel_groups {} {
 	$db close
 	foreach g $res {
 		set g $g(itemText)
-		if {[string index $g 0] == "\025"} {
-			lappend ret [string range $g 1 end]
-		} else {
-			lappend ret $g
-		}
+		lappend ret [system strip $g]
 	}
 	return $ret
 }

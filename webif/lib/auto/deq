@@ -176,7 +176,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	::auto::dsc
 	::auto::oktorun
 
-	$q update RUNNING "Started"
+	$q update RUNNING "Started at [::auto::date]"
 
 	set ologprefix $::auto::logprefix
 	set ::auto::logprefix "$plugin:$::auto::logprefix"

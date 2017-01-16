@@ -1,0 +1,19 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require epg.class json
+
+httpheader "application/json"
+
+puts "{"
+set flag 0
+
+set i 0
+foreach grp [[settings] channel_groups] {
+	incr i
+	if {$::flag} { puts "," } else { incr ::flag }
+	puts -nonewline "  \"$i\": \"[jescape $grp]\""
+}
+
+puts "\n}"
+

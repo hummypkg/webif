@@ -345,7 +345,7 @@ function prepareomenu(el, menu)
 function fixdmenu(el, menu, flag, tag, descr, recurse)
 {
 	var a = el.attr(flag);
-	var b = el.attr(flag + 'r');
+	var b = el.attr(flag + 'R');
 
 	if (a == undefined) a = 0;
 	if (b == undefined) b = 0;
@@ -359,13 +359,13 @@ function fixdmenu(el, menu, flag, tag, descr, recurse)
 	{
 		if (b > 0)
 		{
-			$(menu).changeContextMenuItem(tag + 'r',
+			$(menu).changeContextMenuItem(tag + 'R',
 			    'Disable Recursive ' + descr);
 			$(menu).disableContextMenuItems(tag);
 		}
 		else
 		{
-			$(menu).changeContextMenuItem(tag + 'r',
+			$(menu).changeContextMenuItem(tag + 'R',
 			    'Enable Recursive ' + descr);
 			$(menu).enableContextMenuItems(tag);
 		}
@@ -403,7 +403,6 @@ function flagdir(file, flag, iconset, output, options)
 		    .empty()
 		    .html('<img src=/img/spin.gif> Updating...')
 		    .load('/browse/iconset.jim', { file: file });
-		flag = flag.toLowerCase();
 		if ($(options).attr(flag) == '1')
 			$(options).attr(flag, 0);
 		else

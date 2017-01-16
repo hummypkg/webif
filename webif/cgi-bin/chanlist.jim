@@ -1,7 +1,7 @@
 #!/mod/bin/jimsh
 
 source /mod/webif/lib/setup
-require epg.class
+require epg.class json
 
 httpheader "application/json"
 
@@ -15,7 +15,7 @@ lmap i [$channeldb query "
 "] {
 	if {$::flag} { puts "," } else { incr ::flag }
 	lassign $i x lcn x name
-	puts -nonewline "  \"$lcn\": \"[system strip $name]\""
+	puts -nonewline "  \"$lcn\": \"[jescape [system strip $name]]\""
 }
 
 puts "\n}"

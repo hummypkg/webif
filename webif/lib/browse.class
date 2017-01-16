@@ -40,7 +40,7 @@ proc {dir iconset} {dir} {
 		set autoshrinkr 1
 		lappend icons [_addicon "/img/compressr.png" \
 		    "Recursive Auto-shrink"]
-		lappend attrs "autoshrinkr=1"
+		lappend attrs "autoshrinkR=1"
 	}
 
 	set autoshrink 0
@@ -62,7 +62,7 @@ proc {dir iconset} {dir} {
 		set autodecryptr 1
 		lappend icons [_addicon "/img/decryptr.png" \
 		    "Recursive Auto-decrypt"]
-		lappend attrs "autodecryptr=1"
+		lappend attrs "autodecryptR=1"
 	}
 
 	set autodecrypt 0
