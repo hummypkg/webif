@@ -40,7 +40,7 @@ tb "/img/packages.png" "Packages" "/go/mm_pkg"
 tb "/images/326_1_00_Menu_Settings.png" "Settings" "/go/mm_settings"
 tb "/img/diagnostics.png" "Diag" "/go/mm_diag"
 if {[[settings] toolbarqueue]} {
-	tb "/img/queuep.png" "Queue" "/go/mm_queue"
+	tb "/img/queuep128.png" "Queue" "/go/mm_queue"
 }
 eval_plugins toolbar
 

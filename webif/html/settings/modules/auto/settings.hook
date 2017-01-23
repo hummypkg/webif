@@ -81,7 +81,7 @@ setting_number autokeep \
     "How many days should completed entries stay in the queue?" $autokeep \
     1 365
 
-setting_toggle "Show queue icon in toolbar?" "toolbarqueue" $toolbarqueue
+setting_toggle "Show queue icon in menu/toolbar?" "toolbarqueue" $toolbarqueue
 
 puts {
 </table></fieldset></div>

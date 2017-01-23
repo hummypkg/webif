@@ -40,22 +40,8 @@ puts "
 	</tr>
 "
 
-puts -nonewline "
-	<tr>
-	<form class=auto id=logkeep method=get action=$env(SCRIPT_NAME)>
-		<th class=key>How many rotated logs to keep</th>
-		<td>
-			<input name=logkeep size=5 type=number
-			    class=\"text ui-widget-content ui-corner-all\"
-			    maxlength=10 value=\"$logkeep\">
-			<small>
-			<input value=\"set\" type=submit>
-			</small>
-			<div id=logkeep_output></div>
-		</td>
-	</form>
-	</tr>
-"
+setting_number logkeep "How many rotated logs to keep" $logkeep \
+    1 100
 
 if {[system modversion 1] >= 214} {
 	setting_toggle "Disable telnet menu?" "xtelnet" \

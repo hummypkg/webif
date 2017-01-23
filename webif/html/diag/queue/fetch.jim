@@ -8,6 +8,7 @@ httpheader "application/json"
 set s [settings]
 set autolast [$s autolast]
 set autofreq [$s autofreq]
+if {$autofreq == 0} { set autofreq 10 }
 puts "{"
 puts "  \"autofreq\": \"$autofreq\","
 puts "  \"autolast\": \"[clock format $autolast] ([clock format [expr \

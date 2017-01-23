@@ -1017,9 +1017,8 @@ proc {rsv restore} {file} {
 
 		puts "    $chan"
 
-		if {[dict exists $chanmap $chan]} {
-			set hsvc $chanmap($chan)
-		} else {
+		set hsvc [get_channel_attr $szSvcName]
+		if {$hsvc eq ""} {
 			puts "        Cannot map channel name to service."
 			continue
 		}

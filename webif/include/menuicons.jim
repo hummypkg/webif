@@ -3,23 +3,28 @@
 source /mod/webif/lib/setup
 require system.class settings.class plugin
 
+set settings [settings]
+
+set menuwrap 4
+
 proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
+	global menuwrap
 	if {$title eq "-reset"} {
 		set num 0
 		return
 	}
-	incr num
 	if {$title eq ""} return
-	if {$num > 4} {
-		puts {</div><div style="clear: both; padding-top: 1em">}
-		set num 1
-	}
+#	incr num
+#	if {$num > $menuwrap} {
+#		puts {</div><div style="clear: both; padding-top: 1em">}
+#		set num 1
+#	}
 	if {$extra ne ""} { append extra " " }
 	puts -nonewline "
 <div class=left num=$num>
 	<center>
 	<a href=$link>
-		<img src=$icon ${extra}border=0 "
+		<img class=mmenu src=$icon ${extra}border=0 "
 	if {$width} { puts -nonewline " width=$width" }
 	if {$height} { puts -nonewline " height=$height" }
 	puts -nonewline ">
@@ -33,8 +38,6 @@ proc menuitem {title icon link {width 217} {height 0} {extra ""}} {{num 0}} {
 </div>
 "
 }
-
-set settings [settings]
 
 puts {<div style="clear: both">}
 
@@ -62,6 +65,11 @@ menuitem "Settings" "/images/326_1_00_Menu_Settings.png" \
 
 menuitem "Diagnostics" "/img/diagnostics.png" \
 	/go/mm_diag 217 228
+
+if {[[settings] toolbarqueue]} {
+	menuitem "Queue" "/img/queuep.png" \
+	    "/go/mm_queue" 217 228
+}
 
 eval_plugins menu
 

@@ -53,11 +53,17 @@ proc ::decrypt::dequeue {q ts} {
 		    "Already decrypted but the HMT flag was wrong (fixed)"}
 	}
 
+	lassign [$ts dlnaloc "127.0.0.1"] url
+
 	if {[$ts flag "Encrypted"]} {
-		return {"DEFER" "Protected (Enc flag)"}
+		#return {"DEFER" "Protected (Enc flag)"}
+		# Unset the flag but use the DLNA helper to decrypt
+		# this file since the DLNA database will be wrong.
+		log "  $file - ENC flag set, using helper."
+		$ts unenc
+		set url ""
 	}
 
-	lassign [$ts dlnaloc "127.0.0.1"] url
 	if {$url ne ""} {
 		log "  $file - has been indexed."
 		set helper 0
