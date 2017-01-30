@@ -242,10 +242,10 @@ ts method fileset {} {
 
 proc {ts fetch} {file {checked 0}} {
 	# Check that this is a .ts file which has at least one sidecar
-	# file (.nts)
+	# file (.hmt)
 	if {!$checked} {
 		if {[file extension $file] ne ".ts"} { return 0 }
-		if {![file exists "[file rootname $file].nts"]} { return 0 }
+		if {![file exists "[file rootname $file].hmt"]} { return 0 }
 	}
 
 	if {[file extension $file] ne ".ts"} {

@@ -26,3 +26,5 @@ helplink "Things Every<br>Owner Should Know" "/img/started.png" \
 helplink "Twitter<br>Feed" "/img/silver-twitter-bird-button.png" \
 	"http://twitter.com/HummyPkg"
 
+eval_plugins helplink
+

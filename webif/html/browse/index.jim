@@ -122,7 +122,7 @@ proc entry {file} {{i 0}} {
 	set base [file rootname $file]
 
 	set thmok 0
-	if {$ext eq ".ts" && [file exists "${base}.nts"]} {
+	if {$ext eq ".ts" && [file exists "${base}.hmt"]} {
 		set type ts
 		set ts [ts fetch $file 1]
 		set rstat [$ts get status]
