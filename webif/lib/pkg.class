@@ -52,8 +52,13 @@ proc {pkg getall} {{repo base}} {
 	if {[catch { set fp [open "/mod/var/opkg/$repo" r] } msg]} {
 		error "Error opening repository, $msg"
 	}
-	set cur ""
+
+	foreach {p v} $installed {
+		set pkglist($p) [list installed $v]
+	}
+
 	set pkg {}
+	set cur ""
 	foreach line [split [$fp read] "\n"] {
 		if {![regexp {^([^:]+): (.*)$} $line x tag val]} {
 			if {[string equal -length 1 $line " "]} {

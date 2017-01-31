@@ -30,7 +30,11 @@ proc pkgrow {name pkg} {
 	}
 
 	puts "<td>"
-	set descr $pkg(description)
+	if {[dict exists $pkg description]} {
+		set descr $pkg(description)
+	} else {
+		set descr "No longer in package repository."
+	}
 	set changes ""
 	regexp {(.*) \[(.*)\]} $descr x descr changes
 	if {[dict exists $::pkgmeta $name]} {
@@ -79,9 +83,15 @@ proc pkgrow {name pkg} {
 }
 
 set pkgdata [pkg getall]
+
 if {[file exists /mod/var/opkg/beta]} {
-	set pkgdata [dict merge $pkgdata [pkg getall beta]]
+	foreach {pkg data} [pkg getall beta] {
+		if {[dict exists $data description]} {
+			set pkgdata($pkg) $data
+		}
+	}
 }
+
 pkg loadmeta
 set type [cgi_get type "avail"]
 
