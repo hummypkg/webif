@@ -23,10 +23,8 @@ button.upgrade
 	padding-right: 2em;
 }
 
-tr.p_adv td
+tr.p_av td
 {
-	/*background: #b9daff !important;*/
-	/*color: black;*/
 	font-style: italic;
 	color: blue;
 }

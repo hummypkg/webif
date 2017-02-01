@@ -152,18 +152,18 @@ function update_filter($table, change)
 
 	if (pkgfilter)
 	{
-		$table.find('tr.p_adv').hide();
+		$table.find('tr.p_av').hide();
 		$('#filtertext').text('Not showing advanced packages');
 		$('#b_filter').text('Show');
 	}
 	else
 	{
-		$table.find('tr.p_adv').show();
+		$table.find('tr.p_av').show();
 		$('#filtertext').text('Advanced packages are being shown');
 		$('#b_filter').text('Hide');
 	}
 
-	$table.trigger('update', [true]);
+	$table.trigger('update');
 
 	$('#b_filter').button().off('click').on('click', function() {
 		update_filter($table, 1);

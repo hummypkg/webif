@@ -9,7 +9,7 @@ require settings.class pkg.class
 httpheader
 
 proc pkgrow {name pkg} {
-	set class p_adv
+	set class p_av
 	if {[dict exists $::pkgmeta $name]} { set class p_base }
 
 	# Always show beta packages
@@ -24,7 +24,7 @@ proc pkgrow {name pkg} {
 		puts "<img class=\"va norepo\" src=/img/pkgmissing.png>"
 	} elseif {$pkg(repo) ne "base"} {
 		puts "<img class=\"va beta\" src=/img/pkgbeta.png>"
-	} elseif {$class eq "p_adv"} {
+	} elseif {$class eq "p_av"} {
 		puts "<img class=\"va adv\" src=/img/pkgadvanced.png>"
 	}
 
