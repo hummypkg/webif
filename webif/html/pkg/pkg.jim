@@ -2,15 +2,32 @@
 
 package require cgi
 source /mod/webif/lib/setup
-require settings.class pkg.class altrow
+require settings.class pkg.class
 
-if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
+#if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
 
 httpheader
 
 proc pkgrow {name pkg} {
-	altrow "pkg=\"$name\""
+	set class p_adv
+	if {[dict exists $::pkgmeta $name]} { set class p_base }
+
+	# Always show beta packages
+	if {$pkg(repo) ne "base"} { set class p_beta }
+	# Always show local/no-repo packages
+	if {$pkg(repo) eq "none"} { set class p_none }
+
+	puts "<tr class=\"$class r_$pkg(repo)\" repo=$pkg(repo) pkg=\"$name\">"
 	puts "<td nowrap>$name"
+
+	if {$pkg(repo) eq "none"} {
+		puts "<img class=\"va norepo\" src=/img/pkgmissing.png>"
+	} elseif {$pkg(repo) ne "base"} {
+		puts "<img class=\"va beta\" src=/img/pkgbeta.png>"
+	} elseif {$class eq "p_adv"} {
+		puts "<img class=\"va adv\" src=/img/pkgadvanced.png>"
+	}
+
 	if {$::type eq "inst"} {
 		puts "<br><a href=# class=depends>&nbsp;&nbsp;
 		    <img class=va border=0
@@ -30,14 +47,10 @@ proc pkgrow {name pkg} {
 	}
 
 	puts "<td>"
-	if {[dict exists $pkg description]} {
-		set descr $pkg(description)
-	} else {
-		set descr "No longer in package repository."
-	}
+	set descr $pkg(description)
 	set changes ""
 	regexp {(.*) \[(.*)\]} $descr x descr changes
-	if {[dict exists $::pkgmeta $name]} {
+	if {[dict exists $::pkgmeta $name] && $::pkgmeta($name) ne "-"} {
 		puts $::pkgmeta($name)
 	} else {
 		puts $descr
@@ -82,12 +95,27 @@ proc pkgrow {name pkg} {
 	puts "</tr>"
 }
 
-set pkgdata [pkg getall]
+set pkgdata {}
+foreach repo [pkg repolist] {
+	set pkgdata [dict merge $pkgdata [pkg getall $repo]]
+}
 
-if {[file exists /mod/var/opkg/beta]} {
-	foreach {pkg data} [pkg getall beta] {
-		if {[dict exists $data description]} {
-			set pkgdata($pkg) $data
+set localpkg {}
+# Add in any installed packages not present in any repo.
+foreach {p v} [pkg instverlist] {
+	if {![dict exists $pkgdata $p]} {
+		lappend localpkg $p
+		if {[catch {
+			set _p [pkg load $p]
+			$_p loadraw
+			set pkgdata($p) [$_p get raw]
+			lappend pkgdata($p) repo none installed $v
+		}]} {
+			set pkgdata($p) [list \
+				repo "none" \
+				installed $v \
+				description "Not in any repository." \
+			]
 		}
 	}
 }
@@ -118,7 +146,8 @@ foreach {pkg data} $pkgdata {
 }
 
 if {[llength $pkgs] > 0} {
-	puts "<table><tr><th>Package</th>"
+	puts "<table class=\"$type tablesorter\">"
+	puts "<thead><tr><th>Package</th>"
 
 	if {$type eq "avail"} {
 		puts "<th>Available</th>"
@@ -134,18 +163,20 @@ if {[llength $pkgs] > 0} {
 		<th>Description</th>
 		<th>&nbsp;&nbsp;Action&nbsp;&nbsp;</th>
 		</tr>
+		</thead>
+		<tbody>
 	"
 
 	foreach pkg [lsort $pkgs] {
-		if {$type ne "upgr" && $filter && \
-		    ![dict exists $::pkgmeta $pkg]} continue
+#		if {$type ne "upgr" && $filter && $pkg ni $localpkg && \
+#		    ![dict exists $::pkgmeta $pkg]} continue
 		if {![dict exists $pkgdata $pkg]} continue
 		pkgrow $pkg $pkgdata($pkg)
 	}
-	puts "</table>"
-	if {$type ne "upgr" && $filter} {
-		puts "<font class=footnote>This is a filtered package list. To show all packages, enable the <i>Show development and advanced packages</i> in the settings screen.</font>"
-	}
+	puts "</tbody></table>"
+#	if {$type ne "upgr" && $filter} {
+#		puts "<font class=footnote>This is a filtered package list. To show all packages, enable the <i>Show development and advanced packages</i> in the settings screen.</font>"
+#	}
 } else {
 	puts "<i>No packages "
 	switch $type {

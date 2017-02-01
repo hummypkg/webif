@@ -2,9 +2,17 @@
 
 source /mod/webif/lib/setup
 
-jqplugin enadis iajax
+jqplugin enadis iajax qtip2 tablesorter2
 jscss script.js style.css
 header
+
+if {[[settings] pkgdev]} { set filter 0 } else { set filter 1 }
+
+puts "
+<script type=text/javascript>
+var pkgfilter = $filter;
+</script>
+"
 
 puts {
 
@@ -56,6 +64,12 @@ puts {
 		<span>Upgrades</span>
 		</a>
 	</li>
+	<span class="tabright hidden">
+		<span class=footnote id=filtertext></span>
+		<small>
+		<button id=b_filter>Filter</button>
+		</small>
+	</span>
 </ul>
 </div>
 }

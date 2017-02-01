@@ -4,7 +4,7 @@ package require cgi
 source /mod/webif/lib/setup
 
 jqplugin tablesorter2 contextMenu form blockui confirmAction \
-    timepicker datepair growl qtip
+    timepicker datepair growl qtip2
 
 jscss {
 	/js/icons.js

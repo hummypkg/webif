@@ -1,6 +1,6 @@
 var opkg = '/cgi-bin/opkg.jim';
 
-$(document).ready(function() {
+$(function() {
 
 var busy = false;
 var tswitch = false;
@@ -28,6 +28,7 @@ $('#pkgtabs').tabs({
 		    "Loading data... Please wait...");
 		busy = true;
 		$('#pkgtabs').tabs('disable');
+		$('span.tabright').hide();
 	},
 	activate: function(event, ui) {
 		window.location.hash = ui.newTab.index();
@@ -41,10 +42,11 @@ $('#pkgtabs').tabs({
 		    "Loading data... Please wait...");
 		busy = true;
 		$('#pkgtabs').tabs('disable');
+		$('span.tabright').hide();
 	},
-	load: function() {
+	load: function(event, ui) {
 		busy = false;
-		setup_buttons();
+		setup_tab(ui.tab.index(), ui.panel);
 		$('#pkgtabs').tabs('enable');
 	},
 	spinner: '<img border=0 src=/img/spin.gif> ' +
@@ -143,9 +145,50 @@ function execopkg(arg, pkg)
 	busy = false;
 }
 
-function setup_buttons()
+function update_filter($table, change)
 {
-	$('button.remove, button.install, button.upgrade')
+	if (change)
+		pkgfilter = !pkgfilter;
+
+	if (pkgfilter)
+	{
+		$table.find('tr.p_adv').hide();
+		console.log('hiding');
+		$('#filtertext').text('Not showing advanced packages');
+		$('#b_filter').text('Show');
+	}
+	else
+	{
+		$table.find('tr.p_adv').show();
+		console.log('showing');
+		$('#filtertext').text('Advanced packages are being shown');
+		$('#b_filter').text('Hide');
+	}
+
+	$table.trigger('update', [true]);
+
+	$('#b_filter').button().off('click').on('click', function() {
+		update_filter($table, 1);
+	});
+}
+
+function setup_tab(index, panel)
+{
+	var $tab = $(panel).find('table.tablesorter');
+	if (index == 2)
+		$('span.tabright').hide();
+	else
+	{
+		update_filter($tab);
+		$('span.tabright').show();
+	}
+	$tab.tablesorter({
+		theme: 'webif',
+		widthFixed: false,
+		widgets: ['zebra', 'stickyHeaders']
+	    });
+
+	$(panel).find('button.remove, button.install, button.upgrade')
 	    .button()
 	    .click(function() {
 		if ($(this).attr('action') == 'remove' &&
@@ -157,12 +200,19 @@ function setup_buttons()
 		    $(this).closest('tr').attr('pkg'));
 	}).fadeIn('slow');
 
-	$('a.depends').click(function(e) {
+	$(panel).find('a.depends').click(function(e) {
 		e.preventDefault();
 		var pkg = $(this).closest('tr').attr('pkg');
 		stick = true;
 		execopkg('whatdepends ' + pkg, false);
 	});
+
+	$(panel).find('tr[pkg=webif]').find('button[action=remove]').disable();
+
+	$(panel).find('img.norepo').qtip({content: 'Not in repository'});
+	$(panel).find('img.adv').qtip({content: 'Advanced package'});
+	$(panel).find('img.beta')
+	    .qtip({content: 'Beta package, use at your own risk'});
 }
 
 });

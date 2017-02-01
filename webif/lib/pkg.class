@@ -30,6 +30,12 @@ pkg method _load {nm} {
 			}
 		}
 	}
+	if {$descr eq ""} {
+		$self loadraw
+		if {[dict exists $raw description]} {
+			set descr $raw(description)
+		}
+	}
 	regexp {(.*) \[(.*)\]} $descr x descr changes
 	set info [exec /bin/opkg list-installed $nm]
 	regexp {^([^ ]+) - ([^ ]+)$} $info x x installed
@@ -37,24 +43,36 @@ pkg method _load {nm} {
 	return $self
 }
 
-proc {pkg getall} {{repo base}} {
-	set pkglist {}
+proc {pkg instverlist} {} {{cache {}}} {
+	if {[llength $cache]} { return $cache }
 
 	# Fetch details of installed packages
 	foreach line [split [exec /bin/opkg list-installed] "\n"] {
 		lassign $line pkg x ver
-		#regexp {^([^ ]+) - ([^ ]+)$} $line pkg x ver
-		set installed($pkg) $ver
+		set cache($pkg) $ver
 	}
+	return $cache
+}
+
+proc {pkg repolist} {} {
+	set repos {}
+	foreach line [split [file read /etc/opkg/opkg.conf] "\n"] {
+		lassign $line tag repo
+		if {$tag eq "src/gz"} { ladd repos $repo }
+	}
+	return $repos
+}
+
+proc {pkg getall} {{repo base}} {
+	set pkglist {}
+
+	# Fetch details of installed packages
+	set installed [pkg instverlist]
 
 	# Now build list of all packages
 
 	if {[catch { set fp [open "/mod/var/opkg/$repo" r] } msg]} {
 		error "Error opening repository, $msg"
-	}
-
-	foreach {p v} $installed {
-		set pkglist($p) [list installed $v]
 	}
 
 	set pkg {}
@@ -76,11 +94,15 @@ proc {pkg getall} {{repo base}} {
 				set pkglist($name) $pkg
 			}
 			set name $val
+			set iver 0
 			if {[dict exists $installed $val]} {
-				set pkg "installed $installed($val)"
-			} else {
-				set pkg {installed 0}
+				set iver $installed($val)
 			}
+
+			set pkg [list \
+			    "installed" $iver \
+			    "repo" $repo \
+			]
 			set lasttag ""
 			continue
 		}
@@ -99,8 +121,14 @@ pkg method loadraw {} {
 	set tag ""
 	set txt ""
 	set raw {}
+
+	if {[file exists "/mod/var/opkg/info/$name.control"]} {
+		set data [file read "/mod/var/opkg/info/$name.control"]
+	} else {
+		set data [exec /bin/opkg info $name]
+	}
 	
-	foreach line [split [exec /bin/opkg info $name] "\n"] {
+	foreach line [split $data "\n"] {
 		if {$tag ne "" && [string match { *} $line]} {
 			append raw($tag) $line
 			continue

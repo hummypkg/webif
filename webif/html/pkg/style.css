@@ -4,13 +4,42 @@ button.install
 	background-image: none;
 	background: #ccff99;
 }
+
 button.remove
 {
 	display: none;
 	background-image: none;
 	background: #ff6666;
 }
+
 button.upgrade
 {
 	display: none;
 }
+
+.tabright
+{
+	float: right;
+	padding-right: 2em;
+}
+
+tr.p_adv td
+{
+	/*background: #b9daff !important;*/
+	/*color: black;*/
+	font-style: italic;
+	color: blue;
+}
+
+tr.p_none td
+{
+	font-style: italic;
+	color: #ff8c00;
+}
+
+tr.p_beta td
+{
+	font-style: italic;
+	color: #c70039;
+}
+
