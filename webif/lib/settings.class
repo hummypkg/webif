@@ -333,7 +333,7 @@ settings method mongooseauth {{mode 1}} {
 
 settings method htdigest {user pass} {
 	set str "$user:webif:$pass"
-	set hash [string range [exec echo -n $str | md5sum] 0 32]
+	set hash [string range [exec echo -n $str | md5sum] 0 31]
 	return "$user:webif:$hash"
 }
 
