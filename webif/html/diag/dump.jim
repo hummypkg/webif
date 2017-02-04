@@ -1,0 +1,19 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+package require cgi
+
+puts "<h1>CGI</h1><pre>"
+cgi_input
+cgi_dump
+puts "</pre>"
+
+flush stdout
+#sleep 5
+
+puts "<h1>ENV</h1><pre>"
+foreach {var val} [env] {
+	puts "$var = $val"
+}
+puts "</pre>"
+

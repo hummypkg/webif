@@ -22,7 +22,7 @@ puts {
 	</h1>
 
 	<button class="hidden va" id=opkgupdate>
-		Update package list from Internet
+		Check for updates
 	</button>
 
 	<button class="hidden va" id=opkgupgradeall>

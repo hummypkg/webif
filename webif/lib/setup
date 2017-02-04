@@ -23,6 +23,7 @@ if {![exists -proc require]} {
 	alias case switch
 
 	proc httpredirect {url {extra ""}} {
+		puts -nonewline "Status: 302 redirect\r\n"
 		puts -nonewline "Location: $url\r\n"
 		if {$extra ne ""} {
 			puts -nonewline "$extra\r\n"

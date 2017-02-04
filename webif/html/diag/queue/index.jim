@@ -15,7 +15,11 @@ puts {
 	Queued Tasks
 </h3>
 <fieldset class=cleft>
-<legend>Queued Tasks</legend>
+<legend>
+	Queued Tasks
+	<button class="refresh small">Refresh</button>
+	<span class=isloading><img src=/img/spin.gif></span>
+</legend>
 
 <div id=loading>
 <img src=/img/spin.gif> Loading queue data...
@@ -48,8 +52,8 @@ There are no tasks in the queue.
 <button id=selcomplete class=needsdata>Select Completed</button>
 <button id=selall class=needsdata>Select All</button>
 <button id=selnone class=needsdata>Select None</button>
-<button id=refresh>Refresh</button>
-<span id=isloading><img src=/img/spin.gif></span>
+<button class=refresh id=refresh>Refresh</button>
+<span class=isloading><img src=/img/spin.gif></span>
 </div>
 <div id=lastscan>Last media scan: <span id=autolast>retrieving...</span> -
 scanning every <span id=autofreq>TBC</span> minutes.</div>

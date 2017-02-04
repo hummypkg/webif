@@ -45,3 +45,8 @@ div#loading, div#nodata
 	padding-top: 2px;
 }
 
+button.small
+{
+	padding: .1em .5em .1em .1em;
+}
+

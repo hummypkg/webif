@@ -25,7 +25,10 @@ proc opkg {cmd} {
 	putsf ""
 }
 
-httpheader "text/plain" 0 "Transfer-Encoding: chunked\r\n"
+# Google Chrome won't render chunks with text/plain!
+# https://bugs.chromium.org/p/chromium/issues/detail?id=156023
+#httpheader "text/plain"
+httpheader "application/octet-stream"
 
 set cmdargs [lassign $cmd cmd]
 

@@ -15,7 +15,7 @@ function dirname(path)
 
 function load()
 {
-	$('#isloading').show();
+	$('span.isloading').show();
 	$.getJSON('fetch.jim', function(data) {
 		$('#queuetab > tbody').empty();
 
@@ -74,7 +74,7 @@ function load()
 		});
 
 		$('input.qid').first().trigger('change');
-		$('#loading,#isloading').hide('slow');
+		$('#loading,span.isloading').hide('slow');
 	});
 }
 
@@ -145,7 +145,7 @@ $('#selcomplete').button({icons:{primary:"ui-icon-check"}})
 	    .trigger('change');
 });
 
-$('#refresh').button({icons:{primary:"ui-icon-refresh"}})
+$('button.refresh').button({icons:{primary:"ui-icon-refresh"}})
     .on('click', function() {
 	load();
 });
