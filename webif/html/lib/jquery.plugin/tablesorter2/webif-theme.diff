@@ -1,0 +1,16 @@
+--- theme.green.css
++++ theme.webif.css
+-  Green Theme
++  Webif Theme
+-	width: 100%;
++	/*width: 100%;*/
+-	font: 12px/18px Arial, Sans-serif;
++	/*font: 12px/18px Arial, Sans-serif;*/
+-	background-color: #d9d9d9;
++	background-color: #f6ff5b;
+-	background-color: #bfbfbf;
++	background-color: #f6ff5b;
+-	background-color: #ebfaeb;
++	background-color: #ccff99;
+-	background-color: #fff;
++	background-color: #ffffcc;

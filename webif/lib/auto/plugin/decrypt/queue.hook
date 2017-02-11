@@ -140,7 +140,9 @@ proc ::decrypt::dequeue {q ts} {
 	log "  Removing/binning old copy." 0
 	# Move the old recording to the bin if undelete is installed.
 	if {$::auto::dustbin ne ""} {
+		log "  finding bin for $file" 0
 		set bin [_del_bindir $file "webif_autodecrypt"]
+		log "  bin = ($bin)" 0
 		set tail [file tail $rfile]
 		file rename "$rfile.encrypted" "$bin/$tail.ts"
 		foreach ext {nts hmt thm} {

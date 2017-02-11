@@ -16,6 +16,7 @@ if {![exists -proc _del_bindir]} {
 		if {$prefix ne ""} { append lbin "/$prefix" }
 		set dir [file dirname $file]
 		regsub "^[system mediaroot]" $dir $lbin ndir
+		regsub "^[file normalize [system mediaroot]]" $dir $lbin ndir
 		if {$dir eq $ndir} { set ndir $lbin }
 		system mkdir_p $ndir
 		return $ndir

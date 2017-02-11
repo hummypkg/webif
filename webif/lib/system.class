@@ -94,9 +94,13 @@ proc {system fhtcpversion} {} {{ver ""}} {
 	return $ver
 }
 
-# c0400           System ID
-# c8c00           MAC address
-# cb800           Serial Number
+#  :c0400	System ID
+# 4:c8400	read 1128 bytes
+# 3:c8c00	MAC address
+# 2:c9000
+# 1:cb400	DTCP key material
+# 0:cb800	Serial Number
+# 5:cbc00
 
 proc {system systemid} {} {{id ""}} {
 	if {$id ne ""} { return $id }

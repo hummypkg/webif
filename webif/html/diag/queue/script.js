@@ -16,6 +16,8 @@ function dirname(path)
 function load()
 {
 	$('span.isloading').show();
+	// Grey out the rows
+	$('#queuetab > tbody tr').disable();
 	$.getJSON('fetch.jim', function(data) {
 		$('#queuetab > tbody').empty();
 
@@ -26,27 +28,47 @@ function load()
 
 		$.each(data, function(k, v) {
 
-	s = '<tr>' +
-	'<td><input type=checkbox class=qid status=' + v.status +
-	    ' value=' + v.qid + '>' +
-	    v.qid + '</td>' +
-	'<td>' + v.submitted + '</td>' +
-	'<td><a href=# class=file>' + v.file + '</a></td>' +
-	'<td>' + v.action + ' ' + v.args + '</td>' +
-	'<td class="status ' + v.status + '">' + v.status;
-	if (v.status == 'RUNNING')
-		s += ' &nbsp;<img class=va src=/img/spin.gif>';
-	if ((v.status == 'DEFER' || v.status == 'PENDING') && v.start != '0')
-		s += ' &nbsp;(' + v.start + 's)';
-	s += '</td><td>';
-	if (v.runtime != '0')
-		s += v.runtime;
-	s += '</td>' +
-	'<td class=queuelog>' + v.log + '</td>' +
-	'<td>' + v.last + '</td>' +
-	'</tr>';
+			var $row = $('<tr>');
 
-			$('#queuetab > tbody').append(s);
+			$('<td>').append($('<input>', {
+				'type': 'checkbox',
+				'class': 'qid',
+				status: v.status,
+				value: v.qid
+			})).append(v.qid).appendTo($row);
+			$('<td>', { html: v.submitted }).appendTo($row);
+			$('<td>').append($('<a>', {
+				'class': 'file',
+				href: '#',
+				html: v.file
+			})).appendTo($row);
+			$('<td>', { html: v.action + ' ' + v.args })
+			    .appendTo($row);
+
+			var s = v.status;
+			if (v.status == 'RUNNING')
+				s += ' &nbsp;<img class=va src=/img/spin.gif>';
+			if ((v.status == 'DEFER' || v.status == 'PENDING')
+			    && v.start != '0')
+				s += ' &nbsp;(' + v.start + 's)';
+
+			$('<td>', {
+				'class': 'status ' + v.status,
+				html: s
+			}).appendTo($row);
+
+			$('<td>', {
+				html: v.runtime != 0 ? v.runtime : ""
+			}).appendTo($row);
+
+			$('<td>', {
+				'class': 'queuelog',
+				html: v.log
+			}).appendTo($row);
+
+			$('<td>', { html: v.last }).appendTo($row);
+
+			$('#queuetab > tbody').append($row);
 		});
 
 		if (data.length > 0)
@@ -85,6 +107,7 @@ $('table')
 	sortList: [[0,1]],
 	theme: 'webif',
 	widthFixed: false,
+	dateFormat: "ddmmyyyy",
 	widgets: ['zebra', 'stickyHeaders']
     });
 
