@@ -82,6 +82,10 @@ setting_number autokeep \
     1 365
 
 setting_toggle "Show queue icon in menu/toolbar?" "toolbarqueue" $toolbarqueue
+if {[system pkginst undelete]} {
+	setting_toggle "Create backup files in dustbin for decrypt and shrink?" autoskipbin \
+	    $(!$autoskipbin) 1
+}
 
 puts {
 </table></fieldset></div>

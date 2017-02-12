@@ -40,6 +40,7 @@ class settings {
 	noautorecimm	0
 	autorecperiod	10
 	autokeep	7
+	autoskipbin	0
 	noautohours	""
 	autofreq	20
 	autolast	0
@@ -252,6 +253,10 @@ settings method autorecperiod {{val -1}} {
 
 settings method autokeep {{val -1}} {
 	return [$self _nval_setting autokeep $val]
+}
+
+settings method autoskipbin {{val -1}} {
+	return [$self _nval_setting autoskipbin $val]
 }
 
 settings method autofreq {{val -1}} {

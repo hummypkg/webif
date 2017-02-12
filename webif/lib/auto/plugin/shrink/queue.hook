@@ -79,7 +79,11 @@ proc ::shrink::dequeue {q ts} {
 	}
 
 	# Remove the old recording (-> bin if undelete is installed)
-	safe_delete [$ts get file] "webif_autoshrink"
+	if {[$::auto::settings autoskipbin]} {
+		$ts delete
+	} else {
+		safe_delete [$ts get file] "webif_autoshrink"
+	}
 
 	# Finally, rename the shrunken recording again.
 	foreach ext $tsgroup {
