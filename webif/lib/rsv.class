@@ -1017,7 +1017,7 @@ proc {rsv restore} {file} {
 
 		puts "    $chan"
 
-		set hsvc [get_channel_attr $szSvcName]
+		set hsvc [get_channel_attr $chan]
 		if {$hsvc eq ""} {
 			puts "        Cannot map channel name to service."
 			continue

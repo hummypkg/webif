@@ -124,6 +124,8 @@ ts method lock {} {
 set ::ts::flagmap {
 	detectads	Addetection
 	dedup		Deduped
+	encrypted	ODEncrypted
+	protect		Encrypted
 }
 
 ts method setflag {flag {dummy 0}} {
