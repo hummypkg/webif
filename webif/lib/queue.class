@@ -167,7 +167,7 @@ proc {queue resubmit} {id} {
 		update queue
 		set status = 'PENDING', interrupts = 0
 		where id = '%s'
-		and status in ('FAILED', 'HOLD')
+		and status in ('FAILED', 'HOLD', 'COMPLETE')
 	"
 
 	$db query $q $id
