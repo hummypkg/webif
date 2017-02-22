@@ -18,26 +18,11 @@ set base [file rootname $rfile]
 set shname [file tail $base]
 puts "Processing $shname"
 
-set cmd [list ffmpeg -y -benchmark -v 0 -i "$rfile" -f mp3 -vn]
+set slow [[settings] audiomp3]
 
-if {![[settings] audiomp3]} {
-	lappend cmd -acodec copy
-}
-lappend cmd "${base}.mp3"
-
-#puts "$cmd"
 set token [system startop -multiple mp3 $rfile]
-puts [exec {*}$cmd]
+puts [$ts mkmp3 $slow]
 system endop $token
-
-if {[system pkginst id3v2]} {
-	puts [exec /mod/bin/id3v2 \
-	    --song "[$ts get title]" \
-	    --comment "[$ts get synopsis]" \
-	    --album "[$ts get channel_name]" \
-	    --year "[clock format [$ts get start] -format {%Y}]" \
-	    "${base}.mp3"]
-}
 
 set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]
 puts "Time taken: $xtime"

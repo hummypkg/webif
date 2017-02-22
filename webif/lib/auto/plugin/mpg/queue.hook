@@ -30,22 +30,17 @@ proc ::mpg::dequeue {q ts} {
 
 	log "     MPG: $file" 0
 	log "          Converting..." 0
-	if {[catch {
-		foreach line [split \
-		    [exec nice -n 19 /mod/bin/ffmpeg -y -benchmark -v 0 \
-		    -i $file.ts \
-		    -map 0:0 -map 0:1 \
-		    -vcodec copy -acodec copy $tmp/mpg.mpg] "\n"] {
-			log $line 0
-		}
-	    } msg]} {
-		system notify "$file - auto-mpg - error $msg."
-		system endop mpg
-		return [list "FAILED" $msg]
-	}
 
-	# Move the MPG into the local directory
-	file rename $tmp/mpg.mpg $file.mpg
+        if {[catch {set msg [$ts mkmpg "$tmp/mpg"]} msg]} {
+                system notify "$file - auto-mpg - error $msg."
+                system endop mpg
+                return [list "FAILED" $msg]
+        }
+
+        foreach line [split $msg "\n"] {
+                log [string trim $line] 0
+        }
+
 	set summary [::auto::endclock [$ts size]]
 	system endop mpg
 

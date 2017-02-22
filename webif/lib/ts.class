@@ -364,7 +364,80 @@ ts method mkthm {{offset 0}} {
 	exec /bin/echo -n " " >> $bfile.thm~
 	file rename -force $bfile.thm~ $bfile.thm
 	file tdelete $bfile.bmp
+	$self setflag thumbnail
 	return 1
+}
+
+# From MontysEvilTwin
+# - https://hummy.tv/forum/threads/7787/page-2#post-106826
+# ffmpeg -i "File 1.ts" -c:a mp3 -b:a 128k "File 1.mp3"
+# ffmpeg -i "File 1.ts" -c:a copy "File 1.mp2"
+# ffmpeg -i "File 1.ts" -c:a copy "File 1.loas"
+ts method mkmp3 {{slow false} {tmp ""} {v 0} {br 128}} {
+	set rfile [file rootname $file]
+
+	if {$slow} {
+		set opts [list -c:a mp3 -b:a ${br}k]
+		set ext mp3
+	} else {
+		set opts [list -c:a copy]
+		if {$definition eq "HD"} {
+			set ext loas
+		} else {
+			set ext mp2
+		}
+	}
+	set cmd [list /mod/bin/ffmpeg \
+	    -y -benchmark -vn -v $v \
+	    -i $file {*}$opts \
+	]
+
+	if {$tmp eq ""} {
+		lappend cmd "${rfile}.$ext"
+	} else {
+		lappend cmd "$tmp.$ext"
+	}
+
+	set output [exec {*}$cmd]
+
+	if {$tmp ne ""} {
+		file rename "$tmp.$ext" "${rfile}.mp3"
+	} elseif {$ext ne "mp3"} {
+		file rename "${rfile}.$ext" "${rfile}.mp3"
+	}
+
+	exec /mod/bin/id3v2 \
+	    --song $title \
+	    --comment $synopsis \
+	    --album $channel_name \
+	    --year "[clock format $start -format {%Y}]" \
+	    "${rfile}.mp3"
+
+	return $output
+}
+
+ts method mkmpg {{tmp ""}} {
+	set rfile [file rootname $file]
+
+	set cmd [list /mod/bin/ffmpeg \
+	    -y -benchmark -v 0 \
+	    -i $file \
+	    -map 0:0 -map 0:1 \
+	    -vcodec copy -acodec copy]
+
+	if {$tmp eq ""} {
+		lappend cmd "${rfile}.mpg"
+	} else {
+		lappend cmd "$tmp.mpg"
+	}
+
+	set output [exec {*}$cmd]
+
+	if {$tmp ne ""} {
+		file rename "$tmp.mpg" "${rfile}.mpg"
+	}
+
+	return $output
 }
 
 proc {ts renamegroup} {from to} {

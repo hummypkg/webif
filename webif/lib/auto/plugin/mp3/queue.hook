@@ -17,11 +17,6 @@ proc ::mp3::dequeue {q ts} {
 		return {"DEFER" "Not decrypted"}
 	}
 
-	if {[$ts get definition] eq "HD"} {
-		# Cannot extract a useful MP3 from a HD recording.
-		return {"FAILED" "Cannot process high-definition recording"}
-	}
-
 	if {[::auto::inuse $ts]} {
 		return {"DEFER" "Recording in use"}
 	}
@@ -38,34 +33,16 @@ proc ::mp3::dequeue {q ts} {
 	log "     MP3: $file" 0
 	log "          Converting... [$::auto::settings \
 	    audiomp3descr $mp3mode]" 0
-	if {[catch {
-		set cmd [list nice -n 19 \
-		    /mod/bin/ffmpeg -y -benchmark -v 0 -i "$file.ts" \
-		    -f mp3 -vn]
-		if {!$mp3mode} { lappend cmd -acodec copy }
-		lappend cmd "$tmp/mp3.mp3"
-		foreach line [split [exec {*}$cmd] "\n"] {
-			log [string trim $line] 0
-		}
-	    } msg]} {
+	if {[catch {set msg [$ts mkmp3 $mp3mode "$tmp/mp3"]} msg]} {
 		system notify "$file - auto-mp3 - error $msg."
 		system endop mp3
 		return [list "FAILED" $msg]
 	}
 
-	if {[system pkginst id3v2]} {
-		catch {
-		log [exec /mod/bin/id3v2 \
-		    --song "[$ts get title]" \
-		    --comment "[$ts get synopsis]" \
-		    --album "[$ts get channel_name]" \
-		    --year "[clock format [$ts get start] -format {%Y}]" \
-		    "$tmp/mp3.mp3"] 0
-		}
+	foreach line [split $msg "\n"] {
+		log [string trim $line] 0
 	}
 
-	# Move the MP3 into the local directory
-	file rename $tmp/mp3.mp3 $file.mp3
 	set summary [::auto::endclock [$ts size]]
 	system endop mp3
 

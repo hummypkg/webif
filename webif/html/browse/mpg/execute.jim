@@ -14,15 +14,8 @@ set len [$ts duration 1]
 
 set xstart [clock milliseconds]
 
-set base [file rootname $rfile]
-set shname [file tail $base]
-puts "Processing $shname"
-
 set token [system startop -multiple mpg $rfile]
-puts [exec /mod/bin/ffmpeg -y -benchmark -v 0 \
-    -i $rfile \
-    -map 0:0 -map 0:1 \
-    -vcodec copy -acodec copy "${base}.mpg"]
+$ts mkmpg
 system endop $token
 
 set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]

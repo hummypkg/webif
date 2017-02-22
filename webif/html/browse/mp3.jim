@@ -13,7 +13,8 @@ foreach file [readdir $dir] {
 	if {[file extension $file] ne ".mp3"} continue
 
 	if {[catch {
-		set lines [exec ffprobe -v error -show_streams "$dir/$file"]
+		set lines [exec ffprobe -hide_banner -v error \
+		    -show_streams "$dir/$file"]
 	}]} continue
 
 	foreach line $lines {
