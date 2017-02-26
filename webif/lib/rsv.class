@@ -340,7 +340,9 @@ rsv method set_skip {event} {
 		# (mis)use some fields to hold the next event which
 		# should be recorded.
 		if {$next_event == -1} {
-			set ucVolume -1
+			# The next event is not yet in the EPG
+			set time $([clock seconds] - 86400)
+			set ucVolume "$hsvc:$usLastRecordedEvtId:$time"
 		} else {
 			set ucVolume "$next_hsvc:$next_event:$next_time"
 		}
