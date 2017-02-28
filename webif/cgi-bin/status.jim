@@ -349,6 +349,13 @@ foreach event $events {
 }
 
 ######################################################################
+# VFD
+
+if {[file exists /tmp/.vfd] && $runmode ne "cgi"} {
+	lappend output "VFD: [file read /tmp/.vfd]"
+}
+
+######################################################################
 # Idle Time
 
 if {$runmode ne "cgi"} {

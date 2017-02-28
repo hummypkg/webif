@@ -354,6 +354,7 @@ ts method mkbmp {{offset 0} {ext ""}} {
 ts method mkthm {{offset 0}} {
 	if {![$self mkbmp $offset]} { return 0 }
 	set bfile [file rootname $file]
+	# Trim the bitmap header from the start of the file
 	if {[catch {
 	    exec /bin/dd if=$bfile.bmp of=$bfile.thm~ bs=54 skip=1
 	    } msg]} {

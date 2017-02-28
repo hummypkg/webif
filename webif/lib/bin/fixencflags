@@ -4,17 +4,17 @@ source /mod/webif/lib/setup
 require system.class ts.class
 
 proc fix_one {ts} {
-   set flag [$ts flag "ODEncrypted"]
-   set rfile [file rootname [$ts get file]]
-   set anencd [exec /mod/bin/stripts -qE $rfile]
+	set flag [$ts flag "ODEncrypted"]
+	set rfile [file rootname [$ts get file]]
+	set anencd [exec /mod/bin/stripts -qE $rfile]
         if {$flag && $anencd != "1"} {
-        exec /mod/bin/hmt -encrypted "$rfile.hmt"
-        puts "FIXED ENC $rfile"
-   }
+		exec /mod/bin/hmt -encrypted "$rfile.hmt"
+		puts "FIXED ENC $rfile"
+	}
         if {!$flag && $anencd == "1"} {
-        exec /mod/bin/hmt +encrypted "$rfile.hmt"
-        puts "FIXED DEC $rfile"
-   }
+		exec /mod/bin/hmt +encrypted "$rfile.hmt"
+		puts "FIXED DEC $rfile"
+	}
 }
 
 if {![llength $argv]} {

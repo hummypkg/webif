@@ -1,0 +1,16 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+require system.class ts.class
+
+proc generate {ts} {
+	set rfile [file rootname [$ts get file]]
+	if {[file exists "$rfile.thm"]} return
+	if {[$ts flag ODEncrypted]} return
+	if {[$ts flag Radio]} return
+	puts "Generating thumbnail for $rfile"
+	$ts mkthm 1
+}
+
+ts iterate [lambda {ts} { generate $ts }]
+
