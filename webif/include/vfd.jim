@@ -1,0 +1,14 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+
+if {[file exists "/tmp/.vfd"]} {
+	puts {
+	<div id=vfd>
+		<div class=vfd>
+			Loading...
+		</div>
+	</div>
+	}
+}
+

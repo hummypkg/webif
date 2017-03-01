@@ -20,5 +20,19 @@ function updateidle()
 updateidle();
 setInterval(updateidle, 60000);
 
+if ($('#vfd').length)
+{
+
+	function updatevfd()
+	{
+		$.get('/cgi-bin/vfd.jim', function(vfd) {
+			$('#vfd div').html(vfd);
+		});
+	}
+
+	updatevfd();
+	setInterval(updatevfd, 5000);
+}
+
 });
 

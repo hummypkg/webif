@@ -352,7 +352,9 @@ foreach event $events {
 # VFD
 
 if {[file exists /tmp/.vfd] && $runmode ne "cgi"} {
-	lappend output "VFD: [file read /tmp/.vfd]"
+	lappend output "VFD: [string map {
+		\13 ">"
+	} [file read /tmp/.vfd]]"
 }
 
 ######################################################################

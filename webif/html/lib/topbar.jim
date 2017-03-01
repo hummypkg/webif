@@ -27,6 +27,7 @@ puts {
 if {[system model] eq "HDR" && [system usbdisks] > 0} {
 	source /mod/webif/include/usbeject.jim
 }
+source /mod/webif/include/vfd.jim
 puts {
 <div id=idletime></div>
 </div>

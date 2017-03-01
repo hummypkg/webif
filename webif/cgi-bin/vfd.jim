@@ -1,0 +1,14 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+
+httpheader
+
+if {[file exists /tmp/.vfd]} {
+	puts [string map {
+		\13 &#x25ba;
+	} [file read /tmp/.vfd]]
+} else {
+	puts ""
+}
+

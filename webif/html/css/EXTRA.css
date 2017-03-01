@@ -3,3 +3,13 @@
  * It will not be overwritten on webif updates.
  */
 
+/* The examples below can be uncommented if required. */
+
+/* Hide the VFD display */
+
+/* #vfd { display: none; } */
+
+/* Hide the Idle time */
+
+/* #idletime { display: none; } */
+
