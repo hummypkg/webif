@@ -58,14 +58,6 @@ hook=/mod/boot/xinit.d/rt3070
 	[ -f record.log -a ! -f activity.log ] && mv record.log activity.log
 )
 
-if [ ! -f /mod/webif/.fixpkg ]; then
-	at now + 1 minute << EOM
-diag fixpkg
-/mod/etc/init.d/S01lighttpd start
-touch /mod/webif/.fixpkg
-EOM
-fi
-
 [ -f $tmpf ] && rm -f $tmpf
 
 # Remove empty directories
