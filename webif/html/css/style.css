@@ -81,19 +81,16 @@ div.container .usb
 	top: 8px;
 }
 
-div.container .vfd
+#vfd
 {
 	position: absolute;
 	left: 200px;
 	top: 55px;
-}
-
-#vfd div
-{
 	background: #444;
 	color: #1bd1b0;
 	font-size: 20px;
 	padding: 5px;
+	font-family: vfd, 'Lucida Console', Monaco, monospace;
 }
 
 #idletime
@@ -696,11 +693,5 @@ img.rollimg
 a.breadcrumb:hover
 {
 	color: #008080;
-}
-
-.vfd
-{
-	font-family: vfd, 'Lucida Console', Monaco, monospace;
-	color: #1bd1b0;
 }
 

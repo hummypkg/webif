@@ -26,7 +26,7 @@ if ($('#vfd').length)
 	function updatevfd()
 	{
 		$.get('/cgi-bin/vfd.jim', function(vfd) {
-			$('#vfd div').html(vfd);
+			$('#vfd').html(vfd);
 		});
 	}
 
