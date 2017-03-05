@@ -476,7 +476,7 @@ proc {ts resetnew} {dir} {
 	close $fd
 }
 
-proc {ts iterate} {callback {verbose 0} {dir ""}} {{rootdev 0}} {
+proc {ts iterate} {callback {verbose 0} {dir ""} {nospecial 0}} {{rootdev 0}} {
 	require system.class
 	if {$dir eq ""} {
 		set dir [system mediaroot]
@@ -491,9 +491,11 @@ proc {ts iterate} {callback {verbose 0} {dir ""}} {{rootdev 0}} {
 		if {$st(dev) != $rootdev} return
 	}
 
+	if {$nospecial && [system specialdir $dir]} return
+
 	foreach entry [readdir -nocomplain $dir] {
 		if {[file isdirectory "$dir/$entry"]} {
-			ts iterate $callback $verbose "$dir/$entry"
+			ts iterate $callback $verbose "$dir/$entry" $nospecial
 			continue
 		}
 		if {![string match {*.ts} $entry]} continue

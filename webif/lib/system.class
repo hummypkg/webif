@@ -809,3 +809,10 @@ proc {system endop} {op} {
 	return 0
 }
 
+proc {system specialdir} {dir} {
+	if {[string match {\[*} [string trimleft [file tail $dir]]]} {
+		return 1
+	}
+	return 0
+}
+
