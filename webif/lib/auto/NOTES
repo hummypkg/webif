@@ -15,10 +15,13 @@ Module		Scan		De-queue
 *flatten	750		-
 *flatview	650		-
  decrypt	600		900
+*arbookmarks	-		500
+*badnts		-		500
  shrink		400		800
  mpg		300		300
  mp3		300		300
 *detectads	300		200
+*thumbnails	-		100
 
 Notes:
 

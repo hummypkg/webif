@@ -27,16 +27,10 @@ foreach file [cgi_get files] {
 	set ts [ts fetch $file]
 	if {$ts eq "0"} continue
 
-	if {$act eq "mp2"} {
-		set q [queue insert -hold $ts mp3]
-	} else {
-		set q [queue insert -hold $ts $act]
-	}
+	lassign $act act args
 
-	switch -- $act {
-		mp2 { $q set args "-mp2" }
-		mp3 { $q set args "-mp3" }
-	}
+	set q [queue insert -hold $ts $act]
+	if {$args ne ""} { $q set args $args }
 	$q submit
 	puts "</li>"
 }

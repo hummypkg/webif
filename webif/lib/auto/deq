@@ -133,7 +133,11 @@ proc ::auto::runplugin {plugin fn args} {
 }
 
 proc ::auto::runplugins {fn args} {
-	foreach plugin [dict keys $::auto::plugins] {
+	foreach plugin [lsort -decreasing -command [lambda {a b} {
+		if {$a ni $::auto::plugins} { return 0 }
+		if {$b ni $::auto::plugins} { return 0 }
+		return $($::auto::plugins($a) - $::auto::plugins($b))
+	    }] [dict keys $::auto::plugins]] {
 		set rfn "::${plugin}::${fn}"
 		if {![exists -proc $rfn]} continue
 		if {[catch {uplevel 1 $rfn {*}$args} msg]} {

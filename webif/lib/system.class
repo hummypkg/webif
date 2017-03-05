@@ -114,6 +114,22 @@ proc {system systemid} {} {{id ""}} {
 	return $id
 }
 
+proc {system macaddr} {} {{mac ""}} {
+	if {$mac ne ""} { return $mac }
+	set fd [open /dev/mtd3 r]
+	
+	$fd seek 0xc8c00
+	set bytes [$fd read 6]
+	$fd close
+	set tmac ""
+	foreach b [split $bytes ""] {
+		binary scan $b H* hex
+		if {$tmac ne ""} { append tmac : }
+		append tmac $hex
+	}
+	return [set mac $tmac]
+}
+
 proc {system serialno} {} {{serial ""}} {
 	if {$serial ne ""} { return $serial }
 	set fd [open /dev/mtd3 r]

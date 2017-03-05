@@ -411,8 +411,8 @@ if {$nicesplice} {
 # Queue
 set queueactions(decrypt) "Decryption"
 set queueactions(shrink) "Shrink"
-set queueactions(mp2) "Audio-Extraction (mp2, fast)"
-set queueactions(mp3) "Audio-Extraction (mp3, slow)"
+dict set queueactions "mp3 -mp2" "Audio-Extraction (mp2, fast)"
+dict set queueactions "mp3 -mp3" "Audio-Extraction (mp3, slow)"
 set queueactions(mpg) "Conversion to MPG"
 eval_plugins queueactions
 
@@ -425,7 +425,7 @@ Queue for</button>
 set rqueueactions [lreverse $queueactions]
 foreach v [lsort [dict keys $rqueueactions]] {
 	set k $rqueueactions($v)
-	puts "<option value=$k>$v</option>"
+	puts "<option value=\"$k\">$v</option>"
 }
 puts {
 </select>
