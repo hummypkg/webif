@@ -1,5 +1,3 @@
-# vim: syntax=tcl
-
 source /mod/webif/lib/setup
 
 if {![exists -proc class]} { package require oo }
