@@ -656,13 +656,13 @@ proc {system nuggeted} {} {
 proc {system strip} {str} {
 	if {[string range $str 1 2] eq "i7"} {
 		# ISO6937, convert to UTF-8
-		set str [xconv [string range $str 3 end]]
+		return [xconv [string range $str 3 end]]
 	}
 	if {[string first "\025" $str] == 0} {
 		# UTF-8
-		set str [string range $str 1 end]
+		return [string range $str 1 end]
 	}
-	return $str
+	return [xconv $str]
 }
 
 proc {system usbdisks} {{full 0}} {

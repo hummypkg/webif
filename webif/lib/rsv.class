@@ -668,7 +668,7 @@ proc {rsv construct} {event type} {
 	set args(nsttime)		[$event get start]
 	set args(nduration)		[$event get duration]
 	set args(usevtid)		[$event get event_id]
-	set args(szevtname)		"\025[$event get name]"
+	set args(szevtname)		"\025[xconv [$event get name]]"
 	set args(eReady)		30
 	lassign [system padding] args(ulPreOffset) args(ulPostOffset)
 
