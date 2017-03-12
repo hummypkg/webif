@@ -1,6 +1,8 @@
 
 source /mod/webif/lib/setup
 
+package require xconv
+
 if {![exists -proc class]} { package require oo }
 if {![exists -proc sqlite3.open]} { package require sqlite3 }
 if {![exists -proc binary]} { package require binary }
@@ -653,9 +655,11 @@ proc {system nuggeted} {} {
 
 proc {system strip} {str} {
 	if {[string range $str 1 2] eq "i7"} {
-		set str [string range $str 3 end]
+		# ISO6937, convert to UTF-8
+		set str [xconv [string range $str 3 end]]
 	}
 	if {[string first "\025" $str] == 0} {
+		# UTF-8
 		set str [string range $str 1 end]
 	}
 	return $str
