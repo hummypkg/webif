@@ -11,7 +11,7 @@ set eid [cgi_get eid 0]
 
 mheader
 
-set record [lindex [epg fetch dump -service $sid -event $eid] 0]
+set record [lindex [epg dbfetch dump -service $sid -event $eid] 0]
 $record get_channel_info
 set others [$record othertimes]
 

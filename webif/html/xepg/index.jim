@@ -84,7 +84,7 @@ if {$::qepg} {
 	set records [epg dbfetch dump {*}$args]
 } else {
 	require channelsort
-	set records [channelsort [epg fetch dump -trange "$stt:$ett"]]
+	set records [channelsort [epg dbfetch dump -trange "$stt:$ett"]]
 }
 set got [clock milliseconds]
 

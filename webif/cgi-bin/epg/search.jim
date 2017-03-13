@@ -42,12 +42,12 @@ if {$searchfull} { set cmd "searchall" }
 
 set dedup 0
 if {$ct > 0 } {
-	set records [epg fetch dump -type $ct]
+	set records [epg dbfetch dump -type $ct]
 	if {[[settings] genrededup]} { set dedup 1 }
 } elseif {$crid ne ""} {
-	set records [epg fetch dump -crid $crid]
+	set records [epg dbfetch dump -crid $crid]
 } elseif {$scrid ne ""} {
-	set records [epg fetch dump -scrid $scrid]
+	set records [epg dbfetch dump -scrid $scrid]
 } elseif {$searchterm ne ""} { 
 	set records [epg dbfetch $cmd -term $searchterm]
 } else {

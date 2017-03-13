@@ -16,7 +16,7 @@ foreach slot [split $slots ","] {
 puts "SLOT: $slot"
 	set event [rsv slot $slot]
 
-	lassign [epg fetch dump -service $xservice -event $xevent] epg
+	lassign [epg dbfetch dump -service $xservice -event $xevent] epg
 
 	if {$epg eq ""} {
 		puts "!Cannot find event in EPG."

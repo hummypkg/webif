@@ -20,7 +20,6 @@ puts "</li>"
 set cmd search
 if {$full} { set cmd searchall }
 if {$term ne ""} {
-	#set records [epg fetch $cmd -extra $term]
 	set records [epg dbfetch $cmd -term $term]
 } else {
 	set records {}

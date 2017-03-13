@@ -300,7 +300,7 @@ epg method cell {} {
 
 epg method next {} {
 	set tm $($start + $duration + 60)
-	set nextlist [epg fetch dump -service $service_id -time $tm]
+	set nextlist [epg dbfetch dump -service $service_id -time $tm]
 
 	if {[llength nextlist] > 0} {
 		return [lindex $nextlist 0]
@@ -311,7 +311,7 @@ epg method next {} {
 
 epg method previous {} {
 	set tm $($start - 60)
-	set prevlist [epg fetch dump -service $service_id -time $tm]
+	set prevlist [epg dbfetch dump -service $service_id -time $tm]
 
 	if {[llength prevlist] > 0} {
 		return [lindex $prevlist 0]
@@ -324,7 +324,7 @@ epg method recommended {} {
 	set rec ""
 	if {$rec_crid ne ""} {
 		catch { set rec [lindex [
-		    epg fetch dump -crid $rec_crid] 0] }
+		    epg dbfetch dump -crid $rec_crid] 0] }
 	}
 	return $rec
 }
@@ -333,7 +333,7 @@ epg method othertimes {} {
 	if {$event_crid eq ""} { return "" }
 
 	set others ""
-	foreach other [epg fetch dump -crid $event_crid] {
+	foreach other [epg dbfetch dump -crid $event_crid] {
 		if {[$other get service_id] == $service_id &&
 		    [$other get event_id] == $event_id} { continue }
 		lappend others $other
@@ -490,6 +490,8 @@ proc {epg dbfetch} {mode args} {
 	return $records
 }
 
+# This function is deprecated in favour of {epg dbfetch} and should not be
+# used.
 proc {epg fetch} {mode args} {
 	set records ""
 	foreach line [split [epg exec $mode {*}$args] "\n"] {
