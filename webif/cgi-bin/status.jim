@@ -83,7 +83,8 @@ proc get_data {} {
 				regsub -- { \([^\)]+\)$} $line "" line
 				set ext [file extension $line]
 				if {$ext ni $exts} continue
-				set file [subst [string range $line 1 end]]
+				set file [subst -nocommands -novariables \
+				    [string range $line 1 end]]
 				# Skip HD-Fox TSR buffer
 				if {$file eq "/media/drive1/.tsr/0.ts"} {
 					continue
