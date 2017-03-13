@@ -11,6 +11,10 @@ proc ::decrypt::dequeue {q ts} {
 		return {"OK" "Already decrypted"}
 	}
 
+	if {![$ts size]} {
+		return {"FAILED" "Zero-byte recording, cannot process"}
+	}
+
 	if {![system dlnastatus]} {
 		if {[system instandby]} {
 			# Prevent polling every minute
