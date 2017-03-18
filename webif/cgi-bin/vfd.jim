@@ -4,11 +4,11 @@ source /mod/webif/lib/setup
 
 httpheader
 
-if {[file exists /tmp/.vfd]} {
-	puts [string map {
-		\13 &#x25ba;
-	} [file read /tmp/.vfd]]
-} else {
+if {![file exists /mod/webif/plugin/redring/lib.jim]} {
 	puts ""
+	exit
 }
+
+source /mod/webif/plugin/redring/lib.jim
+puts [::redring::vfd 1]
 
