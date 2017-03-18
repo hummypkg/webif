@@ -205,7 +205,7 @@ proc {queue status} {ts} {
 	return $q
 }
 
-proc {queue check} {ts {q "all"}} {
+proc {queue check} {ts {q "any"}} {
 	set queues [split [queue status $ts] ,]
 	if {$q eq "any" && [llength $queues]} {
 		return 1
