@@ -10,6 +10,10 @@ proc ::shrink::dequeue {q ts} {
 		return {"OK" "Already shrunk"}
 	}
 
+	if {[queue check $ts decrypt]} {
+		return {"DEFER" "Deferring shrink until decrypted"}
+	}
+
 	# If the directory is flagged for decryption as well as shrink
 	# then check to see if decryption has already occured. If not,
 	# defer the shrink for now.
