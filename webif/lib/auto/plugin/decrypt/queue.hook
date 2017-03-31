@@ -77,7 +77,7 @@ proc ::decrypt::dequeue {q ts} {
 		    lassign [system dlnahelper [file normalize $file]] url
 		    } msg]} {
 			log "  $file - $msg"
-			return [list "FAILED" $msg]
+			return [list "DEFER" $msg]
 		}
 		if {$url eq ""} {
 			return {"DEFER" "DLNA helper failed"}
