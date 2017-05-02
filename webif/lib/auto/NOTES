@@ -9,6 +9,7 @@ Priorities (* - additional package)
 Module		Scan		De-queue
 ------		----		--------
 *newk		1000		-
+ skip		990		-
  expire		900		-
  dedup		800		-
 *sweeper	700		-

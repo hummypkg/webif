@@ -1,0 +1,9 @@
+
+require rsv.class
+
+proc ::skip::run {args} {
+	rsv reassert_skips
+}
+
+::auto::register skip 990
+

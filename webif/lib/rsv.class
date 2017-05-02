@@ -72,6 +72,27 @@ proc {rsv dbhandle} {args} {
 	$::rsv::db query {attach database '/var/lib/humaxtv/rsvp.db' as pending}
 	# These are required to upgrade old tables.
 	catch { $::rsv::db query { alter table pending add column action int} }
+	# Add the skip table if missing
+	catch { $::rsv::db query {
+		create table if not exists pending.skip
+		(
+			ulslot int,
+			state text,
+			service_id int,
+			event_id int,
+			start int,
+			ucCRIDType int,
+			szCRID text,
+			szSkipCRID text
+		);
+	}}
+	catch { $::rsv::db query {
+		create unique index pending.skipidx
+		    on skip(
+			ulslot, state, service_id, event_id,
+			ucCRIDType, szCRID, szSkipCRID
+		    );
+	} }
 
 	return $::rsv::db
 }
@@ -301,17 +322,34 @@ rsv method set_refresh {} {
 	set aulEventToRecordInfo ""
 }
 
-rsv method set_skip {event} {
+rsv method set_skip {event {persist true}} {
 	set action 5
 
 	$event get_channel_info
 
-	set crid "[$event get channel_crid][$event get event_crid]"
-	set szRecordedProgCrid "1$crid|$szRecordedProgCrid"
-	set szEventToRecord [string map "1$crid| {}" $szEventToRecord]
-
 	set event_hsvc [$event get channel_hsvc]
+	set service_id [$event get service_id]
 	set event_id [$event get event_id]
+
+	set crid [string toupper \
+	    "[$event get channel_crid][$event get event_crid]"]
+
+	if {"1$crid" ni [split $szRecordedProgCrid "|"]} {
+		set szRecordedProgCrid "1$crid|$szRecordedProgCrid"
+	}
+	set szEventToRecord [string map "1$crid| {}" $szEventToRecord]
+	if {$persist} {
+	    catch {
+		[rsv dbhandle] query {
+			insert or ignore into skip
+			    (ulslot, state, ucCRIDType, szCRID, szSkipCRID,
+			     service_id, event_id, start)
+			    values('%s', 'pending', '%s', '%s', '%s', %s, %s,
+			      %s)
+		} -1 $ucCRIDType $szCRID $crid $service_id $event_id [\
+		  $event get start]
+	    }
+	}
 
 	set newaul ""
 	set next_event -1
@@ -347,6 +385,32 @@ rsv method set_skip {event} {
 			set ucVolume "$next_hsvc:$next_event:$next_time"
 		}
 	}
+}
+
+rsv method apply_skip {service event {persist true}} {
+	require epg.class
+	lassign [epg dbfetch dump -service $service -event $event] epg
+
+	if {$epg eq ""} {
+                error "Cannot find event in EPG."
+        }
+	$epg get_channel_info
+
+	# First check to see if there is already a pending skip for this
+	# event and, if so, update that one.
+	set crid [string toupper \
+	    "[$epg get channel_crid][$epg get series_crid]"]
+	set table pending
+	set ev [rsv fetch $table $ersvtype $hsvc 0 $usevtid $crid]
+	if {$ev == 0} {
+		set table TBL_RESERVATION
+		set ev $self
+		$ev clear_ulslot
+	}
+	$ev set_skip $epg $persist
+	if {[catch {$ev insert_deferred} msg]} {
+		error "Error during insert."
+        }
 }
 
 rsv method remove_pending {} {
@@ -606,7 +670,7 @@ proc {rsv fetch} {table ersvtype hsvc nsttime usevtid {crid ""} {extra ""}} {
 		lappend params $nsttime
 	}
 	if {$crid ne ""} {
-		append q " and szCRID = '%s' "
+		append q " and szCRID = '%s' collate nocase "
 		lappend params $crid
 	}
 	if {$extra ne ""} {
@@ -1249,5 +1313,58 @@ proc {rsv checkconflict} {s d thresh {debug 0}} {
 	}
 
 	return $ret
+}
+
+proc {rsv clearskip} {slot} {
+	catch {
+		[rsv dbhandle] query {delete from skip where ulslot = %s} $slot
+	}
+}
+
+proc {rsv reassert_skips} {} {
+	set rsvdb [rsv dbhandle]
+
+	set changes 0
+	set now [clock seconds]
+	foreach s [$rsvdb query {
+	    select * from skip
+	    where state = 'live' and ulslot >= 0
+	    and start > %s and start < %s
+	    order by ulslot, service_id, event_id
+	} $now $($now + 86400)] {
+		if {![dict exists $s ulslot]} continue
+		set r [rsv slot $s(ulslot)]
+		if {$r eq "0"} {
+			# Slot no longer exists.
+			rsv clearskip $s(ulslot)
+			continue
+		}
+		if {[$r get szCRID] ne $s(szCRID)} {
+			# Slot is now for a different recording.
+			rsv clearskip $s(ulslot)
+			continue
+		}
+
+		#puts "S: $s"
+		#require classdump; classdump $r
+
+		if {"1$s(szSkipCRID)" in [\
+		    split [$r get szRecordedProgCrid] "|"]} {
+			puts "Skip already in place."
+			continue
+		}
+		# Need to re-assert skip.
+		if {[catch {$r apply_skip $s(service_id) $s(event_id) false} \
+		    msg]} {
+			puts $msg
+		} else {
+			puts "Re-applied skip."
+			incr changes
+		}
+	}
+	if {$changes} {
+		puts "Commit."
+		rsv commit
+	}
 }
 
