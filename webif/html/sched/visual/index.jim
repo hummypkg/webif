@@ -94,6 +94,16 @@ foreach p $pending {
 #      5:      ucRecKind
 #      6:      class (live, pending)
 
+# Filter events array
+set skip [rsv skiplist]
+if {[llength $skip]} {
+	set events [lmap i $events {
+		lassign $i x x s e
+		if {"$s:$e" in $::skip} continue
+		function $i
+	}]
+}
+
 # Sort final events array
 set events [lsort -index 0 -integer [lsort -index 2 -integer $events]]
 

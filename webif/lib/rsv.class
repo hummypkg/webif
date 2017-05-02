@@ -80,6 +80,7 @@ proc {rsv dbhandle} {args} {
 			state text,
 			service_id int,
 			event_id int,
+			hSvc int,
 			start int,
 			ucCRIDType int,
 			szCRID text,
@@ -111,13 +112,17 @@ rsv method status {} {
 	}
 }
 
-rsv method aul {} {
+rsv method aul {{filter false}} {
 	set aul {}
+	set xaul {}
+	if {$filter} { set xaul [rsv skiplist $ulslot] }
 	for {set i 0} {$i < [string length $aulEventToRecordInfo]} {
 	    incr i 16} {
 		binary scan [string range $aulEventToRecordInfo $i $($i + 15)]\
 		    iiii service start end event_id
-		catch {lappend aul [list $service $start $end $event_id]}
+		if {"$service:$event_id" ni $xaul} {
+		    catch {lappend aul [list $service $start $end $event_id]}
+		}
 	}
 	return $aul
 }
@@ -343,11 +348,11 @@ rsv method set_skip {event {persist true}} {
 		[rsv dbhandle] query {
 			insert or ignore into skip
 			    (ulslot, state, ucCRIDType, szCRID, szSkipCRID,
-			     service_id, event_id, start)
+			     service_id, event_id, start, hSvc)
 			    values('%s', 'pending', '%s', '%s', '%s', %s, %s,
-			      %s)
+			      %s, %s)
 		} -1 $ucCRIDType $szCRID $crid $service_id $event_id [\
-		  $event get start]
+		  $event get start] $event_hsvc
 	    }
 	}
 
@@ -1321,6 +1326,18 @@ proc {rsv clearskip} {slot} {
 	}
 }
 
+proc {rsv skiplist} {{ulslot -1}} {
+	set dbh [rsv dbhandle]
+
+	set q "select group_concat(hSvc || ':' ||  event_id, ' ')
+	       as list from skip where state = 'live'"
+	if {$ulslot >= 0} {
+		append q " and ulslot = $ulslot"
+	}
+	lassign [$dbh query $q] ret
+	return $ret(list)
+}
+
 proc {rsv reassert_skips} {} {
 	set rsvdb [rsv dbhandle]
 
@@ -1329,9 +1346,8 @@ proc {rsv reassert_skips} {} {
 	foreach s [$rsvdb query {
 	    select * from skip
 	    where state = 'live' and ulslot >= 0
-	    and start > %s and start < %s
 	    order by ulslot, service_id, event_id
-	} $now $($now + 86400)] {
+	}] {
 		if {![dict exists $s ulslot]} continue
 		set r [rsv slot $s(ulslot)]
 		if {$r eq "0"} {
@@ -1342,6 +1358,17 @@ proc {rsv reassert_skips} {} {
 		if {[$r get szCRID] ne $s(szCRID)} {
 			# Slot is now for a different recording.
 			rsv clearskip $s(ulslot)
+			continue
+		}
+
+		if {$s(start) < $now} {
+			# Recording time passed
+			rsv clearskip $s(ulslot)
+			continue
+		}
+
+		if {[$r get usevtid] != $s(event_id) &&
+		    $s(start) > $now + 86400} {
 			continue
 		}
 

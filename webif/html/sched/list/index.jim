@@ -185,7 +185,7 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			<span class=footnote>(Last: $ds)</span>"
 		puts "</td><td>--:--:--</td>"
 	} else {
-		set elist [$event aul]
+		set elist [$event aul true]
 		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
 		puts "<td nowrap class=\"va"
 		if {$n > $e} { puts -nonewline " blood" }
