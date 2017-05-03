@@ -81,25 +81,29 @@ if {$crid != ""} {
 	[$event get szCRID]"
 	puts "</a></td></tr>"
 }
-puts "<tr><th>Events</th><td>"
-set flag 0
-foreach ev [split [$event get szEventToRecord] "|"] {
-	if {$ev eq ""} { continue }
-	set ev [string range $ev 1 end]
-	if {$flag} { puts "<br>" }
-	incr flag
-	set crid [join [lrange [split $ev /] 1 end]]
-	puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
-	puts "crid=/$crid>
-	<img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
-	    height=14> 
-	$ev"
-	puts "</a>"
+proc cridlist {events} {
+	set flag 0
+	foreach ev $events {
+		if {$ev eq ""} { continue }
+		set ev [string range $ev 1 end]
+		if {$flag} { puts "<br>" }
+		incr flag
+		set crid [join [lrange [split $ev /] 1 end]]
+		puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
+		puts "crid=/$crid>
+		    <img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
+			height=14> 
+		    $ev"
+		puts "</a>"
+	}
+
 }
-puts "</td></tr>"
-puts "<tr><th>Accepted</th><td>"
-if {[$event get aulEventToRecordInfo] ne ""} {
-	puts "Yes"
+puts "<tr><th>Events</th><td>"
+cridlist [split [$event get szEventToRecord] |]
+if {[$event get szRecordedProgCrid] ne ""} {
+	puts "<tr><th>Recorded events<br>(Skip List)</th><td>"
+	cridlist [split [$event get szRecordedProgCrid] |]
+	puts "</td></tr>"
 }
 puts "</td></tr>"
 puts "</table>"

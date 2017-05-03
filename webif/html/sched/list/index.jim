@@ -185,7 +185,8 @@ proc eventrow {event {table TBL_RESERVATION}} {
 			<span class=footnote>(Last: $ds)</span>"
 		puts "</td><td>--:--:--</td>"
 	} else {
-		set elist [$event aul true]
+		set elist [$event aul]
+		set skiplist [$event skiplist]
 		set ds "[clock format $s -format {%a %d %b %Y %H:%M}]"
 		puts "<td nowrap class=\"va"
 		if {$n > $e} { puts -nonewline " blood" }
@@ -242,6 +243,10 @@ proc eventrow {event {table TBL_RESERVATION}} {
 				set xcl "also"
 				if {"[$event get ulslot]${end}" in $conflicts} {
 					append xcl " pinkshade"
+				}
+
+				if {"$service_id:$event_id" in $skiplist} {
+					append xcl " strike"
 				}
 
 				puts "<span class=\"$xcl\">"

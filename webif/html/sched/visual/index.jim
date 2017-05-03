@@ -95,7 +95,7 @@ foreach p $pending {
 #      6:      class (live, pending)
 
 # Filter events array
-set skip [rsv skiplist]
+set skip [rsv _skiplist]
 if {[llength $skip]} {
 	set events [lmap i $events {
 		lassign $i x x s e
