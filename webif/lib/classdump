@@ -1,8 +1,23 @@
 
 if {![exists -proc classdump]} {
+	proc _classdump_escape {data} {
+		if {[string is print $data]} { return $data }
+		set ret ""
+		foreach c [split $data ""] {
+			if {[string is print $c]} {
+				append ret $c
+			} else {
+				binary scan $c H* hex
+				append ret "\\x$hex"
+			}
+		}
+		return $ret
+	}
+
 	proc classdump {o} {
 		foreach var [$o vars] {
-			puts [format {%20s %s} $var [$o get $var]]
+			puts [format {%20s %s} $var [\
+			    _classdump_escape [$o get $var]]]
 		}
 	}
 }
