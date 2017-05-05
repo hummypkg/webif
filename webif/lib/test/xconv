@@ -1,0 +1,18 @@
+#!/mod/bin/jimsh
+
+source /mod/webif/lib/setup
+package require xconv
+require hexdump
+
+puts [xconv testtesttest]
+
+set s "home made p\303at\302e"
+hexdump $s
+
+set t [xconv $s]
+
+hexdump $t
+
+puts "Length: [string length $t]"
+puts "Bytelength: [string bytelength $t]"
+
