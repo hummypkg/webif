@@ -49,7 +49,7 @@ if {$smartmsg ne ""} {
 <div id=smartwarning class=warningbox><center>
 !! WARNING !!
 <br><br>
-There appear to be some hardware problems with the internal hard disk on
+There are potential hardware problems with the internal hard disk on
 this device.
 <br><br>
 [string map {"\n" "<br>"} $smartmsg]
