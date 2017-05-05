@@ -517,7 +517,7 @@ proc {rsv find_hsvc} {lcn channel} {
 rsv method cleanvars {} {
 	return [lsort [lmap i [$self vars] {
 		if {[string index $i 0] eq "_"} continue
-		concat "" $i
+		function $i
 	    }]]
 }
 
@@ -922,7 +922,7 @@ proc {rsv backup} {file} {
 
 	puts $fd "# version 2"
 
-	puts $fd "# [join $fields "\t"]"
+	puts $fd "#\n# Schedule\n# [join $fields "\t"]"
 
 	foreach event $events {
 		puts "  Backing up scheduled event '[$event name]'"
@@ -941,6 +941,8 @@ proc {rsv backup} {file} {
 
 	puts "Backing up channel favourites..."
 	puts "  Names:"
+
+	puts $fd "#\n# Favourites"
 
 	# Favourite names
 	set favnames {}
@@ -975,12 +977,41 @@ proc {rsv backup} {file} {
 	}
 	puts "Done."
 
+	puts "Backing up skiplist..."
+
+	set skiplist [$rsvdb query {
+		select * from skip
+		order by ulslot, start
+	    }]
+	if {[llength $skiplist]} {
+		# Add key line
+		set keys "#\n# Skiplist\n#"
+		foreach {k v} [lindex $skiplist 0] {
+			append keys " $k,"
+		}
+		puts $fd $keys
+
+		foreach skip $skiplist {
+			puts -nonewline $fd "skip\t"
+			foreach {k v} $skip {
+				puts -nonewline $fd "$v\t"
+			}
+			puts $fd ""
+		}
+	}
+
+	puts "Done."
+
 	puts "Backing up channel list..."
+
+	puts $fd "#\n# Channels by hSvc"
 
 	foreach channel [epg channellist hSvc] {
 		lassign $channel name hsvc
 		puts $fd "hsvc\t$hsvc\t$name"
 	}
+
+	puts $fd "#\n# Channels by LCN"
 
 	foreach channel [epg channellist usLcn] {
 		lassign $channel name uslcn
@@ -1002,13 +1033,6 @@ proc {rsv restore} {file} {
 	if {[catch { set fd [open $file r] } msg]} {
 		error "Error opening <i>$file</i> - $msg"
 	}
-
-	puts "Restoring scheduled events from <i>$file</i>..."
-
-	catch { exec /mod/bin/nugget quit }
-	$rsvdb query {delete from TBL_RESERVATION;}
-
-	set fields [[rsv] cleanvars]
 
 	set data [split [read $fd] "\n"]
 
@@ -1034,6 +1058,19 @@ proc {rsv restore} {file} {
 
 	set chanmap [lreverse $hsvcmap]
 
+	puts "Restoring scheduled events from <i>$file</i>..."
+
+	# Disable RTS until next restart.
+	catch { exec /mod/bin/nugget quit }
+
+	# Clear tables
+	foreach tab {TBL_RESERVATION pending skip} {
+		$rsvdb query {delete from %s;} $tab
+	}
+
+	set fields [[rsv] cleanvars]
+
+	######################################################################
 	# Restore events
 
 	foreach line $data {
@@ -1117,6 +1154,50 @@ proc {rsv restore} {file} {
 		puts ""
 	}
 
+	######################################################################
+	# Restore skiplist
+	puts "Restoring skiplist..."
+
+	set fields "ulslot state service_id event_id hSvc start
+                    ucCRIDType szCRID szSkipCRID"
+
+	foreach line $data {
+		set vals [lrange [lassign [split $line "\t"] key] 0 end-1]
+		if {$key ne "skip"} continue
+
+		lassign $vals {*}$fields
+
+		# Map old hSvc to new
+		if {![dict exists $hsvcmap $hSvc]} {
+			# Should not happen
+			puts "    Losing skip entry ($hSvc)"
+			continue
+		}
+		set chan $hsvcmap($hSvc)
+		puts "    Restoring skip for $chan - $szSkipCRID"
+
+		# Fetch new hSvc and service_id
+		set _hsvc [get_channel_attr $chan]
+		set _service_id [get_channel_attr $chan usSvcId]
+		if {$_hsvc eq "" || $_service_id eq ""} {
+			puts "        Cannot map channel name to service."
+			continue
+		}
+		if {$hSvc != $_hsvc || $service_id != $_service_id} {
+			puts -nonewline "        Service number has changed "
+			puts "$hSvc -> $_hsvc, fixing."
+			lset vals [lsearch $fields hSvc] $_hsvc
+			lset vals [lsearch $fields service_id] $_service_id
+		}
+		catch {$rsvdb query "
+			insert into skip([join $fields ,]) values (
+			    [join [lrepeat [llength $fields] "'%s'"] ,]
+			);
+		" {*}$vals}
+	}
+
+	######################################################################
+	# Restore favourites
 	puts "Restoring favourite channels..."
 	$rsvdb query {delete from channel.TBL_FAV}
 
