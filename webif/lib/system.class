@@ -365,15 +365,8 @@ proc {system diskpart} {} {
 }
 
 proc {system diskdev} {} {
-	set part [system diskpart]
-	foreach line [split [\
-	    exec /mod/bin/busybox/df $part 2>>/dev/null] "\n\r"] {
-		if {[string match "/*" $line]} {
-			lassign [split $line] dev
-			break
-		}
-	}
-	return $dev
+	return [lindex [lsearch -regexp -inline \
+	    [split [file read /proc/mounts] "\n\r"] " [system diskpart] "] 0]
 }
 
 proc {system disk} {} {
