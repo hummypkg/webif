@@ -27,9 +27,9 @@ foreach file [cgi_get files] {
 	set ts [ts fetch $file]
 	if {$ts eq "0"} continue
 
-	lassign $act act args
+	lassign $act xact args
 
-	set q [queue insert -hold $ts $act]
+	set q [queue insert -hold $ts $xact]
 	if {$args ne ""} { $q set args $args }
 	$q submit
 	puts "</li>"
