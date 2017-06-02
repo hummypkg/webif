@@ -63,6 +63,7 @@ if {![exists -proc require]} {
 		if {![info exists ::mws::pagetag]} {
 		    switch -glob -- $env(REQUEST_URI) {
 			"/sched/*" { set ::mws::pagetag "Schedule" }
+			"/diag/queue/*" { set ::mws::pagetag "Queued Tasks" }
 			"/diag/*" { set ::mws::pagetag "Diagnostics" }
 			"/browse/*" { set ::mws::pagetag "Browse Files" }
 			"/xepg/*" { set ::mws::pagetag "EPG" }
