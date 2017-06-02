@@ -144,7 +144,6 @@ ts method setflag {flag {dummy 0}} {
 		ladd flags [string totitle $flag]
 	}
 	return 1
-
 }
 
 ts method unsetflag {flag {dummy 0}} {
@@ -160,7 +159,6 @@ ts method unsetflag {flag {dummy 0}} {
 		lremove flags [string totitle $flag]
 	}
 	return 1
-
 }
 
 ts method set_shrunk {} {
