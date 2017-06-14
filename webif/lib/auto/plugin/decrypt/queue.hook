@@ -99,6 +99,12 @@ proc ::decrypt::dequeue {q ts} {
 	# Release the helper lock once finished.
 	if {$helper} { system dlnahelper -release }
 
+	if {![file exists "$tmp/$bfile"]} {
+		log "  $file - Download failed." 0
+		system endop decrypt
+		return {"DEFER" "File download failed"}
+	}
+
 	if {[file size $file] != [file size "$tmp/$bfile"]} {
 		log "  $file - File size mismatch." 0
 		file tdelete "$tmp/$bfile"
