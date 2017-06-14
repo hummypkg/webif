@@ -171,7 +171,7 @@ if {[llength $data]} {
 		debug " NDATA: ($ndata)"
 		set rr 0
 	} else {
-		sleep 1
+		#sleep 1
 		set ndata [get_data]
 		debug " NDATA: ($ndata)"
 		foreach k [array names data] {
