@@ -202,7 +202,7 @@ function setup_tab(index, panel)
 		e.preventDefault();
 		var pkg = $(this).closest('tr').attr('pkg');
 		stick = true;
-		execopkg('whatdepends ' + pkg, false);
+		execopkg('dependinfo ' + pkg, false);
 	});
 
 	$(panel).find('tr[pkg=webif]').find('button[action=remove]').disable();

@@ -14,8 +14,8 @@ proc putsf {str} {
 	flush stdout
 }
 
-proc opkg {cmd} {
-	putsf ">>> opkg $cmd"
+proc opkg {cmd {silent 0}} {
+	if {!$silent} { putsf ">>> opkg $cmd" }
 	set bcmd "|/mod/webif/lib/bin/opkg $cmd"
 	set fd [open $bcmd r]
 	while {[gets $fd line] >= 0} {
@@ -37,6 +37,26 @@ set netcmds {install update upgrade}
 if {$cmd in $netcmds && ![system connectivity]} {
 	putsf "!!  ERROR - No network connectivity to package repository  !!"
 	putsf "Check your Internet connection and DNS service and then try again."
+	exit
+}
+
+if {$cmd eq "dependinfo"} {
+	putsf ">>> What $cmdargs depends on\n"
+	opkg "depends $cmdargs" 1
+
+	putsf ">>> What depends on $cmdargs\n"
+	set bcmd "|/mod/webif/lib/bin/opkg whatdepends $cmdargs"
+	set fd [open $bcmd r]
+	while {[gets $fd line] >= 0} {
+		if {[string match "What depends on root set" $line]} break
+	}
+	while {[gets $fd line] >= 0} {
+		if {[string match "*depends on $cmdargs*" $line]} {
+			puts "$line"
+		}
+	}
+	close $fd
+	putsf ""
 	exit
 }
 
