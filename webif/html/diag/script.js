@@ -52,7 +52,8 @@ function chunked_request(placeholder, url, data)
 			}
 		},
 		progressInterval: 500,
-		success: function(data, status) {
+		success: function(data, status, xhr) {
+			//console.log(xhr.status);
 			loaddata(data, status);
 		},
 		error: function(_, _, e) {
