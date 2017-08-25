@@ -12,8 +12,8 @@ if [ -h /mod/webif -a -d /mod/var/mongoose -a ! -h /mod/var/mongoose ]; then
 	ln -s ../webif mongoose
 fi
 
-if [ ! -f /mod/webif/.pfixpkg ]; then
-	at now + 1 minute << EOM
+if [ ! -f /mod/webif/.pfixpkg -a -x /mod/bin/at ]; then
+	/mod/bin/at now + 1 minute << EOM
 diag fixpkg
 touch /mod/webif/.pfixpkg
 EOM
