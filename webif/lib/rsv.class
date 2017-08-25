@@ -632,7 +632,7 @@ rsv method insert_deferred {{table pending}} {
 	return [$self insert $table 0 1]
 }
 
-proc {rsv list} {{table tbl_reservation} {extra ""}} {
+proc {rsv list} {{table tbl_reservation} {extra ""} {class rsv}} {
 	set qstring "
 		select $table.*,
 		channel.TBL_SVC.szSvcName, channel.TBL_SVC.usLcn,
@@ -650,11 +650,11 @@ proc {rsv list} {{table tbl_reservation} {extra ""}} {
 
 	#puts "QSTRING: ($qstring)"
 
-	set res [[rsv dbhandle] query $qstring]
+	set res [[$class dbhandle] query $qstring]
 	set records {}
 	foreach rec $res {
 		lappend rec _table $table
-		lappend records [rsv new $rec]
+		lappend records [$class new $rec]
 	}
 
 	return $records
