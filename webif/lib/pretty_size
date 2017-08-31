@@ -11,7 +11,7 @@ if {![exists -proc pretty_size]} {
 		# We need to know how many powers of 1024 there are in
 		# size. This calculates the answer effeciently. Testing
 		# shows that this version takes 2/3 the time of the above.
-		if {$size == 0} {
+		if {$size <= 0} {
 			set i 0
 		} else {
 			set i $(int(log($size) / log(1024)))
