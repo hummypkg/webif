@@ -1,7 +1,6 @@
 
 if {![exists -proc pretty_size]} {
-	proc pretty_size {size} {
-		set units {bytes KiB MiB GiB TiB}
+	proc pretty_size {size} {{units {bytes KiB MiB GiB TiB}}} {
 
 #		for {set i 0; set l [llength $units]; incr l -1} {
 #		    $size > 1023 && $i < $l} {incr i} {
