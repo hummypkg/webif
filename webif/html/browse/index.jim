@@ -330,6 +330,7 @@ proc s_time {a b} {
 set files [readdir -nocomplain $dir]
 switch $order {
 	1 {		set files [lsort -command s_time $files] }
+	2 {		set files [lreverse [lsort -command s_time $files]] }
 	default {	set files [lsort -nocase $files] }
 }
 
@@ -344,7 +345,7 @@ Directories: $dircount, Files: $filecount
 
 # Sort icons
 puts "<div id=sortdiv>"
-set sortlist {{0 sort_name name} {1 sort_date date}}
+set sortlist {{0 sort_name name} {1 sort_date date} {2 sort_date reverse-date}}
 foreach sl $sortlist {
 	lassign $sl index img descr
 
