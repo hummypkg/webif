@@ -186,9 +186,9 @@ puts {
 		    class="text ui-widget-content ui-corner-all">
 }
 
-set glist [ts genrelist]
-foreach genre [array names glist] {
-	lassign $glist($genre) txt img
+foreach genre [dict keys $::epg::genrelist] {
+	lassign $::epg::genrelist($genre) txt img
+	if {$txt eq "Unknown" } continue
 	if {$img eq "Unclassified"} {
 		set img /images/173_3_26_G3_$img.png
 	} else {

@@ -84,11 +84,13 @@ puts "
 if {[$record showing]} {
 	puts [progressbar [$record percent]]
 }
+set icon [$record type_icon]
+if {$icon != ""} { set icon "<img class=genre src=$icon>" }
 puts "
 	</td>
 	</tr><tr>
 		<th>Type</th>
-		<td>[$record get content_type] ([$record get content_code])</td>
+		<td>$icon [$record get content_type] ([$record get content_code])</td>
 	</tr>
 "
 

@@ -21,6 +21,27 @@ if {[file exists $::epgdbpath]} {
 	set ::qepg 1
 }
 
+# Maps the top nibble of descriptor 84 (content_type) to a description and
+# icon.
+set ::epg::genrelist {
+	0	{ Unclassified		Unclassified }
+	1	{ Film 			Movie }
+	2	{ "News & Factual"	News }
+	3	{ Entertainment		Show }
+	4	{ Sport			Sports }
+	5	{ Children		Children }
+	6	{ Entertainment		Music }
+	7	{ Art			Art }
+	8	{ Society		Society }
+	9	{ Education		Education }
+	10	{ Lifestyle		Leisure }
+	11	{ Unknown		Unclassified }
+	12	{ Unknown		Unclassified }
+	13	{ Unknown		Unclassified }
+	14	{ Unknown		Unclassified }
+	15	{ Drama			Show }
+}
+
 #  * service_id, event_id, start, duration, encrypted, name, text
 #  * warning, content code, content type,
 #  * event CRID, series CRID, rec CRID, warning mode
@@ -95,19 +116,7 @@ epg method end {} {
 }
 
 epg method type_icon {} {
-	set img ""
-	switch -- $content_code {
-		1 { set img "Movie" }
-		2 { set img "News" }
-		3 { set img "Show" }
-		4 { set img "Sports" }
-		5 { set img "Children" }
-		6 { set img "Music" }
-		7 { set img "Art" }
-		8 { set img "Society" }
-		9 { set img "Education" }
-		10 { set img "Leisure" }
-	}
+	lassign $::epg::genrelist($content_code) x img
 	if {$img != ""} {
 		return "/images/173_3_00_G3_$img.png"
 	} else {

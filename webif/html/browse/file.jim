@@ -131,6 +131,13 @@ if {$type eq "ts"} {
 	<th>Channel</th>
 	<td>[epg channelicon [$ts get channel_name] 50 "vertical-align: middle"]
 	    [$ts get channel_num] - [$ts get channel_name]</td>
+</tr>
+	"
+	lassign [$ts genre_info] txt img
+	puts "
+<tr>
+	<th>Genre</th>
+	<td><img src=\"$img\">$txt ([$ts genrenib])</td>
 </tr><tr>
 	<th>Start Time</th>
 	<td>"

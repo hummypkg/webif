@@ -313,6 +313,9 @@ ts method setguidance {newguidance} {
 }
 
 ts method setgenre {newgenre} {
+	if {$newgenre <= 15} {
+		set newgenre $($newgenre << 4)
+	}
 	exec /mod/bin/hmt "+setgenre=-${newgenre}" $file
 	set genre $newgenre
 }
@@ -489,21 +492,6 @@ proc {ts touchgroup} {target ref} {
 		set f "$root.$ext"
 		if {![file exists $f]} continue
 		file touch $f $ref
-	}
-}
-
-proc {ts genrelist} {} {
-	return {
-		0	{ Unclassified		Unclassified }
-		16	{ Film 			Movie }
-		32	{ "News & Factual"	News }
-		48	{ Entertainment		Special }
-		64	{ Sport			Sports }
-		80	{ Children		Children }
-		96	{ Entertainment		Special }
-		144	{ Education		Education }
-		160	{ Lifestyle		Leisure }
-		240	{ Drama			Show }
 	}
 }
 
@@ -807,5 +795,20 @@ ts method tsr {} {
 	close $fd
 	set tsr [unpack $bytes -uintle $(8 * 0x1f) 8]
 	return $tsr
+}
+
+ts method genrenib {} {
+	return $($genre >> 4)
+}
+
+ts method genre_info {} {
+	set g [$self genrenib]
+	lassign $::epg::genrelist($g) txt img
+	if {$img eq "Unclassified"} {
+		set img "/images/173_3_26_G3_$img.png"
+	} else {
+		set img "/images/173_3_00_G3_$img.png"
+	}
+	return [list $txt $img]
 }
 

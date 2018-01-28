@@ -188,19 +188,9 @@ proc entry {file} {{i 0}} {
 		}
 		icon [epg channeliconpath [$ts get channel_name]] \
 		    [$ts get channel_name] "" "va browsechannel"
-		set genre [$ts get genre]
-		set glist [ts genrelist]
-		if {[dict exists $glist $genre]} {
-			set ret $glist($genre)
-		} else {
-			set ret $glist(0)
-		}
-		lassign $ret txt img
-		if {$img eq "Unclassified"} {
-			icon "/images/173_3_26_G3_$img.png" $txt "" "va genre"
-		} else {
-			icon "/images/173_3_00_G3_$img.png" $txt "" "va genre"
-		}
+
+		lassign [$ts genre_info] txt img
+		icon "$img" $txt "" "va genre"
 
 		lassign [ts iconset $ts] icons attrs
 
