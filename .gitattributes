@@ -1,2 +1,3 @@
-.jim linguist-language=tcl
-.class linguist-language=tcl
+*.jim linguist-language=tcl
+*.class linguist-language=tcl
+
