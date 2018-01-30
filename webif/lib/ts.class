@@ -812,3 +812,10 @@ ts method genre_info {} {
 	return [list $txt $img]
 }
 
+proc {ts genrelist} {} {
+	require epg.class
+	return [lmap {k v} $::epg::genrelist {
+		function "$($k << 4) $v"
+	}]
+}
+
