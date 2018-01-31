@@ -814,8 +814,10 @@ ts method genre_info {} {
 
 proc {ts genrelist} {} {
 	require epg.class
-	return [lmap {k v} $::epg::genrelist {
-		function "$($k << 4) $v"
-	}]
+	set glist {}
+	foreach {k v} $::epg::genrelist {
+		lappend glist $($k << 4) $v
+	}
+	return $glist
 }
 
