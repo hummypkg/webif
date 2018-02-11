@@ -16,23 +16,19 @@ You have pending system notifications:
 
 set lines {}
 set seen {}
+set i 0
 foreach line [split [file read /mod/tmp/notify.log] "\n"] {
-	set rest [lassign [split $line -] date]
+	set rest [join [lassign [split $line -] date] -]
 	if {$rest eq ""} { set rest $date }
-	if {[dict exists $seen $rest]} {
-		incr seen($rest)
-	} else {
-		set seen($rest) 1
-	}
-	set lines($rest) "$line"
-	set mul $seen($rest)
+	set mul [incr seen($rest)]
 	if {$mul > 1} {
-		append lines($rest) " ($mul instances)"
+		append line " ($mul instances)"
 	}
+	set lines($rest) [list [incr i] $line]
 }
 
-foreach {line msg} $lines {
-	puts $msg
+foreach line [lsort -integer -index 0 [dict values $lines]] {
+	puts [lindex $line 1]
 }
 
 puts {
