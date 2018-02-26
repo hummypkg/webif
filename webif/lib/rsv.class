@@ -834,10 +834,10 @@ proc {rsv construct} {event type} {
 			set args(szEventToRecord) "1$args(szCRID)|"
 			set args(aulEventToRecordInfo) [rsv mkaul $event]
 			# Handle split events
-			if {[string match {*#?} $args(szCRID)]} {
+			if {[string match {*#*} $args(szCRID)]} {
 				set args(ucRecKind)	2
-				set args(szCRID) [
-				    string range $args(szCRID) 0 end-2]
+				lassign [split $args(szCRID) "#"] crid imi
+				set args(szCRID) $crid
 				# TODO - check to see how many parts there
 				# are...
 				append args(szEventToRecord) \
