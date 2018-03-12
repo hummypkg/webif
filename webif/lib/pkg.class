@@ -13,6 +13,7 @@ class pkg {
 
 set ::pkgmeta {}
 set ::diagmeta {}
+set ::muxdb {}
 
 pkg method _load {nm} {
 	set name $nm
@@ -256,6 +257,25 @@ proc {pkg fetchdiagmeta} {} {
 
 	set ff [open "/mod/var/diag.meta" w]
 	puts $ff $::diagmeta
+	$ff close
+}
+
+proc {pkg loadmuxdb} {} {
+	if {[llength $::muxdb]} { return }
+	if {![file exists "/mod/var/mux.db"]} {
+		catch {pkg fetchmuxdb}
+	} else {
+		set meta [open "/mod/var/mux.db" r]
+		set ::muxdb [read $meta]
+		$meta close
+	}
+}
+
+proc {pkg fetchmuxdb} {} {
+	set ::muxdb [pkg fetchfile mux.db]
+
+	set ff [open "/mod/var/mux.db" w]
+	puts $ff $::muxdb
 	$ff close
 }
 

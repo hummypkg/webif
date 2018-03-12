@@ -70,6 +70,8 @@ if {$cmd eq "update" || $cmd eq "upgrade"} {
 	putsf ""
 	putsf "Updating diagnostic meta information"
 	pkg fetchdiagmeta
+	putsf "Updating MUX database"
+	pkg fetchmuxdb
 }
 
 putsf "Done."

@@ -3,18 +3,20 @@
 package require cgi
 package require sqlite3
 source /mod/webif/lib/setup
-require altrow progressbar epg.class system.class
+require altrow progressbar epg.class system.class pkg.class
 
 header
-
-proc f2c {frequency} {
-	set ch int($((($frequency / 1000) - 303.25) / 8))
-	return [expr int($ch)]
-}
 
 if {[catch {set db [sqlite3.open /var/lib/humaxtv/channel.db]} msg]} {
 	puts "Error opening channel database: $msg"
 	exit
+}
+
+pkg loadmuxdb
+
+proc f2c {frequency} {
+	set ch int($((($frequency / 1000) - 303.25) / 8))
+	return [expr int($ch)]
 }
 
 puts "
@@ -75,22 +77,8 @@ foreach tw [$db query {
 		lassign $chan x lcn x name
 		set name [system strip $name]
 		if {$lcn >= 800} { incr ehs }
-		switch -glob -- $name {
-			"BBC NEWS" -
-			"BBC FOUR" { set mux "PSB1/BBC A" }
-			"Channel 5" -
-			"ITV2" { set mux "PSB2/D3&amp;4" }
-			"Channel 4 HD" -
-			"BBC ONE HD" { set mux "PSB3/BBC B" }
-			"5 USA" -
-			"ITV3" { set mux "COM4/SDN" }
-			"Really" -
-			"Dave" { set mux "COM5/ARQ A" }
-			"4Music" -
-			"Yesterday" { set mux "COM6/ARQ B" }
-			"BBC NEWS HD" { set mux "COM7/ARQ C" }
-			"5STAR+1" -
-			"QVC + 1 HD" { set mux "COM8/ARQ D" }
+		if {[dict exists $::muxdb $name]} {
+			set mux $::muxdb($name)
 		}
 	}
 	puts "<td>$mux</td>"
