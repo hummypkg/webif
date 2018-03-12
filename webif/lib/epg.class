@@ -116,7 +116,10 @@ epg method end {} {
 }
 
 epg method type_icon {} {
-	lassign $::epg::genrelist($content_code) x img
+	set img ""
+	if {[dict exists $::epg::genrelist $content_code]} {
+		lassign $::epg::genrelist($content_code) x img
+	}
 	if {$img != "" && $img ne "Unclassified"} {
 		return "/images/173_3_00_G3_$img.png"
 	} else {
