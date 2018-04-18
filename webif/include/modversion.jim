@@ -19,6 +19,9 @@ puts "<br>Humax Version: $fhtcpversion (kernel $kernelver)"
 puts "<br>Loader Version: [system loaderver]"
 puts "<br>System ID: [system systemid]"
 puts "<br>Serial Number: [system serialno]"
+if {$mws::pagetag eq "Diagnostics"} {
+	puts "<br>Encryption Key: [system encryptionkey]"
+}
 puts "<br>Last Boot Reason: [system lastbootreason]"
 
 puts "</span>"

@@ -144,6 +144,18 @@ proc {system serialno} {} {{serial ""}} {
 	return $serial
 }
 
+proc {system encryptionkey} {} {{key ""}} {
+	if {$key ne ""} { return $key }
+	set fd [open /dev/mtd3 r]
+	$fd seek 0xc8c00
+	set bytes [$fd read 6]
+	$fd seek 0xcb800
+	append bytes [$fd read 10]
+	$fd close
+	binary scan $bytes H* key
+	return $key
+}
+
 proc {system loaderver} {} {{ver ""}} {
 	if {$ver ne ""} { return $ver }
 	set fd [open /dev/mtd3 r]
