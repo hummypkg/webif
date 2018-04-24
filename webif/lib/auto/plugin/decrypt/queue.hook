@@ -6,6 +6,11 @@ proc ::decrypt::dequeue {q ts} {
 	set file [$ts get file]
 	set rfile [file rootname $file]
 	set bfile [file tail $file]
+	set mode "dlna"
+
+	if {[system model] eq "HD"} { set mode "direct" }
+	if {"-direct" in [$q get args]} { set mode "direct" }
+	#if {$mode eq "dlna" && [$q get retries] > 5} { set mode "direct" }
 
 	if {![$ts flag "ODEncrypted"]} {
 		return {"OK" "Already decrypted"}
@@ -15,7 +20,7 @@ proc ::decrypt::dequeue {q ts} {
 		return {"FAILED" "Zero-byte recording, cannot process"}
 	}
 
-	if {![system dlnastatus]} {
+	if {$mode eq "dlna" && ![system dlnastatus]} {
 		if {[system instandby]} {
 			# Prevent polling every minute
 			return [list "DEFER" "Cannot decrypt in standby" +120]
@@ -29,11 +34,6 @@ proc ::decrypt::dequeue {q ts} {
 				return [list "DEFER" \
 				    "Time-shifted recording in-progress" +120]
 			}
-#			if {[$ts get scheddur] == 5700} {
-#				# Likely to be instant-recording.
-#				return [list "DEFER" \
-#				    "Instant-recording in-progress" +120]
-#			}
 			# Recording in progress, defer until near expected
 			# end.
 			set left $([$ts get end] - [clock seconds])
@@ -57,47 +57,60 @@ proc ::decrypt::dequeue {q ts} {
 		    "Already decrypted but the HMT flag was wrong (fixed)"}
 	}
 
-	lassign [$ts dlnaloc "127.0.0.1"] url
+	if {$mode eq "dlna"} {
+		lassign [$ts dlnaloc "127.0.0.1"] url
 
-	if {[$ts flag "Encrypted"]} {
-		#return {"DEFER" "Protected (Enc flag)"}
-		# Unset the flag but use the DLNA helper to decrypt
-		# this file since the DLNA database will be wrong.
-		log "  $file - ENC flag set, using helper."
-		$ts unenc
-		set url ""
+		if {[$ts flag "Encrypted"]} {
+			#return {"DEFER" "Protected (Enc flag)"}
+			# Unset the flag but use the DLNA helper to decrypt
+			# this file since the DLNA database will be wrong.
+			log "  $file - ENC flag set, using helper."
+			$ts unenc
+			set url ""
+		}
+
+		if {$url ne ""} {
+			log "  $file - has been indexed."
+			set helper 0
+		} else {
+			log "  $file - Not yet indexed, trying helper."
+			if {[catch {
+			    lassign [system dlnahelper [\
+				file normalize $file]] url
+			    } msg]} {
+				log "  $file - $msg"
+				return [list "DEFER" $msg]
+			}
+			if {$url eq ""} {
+				return {"DEFER" "DLNA helper failed"}
+			}
+			set helper 1
+		}
 	}
 
-	if {$url ne ""} {
-		log "  $file - has been indexed."
-		set helper 0
-	} else {
-		log "  $file - Not yet indexed, trying helper."
-		if {[catch {
-		    lassign [system dlnahelper [file normalize $file]] url
-		    } msg]} {
-			log "  $file - $msg"
-			return [list "DEFER" $msg]
-		}
-		if {$url eq ""} {
-			return {"DEFER" "DLNA helper failed"}
-		}
-		set helper 1
-	}
-
-	# Perform the decryption by requesting the file from the DLNA server.
 	set size [$ts size]
 	::auto::dsc $size
 	system startop decrypt $file
 	::auto::startclock
 	log "  DECRYPT: $rfile" 0
-	log "  DLNA: $url" 0
-	if {[catch {exec wget -O "$tmp/$bfile" $url} msg opts]} {
-		::auto::log "Wget error - $msg - $opts"
-	}
 
-	# Release the helper lock once finished.
-	if {$helper} { system dlnahelper -release }
+	if {$mode eq "dlna"} {
+		log "  DLNA: $url" 0
+		if {[catch {exec wget -O "$tmp/$bfile" $url} msg opts]} {
+			::auto::log "Wget error - $msg - $opts"
+		}
+
+		# Release the helper lock once finished.
+		if {$helper} { system dlnahelper -release }
+	} else {
+		log "  Direct decryption" 0
+		if {[catch {exec /mod/bin/stripts -@@ "$rfile" "$tmp/[\
+		    file rootname $bfile]" } msg opts]} {
+			::auto::log "Decrypt error - $msg - $opts"
+			system endop decrypt
+			return {"FAILED" "Decryption failed"}
+		}
+	}
 
 	if {![file exists "$tmp/$bfile"]} {
 		log "  $file - Download failed." 0
@@ -121,9 +134,10 @@ proc ::decrypt::dequeue {q ts} {
 		return {"DEFER" "Recording in use"}
 	}
 
-	# Copy the HMT file over for stripts
+	# Copy the HMT file over for stripts - can be removed once
+	# stripts can work without a .hmt - XXX
 	set thmt "$tmp/[file rootname $bfile].hmt"
-	file copy "$rfile.hmt" $thmt
+	if {![file exists $thmt]} { file copy "$rfile.hmt" $thmt }
 	# Check that the file is no longer encrypted by analysing it.
 	set anencd [exec /mod/bin/stripts -qE "$tmp/[file rootname $bfile]"]
 	file delete $thmt
@@ -131,10 +145,11 @@ proc ::decrypt::dequeue {q ts} {
 	if {$anencd != "0"} {
 		log "  $file - File did not decrypt properly." 0
 		file tdelete "$tmp/$bfile"
+		system endop decrypt
 		if {[$q get retries] > 3} {
 			system notify "$file - auto-decrypt failed."
+			return {"FAILED" "Recording did not decrypt properly"}
 		}
-		system endop decrypt
 		return {"DEFER" "Recording did not decrypt properly"}
 	}
 

@@ -7,13 +7,20 @@ require ts.class
 httpheader
 
 set tsfile [cgi_get file]
+set mode [cgi_get mode dlna]
 set rfile [file normalize $tsfile]
 
-if {![file exists "$rfile.decrypting"]} {
+if {$mode eq "dlna"} {
+	set file "$rfile.decrypting"
+} else {
+	set file "[file rootname $rfile].decrypting.ts"
+}
+
+if {![file exists "$file"]} {
 	puts "0"
 } else {
 	set sz [file size $rfile]
-	set nsz [file size "$rfile.decrypting"]
+	set nsz [file size "$file"]
 
 	puts [expr $nsz * 100 / $sz]
 }

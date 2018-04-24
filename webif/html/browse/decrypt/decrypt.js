@@ -3,14 +3,15 @@ var handle = 0;
 
 function update()
 {
-	$.get('progress.jim?file=' + $('#params').attr('file'),
+	$.get('progress.jim?file=' + $('#params').attr('file') +
+	    '&mode=' + $('#params').attr('mode'),
 	    function(data) {
 		if (handle)
 			$('#progressbar').reportprogress(data);
 	});
 }
 
-$(document).ready(function() {
+$(function() {
 
 $('#progressbar').reportprogress(0);
 
@@ -23,7 +24,10 @@ $('#decryptit').button().click(function() {
 	$('#progressdiv').show('slow');
 	$('#back').hide();
 	handle = setInterval("update()", 1000);
-	$('#output').load('execute.jim?file=' + $('#params').attr('file'),
+	$('#output')
+	    .show()
+	    .load('execute.jim?file=' + $('#params').attr('file') +
+	    '&mode=' + $('#params').attr('mode'),
 	    function() {
 		clearInterval(handle);
 		handle = 0;

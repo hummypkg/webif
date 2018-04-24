@@ -301,8 +301,7 @@ function preparemenu(el, menu)
 			$(menu).enableContextMenuItems('#delete');
 		}
 
-		if (el.attr('odencd') == 1 && el.attr('dlna') == 1 &&
-		    el.attr('encd') == 0)
+		if (el.attr('odencd') == 1 && el.attr('encd') == 0)
 			$(menu).enableContextMenuItems('#decrypt');
 		else
 			$(menu).disableContextMenuItems('#decrypt');

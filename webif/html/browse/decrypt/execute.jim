@@ -8,15 +8,32 @@ require ts.class system.class
 httpheader
 
 set rfile [cgi_get file]
+set mode [cgi_get mode dlna]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-lassign [$ts dlnaloc "127.0.0.1"] url
 
-if {$url eq ""} {
-	puts "This file has not been indexed by the media server.
-	    Cannot decrypt."
-	exit
+if {$mode eq "dlna"} {
+	lassign [$ts dlnaloc "127.0.0.1"] url
+	if {$url ne ""} {
+		# File is indexed
+		set helper 0
+	} else {
+		if {[catch {
+		    lassign [system dlnahelper [\
+			file normalize $rfile]] url
+		    } msg]} {
+			puts "Error: Cannot obtain DLNA access to file."
+			exit
+		}
+		set helper 1
+	}
+
+	if {$url eq ""} {
+		puts "This file has not been indexed by the media server.
+		    Cannot decrypt."
+		exit
+	}
 }
 
 if {[system inuse $rfile]} {
@@ -32,39 +49,53 @@ if {![file exists $origdir]} { file mkdir $origdir }
 
 set shname [file tail $base]
 puts "Processing $shname"
-
-if {[file exists "$origdir/$shname.ts"]} {
-	puts "The file already exists in _original, cannot decrypt."
-	exit
-}
+flush stdout
 
 set token [system startop -multiple decrypt $rfile]
-exec wget -O "$rfile.decrypting" $url
-system endop $token
+set err 0
+if {$mode eq "dlna"} {
+	if {[catch {exec wget -O "$rfile.decrypting" $url} msg opts]} {
+		puts "Wget error - $msg - $opts"
+		incr err
+	}
 
-puts "Moving recording to $origdir"
-
-set tail [file tail $base]
-foreach ext $tsgroup {
-	if {![file exists "$base.$ext"]} continue
-	puts "  $tail.$ext"
-	file rename "$base.$ext" "${origdir}/$tail.$ext"
-}
-
-file rename "$rfile.decrypting" $rfile
-file touch $rfile "$origdir/$tail.ts"
-
-foreach ext {nts hmt thm} {
-	set sidecar "$shname.$ext"
-	if {[file exists "$origdir/$sidecar"]} {
-		puts "Copying back sidecar $ext"
-		file copy "$origdir/$sidecar" "$dir/$sidecar"
-		file touch "$dir/$sidecar" "$origdir/$tail.ts"
+	# Release the helper lock once finished.
+	if {$helper} { system dlnahelper -release }
+} else {
+	if {[catch {
+		exec /mod/bin/stripts -@@ "$base" "$base.decrypting"
+	    } msg opts]} {
+		puts "Decrypt error - $msg - $opts"
+		incr err
 	}
 }
 
-if {[file exists "$dir/$shname.hmt"]} {
-	exec /mod/bin/hmt -encrypted "$dir/$shname.hmt"
+system endop $token
+
+if {$err} exit
+
+puts "Moving recording to $origdir"
+
+$ts move "${origdir}" 1
+
+if {$mode eq "dlna"} {
+	file rename "$rfile.decrypting" $rfile
+	foreach ext {nts hmt thm} {
+		set sidecar "$shname.$ext"
+		if {[file exists "$origdir/$sidecar"]} {
+			puts "Copying back sidecar $ext"
+			file copy "$origdir/$sidecar" "$dir/$sidecar"
+			file touch "$dir/$sidecar" "$origdir/$shname.ts"
+		}
+	}
+	if {[file exists "$dir/$shname.hmt"]} {
+		exec /mod/bin/hmt -encrypted "$dir/$shname.hmt"
+	}
+} else {
+	foreach ext $::tsgroup {
+		if {![file exists "$base.decrypting.$ext"]} continue
+		file rename "$base.decrypting.$ext" $base.$ext
+	}
 }
 
 set xtime [expr [expr [clock milliseconds] - $xstart] / 1000.0]

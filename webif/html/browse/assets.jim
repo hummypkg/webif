@@ -12,12 +12,8 @@ puts {
 	<li class="separator rename"><a href=#rename>Rename</a></li>
 	<li class=download><a href=#download>Download</a></li>
 
-}
-if {$model eq "HDR"} {
-	puts { <li class="separator decrypt"><a href=#decrypt>Decrypt</a></li> }
-	puts { <li class="compress"><a href=#strip>Shrink</a></li> }
-} else {
-	puts { <li class="compress separator"><a href=#strip>Shrink</a></li> }
+	<li class="separator decrypt"><a href=#decrypt>Decrypt</a></li>
+	<li class="compress"><a href=#strip>Shrink</a></li>
 }
 if {[system pkginst ffmpeg]} {
 	puts {
@@ -88,16 +84,8 @@ puts {
 	<li class="separator compress"><a href=#shrink>Auto-Shrink</a></li>
 	<li class=compressr><a href=#shrinkr>Recursive Auto-Shrink</a></li>
 	<li class=dedup><a href=#dedup>Auto-Dedup</a></li>
-}
-if {$model eq "HDR"} {
-	puts {
-		<li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li>
-		<li class=decryptr><a href=#decryptr>Recursive Auto-Decrypt
-		    </a></li>
-	}
-}
-
-puts {
+	<li class=decrypt><a href=#decrypt>Auto-Decrypt</a></li>
+	<li class=decryptr><a href=#decryptr>Recursive Auto-Decrypt</a></li>
 	<li class=clock><a href=#expire>Auto-Expire Options</a></li>
 }
 

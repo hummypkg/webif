@@ -3,64 +3,67 @@
 package require sqlite3
 package require cgi
 source /mod/webif/lib/setup
-require ts.class
+require ts.class system.class
 
 jqplugin progressbar
 jscss decrypt.js
 header
 
+set mode "dlna"
+if {[system model] eq "HD"} { set mode "direct" }
+
 set rfile [cgi_get file]
 set ts [ts fetch $rfile]
 set dir [file dirname $rfile]
 set len [$ts duration 1]
-lassign [$ts dlnaloc "127.0.0.1"] url
+
+if {$mode eq "dlna"} {
+	if {![system is_listening 9000]} {
+		puts {
+<div id=sysnotify class=warningbox style="width: 90%"><center>
+The Humax media server is not running.<br>
+Decryption will not use hardware acceleration.<br>
+Have you enabled <i>Content Sharing</i> in the Humax menus?<br>
+</center></div>
+		}
+		set mode "direct"
+	}
+}
+
+if {$mode eq "dlna"} {
+	set method "Hardware accelerated (via DLNA)"
+} else {
+	set method "Directly without hardware acceleration"
+}
 
 puts "
-
 <fieldset class=cleft>
 <legend>Decrypt in-place</legend>
 
 <table class=keyval cellpadding=5>
 <tr><th>File:</th><td>$rfile</td></tr>
 <tr><th>Length:</th><td>[clock format $len -format "%T"]</td></tr>
-<tr><th>DLNA URL</th><td>$url</td></tr>
+<tr><th>Decryption method:</th><td>$method</td></tr>
 </table>
-"
-
-if {$url eq ""} {
-	puts "This file has not been indexed by the media server.
-	    Cannot decrypt."
-	puts "Have you enabled <i>Content Sharing</i> in the Humax menus?"
-	exit
-}
-
-if {![system is_listening 9000]} {
-	puts "The Humax media server is not running, cannot decrypt."
-	puts "Have you enabled <i>Content Sharing</i> in the Humax menus?"
-	puts "It can sometimes turn itself off so it's worth double checking."
-	puts "If it is on then try turning sharing off and on again."
-	exit
-}
-
-puts "
 
 <span class=hidden id=params
     dir=\"[cgi_quote_url $dir]\"
     file=\"[cgi_quote_url $rfile]\"
+    mode=\"$mode\"
 ></span>
 
-<div id=decryptdiv style=\"padding: 1em\">
+<div style=\"padding: 1em\">
+<span id=decryptdiv>
 <button id=decryptit>Perform decryption</button>
-</div>
+</span>
 <button id=back>Back to media list</button>
+</div>
 
 <div id=progressdiv class=hidden>
 Decrypting: <div id=progressbar></div>
 </div>
 
-
-<div id=output class=pre style=\"margin-top: 10px\"></div>
+<div id=output class=\"hidden pre\" style=\"margin-top: 10px\"></div>
 </fieldset>
-
 "
 
