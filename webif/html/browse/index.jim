@@ -401,6 +401,10 @@ if {$nicesplice} {
 }
 # Queue
 set queueactions(decrypt) "Decryption"
+if {$model ne "HD"} {
+	# For HDR, give slower option too.
+	dict set queueactions "decrypt -direct" "Decryption (direct, slower)"
+}
 set queueactions(shrink) "Shrink"
 dict set queueactions "mp3 -mp2" "Audio-Extraction (mp2, fast)"
 dict set queueactions "mp3 -mp3" "Audio-Extraction (mp3, slow)"

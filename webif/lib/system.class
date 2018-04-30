@@ -653,11 +653,15 @@ proc {system connectivity} {{site "hpkg.tv"} {port 80} {ret "0"}} {
 
 proc {system nuggeted} {} {
 	if {![system pkginst nugget]} { return 0 }
-	set ret 0
-	catch {
-		if {[exec /mod/bin/nugget ping] eq "PONG"} {
-			set ret 1
-		}
+	if {[system nugget ping] eq "PONG"} {
+		return 1
+	}
+	return 0
+}
+
+proc {system nugget} {args} {
+	if {[catch {set ret [exec /mod/bin/nugget {*}$args]} msg]} {
+		return ""
 	}
 	return $ret
 }

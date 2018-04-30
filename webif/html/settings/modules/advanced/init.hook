@@ -11,10 +11,35 @@ if {[cgi_get act] eq "xtelnet"} {
 	exit
 }
 
+if {[cgi_get act] eq "cryptokey"} {
+	set val [cgi_get cryptokey ""]
+	if {[string length "$val"] == 0} {
+		set val [system encryptionkey]
+		puts "Using native encryption key.<br>"
+	} elseif {[string length $val] != 32} {
+		puts "Encryption key is too short."
+		exit
+	}
+	file write "/mod/boot/cryptokey" [binary format H* $val]
+	system nugget cryptokey -init
+	puts "Installed new encryption key."
+	exit
+}
+
 set pkgdev [$settings pkgdev]
 set rtschedule [$settings rtschedule]
 set logsize [$settings logsize]
 set logkeep [$settings logkeep]
+
+set cryptokey [system encryptionkey]
+if {![catch {set ck_fd [open "/mod/boot/cryptokey"]}]} {
+	set ck_bytes [$ck_fd read 16]
+	$ck_fd close
+	binary scan $ck_bytes H* ck_key
+	if {[string length $ck_key] == 32} {
+		set cryptokey $ck_key
+	}
+}
 
 handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update rtschedule $rtschedule "Real-time scheduling"

@@ -31,9 +31,7 @@ foreach size $sizes {
 }
 puts "
 		</select>
-		<small>
-		<input value=\"set\" type=submit>
-		</small>
+		<small><input value=\"set\" type=submit></small>
 		<div id=logsize_output></div>
 		</td>
 	</form>
@@ -47,6 +45,36 @@ if {[system modversion 1] >= 214} {
 	setting_toggle "Disable telnet menu?" "xtelnet" \
 	    [file exists /mod/boot/xtelnet] 0 1
 }
+
+puts "
+	</table>
+	</fieldset>
+	<fieldset style=\"display: inline\">
+	<legend> Encryption Key </legend>
+	<table>
+	<tr><th class=key>
+		Native encryption key
+	</th><td>[system encryptionkey]</td></tr>
+	<tr>
+	<form class=auto id=cryptokey method=post action=$env(SCRIPT_NAME)>
+		<input type=hidden name=act value=cryptokey>
+		<th class=key>Custom encryption key</th>
+		<td><input name=cryptokey size=40 maxlength=32
+		    class=\"text ui-widget-content ui-corner-all\"
+		    value=\"$cryptokey\">
+			<small><input value=set type=submit></small>
+			<div id=cryptokey_output></div>
+		</td>
+	</form>
+	</tr><tr>
+		<td></td>
+		<td class=blood>
+			NB: For fastest direct decryption, set the second half
+			<br>
+			of the key to the same as the first half.
+		</td>
+	</tr>
+"
 
 puts "
 	</table>

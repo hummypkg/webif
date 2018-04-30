@@ -104,7 +104,26 @@ proc ::decrypt::dequeue {q ts} {
 		if {$helper} { system dlnahelper -release }
 	} else {
 		log "  Direct decryption" 0
-		if {[catch {exec /mod/bin/stripts -@@ "$rfile" "$tmp/[\
+		set keys {}
+		if {![catch {set fd [open "/mod/boot/cryptokey"]}]} {
+			set bytes [$fd read 16]
+			$fd close
+			binary scan $bytes H* key
+			if {[string length $key] == 32} {
+				lappend keys $key
+			}
+		}
+		lappend keys [string range [system nugget cryptokey -key] 0 31]
+		lappend keys [system encryptionkey]
+		foreach key $keys {
+			::auto::log "Testing key ($key)" 2
+			if {[catch {
+			    set ret [exec /mod/bin/stripts -q/ $key $rfile]
+			}]} continue
+			if {$ret eq "1"} break
+		}
+		::auto::log "Using key ($key)" 2
+		if {[catch {exec /mod/bin/stripts -@ $key $rfile "$tmp/[\
 		    file rootname $bfile]" } msg opts]} {
 			::auto::log "Decrypt error - $msg - $opts"
 			system endop decrypt
@@ -134,8 +153,7 @@ proc ::decrypt::dequeue {q ts} {
 		return {"DEFER" "Recording in use"}
 	}
 
-	# Copy the HMT file over for stripts - can be removed once
-	# stripts can work without a .hmt - XXX
+	# Copy the HMT file over for stripts
 	set thmt "$tmp/[file rootname $bfile].hmt"
 	if {![file exists $thmt]} { file copy "$rfile.hmt" $thmt }
 	# Check that the file is no longer encrypted by analysing it.

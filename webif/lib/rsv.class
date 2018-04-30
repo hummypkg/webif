@@ -101,9 +101,7 @@ proc {rsv dbhandle} {args} {
 alias {rsv cleanup} rsv dbhandle -close
 
 rsv method status {} {
-	set stat -1
-	catch {set stat [exec /mod/bin/nugget schedule.timers.status $ulslot]}
-	switch -- $stat {
+	switch -- [system nugget schedule.timers.status $ulslot] {
 		"0,0"	{ return "idle" }
 		"1,1"	{ return "ready" }
 		"2,1"	{ return "arwatch" }
@@ -1061,7 +1059,7 @@ proc {rsv restore} {file} {
 	puts "Restoring scheduled events from <i>$file</i>..."
 
 	# Disable RTS until next restart.
-	catch { exec /mod/bin/nugget quit }
+	system nugget quit
 
 	# Clear tables
 	foreach tab {TBL_RESERVATION pending skip} {
