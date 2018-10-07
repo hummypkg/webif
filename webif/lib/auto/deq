@@ -168,13 +168,23 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	# Try to run the first item in the queue.
 	set q [lindex $qq 0]
 	set plugin [$q get action]
+	set file [$q get file]
 
-	::auto::log "De-queuing [$q get id] - [$q get action] - [$q get file]" 0
+	::auto::log "De-queuing [$q get id] - [$q get action] - $file" 0
 
-	if {[catch {set ts [ts fetch [$q get file]]}] || $ts eq "0"} {
-		::auto::log "ts load failed." 0
-		$q update "FAILED" "Could not load .ts file" 1
-		continue
+	if {[string match {file://*} $file]} {
+		set arg [string range $file 7 end]
+		if {![file exists $arg]} {
+			::auto::log "file does not exist." 0
+			$q update "FAILED" "File does not exist" 1
+			continue
+		}
+	} else {
+		if {[catch {set arg [ts fetch $file]}] || $arg eq "0"} {
+			::auto::log "ts load failed." 0
+			$q update "FAILED" "Could not load .ts file" 1
+			continue
+		}
 	}
 
 	::auto::dsc
@@ -186,7 +196,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	set ::auto::logprefix "$plugin:$::auto::logprefix"
 
 	set st [clock milliseconds]
-	lassign [::auto::runplugin $plugin dequeue $q $ts] code msg next
+	lassign [::auto::runplugin $plugin dequeue $q $arg] code msg next
 	set ::auto::logprefix $ologprefix
 	set elapsed [::auto::elapsed $st]
 
@@ -200,7 +210,7 @@ for {set qq [::auto::pending]} {[llength $qq]} {set qq [::auto::pending]} {
 	    }
 	    "OK" {
 		$q update "COMPLETE" $msg 1 $elapsed
-		::auto::runplugins dequeued $plugin $q $ts
+		::auto::runplugins dequeued $plugin $q $arg
 	    }
 	    "DEFER" {
 		if {$next ne ""} { $q set start $next }
