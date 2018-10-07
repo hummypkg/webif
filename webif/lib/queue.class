@@ -17,6 +17,20 @@ class queue {
 	last		0
 }
 
+proc {queue key} {o} {
+	set type "string"
+	catch { set type [getref $o] }
+	switch -- $type {
+		ts	{ return [file normalize [$o get file]] }
+		default	{
+			if {[string first :// $o] != -1} {
+				return $o
+			}
+			return "file://$o"
+		}
+	}
+}
+
 # Queue status values:
 #	PENDING
 #	FAILED
@@ -119,21 +133,23 @@ proc {queue fetch} {file action} {
 	return {}
 }
 
-proc {queue insert} {args ts action} {
+proc {queue insert} {args file action} {
 	set db [queue dbhandle]
 
 	set status "PENDING"
 	if {"-hold" in $args} { set status "HOLD" }
 
+	set file [queue key $file]
+
 	$db query {
 		insert or ignore into queue(submitted, file, action, status)
 		values(%s, '%s', '%s', '%s')
-	} [clock seconds] [file normalize [$ts get file]] $action $status
+	} [clock seconds] $file $action $status
 
-	return [queue fetch [$ts get file] $action]
+	return [queue fetch $file $action]
 }
 
-proc {queue delete} {ts {action "*"}} {
+proc {queue delete} {file {action "*"}} {
 	set db [queue dbhandle]
 
 	set q "
@@ -145,7 +161,7 @@ proc {queue delete} {ts {action "*"}} {
 		append q " and action = '%s'"
 	}
 
-	$db query $q [file normalize [$ts get file]] $action
+	$db query $q [queue key $file] $action
 }
 
 proc {queue delete_by_id} {id} {
@@ -186,8 +202,8 @@ proc {queue hold} {id} {
 	$db query $q $id
 }
 
-proc {queue status} {ts} {
-	if {$ts eq "0"} { return "" }
+proc {queue status} {file} {
+	if {$file eq "0"} { return "" }
 
 	set db [queue dbhandle]
 
@@ -196,7 +212,7 @@ proc {queue status} {ts} {
 		from queue
 		where file = '%s'
 		and status not in ('COMPLETE', 'FAILED', 'HOLD')
-	} [file normalize [$ts get file]]]
+	} [queue key $file]]
 
 	set q ""
 	if {[llength $ret] == 1} {
@@ -205,8 +221,8 @@ proc {queue status} {ts} {
 	return $q
 }
 
-proc {queue check} {ts {q "any"}} {
-	set queues [split [queue status $ts] ,]
+proc {queue check} {file {q "any"}} {
+	set queues [split [queue status $file] ,]
 	if {$q eq "any" && [llength $queues]} {
 		return 1
 	}
