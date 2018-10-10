@@ -176,8 +176,13 @@ $('button.refresh').button({icons:{primary:"ui-icon-refresh"}})
 $('#queuetab').on('click', 'a.file', function(e) {
 	e.preventDefault();
 	file = $(this).html();
-	window.location = '/go/browse?dir=' +
-	    encodeURIComponent('{root}/' + dirname(file));
+	if (file.includes('file://'))
+		return;
+	else if (file.includes('://'))
+		window.location = file;
+	else
+		window.location = '/go/browse?dir=' +
+		    encodeURIComponent('{root}/' + dirname(file));
 });
 
 setInterval(load, 60000);

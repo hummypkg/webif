@@ -127,7 +127,7 @@ proc {queue fetch} {file action} {
 		select * from queue
 		where file = '%s'
 		and action = '%s'
-	} [file normalize $file] $action] {
+	} $file $action] {
 		return [queue new $row]
 	}
 	return {}
