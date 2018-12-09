@@ -1213,6 +1213,8 @@ proc {rsv restore} {file} {
 	)}
 
 	set grp 0
+	set inc 0
+	set lastidx 1
 	foreach line $data {
 		set vals [split $line "\t"]
 
@@ -1230,7 +1232,16 @@ proc {rsv restore} {file} {
 
 		lassign $vals x group type chan idx
 
-		if {$idx eq ""} { set idx 0 }
+		if {$idx eq ""} {
+			# This is to support old format backup files where
+			# the favourite index is not present.
+			set idx 0
+		} elseif {$idx eq "-"} {
+			set idx $lastidx
+			incr inc
+		}
+		set lastidx $idx
+		incr idx $inc
 
 		if {$grp != $group} {
 			set grp $group
