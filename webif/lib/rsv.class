@@ -1236,12 +1236,14 @@ proc {rsv restore} {file} {
 			# This is to support old format backup files where
 			# the favourite index is not present.
 			set idx 0
-		} elseif {$idx eq "-"} {
-			set idx $lastidx
-			incr inc
+		} else {
+			if {$idx eq "-"} {
+				set idx $lastidx
+				incr inc
+			}
+			set lastidx $idx
+			incr idx $inc
 		}
-		set lastidx $idx
-		incr idx $inc
 
 		if {$grp != $group} {
 			set grp $group
