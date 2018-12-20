@@ -66,6 +66,7 @@ proc get_data {} {
 	set ret {}
 	if {[catch {set data \
 	    [exec /mod/webif/lib/bin/lsof -X -Fns -p $pid]} msg]} {
+		debug "Error: $msg"
 		set ret {}
 	} else {
 		set size 0
@@ -99,6 +100,7 @@ proc get_data {} {
 						set ret($file) -1
 					}
 				} else  {
+					debug "$file = $size"
 					set ret($file) $size
 				}
 			    }
@@ -165,31 +167,17 @@ if {$type eq "full"} {
 }
 if {[llength $data]} {
 	debug " DATA: ($data)"
-	if {![file exists /tmp/.rractive]} {
+	if {[system nuggeted]} {
+		set recs [lmap i [split [system nugget recordings] "\n"] {
+			function "$i.ts"
+		}]
+		debug " RECS: $recs"
+		set rr 1
+	} else {
 		sleep 3
 		set ndata [get_data]
 		debug " NDATA: ($ndata)"
 		set rr 0
-	} else {
-		#sleep 1
-		set ndata [get_data]
-		debug " NDATA: ($ndata)"
-		foreach k [array names data] {
-			if {![dict exists $ndata $k]} {
-				dict unset data $k
-			}
-		}
-
-		set rr 1
-		set recs {}
-		loop i 0 2 {
-			catch {
-				set fd [open "/tmp/.rec$i" r]
-				lappend recs "[$fd read -nonewline].ts"
-				$fd close
-			}
-		}
-		debug " RECS: $recs"
 	}
 	foreach file [array names data] {
 		set bname [file rootname [file tail $file]]
