@@ -136,13 +136,15 @@ puts {
 
 source /mod/webif/html/log/_lib.jim
 foreach file [lsort -command logsort $loglist] {
+	set act clear
+	if {[string match {*.[0-9][0-9][0-9][0-9]*} $file]} { set act unlink }
 	puts "
 	    <img border=0 height=14 src=/images/421_1_00_CH_Title_2R_Arrow.png>
 	    <a href=\"../log/?log=[cgi_quote_url $file]\">
 	    	[file tail $file]
 	    </a>
 	    (<span class=lsize>[pretty_size [file size $file]]</span>)
-	    <a class=\"va footnote logclear\" href=# file=\"$file\">
+	    <a class=\"va footnote logclear\" act=$act href=# file=\"$file\">
 	    <img class=va border=0 src=/img/close.png width=20>Clear</a>
 	    <br>"
 }

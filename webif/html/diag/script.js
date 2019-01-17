@@ -85,12 +85,17 @@ $('a.logclear').on('click', function(e) {
 
 	var $t = $(this);
 	var file = $t.attr('file');
+	var act = $t.attr('act');
 
-	if (!confirm('Delete ' + file + '?'))
+	if (act == 'clear')
+		t = 'Truncate';
+	else
+		t = 'Delete';
+	if (!confirm(t + ' ' + file + '?'))
 		return;
 
 	chunked_request('Clearing log <i>' + file + '</i>',
-	    '/log/act.jim', { action: 'clear', file: file });
+	    '/log/act.jim', { action: act, file: file });
 });
 
 $.getJSON('/diag/rpc.jim?act=getall', function(data) {
