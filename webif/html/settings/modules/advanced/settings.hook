@@ -41,6 +41,9 @@ puts "
 setting_number logkeep "How many rotated logs to keep" $logkeep \
     1 100
 
+setting_number logage "Delete old logs after X days" $logage \
+    0 365
+
 if {[system modversion 1] >= 214} {
 	setting_toggle "Disable telnet menu?" "xtelnet" \
 	    [file exists /mod/boot/xtelnet] 0 1

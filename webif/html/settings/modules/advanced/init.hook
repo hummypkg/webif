@@ -30,6 +30,7 @@ set pkgdev [$settings pkgdev]
 set rtschedule [$settings rtschedule]
 set logsize [$settings logsize]
 set logkeep [$settings logkeep]
+set logage [$settings logage]
 
 set cryptokey [system encryptionkey]
 if {![catch {set ck_fd [open "/mod/boot/cryptokey"]}]} {
@@ -45,4 +46,5 @@ handle_int_update pkgdev $pkgdev "Development Package Display"
 handle_int_update rtschedule $rtschedule "Real-time scheduling"
 handle_int_update logsize $logsize "Log rotation size"
 handle_int_update logkeep $logkeep "Logs to keep"
+handle_int_update logage $logage "Rotated log max age"
 

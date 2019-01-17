@@ -49,6 +49,7 @@ class settings {
 	audiomp3	0
 	logsize		1048576
 	logkeep		2
+	logage		0
 	rtschedule	0
 }
 
@@ -411,6 +412,11 @@ settings method logkeep {{num -1}} {
 	if {$val == 0} {
 		return 2
 	}
+	return $val
+}
+
+settings method logage {{num -1}} {
+	set val [$self _nval_setting logage $num]
 	return $val
 }
 

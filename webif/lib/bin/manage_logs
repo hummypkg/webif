@@ -6,18 +6,19 @@ require settings.class
 set s [settings]
 set logsize [$s logsize]
 set logkeep [$s logkeep]
+set logage [$s logage]
 
-puts "Rotating at $logsize, keeping $logkeep"
+puts "Rotating at $logsize, keeping $logkeep, max age $logage"
 
 set logdir "/mod/tmp"
 set baselogs {}
 
 puts "\n-- Rotate\n"
 
+set tstamp [clock format [clock seconds] -format {%Y%m%d%H%M%S}]
 foreach log [glob -nocomplain -tail -directory $logdir *.log] {
 
 	puts "\[$log\]"
-	set tstamp [clock format [clock seconds] -format {%Y%m%d%H%M%S}]
 
 	# Check for old-style rotated log.
 	if {[string match {*_old.log} $log]} {
@@ -30,6 +31,15 @@ foreach log [glob -nocomplain -tail -directory $logdir *.log] {
 	# Check for already rotated log.
 	if {[regexp -- {\.[0-9]{14}\.log$} $log]} {
 		puts "    already rotated."
+		if {$logage > 0} {
+			set days $(
+			    ([clock seconds] - [file mtime $logdir/$log])
+			    / 86400)
+			if {$days > $logage} {
+				file tdelete "$logdir/$log"
+				puts "    Deleting old log $log (age=$days)"
+			}
+		}
 		continue
 	}
 
@@ -61,7 +71,7 @@ foreach log $baselogs {
 	if {$num <= $logkeep} continue
 
 	lmap i [lrange [lsort -command logsort $old] 0 end-$logkeep] {
-		puts "  Deleting old log $i"
+		puts "    Deleting old log $i"
 		file tdelete "$logdir/$i"
 	}
 }
