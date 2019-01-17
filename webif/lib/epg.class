@@ -461,6 +461,7 @@ proc {epg dbfetch} {mode args} {
 					) "
 				}
 				-fav {
+					set v $(1 << ($v - 1))
 					append from \
 					    "join TBL_FAV f using(hSvc) "
 					append q "and f.eFavGroup = $v "
@@ -515,7 +516,7 @@ proc {epg fetch} {mode args} {
 proc {epg favlist} {} {
 	global channeldb
 
-	set num [[settings] channel_group]
+	set num $(1 << ([[settings] channel_group] - 1))
 
 	if {!$num} { return "" }
 
