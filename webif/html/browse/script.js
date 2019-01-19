@@ -150,6 +150,22 @@ function new_folder_callback(data, status, xhr)
 	//console.log("Status: %s", status);
 	//console.dir(data);
 	$.each(data, set_folder_new);
+	// Flag folders with underscore items
+	$.getJSON('/browse/_dir.jim', {dir: dir}, __folder_callback);
+}
+
+function set_folder__(folder)
+{
+	folder = folder.replace(/ /g, '');
+	folder = folder.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+	//console.log("Folder: (%s)", folder);
+	$('#img' + folder + ' ~ span.folderu').show();
+}
+
+function __folder_callback(data, status, xhr)
+{
+	//console.dir(data);
+	$.each(data, set_folder__);
 }
 
 function delete_callback(file, dir, id)

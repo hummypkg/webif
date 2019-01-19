@@ -1,0 +1,21 @@
+#!/mod/bin/jimsh
+
+package require cgi
+package require pack
+source /mod/webif/lib/setup
+require json
+
+httpheader "application/json"
+
+set root [cgi_get dir]
+# Strip double slashes
+regsub -all -- {\/+} "$root/*" "/" root
+
+puts "{"
+foreach _ [glob -nocomplain "$root/_*"] {
+	set node [lindex [split [file dirname $_] /] end]
+	puts "\"[jescape $node]\": 1,"
+}
+puts "\"dummy\" : 0"
+puts "}"
+

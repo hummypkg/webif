@@ -43,6 +43,7 @@ if {$order eq "-"} {
 }
 
 set nofcount [$config nounwatchedcount]
+set nounderscore [$config nounderscore]
 
 set model [system model]
 set dustbin [system dustbin 1]
@@ -63,6 +64,7 @@ proc directory {file bfile tbfile} {
 	if {$bfile eq $::dustbin} { set img "/img/Dustbin_Folder.png" }
 	puts "<img border=0 class=va id=\"img$tbfile\" src=$img>"
 	if {!$::nofcount} { puts "<span class=foldernum></span>" }
+	if {!$::nounderscore} { puts "<span class=folderu>_</span>" }
 	puts "<input class=\"fs fsdir\" type=checkbox>"
 	puts "<a class=dbf
 	    href=\"$::env(SCRIPT_NAME)?dir=[cgi_quote_url $file]\"
