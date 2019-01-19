@@ -5,6 +5,7 @@ set nomobile [$settings nomobile]
 set nohelplinks [$settings nohelplinks]
 set notwitfeed [$settings notwitfeed]
 set nounwatchedcount [$settings nounwatchedcount]
+set nounderscore [$settings nounderscore]
 set hidevisualota [$settings hidevisualota]
 set chanchangenc [$settings chanchangenc]
 set audiomp3 [$settings audiomp3]
@@ -15,6 +16,7 @@ handle_int_update nomobile $nomobile "Disable mobile link"
 handle_int_update nohelplinks $nohelplinks "Disable help links"
 handle_int_update notwitfeed $notwitfeed "Disable twitter feed ticker"
 handle_int_update nounwatchedcount $nounwatchedcount "Disable unwatched count"
+handle_int_update nounderscore $nounderscore "Disable underscore count"
 handle_int_update hidevisualota $hidevisualota "Hide OTA from visual view"
 handle_int_update chanchangenc $chanchangenc \
     "Disable channel change confirmation"
