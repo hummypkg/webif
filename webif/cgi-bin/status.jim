@@ -167,7 +167,7 @@ if {$type eq "full"} {
 }
 if {[llength $data]} {
 	debug " DATA: ($data)"
-	if {[system nuggeted]} {
+	if {[system nuggeted] && ![file exists /mod/.nonuggetrecs]} {
 		set recs [lmap i [split [system nugget recordings] "\n"] {
 			function "$i.ts"
 		}]
