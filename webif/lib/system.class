@@ -707,19 +707,19 @@ proc {system usbmounts} {{full 0}} {
 		set num 0
 		catch {
 			set num [
-			    exec grep -cE {/media/([a-z-]+-)?drive} \
+			    exec grep -cE {^/dev/sd[a-z][1-9] /media/[^/]+ } \
 				/proc/mounts]
 		}
 		return $num
 	}
 	set ret {}
 	if {[catch {
-		set lines [exec grep -E {media/([a-z-]+-)?drive} \
+		set lines [exec grep -E {^/dev/sd[a-z][1-9] /media/[^/]+ } \
 		    /proc/mounts]
 	}]} { return $ret }
 	foreach line [split $lines "\n"] {
 		lassign $line dev mp
-		set rec "DEV $dev MP $mp LABEL {NO NAME} TYPE Unknown"
+		set rec "DEV {$dev} MP {$mp} LABEL {NO NAME} TYPE Unknown"
 
 		set rec(VENDOR) Unknown
 		set rec(MODEL) Unknown
