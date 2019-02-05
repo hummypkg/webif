@@ -12,3 +12,8 @@ proc lremove {var val} {
 	set v [lsearch -all -inline -not -exact $v $val]
 }
 
+# Returns the epoch time for midnight today
+proc midnight {} {
+	return $([clock seconds] / 86400 * 86400)
+}
+

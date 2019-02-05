@@ -1291,7 +1291,7 @@ proc {rsv allevents} {{xota 0}} {
 		lappend events {*}$pending
 	}
 
-	set today [clock scan 00:00:00 -format "%T"]
+	set today [midnight]
 
 	set xevents {}
 
