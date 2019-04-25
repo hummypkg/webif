@@ -43,13 +43,13 @@ puts "
 "
 foreach tw [$db query {
 		select tsIdx, szNetName, usTsID, ulFrequency, ucLevel,
-		ucQuality, eTransMode, eConstellation
+		ucQuality, eTransMode, eConstellation, eSystem
 		from TBL_TS join TBL_NET using (netIdx)
 		order by ulFrequency
 	}] {
 	lassign $tw \
 	    x tsIdx x netName x usTsID x ulFrequency x ucLevel x ucQuality \
-	    x eTransMode x eConstellation
+	    x eTransMode x eConstellation x eSystem
 
 	puts "
 		<tr class=odd>
@@ -82,10 +82,10 @@ foreach tw [$db query {
 		}
 	}
 	puts "<td>$mux</td>"
-	if {$eTransMode == 2} {
-		puts "<td>DVB-T (SD)</td>"
+	if {$eSystem == 0} {
+		puts "<td>DVB-T (SD;$eTransMode)</td>"
 	} else {
-		puts "<td class=blood>DVB-T2 (HD)</td>"
+		puts "<td class=blood>DVB-T2 (HD;$eTransMode)</td>"
 	}
 
 	puts "<td>[llength $channels]
