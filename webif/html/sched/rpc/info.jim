@@ -68,7 +68,7 @@ puts "
 	</tr>
 "
 
-set crid [join [lrange [split [$event get szCRID] /] 1 end]]
+set crid [join [lrange [split [$event get szCRID] /] 1 end] /]
 if {$crid != ""} {
 	puts "<tr><th>"
 	if {[$event isseries]} { puts "Series" } else { puts "Event" }
@@ -88,7 +88,7 @@ proc cridlist {events} {
 		set ev [string range $ev 1 end]
 		if {$flag} { puts "<br>" }
 		incr flag
-		set crid [join [lrange [split $ev /] 1 end]]
+		set crid [join [lrange [split $ev /] 1 end] /]
 		puts -nonewline "<a href=/cgi-bin/epg/search.jim?"
 		puts "crid=/$crid>
 		    <img border=0 src=/images/421_1_00_CH_Title_2R_Arrow.png
