@@ -12,8 +12,9 @@ proc lremove {var val} {
 	set v [lsearch -all -inline -not -exact $v $val]
 }
 
-# Returns the epoch time for midnight today
+# Returns the epoch time for midnight today, accounting for local timezone
 proc midnight {} {
-	return $([clock seconds] / 86400 * 86400)
+	#return $([clock seconds] / 86400 * 86400)
+	set day [clock scan "00:00:00" -format "%T"]
 }
 

@@ -26,12 +26,12 @@ proc lsum {l} {
 	expr [join $l +] + 0
 }
 
-proc pop_event {{debug 0}} {
+proc pop_event {} {
 	uplevel {
 		lassign [lindex $events $eindex] \
 		    start end hsvc eid slotid kind sclass
 		incr eindex
-		if {$debug > 1} {
+		if {$debug > 2} {
 			puts "
 			--------------------------------------------------
 			EVENT$eindex
@@ -72,7 +72,7 @@ foreach p $pending {
 	set elen [llength $events]
 	set eindex 0
 	while {$eindex < $elen} {
-		pop_event 1
+		pop_event
 
 		if {$slotid ne [$s get ulslot]} continue
 
@@ -80,10 +80,6 @@ foreach p $pending {
 		lset events $($eindex - 1) 6 $pendingclasses($action)
 	}
 }
-
-#foreach ev $events {
-#	puts $ev
-#}
 
 # Event array keys:
 #      0:      start
@@ -106,6 +102,23 @@ if {[llength $skip]} {
 
 # Sort final events array
 set events [lsort -index 0 -integer [lsort -index 2 -integer $events]]
+
+if {$debug} {
+	puts "<pre>"
+	foreach ev $events {
+		puts -nonewline $ev
+		lassign $ev start end hsvc eid slotid kind sclass
+		catch {
+			set s [rsv slot $sclass $slotid]
+			set shour [clock format $start -format "%H"]
+			set ehour [clock format $end -format "%H"]
+			set elapsed $($end - $start)
+			puts -nonewline "  = $shour,$ehour ($elapsed) - [$s name]"
+		}
+		puts ""
+	}
+	puts "</pre>"
+}
 
 ######################################################################
 # Visualisation functions
@@ -409,7 +422,7 @@ proc render_timeline {usedhours} {
 
 set usedhours [lrepeat 24 0]
 
-# Determine which hours are usde.
+# Determine which hours are used.
 foreach e $events {
 	lassign $e start end
 	set shour [clock format $start -format "%H"]
@@ -425,7 +438,7 @@ foreach e $events {
 }
 
 # To show 24 hours
-# set usedhours [lrepeat 24 1]
+#set usedhours [lrepeat 24 1]
 
 puts "
 <fieldset id=sched_timeline class=visual>
