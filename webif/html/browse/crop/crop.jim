@@ -4,8 +4,8 @@ package require cgi
 source /mod/webif/lib/setup
 require ts.class pretty_size
 
-jqplugin progressbar
-jscss crop.js
+jqplugin progressbar iphone-style-checkboxes
+jscss crop.js style.css
 header
 
 set rfile [cgi_get file]
@@ -23,13 +23,13 @@ puts "
 <tr><th>File:</th><td>$rfile</td></tr>
 <tr><th>Length:</th><td>[clock format $len -format \"%T\"]</td></tr>
 <tr><th>Size:</th><td>[pretty_size [$ts size]] ([$ts get definition])</td></tr>
-<tr><th>Bookmarks:</th><td>[$ts get bookmarks] @ "
+<tr><th>Bookmarks:</th><td id=originalbookmarks>[$ts get bookmarks] @ "
 
 puts [join [lmap i [$ts bookmarks 1] {
 	clock format $i -format "%T"
 }] ", "]
 
-puts "</td></tr><tr><th>File</th><td>"
+puts "</td></tr><tr><th>&nbsp;</th><td id=cutplan>"
 
 puts "<div style=\"position: relative; top: -10px\">"
 
@@ -48,14 +48,21 @@ append bookmarks [$ts bookmarks]
 set keeping 0
 set last 0
 set start -1
+set newbookmarks "0 "
+set cur 0
 foreach b $bookmarks {
 	if {$start < 0} {
+		# Start of a section to keep
 		set start $b
 		continue
 	}
+	# End of a section to keep
 	set end $b
 
-	incr keeping $($end - $start)
+	set l $($end - $start)
+	incr keeping $l
+	incr cur $l
+	append newbookmarks "[expr $cur + 3] "
 
 	set left $($start * 500 / $len)
 	set right $($end * 500 / $len)
@@ -69,12 +76,17 @@ foreach b $bookmarks {
 }
 
 if {$start > 0} {
+	# Still in a keep section...
 	incr keeping $($len - $start)
 	set left $($start * 500 / $len)
 	div cut $last $($left - 1)
 	div keep $left 500
 } else {
 	div cut $last 500
+}
+
+if {$cur > $keeping - 8 && $keeping - 8 > 0} {
+	set newbookmarks [lreplace $newbookmarks end end $($keeping - 8)]
 }
 
 set keepperc $($keeping * 100.0 / $len)
@@ -86,7 +98,23 @@ puts "
 </td></tr>
 <tr><th>Keeping:</th><td>
 [clock format $keeping -format "%T"] ([format "%.2f" $keepperc]%)
-</td></tr>
+</td></tr>"
+
+puts "
+<tr>
+<th title=\"Calculated bookmarks for edit points following crop.\">
+New Bookmarks:
+</th><td id=newbookmarks>
+<span id=bookmarks val=\"$newbookmarks\">
+$newbookmarks</span>&nbsp;&nbsp;&nbsp;&nbsp;(
+"
+puts [join [lmap i $newbookmarks {
+    clock format $i -format "%T"
+}] ", "]
+
+puts " )</td></tr>"
+
+puts "
 <tr><th>Time:</th>
 <td>Cropping will take around [clock format $esttime -format "%T"]</td></tr>
 </table>
@@ -98,10 +126,19 @@ puts "
 ></span>
 
 <div id=cropdiv style=\"padding: 1em\">
-<button id=invert invert=$invert>Invert selection</button>
-<button id=cropit>Perform crop operation</button>
+<table><tr>
+<td><button id=invert invert=$invert>Invert selection</button></td>
+<td><button id=cropit>Perform crop operation</button></td>
+<td>
+Save new bookmarks?
+<input id=saveit type=checkbox name=saveit checked>
+<label id=saveitlabel for=saveit>&nbsp;</label>
+</td>
+</tr></table>
 </div>
 <button id=back>Back to media list</button>
+<button id=save class=\"hidden\">Save New Bookmarks</button>
+<div id=results class=\"hidden blood\"></div>
 
 <div id=progressdiv class=hidden>
 Cropping: <div id=progressbar></div>
@@ -109,6 +146,5 @@ Cropping: <div id=progressbar></div>
 
 <div id=output class=\"hidden pre\" style=\"margin-top: 10px\"></div>
 </fieldset>
-
 "
 
