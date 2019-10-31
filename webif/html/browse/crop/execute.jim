@@ -68,6 +68,7 @@ system endop $token
 
 set newname "$shname-[clock seconds]"
 puts "Renaming file group to $newname"
+puts "<span class=hidden id=fileparams file=\"$dir/$newname.ts\"></span>"
 ts renamegroup "$dir/$shname.ts" $newname
 exec /mod/bin/hmt "+setfilename=$newname" "$dir/$newname.hmt"
 # New nicesplice shrinks whilst cropping.
