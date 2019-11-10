@@ -155,7 +155,10 @@ proc ::auto::pending {} {
 		set ba [$b get action]
 		if {$aa ni $::auto::plugins} { return 0 }
 		if {$ba ni $::auto::plugins} { return 0 }
-		return $($::auto::plugins($aa) - $::auto::plugins($ba))
+		set ap $::auto::plugins($aa)
+		set bp $::auto::plugins($ba)
+		if {$ap != $bp} { return $($ap - $bp) }
+		return $([$b get id] - [$a get id])
 	}] [queue pending]]
 }
 
