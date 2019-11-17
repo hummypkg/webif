@@ -14,7 +14,7 @@ if {[system inuse $rfile]} {
 	exit
 }
 
-set ts [ts fetch $rfile]
+set ts [ts fetch_or_error $rfile]
 set dir [file dirname $rfile]
 
 set len [$ts duration 1]

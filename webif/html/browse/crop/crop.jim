@@ -120,7 +120,7 @@ puts "
 </table>
 
 <span class=hidden id=params
-    file=\"[cgi_quote_url $rfile]\"
+    file=\"$rfile\"
     perc=\"$keepperc\"
     dir=\"[cgi_quote_url $dir]\"
 ></span>

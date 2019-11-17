@@ -243,6 +243,14 @@ ts method fileset {} {
 	return $fset
 }
 
+proc {ts fetch_or_error} {file {checked 0}}  {
+	if {[catch {set ts [ts fetch $file $checked]}] || $ts == 0} {
+		print "Could not load ts file $file"
+		return 0
+	}
+	return $ts
+}
+
 proc {ts fetch} {file {checked 0}} {
 	# Check that this is a .ts file which has at least one sidecar
 	# file (.hmt)
