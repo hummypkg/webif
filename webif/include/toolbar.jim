@@ -12,13 +12,13 @@ proc tb {icon txt link {height 50} {width 0}} {
 	} else {
 		set width ""
 	}
-	puts -nonewline "<span class=toolbarcell>
-	    <a href=\"$link\">
+	puts -nonewline "<a href=\"$link\">
+	    <span class=toolbarcell>
 		<img src=\"$icon\" height=${height}${width} border=0>
 		<br>
 		$txt
-	    </a>
-	  </span>
+	    </span>
+	  </a>
 	"
 }
 
