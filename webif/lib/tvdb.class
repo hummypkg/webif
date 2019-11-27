@@ -7,6 +7,7 @@ require system.class xml.class
 
 set ::tvdb::apikey 1764335F804A5A91
 set ::tvdb::mirror "thetvdb.com"
+set ::tvdb::artwork "artworks.thetvdb.com"
 set ::tvdb::cache "/mod/var/tvdb"
 set ::tvdb::icache "/mod/webif/cache/tvdb/img"
 set ::tvdb::cacheage 86400
@@ -51,23 +52,35 @@ tvdb method setseries {sid} {
 	set seriesid $sid
 }
 
-tvdb method _fetch {url} {
-	set f [socket stream "${::tvdb::mirror}:80"]
-	$f puts -nonewline "GET $url HTTP/1.0\r\n"
-	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
-	$f puts -nonewline "Connection: close\r\n"
-	$f puts -nonewline "\r\n"
+#tvdb method _fetch {url} {
+#	set f [socket stream "${::tvdb::mirror}:443"]
+#	$f ssl
+#	$f puts -nonewline "GET $url HTTP/1.1\r\n"
+#	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
+#	$f puts -nonewline "Connection: close\r\n"
+#	$f puts -nonewline "\r\n"
+#
+#	set line [string trim [$f gets]]
+#	while {[string length $line]} {
+#		#puts "Web Header: $line"
+#		set line [string trim [$f gets]]
+#	}
+#
+#	# Save the body
+#	set ret [$f read]
+#	$f close
+#	return $ret
+#}
 
-	set line [string trim [$f gets]]
-	while {[string length $line]} {
-		#puts "Web Header: $line"
-		set line [string trim [$f gets]]
-	}
-	
-	# Save the body
-	set ret [$f read]
-	$f close
-	return $ret
+proc {tvdb fetchfile} {url} {
+	set cmd {wget -q -4 -O-}
+	lappend cmd $url
+	::tvdb::dlog "Executing $cmd"
+	return [exec {*}$cmd]
+}
+
+tvdb method _fetch {path} {
+	return [tvdb fetchfile "https://$::tvdb::mirror$path"]
 }
 
 tvdb method _parse {xml vars {end "XX"}} {
@@ -157,7 +170,7 @@ tvdb method fetchseries {} {
 		puts $f [$self _fetch \
 		    "/api/$::tvdb::apikey/series/$seriesid/all/en.zip"]
 		$f close
-		catch {exec unzip -o -q "$base.zip" en.xml -d $::tvdb::cache}
+		catch {exec /mod/bin/unzip -o -q "$base.zip" en.xml -d $::tvdb::cache}
 		if {[file exists "$::tvdb::cache/en.xml"]} {
 			file rename "$::tvdb::cache/en.xml" $base.xml
 			# Extract episode info
@@ -388,30 +401,14 @@ proc {tvdb series} {series {sid 0}} {
 	return $t
 }
 
-proc {tvdb fetchfile} {url} {
-	set f [socket stream "${::tvdb::mirror}:80"]
-	$f puts -nonewline "GET $url HTTP/1.0\r\n"
-	$f puts -nonewline "Host: $::tvdb::mirror\r\n"
-	$f puts -nonewline "Connection: close\r\n"
-	$f puts -nonewline "\r\n"
-
-        # Skip headers in the response.
-        set line [string trim [$f gets]]
-        while {[string length $line]} {
-                #puts "Web Header: $line"
-                set line [string trim [$f gets]]
-        }
-
-        # Save the body
-        set ret [$f read]
-        $f close
-        return $ret
-}
-
 proc {tvdb cachebanner} {banner} {
+	if {![string match {/banners/*} $banner]} {
+		set _banner "/banners/$banner"
+	} else {
+		set _banner $banner
+	}
 	if {![file exists "$::tvdb::icache/$banner"]} {
-		set ret [tvdb fetchfile \
-		    "http://$::tvdb::mirror/banners/$banner"]
+		set ret [tvdb fetchfile "https://$::tvdb::artwork$_banner"]
 		if {[string length $ret] > 50} {
 			system mkdir_p "$::tvdb::icache/[file dirname $banner]"
 			file write "$::tvdb::icache/$banner" $ret
@@ -424,6 +421,6 @@ proc {tvdb bannerurl} {banner} {
 }
 
 proc {tvdb seriesurl} {seriesid} {
-	return "http://$::tvdb::mirror/?tab=series&id=$seriesid"
+	return "https://$::tvdb::mirror/?tab=series&id=$seriesid"
 }
 
