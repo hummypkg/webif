@@ -121,35 +121,39 @@ proc ::auto::buildflagdb {dir {active {}}} {{seen {}} {indent 0}} {
 	variable rootdev
 
 	incr indent 2
-	log "[string repeat " " $indent]\[$dir]" 3
+	set pre [string repeat " " $indent]
+
+	log "${pre}\[$dir]" 3
 
 	if {$dir eq $dustbin} {
-		log "[string repeat " " $indent]Dustbin, skipping." 3
+		log "${pre}Dustbin, skipping." 3
 		incr indent -2
 		return
 	}
 
-	file stat "$dir/" st
+	if {[catch {file stat "$dir/" st} msg]} {
+		log "${pre}Can't stat $dir - $msg, skipping.." 2
+		incr indent -2
+		return
+	}
 
 	if {[specialdir $dir]} {
 		# Special folder
 		if {$st(dev) != $rootdev} {
-			log "[string repeat " " $indent\
-			    ]Special folder on different device, skipping." 3
+			log "${pre}Special folder on different device, skipping." 3
 			incr indent -2
 			return
 		}
 		if {[llength $active]} {
 			set active {}
-			log "[string repeat " " $indent\
-			    ]Special folder, overriding recursion." 3
+			log "${pre}Special folder, overriding recursion." 3
 		}
 	}
 
 	# Already seen
 	set key "$st(dev):$st(ino)"
 	if {$key in $seen} {
-		log "[string repeat " " $indent]Already seen, skipping." 3
+		log "${pre}Already seen, skipping." 3
 		incr indent -2
 		return
 	}
@@ -181,7 +185,7 @@ proc ::auto::buildflagdb {dir {active {}}} {{seen {}} {indent 0}} {
 
 	if {[llength $flags]} {
 		lappend flagdb $dir $flags
-		log "[string repeat " " $indent]    $flags" 3
+		log "${pre}    $flags" 3
 		foreach f $flags { ladd activeflags $f }
 	}
 

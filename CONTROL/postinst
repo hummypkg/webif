@@ -21,8 +21,8 @@ if [ -x $crontab ]; then
 	$crontab -l | grep -v webif/lib/bin/auto \
 	    | grep -v webif/lib/auto > $tmpf
 	cat $tmpf - << EOM | $crontab -
-* * * * * /mod/webif/lib/auto/scan >/dev/null 2>&1
-* * * * * /mod/webif/lib/auto/deq >/dev/null 2>&1
+* * * * * /mod/webif/lib/auto/scan >/dev/null 2>>/mod/tmp/auto.log
+* * * * * /mod/webif/lib/auto/deq >/dev/null 2>>/mod/tmp/auto.log
 EOM
 fi
 
