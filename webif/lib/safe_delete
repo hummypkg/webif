@@ -36,6 +36,13 @@ if {![exists -proc _del_bindir]} {
 			set dustbin 0
 		}
 
+		# Check if files are on same device as mediaroot
+		set dir [system mediaroot]
+		file stat "$dir/" rootstat
+		set rootdev $rootstat(dev)
+		file stat $file st
+		if {$st(dev) != $rootdev} {set dustbin 0}
+
 		# Directory
 
 		if {[file isdirectory $file]} {
