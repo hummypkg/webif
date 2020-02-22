@@ -12,7 +12,10 @@ set dlen [string length "$dir/"]
 #9.4G	/media/My Video/Archive
 #1.4G	/media/My Video/CSI_ Crime Scene Investigation
 puts "{"
-foreach line [split [exec /mod/bin/busybox/du -h -l -d 1 "$dir/"] "\n"] {
+if {[catch {exec /mod/bin/busybox/du -h -l -d 1 "$dir/"}  dutxt]} {
+	set dutxt ""
+}
+foreach line [split $dutxt "\n"] {
 	lassign [split $line "\t"] size node
 	set node [string range $node $dlen end]
 	if {[string length $node]} {
@@ -28,7 +31,10 @@ foreach file [readdir $dir] {
 	if {![string match "/*" $lk]} { set lk "$dir/$lk" }
 
 	if {![file isdirectory $lk]} continue
-	foreach line [split [exec /mod/bin/busybox/du -h "$lk"] "\n"] {
+	if {[catch {exec /mod/bin/busybox/du -h "$lk"}  dutxt]} {
+		set dutxt ""
+	}
+	foreach line [split $dutxt "\n"] {
 		set fields [split $line "\t"]
 		if {[lindex $fields 1] eq $lk} {
 			set node [file tail $file]
@@ -38,7 +44,10 @@ foreach file [readdir $dir] {
 	}
 }
 
-lassign [split [exec /mod/bin/busybox/du -hs "$dir/"]] total
+if {[catch {exec /mod/bin/busybox/du -hs "$dir/"}  dutxt]} {
+	set dutxt "N/A"
+}
+lassign [split $dutxt] total
 puts "\"\": \"$total\""
 
 puts "}"
